@@ -1,0 +1,79 @@
+@import url('https://fonts.googleapis.com/css2?family=Kodchasan:wght@600&family=Mali:wght@500&display=swap');
+body {
+  background: whitesmoke;
+  margin: 0; /* Reset default margin */
+  font-family: 'Mali', cursive;
+}
+
+.menu-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+  vertical-align: text-top;
+}
+
+.menu-link {
+  text-decoration: none; /* Hide underline */
+}
+
+.root-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  height: auto;
+  width: 100vw;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80vw;
+  margin-top: 2vh;
+}
+
+.container-header {
+  margin-bottom: auto;
+  margin-right: auto;
+  margin-top: 2vh;
+  margin-bottom: 3vh;
+}
+
+.container-content {
+  margin-bottom: 1em;
+  width: 100%;
+}
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.login-greeting {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+.login-greeting p {
+  color: gray;
+}
+
+.logo-container {
+  justify-content: center;
+}
+
+.istar-logo {
+  width: 200px;
+}
+
+.link-footer {
+  display: flex;
+  justify-content: left;
+  margin-top: 50px;
+  margin-bottom: 20px;
+}
