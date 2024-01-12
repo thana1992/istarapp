@@ -32,6 +32,6 @@ const vuetify = createVuetify({
   
 const app = createApp(App)
 app.provide('$http', axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: 'http://192.168.1.59:3000',
 }));
 app.component('font-awesome-icon', FontAwesomeIcon).component('VueDatePicker', VueDatePicker).use(router).use(vuetify).mount('#app')

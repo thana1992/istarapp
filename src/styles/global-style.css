@@ -42,7 +42,8 @@ body {
 
 .container-content {
   margin-bottom: 1em;
-  width: 100%;
+  width: 80vw;
+
 }
 
 .login-form {

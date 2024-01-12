@@ -9,11 +9,10 @@
             <h3 class="group-header">Family</h3>
             <v-divider class="border-opacity-100" color="info" length="35vw" thickness="3"></v-divider>
             <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
-        
             <v-table class="family-list">
                 <tbody>
                 <tr
-                    v-for="item in family"
+                    v-for="item in userdetail"
                     :key="item.name"
                     style="cursor: pointer;"
                     class="tr-rows"
@@ -28,7 +27,7 @@
                         ></v-img>
                     </td>
                     <td>{{ item.name }}</td>
-                    <td>{{ item.course }}</td>
+                    <td>{{ item.course_type }}</td>
                 </tr>
                 </tbody>
             </v-table>
@@ -38,8 +37,8 @@
                 <v-divider class="border-opacity-100" color="info" length="35vw" thickness="3"></v-divider>
                 <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
                 <div class="information">
-                    <Transition v-for="item in family">
-                        <div v-if="showid==item.id">
+                    <Transition v-for="item in userdetail">
+                        <div v-if="userdetail.indexOf(item)==showidx">
                             <div class="info-photo" >
                                 <v-img
                                     :src="item.photo"
@@ -51,7 +50,8 @@
                             <div class="info-detail">
                                 <p>{{ item.name }} ({{ item.nickname }})</p>
                                 <p>เพศ {{ item.gender }} อายุ {{ item.age }} ปี</p>
-                                <p>Course {{ item.course }} เหลือ {{ item.remaining }} ครั้ง</p>
+                                <p>Course {{ item.course_type }} </p>
+                                <p>เหลือ {{ item.course_remaining }} ครั้ง</p>
                             </div>
                         </div>
                     </Transition>
@@ -65,7 +65,7 @@
                 <v-divider class="border-opacity-100" color="info" length="35vw" thickness="3"></v-divider>
                 <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
                 
-                <Transition v-for="item in family">
+                <Transition v-for="item in userdetail">
                     <!-- <div v-if="showid==item.id">
                         <v-data-table-virtual
                             :headers="headers"
@@ -74,7 +74,7 @@
                             height="300"
                         />
                     </div> -->
-                    <v-table v-if="showid==item.id" class="family-list">
+                    <v-table v-if="userdetail.indexOf(item)==showidx" class="family-list">
                         <thead>
                             <tr>
                                 <th class="text-left">No.</th>
@@ -104,17 +104,26 @@
 
 <script>
 import { VBottomNavigation, VBottomSheet } from 'vuetify/lib/components/index.mjs'
+import { ref, computed, onMounted, inject } from 'vue';
 import Reservations from './Reservation.vue'
+
 export default {
+    setup() {
+        const isAuthenticated = computed(() => !!localStorage.getItem('token'));
+        console.log(isAuthenticated.value)
+
+        return { isAuthenticated };
+    },
     components: {
         VBottomNavigation,
         VBottomSheet,
         Reservations
     },
     methods: {
-        selectChild(info) {
-            this.showid = info.id
-            this.personSelected = info
+        selectChild(person) {
+            console.log(this.userdetail.indexOf(person))
+            this.showidx = this.userdetail.indexOf(person)
+            this.personSelected = person
         },
         doReservation() {
             //this.$router.push({ name:'reservation', params: { people: { name:this.info_name }} })
@@ -126,15 +135,36 @@ export default {
             
             this.$emit('onClickChangeState', this.personSelected)
             this.$emit('onClickBack', 'family')
-        }
-    },
-    computed: {
-        virtualFamily(rows) {
-            return [...Array(3).keys()].map(i => {
-                const family = { ...this.family[i % this.family.length] };
-                return family;
-            });
         },
+        async getUserFamily() {
+            const $http = inject('$http', null);
+            try {
+            if (!$http) {
+                console.error('Axios instance not found. Make sure it is provided in main.js.');
+                this.$emit("onErrorHandler", "Client Error")
+                return;
+            }
+            const token = localStorage.getItem('token');
+            console.log('getUserFamily Token : ', token);
+            if(token == null) {
+                this.$emit("onErrorHandler", "invalid token please login again")
+            }
+            
+            const requestOptions = {
+                method: 'GET',
+                headers: { 'Authorization': token },
+            };
+
+
+            const response = await $http.post('/getUser', null, requestOptions);
+            console.log(response.data.user)
+            console.log("getUserFamily : " , response.data.user.family);
+            this.userdetail = response.data.user.family;
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+                this.$emit("onErrorHandler", error.message)
+            }
+        }
     },
     props: {
         person: {
@@ -142,137 +172,140 @@ export default {
             default: null,
         },
     },
-    created() {
-        if(this.person != null) {
-            this.showid = this.person.id
-            this.personSelected = this.person
-        }
+    async created() {
+        await this.getUserFamily()
+        
+        // if(this.person != null) {
+        //     this.showidx = this.userdetail.indexOf(this.person)+1
+        //     this.personSelected = this.person
+        //     selectChild(this.userdetail[this.showidx])
+        // }
+        
     },
     data() {
         return {
+            userdetail: null,
             personSelected: null,
-            showid: 0,
+            showidx: null,
             clickReservation: false,
             headers: [
                 { title: 'No.', align:'start', key: 'no' },
                 { title: 'Date', align:'start', key: 'classdate' },
                 { title: 'Class Time', align:'start', key: 'classtime' },
             ],
-            reservation: [],
-
-            family: [
-                {
-                    id: 1,
-                    photo: 'https://cdn4.iconfinder.com/data/icons/avatars-xmas-giveaway/128/boy_person_avatar_kid-512.png',
-                    name: 'มณัญฌญา จันทราพรไพลิน',
-                    nickname: 'ไอซ์',
-                    gender: 'หญิง',
-                    age: '10',
-                    course: 'iStar',
-                    remaining: 1,
-                    reservation: [
-                        {
-                            no: 1,
-                            classdate: '2023-12-21',
-                            classtime: '10:00-11:30',
-                        }
-                    ]
-                },
-                {
-                    id: 2,
-                    photo: 'https://cdn4.iconfinder.com/data/icons/avatars-xmas-giveaway/128/boy_person_avatar_kid-512.png',
-                    name: 'ธนา ผโลดม',
-                    nickname: 'บุช',
-                    gender: 'ชาย',
-                    age: '12',
-                    course: 'G.A.',
-                    remaining: 2,
-                    reservation: [
-                        {
-                            no: 1,
-                            classdate: '2023-12-22',
-                            classtime: '10:00-11:30',
-                        },
-                        {
-                            no: 2,
-                            classdate: '2023-12-23',
-                            classtime: '10:00-11:30',
-                        }
-                    ]
-                },
-                {
-                    id: 3,
-                    photo: 'https://cdn4.iconfinder.com/data/icons/avatars-xmas-giveaway/128/indian_native_boy_kid-512.png',
-                    name: 'ธนภรณ์ อุทัยศรี',
-                    nickname: 'อีฟ',
-                    gender: 'หญิง',
-                    age: '11',
-                    course: 'G.A.',
-                    remaining: 3,
-                    reservation: [
-                        {
-                            no: 1,
-                            classdate: '2024-01-03',
-                            classtime: '09:00-10:30',
-                        },
-                        {
-                            no: 2,
-                            classdate: '2024-01-04',
-                            classtime: '14:00-15:30',
-                        },
-                        {
-                            no: 3,
-                            classdate: '2024-01-05',
-                            classtime: '09:00-10:30',
-                        },
-                        {
-                            no: 4,
-                            classdate: '2024-01-06',
-                            classtime: '09:00-10:30',
-                        },
-                        {
-                            no: 5,
-                            classdate: '2024-01-07',
-                            classtime: '14:00-15:30',
-                        },
-                        {
-                            no: 6,
-                            classdate: '2024-01-08',
-                            classtime: '09:00-10:30',
-                        },
-                        {
-                            no: 7,
-                            classdate: '2024-01-09',
-                            classtime: '09:00-10:30',
-                        },
-                        {
-                            no: 8,
-                            classdate: '2024-01-10',
-                            classtime: '14:00-15:30',
-                        },
-                        {
-                            no: 9,
-                            classdate: '2024-01-11',
-                            classtime: '09:00-10:30',
-                        },
-                        {
-                            no: 10,
-                            classdate: '2024-01-13',
-                            classtime: '09:00-10:30',
-                        },
-                        {
-                            no: 11,
-                            classdate: '2024-01-14',
-                            classtime: '14:00-15:30',
-                        },
-                        {
-                            no: 12,
-                            classdate: '2024-01-15',
-                            classtime: '09:00-10:30',
-                        }
-                    ]
-                },
-            ],
+            // family: [
+            //     {
+            //         id: 1,
+            //         photo: 'https://cdn4.iconfinder.com/data/icons/avatars-xmas-giveaway/128/boy_person_avatar_kid-512.png',
+            //         name: 'มณัญฌญา จันทราพรไพลิน',
+            //         nickname: 'ไอซ์',
+            //         gender: 'หญิง',
+            //         age: '10',
+            //         course_type: 'iStar',
+            //         course_remaining: 1,
+            //         reservation: [
+            //             {
+            //                 no: 1,
+            //                 classdate: '2023-12-21',
+            //                 classtime: '10:00-11:30',
+            //             }
+            //         ]
+            //     },
+            //     {
+            //         id: 2,
+            //         photo: 'https://cdn4.iconfinder.com/data/icons/avatars-xmas-giveaway/128/boy_person_avatar_kid-512.png',
+            //         name: 'ธนา ผโลดม',
+            //         nickname: 'บุช',
+            //         gender: 'ชาย',
+            //         age: '12',
+            //         course_type: 'G.A.',
+            //         course_remaining: 2,
+            //         reservation: [
+            //             {
+            //                 no: 1,
+            //                 classdate: '2023-12-22',
+            //                 classtime: '10:00-11:30',
+            //             },
+            //             {
+            //                 no: 2,
+            //                 classdate: '2023-12-23',
+            //                 classtime: '10:00-11:30',
+            //             }
+            //         ]
+            //     },
+            //     {
+            //         id: 3,
+            //         photo: 'https://cdn4.iconfinder.com/data/icons/avatars-xmas-giveaway/128/indian_native_boy_kid-512.png',
+            //         name: 'ธนภรณ์ อุทัยศรี',
+            //         nickname: 'อีฟ',
+            //         gender: 'หญิง',
+            //         age: '11',
+            //         course_type: 'G.A.',
+            //         course_remaining: 3,
+            //         reservation: [
+            //             {
+            //                 no: 1,
+            //                 classdate: '2024-01-03',
+            //                 classtime: '09:00-10:30',
+            //             },
+            //             {
+            //                 no: 2,
+            //                 classdate: '2024-01-04',
+            //                 classtime: '14:00-15:30',
+            //             },
+            //             {
+            //                 no: 3,
+            //                 classdate: '2024-01-05',
+            //                 classtime: '09:00-10:30',
+            //             },
+            //             {
+            //                 no: 4,
+            //                 classdate: '2024-01-06',
+            //                 classtime: '09:00-10:30',
+            //             },
+            //             {
+            //                 no: 5,
+            //                 classdate: '2024-01-07',
+            //                 classtime: '14:00-15:30',
+            //             },
+            //             {
+            //                 no: 6,
+            //                 classdate: '2024-01-08',
+            //                 classtime: '09:00-10:30',
+            //             },
+            //             {
+            //                 no: 7,
+            //                 classdate: '2024-01-09',
+            //                 classtime: '09:00-10:30',
+            //             },
+            //             {
+            //                 no: 8,
+            //                 classdate: '2024-01-10',
+            //                 classtime: '14:00-15:30',
+            //             },
+            //             {
+            //                 no: 9,
+            //                 classdate: '2024-01-11',
+            //                 classtime: '09:00-10:30',
+            //             },
+            //             {
+            //                 no: 10,
+            //                 classdate: '2024-01-13',
+            //                 classtime: '09:00-10:30',
+            //             },
+            //             {
+            //                 no: 11,
+            //                 classdate: '2024-01-14',
+            //                 classtime: '14:00-15:30',
+            //             },
+            //             {
+            //                 no: 12,
+            //                 classdate: '2024-01-15',
+            //                 classtime: '09:00-10:30',
+            //             }
+            //         ]
+            //     },
+            // ],
         };
     },
 }

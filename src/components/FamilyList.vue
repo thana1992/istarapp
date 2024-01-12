@@ -1,45 +1,54 @@
 <template>
-    <div v-if="!isAddFamily">
-        <div class="container">
-            <div class="container-header">
-                <h1><span class="mdi mdi-account-multiple"></span> Family</h1>
+    <div v-if="isAuthenticated">
+        <div v-if="!isAddFamily">
+            <div class="container">
+                <div class="container-header">
+                    <h1><span class="mdi mdi-account-multiple"></span> Family</h1>
+                </div>
+                <div class="container-content">
+                    <h3 class="group-header">Family list
+                        <span class="mdi mdi-account-multiple-plus btn-add" @click="ChangeStateFamily('add')"></span>
+                    </h3>
+                    <v-divider class="border-opacity-100" color="info" length="35vw" thickness="3"></v-divider>
+                    <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
+                    <v-table class="family-list">
+                    <tbody>
+                    <tr
+                        v-for="people in family"
+                        :key="people.name"
+                        style="cursor: pointer;"
+                        class="tr-rows"
+                    >
+                        <td>
+                            <v-img
+                                :src="people.photo"
+                                cover
+                                class="pa-4 bg-secondary rounded-circle d-inline-block"
+                                style="display: flex !important;"
+                            ></v-img>
+                        </td>
+                        <td>{{ people.name }}</td>
+                        <td><span class="mdi mdi-delete-forever" style="font-size: 7vw;" @click="deleteFamily(people)"></span></td>
+                    </tr>
+                    </tbody>
+                </v-table>
+                </div>
             </div>
-            <div class="container-content">
-                <h3 class="group-header">Family list
-                    <span class="mdi mdi-account-multiple-plus btn-add" @click="ChangeStateFamily('add')"></span>
-                </h3>
-                <v-divider class="border-opacity-100" color="info" length="35vw" thickness="3"></v-divider>
-                <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
-                <v-table class="family-list">
-                <tbody>
-                <tr
-                    v-for="people in family"
-                    :key="people.name"
-                    style="cursor: pointer;"
-                    class="tr-rows"
-                >
-                    <td>
-                        <v-img
-                            :src="people.photo"
-                            cover
-                            class="pa-4 bg-secondary rounded-circle d-inline-block"
-                            style="display: flex !important;"
-                        ></v-img>
-                    </td>
-                    <td>{{ people.name }}</td>
-                    <td><span class="mdi mdi-delete-forever" style="font-size: 7vw;" @click="deleteFamily(people)"></span></td>
-                </tr>
-                </tbody>
-            </v-table>
-            </div>
+        </div>
+        <div v-else>
+            <AddFamily @onClickChangeState="ChangeStateFamily($event)"></AddFamily>
         </div>
     </div>
     <div v-else>
-        <AddFamily @onClickChangeState="ChangeStateFamily($event)"></AddFamily>
+    <div class="container">
+        <img src="../assets/logo/logo-2.png" alt="iStar Logo" class="istar-logo">
+        <p>Please log in to access this page.</p>
+        </div>
     </div>
 </template>
 
 <script>
+import { ref, computed, onMounted, inject } from 'vue';
 import AddFamily from './AddFamily.vue'
 export default {
     components: {
@@ -110,7 +119,13 @@ export default {
         deleteFamily(people) {
             alert("delete : " + people.name)
         }
-    }
+    },
+    setup() {
+    const isAuthenticated = computed(() => !!localStorage.getItem('token'));
+    console.log(isAuthenticated.value)
+
+    return { isAuthenticated };
+  },
 
 }
 </script>
