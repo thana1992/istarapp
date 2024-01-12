@@ -9,8 +9,17 @@
             <v-form ref="form">
                 <v-text-field
                 variant="solo-filled"
-                v-model="fullname"
-                label="Full Name"
+                v-model="firstname"
+                label="First Name"
+                type="text"
+                :rules="nameRules"
+                required
+                ></v-text-field>
+
+                <v-text-field
+                variant="solo-filled"
+                v-model="lastname"
+                label="Last Name"
                 type="text"
                 :rules="nameRules"
                 required
@@ -33,16 +42,16 @@
                 required
                 ></v-select>
 
-                <DatePicker
+                <DatePicker 
                 label="Date of Birth"
-                v-model="date"
+                v-model="dateofbirth"
                 ></DatePicker>
 
                 <v-btn
                     color="success"
                     class="mt-4"
                     block
-                    @click="validate"
+                    @click="doSave"
                 >
                     Add
                 </v-btn>
@@ -62,17 +71,20 @@
 
 <script>
 import { VBottomNavigation, VBottomSheet } from 'vuetify/lib/components/index.mjs'
+import axios from 'axios'
 import DatePicker from '@/components/DatePicker.vue'
-
+import moment from 'moment'
 export default {
     components: {
         DatePicker,
     },
     data: () => ({
         date: null,
-        fullname: '',
+        firstname: '',
+        lastname: '',
         nickname: '',
         gender: '',
+        dateofbirth: null,
         format: 'dddd MMMM Do, YYYY',
         nameRules: [
             v => !!v || 'Username is required',
@@ -82,18 +94,52 @@ export default {
         ]
     }),
     methods: {
-        save (date) {
-            this.$refs.menudate.save(date)
+        async doSave (date) {
+            const { valid } = await this.$refs.form.validate()
+            if (valid) {
+
+            const userdata = localStorage.getItem('userdata')
+            const user = JSON.parse(userdata)
+
+            // Make API request to register the user
+            axios
+                .post('http://localhost:3000/addFamilyMember', {
+                firstname: this.firstname,
+                lastname: this.lastname,
+                nickname: this.nickname,
+                gender: this.gender,
+                dateofbirth: this.format_date(this.dateofbirth),
+                familyid: user.familyid,
+                remaining: 0,
+                })
+                .then(response => {
+                if (response.data.success) {
+                    this.$emit('onInfoHandler', 'Add Family Member Successful');
+                    this.$emit('onBlackToFamilylist')
+                } else {
+                    alert(response.data.message || 'Registration failed');
+                }
+                })
+                .catch(error => {
+                console.error(error);
+                alert(error.message)
+                });
+            }
         },
         async validate () {
             const { valid } = await this.$refs.form.validate()
-            .$emit('onClickChangeState', 'list')
+            this.$emit('onClickChangeState', 'list')
         },
         reset () {
             this.$refs.form.reset()
         },
         resetValidation () {
             this.$refs.form.resetValidation()
+        },
+        format_date(value){
+         if (value) {
+           return moment(String(value)).format('YYYYMMDD')
+          }
         },
     },
 }

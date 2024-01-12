@@ -1,5 +1,5 @@
 <template>
-    <v-menu v-model="isMenuOpen" :close-on-content-click="true">
+    <v-menu v-model="isMenuOpen" :close-on-content-click="false">
       <template v-slot:activator="{ props }">
         <v-text-field
           :label="label"
@@ -10,7 +10,7 @@
           hide-details
         ></v-text-field>
       </template>
-      <v-date-picker v-model="selectedDate" hide-actions title="" :color="color">
+      <v-date-picker ref="picker" v-model="selectedDate" hide-actions title="" :color="color">
         <template v-slot:header></template>
       </v-date-picker>
     </v-menu>
@@ -38,7 +38,9 @@
   });
   
   watch(selectedDate, (newDate) => {
+    
     emit("update:modelValue", newDate);
+    isMenuOpen.value = false;
   });
   </script>
   <style>

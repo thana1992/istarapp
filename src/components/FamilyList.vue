@@ -1,5 +1,5 @@
 <template>
-    <div v-if="isAuthenticated">
+    <div>
         <div v-if="!isAddFamily">
             <div class="container">
                 <div class="container-header">
@@ -15,19 +15,20 @@
                     <tbody>
                     <tr
                         v-for="people in family"
-                        :key="people.name"
+                        :key="people.childid"
                         style="cursor: pointer;"
                         class="tr-rows"
                     >
                         <td>
                             <v-img
+                                v-if="people.photo"
                                 :src="people.photo"
                                 cover
                                 class="pa-4 bg-secondary rounded-circle d-inline-block"
                                 style="display: flex !important;"
                             ></v-img>
                         </td>
-                        <td>{{ people.name }}</td>
+                        <td>{{ people.firstname + ' ' + people.lastname }}</td>
                         <td><span class="mdi mdi-delete-forever" style="font-size: 7vw;" @click="deleteFamily(people)"></span></td>
                     </tr>
                     </tbody>
@@ -36,20 +37,27 @@
             </div>
         </div>
         <div v-else>
-            <AddFamily @onClickChangeState="ChangeStateFamily($event)"></AddFamily>
+            <AddFamily 
+            @onClickChangeState="ChangeStateFamily($event)"
+            @onBlackToFamilylist="ChangeStateFamily('list')"
+            @onErrorHandler="onError($event)"
+            @onInfoHandler="onShowInfoDialog($event)"
+            ></AddFamily>
         </div>
     </div>
-    <div v-else>
+    <!-- <div v-else>
     <div class="container">
         <img src="../assets/logo/logo-2.png" alt="iStar Logo" class="istar-logo">
         <p>Please log in to access this page.</p>
         </div>
-    </div>
+    </div> -->
 </template>
 
 <script>
+import tokenService from '@/services/tokenService';
 import { ref, computed, onMounted, inject } from 'vue';
 import AddFamily from './AddFamily.vue'
+import axios from 'axios';
 export default {
     components: {
         AddFamily,
@@ -59,49 +67,39 @@ export default {
             isAddFamily: false,
             family: [
                 {
+                    childid: 1,
+                    familyid: 1,
                     photo: 'https://as1.ftcdn.net/v2/jpg/01/16/24/44/1000_F_116244459_pywR1e0T3H7FPk3LTMjG6jsL3UchDpht.jpg',
-                    name: 'มณัญฌญา จันทราพรไพลิน',
+                    firstname: 'มณัญฌญา',
+                    lastname: 'จันทราพรไพลิน',
                     nickname: 'ไอซ์',
                     gender: 'หญิง',
                     age: '10',
-                    course: 'iStar',
-                    remaining: 1,
-                    reservation: [
-                        {
-                            no: 1,
-                            classdate: '2023-12-21',
-                            classtime: '10:00-11:30',
-                        }
-                    ]
+                    coursename: 'iStar',
+                    remaining: 1
                 },
                 {
+                    childid: 2,
+                    familyid: 1,
                     photo: 'https://creazilla-store.fra1.digitaloceanspaces.com/icons/7912642/avatar-icon-md.png',
-                    name: 'ธนา ผโลดม',
+                    firstname: 'ธนา',
+                    lastname: 'ผโลดม',
                     nickname: 'บุช',
                     gender: 'ชาย',
                     age: '12',
-                    course: 'G.A.',
-                    remaining: 2,
-                    reservation: [
-                        {
-                            no: 1,
-                            classdate: '2023-12-22',
-                            classtime: '10:00-11:30',
-                        },
-                        {
-                            no: 2,
-                            classdate: '2023-12-23',
-                            classtime: '10:00-11:30',
-                        }
-                    ]
+                    coursename: 'G.A.',
+                    remaining: 2
                 },
                 {
+                    childid: 3,
+                    familyid: 1,
                     photo: 'https://cdn.icon-icons.com/icons2/2643/PNG/512/female_woman_person_people_avatar_icon_159366.png',
-                    name: 'ธนภรณ์ อุทัยศรี',
+                    firstname: 'ธนภรณ์',
+                    lastname: 'อุทัยศรี',
                     nickname: 'อีฟ',
                     gender: 'หญิง',
                     age: '11',
-                    course: 'G.A.',
+                    coursename: 'G.A.',
                     remaining: 3,
                 },
             ],
@@ -113,19 +111,58 @@ export default {
             if(state == 'add') {
                 this.isAddFamily = true
             } else if(state == 'list') {
+                this.getFamilyMember()
                 this.isAddFamily = false
             }
         },
-        deleteFamily(people) {
-            alert("delete : " + people.name)
+        async getFamilyMember() {
+            const user = JSON.parse(localStorage.getItem('userdata'))
+            await axios
+            .post('http://localhost:3000/getFamilyMember', {
+                familyid: user.familyid,
+            })
+            .then(response => {
+                console.dir(response);
+                if (response.data.success) {
+                    this.family = response.data.results
+                } else {
+                    this.family = []
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        },
+        async deleteFamily(people) {
+            axios.post('http://localhost:3000/deleteFamilyMember', {
+                familyid: people.familyid,
+                childid: people.childid,
+            })
+            .then(response => {
+                console.dir(response);
+                if (response.data.success) {
+                    this.$emit('onInfoHandler', 'Delete Family Member Successful');
+                } else {
+                    this.$emit('onErrorHandler', response.data.message || 'Get Family Member failed');
+                }
+                this.getFamilyMember()
+            })
+        },
+        onError(message) {
+            this.$emit('onErrorHandler', message)
+        },
+        onShowInfoDialog(message) {
+            this.$emit('onInfoHandler', message)
         }
     },
     setup() {
-    const isAuthenticated = computed(() => !!localStorage.getItem('token'));
-    console.log(isAuthenticated.value)
-
-    return { isAuthenticated };
-  },
+        const isAuthenticated = computed(() => !!localStorage.getItem('token'));
+        console.log(isAuthenticated.value)
+        return { isAuthenticated };
+    },
+    created() {
+        this.getFamilyMember()
+    }
 
 }
 </script>

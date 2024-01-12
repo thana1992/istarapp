@@ -6,6 +6,7 @@
         @onClickChangeState="changeStateToReserveation($event)"
         @onClickBack="initBlackButton($event)"
         @onErrorHandler="onError($event)"
+        @onInfoHandler="onShowInfoDialog($event)"
         :person="personSelected"
         ></Family>
       </div>

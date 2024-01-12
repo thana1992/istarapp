@@ -35,11 +35,13 @@
         @onAffterLogin="AffterLogin($event)"
         :user_details="user_details"
         @onErrorHandler="onError($event)"
+        @onInfoHandler="onShowInfoDialog($event)"
         ></Login>
-        
+
         <Register v-if="state=='register'" 
         @onBacktoLogin="backToLogin"
         @onErrorHandler="onError($event)"
+        @onInfoHandler="onShowInfoDialog($event)"
         ></Register>
 
         <Family v-if="state=='family'"
@@ -49,11 +51,13 @@
         @onClickBack="initBlackButton($event)"
         @onInvalidToken="invalidToken($event)"
         @onErrorHandler="onError($event)"
+        @onInfoHandler="onShowInfoDialog($event)"
         ></Home>
 
         <FamilyList v-if="state=='familylist'" 
         @onClickBack="initBlackButton($event)"
         @onErrorHandler="onError($event)"
+        @onInfoHandler="onShowInfoDialog($event)"
         ></FamilyList>
       </v-main>
     </v-layout>
@@ -71,9 +75,23 @@
       </v-card>
     </template>
   </v-dialog>
+
+  <v-dialog width="500" v-model="infoDialog">
+    <template v-slot:default="{ isActive }">
+      <v-card title="Success!!" color="#98FB98">
+        <v-card-text>
+          {{ infoMsg }}
+        </v-card-text>
+        <v-card-actions>
+          <v-btn color="primary" block @click="infoDialog = false">OK</v-btn>
+        </v-card-actions>
+      </v-card>
+    </template>
+  </v-dialog>
 </template>
 
 <script>
+import tokenService from '@/services/tokenService';
 import Login from './components/Login.vue'
 import Register from './components/Register.vue'
 import Home from './components/Home.vue'
@@ -87,12 +105,15 @@ export default {
         drawer: false,
         rail: true,
         parent: 'Guest',
-        // state: 'login',
+        state: 'login',
+        isLoggedIn: false,
         // black: false,
         // blackstate: 'home',
         // homestate: 'family',
         errorDialog: false,
         errorMsg: '',
+        infoDialog: false,
+        inforMsg: '',
         user_details: {},
       }
     },
@@ -106,14 +127,15 @@ export default {
     
   },
   methods: {
-    AffterLogin (user) {
-      this.parent = user.name
-      if (user.usertype == 1) {
-        this.state = 'home'
-        this.homestate = 'family'
-      } else {
-        this.state = 'admin'
-      }
+    AffterLogin () {
+      this.user_details = JSON.parse(localStorage.getItem('userdata'))
+        if (this.user_details.usertype == 1) {
+          this.state = 'home'
+          this.homestate = 'family'
+        } else {
+          this.state = 'admin'
+        }
+        this.isLoggedIn = tokenService.isLoggedIn();
     },
     toggleRail (page) {
       this.$router.push('/'+page)
@@ -135,31 +157,40 @@ export default {
     onError(msg) {
       this.errorMsg = msg
       this.errorDialog = true
+    },
+    onShowInfoDialog(msg) {
+      this.infoMsg = msg
+      this.infoDialog = true
+    },
+    logout () {
+      localStorage.removeItem('userdata');
+      this.isLoggedIn = tokenService.isLoggedIn();
       this.state = 'login'
+      this.drawer = false
     }
   },
   setup() {
-    const isAuthenticated = computed(() => !!localStorage.getItem('token'));
-    const isLoggedIn = ref(false);
-    const state = ref('login');
-    const drawer = ref(false);
-    // Check if the user is logged in
-    const checkLoginStatus = () => {
-      const token = localStorage.getItem('token');
-      isLoggedIn.value = !!token;
-    };
+    // const isAuthenticated = computed(() => !!localStorage.getItem('token'));
+    // const isLoggedIn = ref(false);
+    // const state = ref('login');
+    // const drawer = ref(false);
+    // // Check if the user is logged in
+    // const checkLoginStatus = () => {
+    //   const token = localStorage.getItem('token');
+    //   isLoggedIn.value = !!token;
+    // };
 
-    const logout = () => {
-      localStorage.removeItem('token');
-      // Redirect to the login page
-      checkLoginStatus();
-      state.value = 'login'
-      drawer.value = false
-    };
+    // const logout = () => {
+    //   localStorage.removeItem('token');
+    //   // Redirect to the login page
+    //   checkLoginStatus();
+    //   state.value = 'login'
+    //   drawer.value = false
+    // };
 
-    checkLoginStatus();
+    // checkLoginStatus();
 
-    return { isAuthenticated, isLoggedIn, logout, state, drawer };
+    // return { isAuthenticated, isLoggedIn, logout, state, drawer };
   },
   computed: {
     

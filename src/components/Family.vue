@@ -12,8 +12,8 @@
             <v-table class="family-list">
                 <tbody>
                 <tr
-                    v-for="item in userdetail"
-                    :key="item.name"
+                    v-for="item in familylist"
+                    :key="item.childid"
                     style="cursor: pointer;"
                     class="tr-rows"
                     @click="selectChild(item)"
@@ -26,8 +26,8 @@
                             style="display: flex !important;"
                         ></v-img>
                     </td>
-                    <td>{{ item.name }}</td>
-                    <td>{{ item.course_type }}</td>
+                    <td>{{ item.firstname + ' ' + item.lastname }}</td>
+                    <td>{{ item.course_shortname }}</td>
                 </tr>
                 </tbody>
             </v-table>
@@ -37,8 +37,8 @@
                 <v-divider class="border-opacity-100" color="info" length="35vw" thickness="3"></v-divider>
                 <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
                 <div class="information">
-                    <Transition v-for="item in userdetail">
-                        <div v-if="userdetail.indexOf(item)==showidx">
+                    <Transition v-for="item in familylist">
+                        <div v-if="item.childid == personSelected">
                             <div class="info-photo" >
                                 <v-img
                                     :src="item.photo"
@@ -48,10 +48,10 @@
                                 ></v-img>   
                             </div>
                             <div class="info-detail">
-                                <p>{{ item.name }} ({{ item.nickname }})</p>
-                                <p>เพศ {{ item.gender }} อายุ {{ item.age }} ปี</p>
-                                <p>Course {{ item.course_type }} </p>
-                                <p>เหลือ {{ item.course_remaining }} ครั้ง</p>
+                                <p>{{ item.firstname + ' ' + item.lastname }} ({{ item.nickname }})</p>
+                                <p>เพศ {{ item.gender }} อายุ {{ calculateAge(item.dateofbirth) }}</p>
+                                <p>Course {{ item.coursename }} </p>
+                                <p>เหลือ {{ item.remaining }} ครั้ง</p>
                             </div>
                         </div>
                     </Transition>
@@ -65,7 +65,7 @@
                 <v-divider class="border-opacity-100" color="info" length="35vw" thickness="3"></v-divider>
                 <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
                 
-                <Transition v-for="item in userdetail">
+                <Transition v-for="item in memberReservationDetail">
                     <!-- <div v-if="showid==item.id">
                         <v-data-table-virtual
                             :headers="headers"
@@ -74,10 +74,10 @@
                             height="300"
                         />
                     </div> -->
-                    <v-table v-if="userdetail.indexOf(item)==showidx" class="family-list">
+                    <v-table v-if="memberReservationDetail" class="family-list">
                         <thead>
                             <tr>
-                                <th class="text-left">No.</th>
+                                <!-- <th class="text-left">No.</th> -->
                                 <th class="text-left">Date</th>
                                 <th class="text-left">Class Time</th>
                             </tr>
@@ -85,12 +85,12 @@
                         
                         <tbody>
                             <tr
-                                v-for="item in item.reservation"
-                                :key="item.no"
+                                v-for="item in memberReservationDetail"
+                                :key="item.childid"
                                 class="tr-rows"
                             >
-                                <td>{{ item.no }}</td>
-                                <td>{{ item.classdate }}</td>
+                                <!-- <td>{{ item.no }}</td> -->
+                                <td>{{ format_date(item.classdate) }}</td>
                                 <td>{{ item.classtime }}</td>
                             </tr>
                         </tbody>
@@ -106,7 +106,8 @@
 import { VBottomNavigation, VBottomSheet } from 'vuetify/lib/components/index.mjs'
 import { ref, computed, onMounted, inject } from 'vue';
 import Reservations from './Reservation.vue'
-
+import axios from 'axios';
+import moment from 'moment'
 export default {
     setup() {
         const isAuthenticated = computed(() => !!localStorage.getItem('token'));
@@ -121,9 +122,9 @@ export default {
     },
     methods: {
         selectChild(person) {
-            console.log(this.userdetail.indexOf(person))
-            this.showidx = this.userdetail.indexOf(person)
-            this.personSelected = person
+            console.log(person.childid)
+            this.personSelected = person.childid
+            this.getReservationDetail(person.childid)
         },
         doReservation() {
             //this.$router.push({ name:'reservation', params: { people: { name:this.info_name }} })
@@ -136,34 +137,66 @@ export default {
             this.$emit('onClickChangeState', this.personSelected)
             this.$emit('onClickBack', 'family')
         },
-        async getUserFamily() {
-            const $http = inject('$http', null);
-            try {
-            if (!$http) {
-                console.error('Axios instance not found. Make sure it is provided in main.js.');
-                this.$emit("onErrorHandler", "Client Error")
-                return;
-            }
-            const token = localStorage.getItem('token');
-            console.log('getUserFamily Token : ', token);
-            if(token == null) {
-                this.$emit("onErrorHandler", "invalid token please login again")
-            }
-            
-            const requestOptions = {
-                method: 'GET',
-                headers: { 'Authorization': token },
-            };
+        async getFamilyMember() {
+            const user = JSON.parse(localStorage.getItem('userdata'))
+            await axios
+            .post('http://localhost:3000/getFamilyMember', {
+                familyid: user.familyid,
+            })
+            .then(response => {
+                console.dir(response);
+                if (response.data.success) {
+                    this.familylist = response.data.results
+                } else {
+                    this.familylist = []
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        },
+        async getReservationDetail(childid) {
+            const user = JSON.parse(localStorage.getItem('userdata'))
+            await axios
+            .post('http://localhost:3000/getMemberReservationDetail', {
+                childid: childid,
+            })
+            .then(response => {
+                console.dir(response);
+                if (response.data.success) {
+                    this.memberReservationDetail = response.data.results
+                } else {
+                    this.memberReservationDetail = []
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        },
+        format_date(value){
+         if (value) {
+           return moment(String(value)).format('DD/MM/YYYY')
+          }
+        },
+        calculateAge(birthDate) {
+            if (!birthDate) return;
 
-
-            const response = await $http.post('/getUser', null, requestOptions);
-            console.log(response.data.user)
-            console.log("getUserFamily : " , response.data.user.family);
-            this.userdetail = response.data.user.family;
-            } catch (error) {
-                console.error('Error fetching user data:', error);
-                this.$emit("onErrorHandler", error.message)
+            const currentDate = new Date();
+            if (new Date(birthDate) > currentDate) {
+                this.birthDate = null
+                this.years = null;
+                this.months = null;
+                this.days = null;
+                alert('Invalid Date of Birth')
             }
+
+            const diffTime = currentDate - new Date(birthDate);
+            const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            let years = Math.floor(totalDays / 365.25);
+            let months = Math.floor((totalDays % 365.25) / 30.4375);
+            let days = Math.floor((totalDays % 365.25) % 30.4375);
+            return years + ' ปี ' + months + ' เดือน ' + days + ' วัน'
+
         }
     },
     props: {
@@ -173,139 +206,20 @@ export default {
         },
     },
     async created() {
-        await this.getUserFamily()
-        
-        // if(this.person != null) {
-        //     this.showidx = this.userdetail.indexOf(this.person)+1
-        //     this.personSelected = this.person
-        //     selectChild(this.userdetail[this.showidx])
-        // }
-        
+        await this.getFamilyMember()
     },
     data() {
         return {
+            familylist: null,
             userdetail: null,
+            memberReservationDetail: null,
             personSelected: null,
-            showidx: null,
+            childid: null,
             clickReservation: false,
             headers: [
-                { title: 'No.', align:'start', key: 'no' },
                 { title: 'Date', align:'start', key: 'classdate' },
                 { title: 'Class Time', align:'start', key: 'classtime' },
             ],
-            // family: [
-            //     {
-            //         id: 1,
-            //         photo: 'https://cdn4.iconfinder.com/data/icons/avatars-xmas-giveaway/128/boy_person_avatar_kid-512.png',
-            //         name: 'มณัญฌญา จันทราพรไพลิน',
-            //         nickname: 'ไอซ์',
-            //         gender: 'หญิง',
-            //         age: '10',
-            //         course_type: 'iStar',
-            //         course_remaining: 1,
-            //         reservation: [
-            //             {
-            //                 no: 1,
-            //                 classdate: '2023-12-21',
-            //                 classtime: '10:00-11:30',
-            //             }
-            //         ]
-            //     },
-            //     {
-            //         id: 2,
-            //         photo: 'https://cdn4.iconfinder.com/data/icons/avatars-xmas-giveaway/128/boy_person_avatar_kid-512.png',
-            //         name: 'ธนา ผโลดม',
-            //         nickname: 'บุช',
-            //         gender: 'ชาย',
-            //         age: '12',
-            //         course_type: 'G.A.',
-            //         course_remaining: 2,
-            //         reservation: [
-            //             {
-            //                 no: 1,
-            //                 classdate: '2023-12-22',
-            //                 classtime: '10:00-11:30',
-            //             },
-            //             {
-            //                 no: 2,
-            //                 classdate: '2023-12-23',
-            //                 classtime: '10:00-11:30',
-            //             }
-            //         ]
-            //     },
-            //     {
-            //         id: 3,
-            //         photo: 'https://cdn4.iconfinder.com/data/icons/avatars-xmas-giveaway/128/indian_native_boy_kid-512.png',
-            //         name: 'ธนภรณ์ อุทัยศรี',
-            //         nickname: 'อีฟ',
-            //         gender: 'หญิง',
-            //         age: '11',
-            //         course_type: 'G.A.',
-            //         course_remaining: 3,
-            //         reservation: [
-            //             {
-            //                 no: 1,
-            //                 classdate: '2024-01-03',
-            //                 classtime: '09:00-10:30',
-            //             },
-            //             {
-            //                 no: 2,
-            //                 classdate: '2024-01-04',
-            //                 classtime: '14:00-15:30',
-            //             },
-            //             {
-            //                 no: 3,
-            //                 classdate: '2024-01-05',
-            //                 classtime: '09:00-10:30',
-            //             },
-            //             {
-            //                 no: 4,
-            //                 classdate: '2024-01-06',
-            //                 classtime: '09:00-10:30',
-            //             },
-            //             {
-            //                 no: 5,
-            //                 classdate: '2024-01-07',
-            //                 classtime: '14:00-15:30',
-            //             },
-            //             {
-            //                 no: 6,
-            //                 classdate: '2024-01-08',
-            //                 classtime: '09:00-10:30',
-            //             },
-            //             {
-            //                 no: 7,
-            //                 classdate: '2024-01-09',
-            //                 classtime: '09:00-10:30',
-            //             },
-            //             {
-            //                 no: 8,
-            //                 classdate: '2024-01-10',
-            //                 classtime: '14:00-15:30',
-            //             },
-            //             {
-            //                 no: 9,
-            //                 classdate: '2024-01-11',
-            //                 classtime: '09:00-10:30',
-            //             },
-            //             {
-            //                 no: 10,
-            //                 classdate: '2024-01-13',
-            //                 classtime: '09:00-10:30',
-            //             },
-            //             {
-            //                 no: 11,
-            //                 classdate: '2024-01-14',
-            //                 classtime: '14:00-15:30',
-            //             },
-            //             {
-            //                 no: 12,
-            //                 classdate: '2024-01-15',
-            //                 classtime: '09:00-10:30',
-            //             }
-            //         ]
-            //     },
-            // ],
         };
     },
 }

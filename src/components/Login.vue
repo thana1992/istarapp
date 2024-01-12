@@ -37,7 +37,7 @@
             color="success"
             class="mt-4"
             block
-            @click="login"
+            @click="doLogin"
           >
             Sign in
           </v-btn>
@@ -80,15 +80,15 @@ export default {
     setup() {
     },
     methods: {
-      async login () {
+      async doLogin () {
         const { valid } = await this.$refs.login_form.validate()
         if (valid) {
           // Check if username and password are not empty
         if (!this.username || !this.password) {
           alert('Please enter both username and password.');
+          
           return;
         }
-
         // Make API request to login
         axios
           .post('http://localhost:3000/login', {
@@ -96,52 +96,20 @@ export default {
             password: this.password,
           })
           .then(response => {
+            console.dir(response);
             if (response.data.success) {
-              console.dir(response);
+              
               tokenService.setToken(response.data.token);
-              alert('Login successful');
               // Redirect or perform other actions on successful login
               localStorage.setItem("userdata", JSON.stringify(response.data.userdata));
-              this.$emit('onAffterLogin', response.data.userdata)
+              this.$emit('onAffterLogin')
             } else {
-              alert(response.data.message || 'Login failed');
+              this.$emit('onErrorHandler', response.data.message)
             }
           })
           .catch(error => {
             console.error(error);
           });
-          this.login();
-        }
-      },
-      async login () {
-        const axios = require('axios');
-        //const $http = inject('$http', null);
-        try {
-          const username = ref('');
-          const password = ref('');
-          if (!axios) {
-            console.error('Axios instance not found. Make sure it is provided in main.js.');
-            this.$emit("onErrorHandler", 'Client Error')
-            return;
-          }else{
-            const response = await axios.post('http://192.168.1.59:3000/login', {
-              username: this.username,
-              password: this.password,
-            });
-            
-            console.log(response)
-            const token = response.data.token;
-            localStorage.setItem('token', token);
-            this.$emit('onAffterLogin', token)
-            return token
-          }
-        } catch (error) {
-          console.error('Login error:', error);
-          if(error.response){
-            this.$emit("onErrorHandler", error.response.data.message)
-          }else{
-            this.$emit("onErrorHandler", error.message)
-          }
         }
       },
       reset () {
