@@ -54,7 +54,7 @@
 
                 <v-text-field
                 variant="solo-filled"
-                v-model="phone"
+                v-model="mobileno"
                 label="Phone Number"
                 placeholder="123-456-7890"
                     type="tel"
@@ -73,7 +73,7 @@
                     color="success"
                     class="mt-1"
                     block
-                    @click="validate"
+                    @click="doRegister"
                 >
                     Submit
                 </v-btn>
@@ -93,6 +93,7 @@
 
 <script>
 import { VBottomNavigation, VBottomSheet } from 'vuetify/lib/components/index.mjs'
+import axios from 'axios';
 
 export default {
     data: () => ({
@@ -101,7 +102,7 @@ export default {
       fullname: '',
       address: '',
       email: '',
-      phone: '',
+      mobileno: '',
       lineid: '',
       nameRules: [
         v => !!v || 'Username is required',
@@ -111,16 +112,50 @@ export default {
       ]
     }),
     methods: {
-      async validate () {
+      async doRegister () {
         const { valid } = await this.$refs.form.validate()
 
-        if (valid) alert('Form is valid')
+        if (valid) {
+          // Check if username and password are not empty
+          if (!this.username || !this.password) {
+            alert('Please enter both username and password.');
+            return;
+          }
+
+          // Make API request to register the user
+          axios
+            .post('http://localhost:3000/register', {
+              username: this.username,
+              password: this.password,
+              fullname: this.fullname,
+              address: this.address,
+              email: this.email,
+              mobileno: this.mobileno,
+              lineid: this.lineid
+            })
+            .then(response => {
+              if (response.data.success) {
+                alert('Registration successful');
+                // Redirect or perform other actions on successful registration
+                this.$emit('onBacktoLogin')
+              } else {
+                alert(response.data.message || 'Registration failed');
+              }
+            })
+            .catch(error => {
+              console.error(error);
+              alert(error.message)
+            });
+        }
       },
       reset () {
         this.$refs.form.reset()
       },
       resetValidation () {
         this.$refs.form.resetValidation()
+      },
+      register() {
+      
       },
     },
 }

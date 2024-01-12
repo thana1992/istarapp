@@ -30,7 +30,8 @@
         @onAffterLogin="AffterLogin($event)"
         ></Login>
         
-        <Register v-if="state=='register'"
+        <Register v-if="state=='register'" 
+        @onBacktoLogin="backToLogin"
         ></Register>
 
         <Home v-if="state=='home'" 
@@ -75,8 +76,12 @@ export default {
   methods: {
     AffterLogin (user) {
       this.parent = user.name
-      this.state = 'home'
-      this.homestate = 'family'
+      if (user.usertype == 1) {
+        this.state = 'home'
+        this.homestate = 'family'
+      } else {
+        this.state = 'admin'
+      }
     },
     toggleRail (page) {
       this.$router.push('/'+page)
@@ -89,6 +94,9 @@ export default {
       //this.black = true
       //this.blackstate = state
     },
+    backToLogin() {
+      this.state = 'login'
+    }
   },
 }
 </script>

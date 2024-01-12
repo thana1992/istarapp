@@ -37,7 +37,7 @@
             color="success"
             class="mt-4"
             block
-            @click="validate"
+            @click="login"
           >
             Sign in
           </v-btn>
@@ -63,6 +63,9 @@
 <script>
 import { ref, inject } from 'vue';
 import { useRouter } from 'vue-router';
+import axios from 'axios';
+import tokenService from '@/services/tokenService';
+
 export default {
     data: () => ({
       login_form: null,
@@ -76,45 +79,38 @@ export default {
       ]
     }),
     setup() {
-      const router = useRouter();
-      const $http = inject('$http', null);
-  
-      const username = ref('');
-      const password = ref('');
-      const user = ref({});
-  
-      const login = async () => {
-        try {
-          if (!$http) {
-            console.error('Axios instance not found. Make sure it is provided in main.js.');
-            return;
-          }
-  
-          const response = await $http.post('/login', {
-            username: username.value,
-            password: password.value,
-          });
-  
-          const token = response.data.token;
-          localStorage.setItem('token', token);
-          
-          console.log(response.data.user);
-          user.value = response.data.user;
-
-        } catch (error) {
-          console.error('Login error:', error);
-          // Handle login error, e.g., display an error message
-        }
-      };
-  
-      return { username, password, user, login };
     },
     methods: {
-      async validate () {
+      async login () {
         const { valid } = await this.$refs.login_form.validate()
         if (valid) {
-          const logindata = this.login();
-          this.$emit('onAffterLogin', logindata)
+          // Check if username and password are not empty
+        if (!this.username || !this.password) {
+          alert('Please enter both username and password.');
+          return;
+        }
+
+        // Make API request to login
+        axios
+          .post('http://localhost:3000/login', {
+            username: this.username,
+            password: this.password,
+          })
+          .then(response => {
+            if (response.data.success) {
+              console.dir(response);
+              tokenService.setToken(response.data.token);
+              alert('Login successful');
+              // Redirect or perform other actions on successful login
+              localStorage.setItem("userdata", JSON.stringify(response.data.userdata));
+              this.$emit('onAffterLogin', response.data.userdata)
+            } else {
+              alert(response.data.message || 'Login failed');
+            }
+          })
+          .catch(error => {
+            console.error(error);
+          });
         }
       },
       reset () {
