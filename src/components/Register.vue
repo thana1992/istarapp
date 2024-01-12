@@ -69,6 +69,13 @@
                 type="text"
                 ></v-text-field>
 
+                <v-text-field
+                variant="solo-filled"
+                v-model="registercode"
+                label="Register Code"
+                type="text"
+                ></v-text-field>
+
                 <v-btn
                     color="success"
                     class="mt-1"
@@ -98,6 +105,7 @@ export default {
     data: () => ({
       username: '',
       password: '',
+      registercode: '',
       fullname: '',
       address: '',
       email: '',
