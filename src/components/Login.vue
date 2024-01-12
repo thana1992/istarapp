@@ -64,11 +64,7 @@
 import { ref, inject } from 'vue';
 import { useRouter } from 'vue-router';
 import axios from 'axios';
-<<<<<<< HEAD
 import tokenService from '@/services/tokenService';
-
-=======
->>>>>>> b53afb35cdefd55039aaaa69c33473ee93d9e07f
 export default {
     data: () => ({
       login_form: null,
@@ -81,48 +77,12 @@ export default {
         v => !!v || 'Password is required',
       ]
     }),
-<<<<<<< HEAD
     setup() {
     },
-=======
-     setup() {
-      const $http = inject('$http', null);
-    //   const router = useRouter();
-    //   const $http = inject('$http', null);
-  
-    //   const username = ref('');
-    //   const password = ref('');
-    //   const user = ref({});
-  
-    //   const login = async () => {
-    //     try {
-    //       if (!$http) {
-    //         console.error('Axios instance not found. Make sure it is provided in main.js.');
-    //         return;
-    //       }
-  
-    //       const response = await $http.post('/login', {
-    //         username: username.value,
-    //         password: password.value,
-    //       });
-  
-    //       const token = response.data.token;
-    //       localStorage.setItem('token', token);
-    //       return token
-    //     } catch (error) {
-    //       console.error('Login error:', error);
-    //       this.$emit("onErrorHandler", error.message)
-    //     }
-    //   };
-  
-    //   return { username, password, user, login };
-     },
->>>>>>> b53afb35cdefd55039aaaa69c33473ee93d9e07f
     methods: {
       async login () {
         const { valid } = await this.$refs.login_form.validate()
         if (valid) {
-<<<<<<< HEAD
           // Check if username and password are not empty
         if (!this.username || !this.password) {
           alert('Please enter both username and password.');
@@ -150,7 +110,6 @@ export default {
           .catch(error => {
             console.error(error);
           });
-=======
           this.login();
         }
       },
@@ -183,7 +142,6 @@ export default {
           }else{
             this.$emit("onErrorHandler", error.message)
           }
->>>>>>> b53afb35cdefd55039aaaa69c33473ee93d9e07f
         }
       },
       reset () {

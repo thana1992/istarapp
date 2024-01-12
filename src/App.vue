@@ -37,13 +37,9 @@
         @onErrorHandler="onError($event)"
         ></Login>
         
-<<<<<<< HEAD
         <Register v-if="state=='register'" 
         @onBacktoLogin="backToLogin"
-=======
-        <Register v-if="state=='register'"
         @onErrorHandler="onError($event)"
->>>>>>> b53afb35cdefd55039aaaa69c33473ee93d9e07f
         ></Register>
 
         <Family v-if="state=='family'"
@@ -110,7 +106,6 @@ export default {
     
   },
   methods: {
-<<<<<<< HEAD
     AffterLogin (user) {
       this.parent = user.name
       if (user.usertype == 1) {
@@ -122,15 +117,6 @@ export default {
     },
     toggleRail (page) {
       this.$router.push('/'+page)
-=======
-    async AffterLogin (token) {
-        // localStorage.setItem('token', token)
-        this.isLoggedIn = !!token;
-        
-        this.state = 'home'
-        // this.homestate = 'family'
-      
->>>>>>> b53afb35cdefd55039aaaa69c33473ee93d9e07f
     },
     onClickChangeState (state) {
       this.drawer= false
@@ -140,11 +126,9 @@ export default {
       //this.black = true
       //this.blackstate = state
     },
-<<<<<<< HEAD
     backToLogin() {
       this.state = 'login'
-    }
-=======
+    },
     invalidToken (state) {
       this.$router.push('/')
     },
@@ -179,7 +163,6 @@ export default {
   },
   computed: {
     
->>>>>>> b53afb35cdefd55039aaaa69c33473ee93d9e07f
   },
 }
 </script>
