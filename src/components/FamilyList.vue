@@ -6,7 +6,7 @@
                     <h1><span class="mdi mdi-account-multiple"></span> Family</h1>
                 </div>
                 <div class="container-content">
-                    <h3 class="group-header">Family list
+                    <h3 class="group-header">Family member
                         <span class="mdi mdi-account-multiple-plus btn-add" @click="ChangeStateFamily('add')"></span>
                     </h3>
                     <v-divider class="border-opacity-100" color="info" length="35vw" thickness="3"></v-divider>
@@ -19,7 +19,7 @@
                         style="cursor: pointer;"
                         class="tr-rows"
                     >
-                        <td>
+                        <td style="width: 20vw;">
                             <v-img
                                 v-if="people.photo"
                                 :src="people.photo"
@@ -28,8 +28,8 @@
                                 style="display: flex !important;"
                             ></v-img>
                         </td>
-                        <td>{{ people.firstname + ' ' + people.lastname }}</td>
-                        <td><span class="mdi mdi-delete-forever" style="font-size: 7vw;" @click="deleteFamily(people)"></span></td>
+                        <td style="width: 70vw;">{{ people.firstname + ' ' + people.lastname }}</td>
+                        <td style="width: 10vw;"><span class="mdi mdi-delete-forever" style="font-size: 7vw;" @click="deleteFamily(people)"></span></td>
                     </tr>
                     </tbody>
                 </v-table>

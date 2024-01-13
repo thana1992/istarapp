@@ -143,11 +143,9 @@ export default {
             })
             .then(response => {
               if (response.data.success) {
-                alert('Registration successful');
-                // Redirect or perform other actions on successful registration
-                this.$emit('onBacktoLogin')
+                this.$emit('onSuccessHandler', response.data.message || 'Registration successful');
               } else {
-                alert(response.data.message || 'Registration failed');
+                this.$emit('onErrorHandler', response.data.message || 'Registration failed');
               }
             })
             .catch(error => {

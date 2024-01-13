@@ -6,7 +6,7 @@
         temporary
       >
         <v-list-item
-          prepend-avatar="https://randomuser.me/api/portraits/men/78.jpg"
+          :prepend-avatar="iconUrl"
           :title="parent"
         ></v-list-item>
         <v-divider></v-divider>
@@ -21,57 +21,76 @@
           </v-list-item>
           <v-list-item v-if="isLoggedIn" prepend-icon="mdi-account-multiple" title="FAMILY" value="familylist" @click="onClickChangeState('familylist')">
           </v-list-item>
+          <v-list-item v-if="isLoggedIn" prepend-icon="mdi-gymnastics" title="CLASSES" value="classes" @click="onClickChangeState('classes')">
+          </v-list-item>
           <v-list-item v-if="isLoggedIn" prepend-icon="mdi-account-multiple" title="Logout" value="logout" @click="logout()">
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
       <v-app-bar :elevation="20">
-        <v-btn v-if="!black" @click.stop="drawer = !drawer"><span class="mdi mdi-menu"></span></v-btn>
-        <v-btn v-if="black" @click="onClickBack(recentState)"><span class="mdi mdi-arrow-left"></span></v-btn>
-        <p> Login {{ isLoggedIn }}</p>
+        <v-btn v-if="!black" @click.stop="drawer = !drawer"  variant="tonal"><span class="mdi mdi-menu" style="font-size: large;"></span></v-btn>
+        <v-btn v-if="black" @click="onClickBack(recentState)"  variant="tonal"><span class="mdi mdi-arrow-left" style="font-size: large;" ></span></v-btn>
+        
       </v-app-bar>
       <v-main class="root-container">
-        <Login v-if="state=='login'"
-        @onAffterLogin="AffterLogin($event)"
-        :user_details="user_details"
-        @onErrorHandler="onError($event)"
-        @onInfoHandler="onShowInfoDialog($event)"
-        ></Login>
+        <Transition>
 
-        <Register v-if="state=='register'" 
-        @onBacktoLogin="backToLogin"
-        @onErrorHandler="onError($event)"
-        @onInfoHandler="onShowInfoDialog($event)"
-        ></Register>
+          <Login v-if="state=='login'"
+          @onAffterLogin="AffterLogin($event)"
+          :user_details="user_details"
+          @onErrorHandler="onError($event)"
+          @onInfoHandler="onShowInfoDialog($event)"
+          ></Login>
+        
+          <Register v-else-if="state=='register'" 
+          @onBacktoLogin="backToLogin"
+          @onErrorHandler="onError($event)"
+          @onSuccessHandler="onRegisterSuccess($event)"
+          ></Register>
 
-        <Family v-if="state=='family'"
-        ></Family>
+          <Home v-else-if="state=='home'"
+          @collectData="collectData($event)"
+          @initBack="initBlackButton($event)"
+          @onInvalidToken="invalidToken($event)"
+          @onClickChangeState="onClickChangeState($event)"
+          @onErrorHandler="onError($event)"
+          @onInfoHandler="onShowInfoDialog($event)"
+          :student="student"
+          ></Home>
 
-        <Home v-if="state=='home'" 
-        @onClickBack="initBlackButton($event)"
-        @onInvalidToken="invalidToken($event)"
-        @onErrorHandler="onError($event)"
-        @onInfoHandler="onShowInfoDialog($event)"
-        :homeState="homestate"
-        ></Home>
+          <Reservation v-else-if="state=='reservation'"
+          @initBack="initBlackButton($event)"
+          @onInvalidToken="invalidToken($event)"
+          @onErrorHandler="onError($event)"
+          @onInfoHandler="onShowInfoDialog($event)"
+          @onSuccessHandler="onClickBack($event)"
+          :student="student"
+          ></Reservation>
 
-        <FamilyList v-if="state=='familylist'" 
-        @onClickBack="initBlackButton($event)"
-        @onErrorHandler="onError($event)"
-        @onInfoHandler="onShowInfoDialog($event)"
-        ></FamilyList>
+          <FamilyList v-else-if="state=='familylist'" 
+          @initBack="initBlackButton($event)"
+          @onErrorHandler="onError($event)"
+          @onInfoHandler="onShowInfoDialog($event)"
+          ></FamilyList>
+
+          <Classes v-else-if="state=='classes'"
+          @onErrorHandler="onError($event)"
+          @onInfoHandler="onShowInfoDialog($event)"
+          ></Classes>
+        </Transition>
+
       </v-main>
     </v-layout>
   </v-card>
 
   <v-dialog width="500" v-model="errorDialog">
     <template v-slot:default="{ isActive }">
-      <v-card title="Error!!" color="#F44336">
+      <v-card title="ผิดพลาด!!" color="#F44336">
         <v-card-text>
           {{ errorMsg }}
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" block @click="errorDialog = false">Close</v-btn>
+          <v-btn color="primary" variant="tonal" block @click="errorDialog = false">Close</v-btn>
         </v-card-actions>
       </v-card>
     </template>
@@ -79,12 +98,12 @@
 
   <v-dialog width="500" v-model="infoDialog">
     <template v-slot:default="{ isActive }">
-      <v-card title="Success!!" color="#98FB98">
+      <v-card title="สำเร็จ!!" color="#98FB98">
         <v-card-text>
           {{ infoMsg }}
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" block @click="infoDialog = false">OK</v-btn>
+          <v-btn color="primary" variant="tonal" block @click="infoDialog = false">OK</v-btn>
         </v-card-actions>
       </v-card>
     </template>
@@ -96,8 +115,9 @@ import tokenService from '@/services/tokenService';
 import Login from './components/Login.vue'
 import Register from './components/Register.vue'
 import Home from './components/Home.vue'
-import Family from './components/Family.vue'
+import Reservation from '@/components/Reservation.vue'
 import FamilyList from './components/FamilyList.vue'
+import Classes from './components/Classes.vue'
 import { ref, computed, onMounted, inject } from 'vue';
 
 export default {
@@ -116,23 +136,25 @@ export default {
         infoDialog: false,
         inforMsg: '',
         user_details: {},
+        student: null
       }
     },
   name: 'App',
   components: {
     Login,
     Register,
-    Family,
+    Reservation,
     Home,
     FamilyList,
-    
+    Classes,
   },
   methods: {
     AffterLogin () {
       this.user_details = JSON.parse(localStorage.getItem('userdata'))
+      this.parent = this.user_details.fullname
+      this.student = null;
         if (this.user_details.usertype == 1) {
           this.state = 'home'
-          this.homestate = 'family'
         } else {
           this.state = 'admin'
         }
@@ -141,14 +163,16 @@ export default {
     toggleRail (page) {
       this.$router.push('/'+page)
     },
+    collectData (student) {
+      this.student = student
+    },
     onClickChangeState (state) {
       this.drawer= false
       this.state = state
     },
     onClickBack (recentState) {
       this.black = false
-      this.state = recentState[0]
-      this.homestate = recentState[1]
+      this.state = recentState
     },
     initBlackButton (state) {
       this.black = true
@@ -168,8 +192,14 @@ export default {
       this.infoMsg = msg
       this.infoDialog = true
     },
+    onRegisterSuccess(msg) {
+      this.infoMsg = msg
+      this.infoDialog = true
+      this.state = 'login'
+    },
     logout () {
       localStorage.removeItem('userdata');
+      tokenService.removeToken();
       this.isLoggedIn = tokenService.isLoggedIn();
       this.state = 'login'
       this.drawer = false
@@ -198,9 +228,15 @@ export default {
 
     // return { isAuthenticated, isLoggedIn, logout, state, drawer };
   },
-  computed: {
-    
+  mounted() {
+    this.isLoggedIn = tokenService.isLoggedIn();
   },
+  computed: {
+    iconUrl () {
+      return require('./assets/avatar/1.png')
+      // The path could be '../assets/img.png', etc., which depends on where your vue file is
+    }
+  }
 }
 </script>
 <style src="./styles/global-style.css"></style>

@@ -34,10 +34,9 @@ body {
 }
 
 .container-header {
-  margin-bottom: auto;
-  margin-right: auto;
   margin-top: 2vh;
   margin-bottom: 3vh;
+  width: 80vw;
 }
 
 .container-content {
