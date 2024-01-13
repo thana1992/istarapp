@@ -122,20 +122,16 @@ export default {
     },
     methods: {
         selectChild(person) {
-            console.log(person.childid)
-            this.personSelected = person.childid
+            console.log(person)
+            this.personSelected = person
             this.getReservationDetail(person.childid)
         },
         doReservation() {
-            //this.$router.push({ name:'reservation', params: { people: { name:this.info_name }} })
-            //this.clickReservation = true;
             if(this.personSelected == null) {
-                alert('Please select any one of your family')
+                this.$emit('onErrorHandler', 'Please select any one of your family')
                 return
             }
-            
-            this.$emit('onClickChangeState', this.personSelected)
-            this.$emit('onClickBack', 'family')
+            this.$emit('onClickChangeState', 'reservation')
         },
         async getFamilyMember() {
             const user = JSON.parse(localStorage.getItem('userdata'))

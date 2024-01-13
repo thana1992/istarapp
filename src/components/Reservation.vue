@@ -9,7 +9,7 @@
             <div class="d-flex justify-center mb-3">
             <v-form ref="reserveForm">
                 <v-row justify="space-around" class="ma-2 pa-2">
-                    <p>{{ person.name }}</p>
+                    <p>{{ person.firstname + ' ' + person.lastname }}</p>
                 </v-row>
                 <v-row justify="space-around" class="ma-2 pa-2">
                     <v-date-picker
@@ -20,12 +20,16 @@
                 </v-row>
                 <v-row justify="space-around" class="ma-2 pa-2">
                     <v-select
-                    v-model="class_time"
+                    v-model="classtimeSelect"
                     label="Class time"
                     class="ma-2 pa-2"
-                    :items="['09:00 - 10:30', '10:30 - 12:00', '14:00 - 15:30', '16:00 - 17:30']"
+                    item-title="classtime"
+                    item-value="classid"
+                    :items="classtimesData"
                     variant="outlined"
                     :rules="classTimeRules"
+                    no-data-text="No class time available"
+                    return-object
                     required
                     ></v-select>
                 </v-row>
@@ -48,6 +52,8 @@
 </template>
 
 <script>
+import axios from 'axios'
+import moment from 'moment'
   export default {
     props: {
         person: {
@@ -59,11 +65,13 @@
         return {
             date: new Date(),
             tomorrow: new Date(),
-            class_time: null,
+            classtimeSelect: null,
+            classtimesData: [],
             people: '',
             classTimeRules: [
                 v => !!v || 'Class time is required',
             ],
+            weekday:['Sunday','Monday','Tuesday','Wednesday','Thrusady','Friday','Saturday']
         }
     },
     mounted() {
@@ -73,17 +81,72 @@
     },
     methods: {
         selectDate() {
-            console.log(this.date)
+            console.log(this.weekday[this.date.getDay()])
             this.class_time = null
+            this.getClassTime()
         },
         async validate() {
-            console.log(this.date.toLocaleDateString() + ' ' + this.class_time)
             const { valid } = await this.$refs.reserveForm.validate()
-            console.log(valid)
             if(!valid) return;
+            await this.submitReservation()
             this.$emit('onClickChangeState', this.person)
             
-        }
+        },
+        getClassTime() {
+            console.log(this.person.courseid + ', ' +this.weekday[this.date.getDay()])
+            axios.post('http://localhost:3000/getClassTime', {
+                courseid: this.person.courseid,
+                classday: this.weekday[this.date.getDay()]
+            })
+            .then(response => {
+                console.dir(response);
+                if (response.data.success) {
+                    const data = response.data.results
+                    if(data.length == 0) {
+                        this.classtimesData = []
+                    }else{
+                        this.classtimesData = data;
+                    }
+                } else {
+                    this.classtimesData = []
+                }
+            })
+        },
+        async submitReservation () {
+            let reservaObj = {
+                childid: this.person.childid,
+                classdate: this.SQLDate(this.date),
+                classtime: this.classtimeSelect.classtime,
+                classid: this.classtimeSelect.classid,
+                courseid: this.person.courseid,
+                classday: this.weekday[this.date.getDay()]
+            }
+            // console.log(obj)
+            await axios.post('http://localhost:3000/addReservation', reservaObj)
+            .then(response => {
+                console.dir(response);
+                if (response.data.success) {
+                    this.$emit('onInfoHandler', 'Reservation successful')
+                    this.$emit('onClickBack', 'reservation')
+                } else {
+                    this.$emit('onErrorHandler', response.data.message || 'Reservation failed')
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                this.$emit('onErrorHandler', error.message || 'Reservation failed')
+            });
+        },
+        SQLDate(value){
+         if (value) {
+           return moment(String(value)).format('YYYYMMDD')
+          }
+        },
+        format_date(value){
+         if (value) {
+           return moment(String(value)).format('DD/MM/YYYY')
+          }
+        },
     }
 
   }

@@ -27,7 +27,7 @@
       </v-navigation-drawer>
       <v-app-bar :elevation="20">
         <v-btn v-if="!black" @click.stop="drawer = !drawer"><span class="mdi mdi-menu"></span></v-btn>
-        <v-btn v-if="black" @click="onClickChangeState(state)"><span class="mdi mdi-arrow-left"></span></v-btn>
+        <v-btn v-if="black" @click="onClickBack(recentState)"><span class="mdi mdi-arrow-left"></span></v-btn>
         <p> Login {{ isLoggedIn }}</p>
       </v-app-bar>
       <v-main class="root-container">
@@ -52,6 +52,7 @@
         @onInvalidToken="invalidToken($event)"
         @onErrorHandler="onError($event)"
         @onInfoHandler="onShowInfoDialog($event)"
+        :homeState="homestate"
         ></Home>
 
         <FamilyList v-if="state=='familylist'" 
@@ -107,9 +108,9 @@ export default {
         parent: 'Guest',
         state: 'login',
         isLoggedIn: false,
-        // black: false,
-        // blackstate: 'home',
-        // homestate: 'family',
+        black: false,
+        blackstate: 'home',
+        homestate: 'family',
         errorDialog: false,
         errorMsg: '',
         infoDialog: false,
@@ -144,9 +145,14 @@ export default {
       this.drawer= false
       this.state = state
     },
+    onClickBack (recentState) {
+      this.black = false
+      this.state = recentState[0]
+      this.homestate = recentState[1]
+    },
     initBlackButton (state) {
-      //this.black = true
-      //this.blackstate = state
+      this.black = true
+      this.recentState = state
     },
     backToLogin() {
       this.state = 'login'

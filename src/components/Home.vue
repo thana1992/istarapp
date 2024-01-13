@@ -15,6 +15,9 @@
       <div v-if="state=='reservation'">
         <Reservation 
         @onClickChangeState="changeStateToHome($event)"
+        @onClickBack="initBlackButton($event)"
+        @onErrorHandler="onError($event)"
+        @onInfoHandler="onShowInfoDialog($event)"
         :person="personSelected"
         ></Reservation>
       </div>
@@ -38,6 +41,12 @@ export default {
     Family,
     Reservation
   },
+  props: {
+    homeState: {
+        type: String,
+        required: true,
+      }
+    },
   data() {
     return {
       state: 'family',
