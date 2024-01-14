@@ -127,13 +127,17 @@ export default {
           this.getReservationDetail(student.childid)
       },
       doReservation() {
-          if(this.studentSelected == null) {
-              this.$emit('onErrorHandler', 'Please select any one of your family')
-              return
-          }
-          this.$emit('collectData', this.studentSelected)
-          this.$emit('onClickChangeState', 'reservation')
-          this.$emit('initBack', 'home')
+        if(this.studentSelected == null) {
+            this.$emit('onErrorHandler', 'Please select any one of your family')
+            return
+        }
+        if(this.studentSelected.remaining <= 0) {
+            this.$emit('onErrorHandler', 'ไม่สามารถจองคลาสได้ จำนวนคลาสของท่านหมดแล้ว T-T')
+            return;
+        }
+        this.$emit('collectData', this.studentSelected)
+        this.$emit('onClickChangeState', 'reservation')
+        this.$emit('initBack', 'home')
       },
       async getFamilyMember() {
           const user = JSON.parse(localStorage.getItem('userdata'))

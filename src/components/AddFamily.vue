@@ -37,7 +37,7 @@
                 <v-select
                 v-model="gender"
                 label="Gender"
-                :items="['Male', 'Female']"
+                :items="['ชาย', 'หญิง']"
                 variant="solo-filled"
                 required
                 ></v-select>
@@ -114,10 +114,10 @@ export default {
                 })
                 .then(response => {
                 if (response.data.success) {
-                    this.$emit('onInfoHandler', 'Add Family Member Successful');
-                    this.$emit('onBlackToFamilylist')
+                    this.$emit('onInfoHandler', 'เพิ่มสมาชิกครอบครัวสำเร็จแล้ว');
+                    this.$emit('onClickChangeState', 'familylist')
                 } else {
-                    alert(response.data.message || 'Registration failed');
+                    this.$emit('onErrorHandler', response.data.message || 'เพิ่มสมาชิกครอบครัวไม่สำเร็จ');
                 }
                 })
                 .catch(error => {

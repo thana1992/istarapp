@@ -7,7 +7,7 @@
                 </div>
                 <div class="container-content">
                     <h3 class="group-header">Family member
-                        <span class="mdi mdi-account-multiple-plus btn-add" @click="ChangeStateFamily('add')"></span>
+                        <span class="mdi mdi-account-multiple-plus btn-add" @click="doAddFamilyMember"></span>
                     </h3>
                     <v-divider class="border-opacity-100" color="info" length="35vw" thickness="3"></v-divider>
                     <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
@@ -66,46 +66,50 @@ export default {
         return {
             isAddFamily: false,
             family: [
-                {
-                    childid: 1,
-                    familyid: 1,
-                    photo: 'https://as1.ftcdn.net/v2/jpg/01/16/24/44/1000_F_116244459_pywR1e0T3H7FPk3LTMjG6jsL3UchDpht.jpg',
-                    firstname: 'มณัญฌญา',
-                    lastname: 'จันทราพรไพลิน',
-                    nickname: 'ไอซ์',
-                    gender: 'หญิง',
-                    age: '10',
-                    coursename: 'iStar',
-                    remaining: 1
-                },
-                {
-                    childid: 2,
-                    familyid: 1,
-                    photo: 'https://creazilla-store.fra1.digitaloceanspaces.com/icons/7912642/avatar-icon-md.png',
-                    firstname: 'ธนา',
-                    lastname: 'ผโลดม',
-                    nickname: 'บุช',
-                    gender: 'ชาย',
-                    age: '12',
-                    coursename: 'G.A.',
-                    remaining: 2
-                },
-                {
-                    childid: 3,
-                    familyid: 1,
-                    photo: 'https://cdn.icon-icons.com/icons2/2643/PNG/512/female_woman_person_people_avatar_icon_159366.png',
-                    firstname: 'ธนภรณ์',
-                    lastname: 'อุทัยศรี',
-                    nickname: 'อีฟ',
-                    gender: 'หญิง',
-                    age: '11',
-                    coursename: 'G.A.',
-                    remaining: 3,
-                },
+                // {
+                //     childid: 1,
+                //     familyid: 1,
+                //     photo: 'https://as1.ftcdn.net/v2/jpg/01/16/24/44/1000_F_116244459_pywR1e0T3H7FPk3LTMjG6jsL3UchDpht.jpg',
+                //     firstname: 'มณัญฌญา',
+                //     lastname: 'จันทราพรไพลิน',
+                //     nickname: 'ไอซ์',
+                //     gender: 'หญิง',
+                //     age: '10',
+                //     coursename: 'iStar',
+                //     remaining: 1
+                // },
+                // {
+                //     childid: 2,
+                //     familyid: 1,
+                //     photo: 'https://creazilla-store.fra1.digitaloceanspaces.com/icons/7912642/avatar-icon-md.png',
+                //     firstname: 'ธนา',
+                //     lastname: 'ผโลดม',
+                //     nickname: 'บุช',
+                //     gender: 'ชาย',
+                //     age: '12',
+                //     coursename: 'G.A.',
+                //     remaining: 2
+                // },
+                // {
+                //     childid: 3,
+                //     familyid: 1,
+                //     photo: 'https://cdn.icon-icons.com/icons2/2643/PNG/512/female_woman_person_people_avatar_icon_159366.png',
+                //     firstname: 'ธนภรณ์',
+                //     lastname: 'อุทัยศรี',
+                //     nickname: 'อีฟ',
+                //     gender: 'หญิง',
+                //     age: '11',
+                //     coursename: 'G.A.',
+                //     remaining: 3,
+                // },
             ],
         }
     },
     methods: {
+        doAddFamilyMember() {
+          this.$emit('onClickChangeState', 'addfamilymember')
+          this.$emit('initBack', 'familylist')
+      },
         ChangeStateFamily(state) {
             this.stateFamily = state
             if(state == 'add') {

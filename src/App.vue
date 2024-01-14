@@ -23,7 +23,7 @@
           </v-list-item>
           <v-list-item v-if="isLoggedIn" prepend-icon="mdi-gymnastics" title="CLASSES" value="classes" @click="onClickChangeState('classes')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn" prepend-icon="mdi-account-multiple" title="Logout" value="logout" @click="logout()">
+          <v-list-item v-if="isLoggedIn" prepend-icon="mdi-logout" title="Logout" value="logout" @click="logout()">
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
@@ -69,9 +69,17 @@
 
           <FamilyList v-else-if="state=='familylist'" 
           @initBack="initBlackButton($event)"
+          @onClickChangeState="onClickChangeState($event)"
           @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)"
           ></FamilyList>
+
+          <AddFamily v-else-if="state=='addfamilymember'"
+          @initBack="initBlackButton($event)"
+          @onClickChangeState="onClickChangeState($event)"
+          @onErrorHandler="onError($event)"
+          @onInfoHandler="onShowInfoDialog($event)"
+          ></AddFamily>
 
           <Classes v-else-if="state=='classes'"
           @onErrorHandler="onError($event)"
@@ -90,7 +98,7 @@
           {{ errorMsg }}
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" variant="tonal" block @click="errorDialog = false">Close</v-btn>
+          <v-btn color="primary" variant="tonal" block @click="errorDialog = false">ปิด</v-btn>
         </v-card-actions>
       </v-card>
     </template>
@@ -103,7 +111,7 @@
           {{ infoMsg }}
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" variant="tonal" block @click="infoDialog = false">OK</v-btn>
+          <v-btn color="primary" variant="tonal" block @click="infoDialog = false">โอเค</v-btn>
         </v-card-actions>
       </v-card>
     </template>
@@ -117,6 +125,7 @@ import Register from './components/Register.vue'
 import Home from './components/Home.vue'
 import Reservation from '@/components/Reservation.vue'
 import FamilyList from './components/FamilyList.vue'
+import AddFamily from './components/AddFamily.vue';
 import Classes from './components/Classes.vue'
 import { ref, computed, onMounted, inject } from 'vue';
 
@@ -146,6 +155,7 @@ export default {
     Reservation,
     Home,
     FamilyList,
+    AddFamily,
     Classes,
   },
   methods: {
@@ -168,6 +178,7 @@ export default {
     },
     onClickChangeState (state) {
       this.drawer= false
+      this.black = false
       this.state = state
     },
     onClickBack (recentState) {
@@ -228,7 +239,21 @@ export default {
 
     // return { isAuthenticated, isLoggedIn, logout, state, drawer };
   },
+  created() {
+    this.user_details = JSON.parse(localStorage.getItem('userdata'))
+    if (this.user_details) {
+      this.parent = this.user_details.fullname
+      this.student = null;
+      if (this.user_details.usertype == 1) {
+        this.state = 'home'
+      } else {
+        this.state = 'admin'
+      }
+    }
+    this.isLoggedIn = tokenService.isLoggedIn();
+  },
   mounted() {
+    alert('mounted')
     this.isLoggedIn = tokenService.isLoggedIn();
   },
   computed: {

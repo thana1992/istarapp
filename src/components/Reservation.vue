@@ -23,7 +23,7 @@
                     v-model="classtimeSelect"
                     label="Class time"
                     class="ma-2 pa-2"
-                    item-title="classtime"
+                    item-title="text"
                     item-value="classid"
                     :items="classtimesData"
                     variant="outlined"
@@ -117,17 +117,23 @@ import moment from 'moment'
             this.getClassTime()
         },
         async validate() {
-            const { valid } = await this.$refs.reserveForm.validate()
+            let { valid } = await this.$refs.reserveForm.validate()
             if(!valid) return;
+            if(this.people.remaining <= 0) {
+                this.$emit('onErrorHandler', 'ไม่สามารถจองคลาสได้ จำนวนคลาสของท่านหมดแล้ว T-T')
+                return;
+            }
             this.questionDialog = true
             //await this.submitReservation()
         },
         getClassTime() {
-            console.log(this.student.courseid + ', ' +this.weekday[this.date.getDay()])
-            axios.post('http://localhost:3000/getClassTime', {
-                courseid: this.student.courseid,
-                classday: this.weekday[this.date.getDay()]
-            })
+            let req = {
+                classdate: this.SQLDate(this.date),
+                classday: this.weekday[this.date.getDay()],
+                courseid: this.student.courseid
+            }
+            console.log("request", req)
+            axios.post('http://localhost:3000/getClassTime', req)
             .then(response => {
                 console.dir(response);
                 if (response.data.success) {
@@ -145,7 +151,7 @@ import moment from 'moment'
         async submitReservation () {
             this.questionDialog = false;
             let isDuplicate = false;
-            let reservaObj = {
+            const reservaObj = {
                 childid: this.student.childid,
                 classdate: this.SQLDate(this.date),
                 classtime: this.classtimeSelect.classtime,
@@ -153,7 +159,7 @@ import moment from 'moment'
                 courseid: this.student.courseid,
                 classday: this.weekday[this.date.getDay()]
             }
-            console.log(reservaObj)
+            console.log('checkDuplicateReservation : ' ,reservaObj)
 
             await axios.post('http://localhost:3000/checkDuplicateReservation', reservaObj)
             .then(response => {
@@ -180,7 +186,6 @@ import moment from 'moment'
                     this.$emit('onErrorHandler', error.message || 'Reservation failed')
                 });
             }
-            
             this.$emit('onClickChangeState', this.student)
         },
         SQLDate(value){
