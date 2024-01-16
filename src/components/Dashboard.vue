@@ -9,9 +9,11 @@
                 <v-row>
                     <v-col cols="12" sm="6" md="3" xl="3">
                         <v-card class="mx-auto" link>
+                            <v-list-item class="header-card">
+                                <div>Total Students</div>
+                            </v-list-item>
                             <v-list-item three-line class="dashboard-card">
                                 <v-list-item-content>
-                                    <div class="overline mb-4">Total Students</div>
                                     <v-list-item-title class="headline mb-1">{{ totalStudents }}</v-list-item-title>
                                     <v-list-item-subtitle>Students</v-list-item-subtitle>
                                 </v-list-item-content>
@@ -23,11 +25,13 @@
                     </v-col>
                     <v-col cols="12" sm="6" md="3" xl="3">
                         <v-card class="mx-auto" link @click="onClickCardToday">
+                            <v-list-item class="header-card">
+                                <div>Total bookings today</div>
+                            </v-list-item>
                             <v-list-item three-line class="dashboard-card">
                                 <v-list-item-content>
-                                    <div class="overline mb-4">Total bookings today</div>
                                     <v-list-item-title class="headline mb-1">{{ totalBookingToday }}</v-list-item-title>
-                                    <v-list-item-subtitle>Students</v-list-item-subtitle>
+                                    <v-list-item-subtitle>Bookings</v-list-item-subtitle>
                                 </v-list-item-content>
                                 <v-list-item-avatar color="grey" size="80">
                                     <span class="mdi mdi-account-group"></span>
@@ -37,9 +41,11 @@
                     </v-col>
                     <v-col cols="12" sm="6" md="3" xl="3">
                         <v-card class="mx-auto" link>
+                            <v-list-item class="header-card">
+                                <div>Approve new students</div>
+                            </v-list-item>
                             <v-list-item three-line class="dashboard-card">
                                 <v-list-item-content>
-                                    <div class="overline mb-4">Approve new students</div>
                                     <v-list-item-title class="headline mb-1">{{ totalWaitNewStudents }}</v-list-item-title>
                                     <v-list-item-subtitle>Students</v-list-item-subtitle>
                                 </v-list-item-content>
@@ -51,11 +57,13 @@
                     </v-col>
                     <v-col cols="12" sm="6" md="3" xl="3">
                         <v-card class="mx-auto" link>
+                            <v-list-item class="header-card">
+                                <div>Approve cancel booking class</div>
+                            </v-list-item>
                             <v-list-item three-line class="dashboard-card">
                                 <v-list-item-content>
-                                    <div class="overline mb-4">Approve cancel booking class</div>
                                     <v-list-item-title class="headline mb-1">{{ totalWaitCancelBooking }}</v-list-item-title>
-                                    <v-list-item-subtitle>Students</v-list-item-subtitle>
+                                    <v-list-item-subtitle>Bookings</v-list-item-subtitle>
                                 </v-list-item-content>
                                 <v-list-item-avatar color="grey" size="80">
                                     <span class="mdi mdi-account-group"></span>
@@ -67,14 +75,19 @@
                 <v-row>
                     <v-col cols="12" sm="6" md="4" xl="3">
                         <v-card class="mx-0" height="400">
+                            <v-list-item class="header-card">
+                                <div>View class booking by date</div>
+                            </v-list-item>
+                            <v-list-item-content>
                             <v-container>
                                 <v-row justify="space-around">
-                            <v-date-picker
-                                v-model="date"
-                                @click="selectDate"
-                            ></v-date-picker>
-                        </v-row>
+                                    <v-date-picker
+                                        v-model="date"
+                                        @click="selectDate"
+                                    ></v-date-picker>
+                                </v-row>
                             </v-container>
+                        </v-list-item-content>
                         </v-card>
                     </v-col>
                     <v-col cols="12" sm="6" md="8" xl="9">
@@ -153,8 +166,9 @@ export default ({
             BookingList: [],
             headers: [
             { title: 'Name', key: 'fullname' },
+            { title: 'Course', key: 'coursename' },
             { title: 'Class Time', key: 'classtime' },
-            { title: 'Class', key: 'coursename' },
+            
             { title: 'Check-in', key: 'checkin', align: 'center', sortable: false },
             { title: 'Delete', key: 'delete', align: 'center', sortable: false },
             ],
@@ -216,22 +230,22 @@ export default ({
         },
         async getReservationList() {
             this.loading = true
-            setTimeout(() => {
             axios
-            .post('http://localhost:3000/getReservationList', { classdate: this.SQLDate(this.date) })
-            .then(response => {
-                console.dir(response);
-                if (response.data.success) {
-                    this.BookingList = response.data.results
-                } else {
-                    this.BookingList = []
-                }
-            })
-            .catch(error => {
-                console.error(error);
-            });
-            this.loading = false
-            }, 3000)
+                .post('http://localhost:3000/getReservationList', { classdate: this.SQLDate(this.date) })
+                .then(response => {
+                    console.dir(response);
+                    if (response.data.success) {
+                        this.BookingList = response.data.results
+                    } else {
+                        this.BookingList = []
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+            setTimeout(() => {
+                this.loading = false
+            }, 2000)
             
         },
         getApproveNewStudents() {
@@ -298,6 +312,10 @@ export default ({
 .dashboard-card:hover {
     background-color: rgba(187, 187, 187, 0.342);
     cursor: pointer;
+}
+.header-card {
+    background-color: #eeeeee;
+    color: black;
 }
 </style>
 
