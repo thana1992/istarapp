@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="container-header">
-            <h1><span class="mdi mdi-account-multiple-plus"></span> Add Member</h1>
+            <h1><span class="mdi mdi-face-man-shimmer"></span> Add Member</h1>
         </div>
         <div class="container-content">
             <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>

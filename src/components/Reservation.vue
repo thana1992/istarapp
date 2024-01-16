@@ -109,6 +109,7 @@ import moment from 'moment'
         const tomorrow = new Date()
         tomorrow.setDate(new Date().getDate()+1)
         this.date = tomorrow
+        this.getClassTime()
     },
     methods: {
         selectDate() {

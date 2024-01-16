@@ -1,19 +1,19 @@
 <template>
   <div class="container">
     <div class="container-header">
-        <h1><span class="mdi mdi-gymnastics"></span> Classes Management</h1>
+        <h1><span class="mdi mdi-star-shooting-outline"></span> Courses Management</h1>
     </div>
     <div class="container-content">
     <v-data-table
       :headers="headers"
-      :items="classlist"
+      :items="courselist"
       :sort-by="[{ key: 'coursename', order: 'asc' }]"
     >
       <template v-slot:top>
         <v-toolbar
           flat
         >
-          <v-toolbar-title>Our Classes</v-toolbar-title>
+          <v-toolbar-title>Our Courses</v-toolbar-title>
           <v-divider
             class="mx-4"
             inset
@@ -31,14 +31,13 @@
                 class="mb-2"
                 v-bind="props"
               >
-                New Class
+                New Course
               </v-btn>
             </template>
             <v-card>
               <v-card-title>
                 <span>{{ formTitle }}</span>
               </v-card-title>
-  
               <v-card-text>
                 <v-container>
                   <v-row>
@@ -47,26 +46,9 @@
                       sm="6"
                       md="50"
                     >
-                      <v-select
-                      v-model="courseidSelected"
-                      label="Course Name"
-                      item-title="coursename"
-                      item-value="courseid"
-                      :items="courseLookup"
-                      variant="solo-filled"
-                      no-data-text="No course data"
-                      return-object
-                      required
-                      ></v-select>
-                    </v-col>
-                    <v-col
-                      cols="12"
-                      sm="6"
-                      md="50"
-                    >
                       <v-text-field
-                        v-model="editedItem.classday"
-                        label="Class Day"
+                        v-model="editedItem.coursename"
+                        label="Course Name"
                       ></v-text-field>
                     </v-col>
                     <v-col
@@ -75,18 +57,8 @@
                       md="50"
                     >
                       <v-text-field
-                        v-model="editedItem.classtime"
-                        label="Class Time"
-                      ></v-text-field>
-                    </v-col>
-                    <v-col
-                      cols="12"
-                      sm="6"
-                      md="50"
-                    >
-                      <v-text-field
-                        v-model="editedItem.maxperson"
-                        label="Max Student"
+                        v-model="editedItem.course_shortname"
+                        label="Course Short Name"
                       ></v-text-field>
                     </v-col>
                   </v-row>
@@ -115,7 +87,7 @@
           <v-dialog v-model="dialogDelete" persistent width="auto">
             <v-card>
                 <v-card-title></v-card-title>
-                <v-card-text>ต้องการลบคลาสเรียนนี้จริงๆหรอ ? การจองทั้งหมดที่มีอยู่ในคลาสนี้ก็จะถูกยกเลิกด้วยนะ</v-card-text>
+                <v-card-text>ต้องการลบคอร์สเรียนนี้จริงๆหรอ ?</v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">ใช่! ลบเลย</v-btn>
@@ -161,35 +133,25 @@
         dialog: false,
         dialogDelete: false,
         headers: [
-          {
-            title: 'Course Name',
-            align: 'start',
-            key: 'coursename',
-          },
-          { title: 'Class Day', key: 'classday' },
-          { title: 'Class Time', key: 'classtime' },
-          { title: 'Max student', key: 'maxperson' },
+          { title: 'Course Name', align: 'start', key: 'coursename' },
+          { title: 'Course Short Name', key: 'course_shortname' },
           { title: 'Actions', key: 'actions', sortable: false },
         ],
         editedIndex: -1,
         editedItem: {
-            classday: '',
-            classtime: '',
-            maxperson: 0,
+          coursename: '',
+          course_shortname: '',
         },
         defaultItem: {
-            classday: '',
-            classtime: '',
-            maxperson: 20,
+          coursename: '',
+          course_shortname: '',
         },
-        classlist: [],
-        courseLookup: [],
-        courseidSelected: null,
+        courselist: [],
       }),
   
       computed: {
         formTitle () {
-          return this.editedIndex === -1 ? 'New Class' : 'Edit Class'
+          return this.editedIndex === -1 ? 'New Course' : 'Edit Course'
         },
       },
   
@@ -204,31 +166,16 @@
   
       created () {
         this.initialize()
-        this.courseLookup = this.getCourseLookup()
       },
   
       methods: {
          initialize () {
              axios
-            .get('http://localhost:3000/getAllClasses', {})
+            .get('http://localhost:3000/getAllCourses', {})
             .then(response => {
                 console.dir(response);
                 if (response.data.success) {
-                    this.classlist = response.data.results
-                }
-            })
-            .catch(error => {
-                console.error(error);
-            });
-        },
-        
-        getCourseLookup () {
-            axios
-            .get('http://localhost:3000/courseLookup', {})
-            .then(response => {
-                console.dir(response);
-                if (response.data.success) {
-                    this.courseLookup = response.data.results
+                    this.courselist = response.data.results
                 }
             })
             .catch(error => {
@@ -237,23 +184,21 @@
         },
   
         editItem (item) {
-          this.editedIndex = this.classlist.indexOf(item)
-          this.courseidSelected = this.courseLookup.find(x => x.courseid == item.courseid)
+          this.editedIndex = this.courselist.indexOf(item)
           this.editedItem = Object.assign({}, item)
           this.dialog = true
         },
   
         deleteItem (item) {
-          this.editedIndex = this.classlist.indexOf(item)
-          this.courseidSelected = this.courseLookup.find(x => x.courseid == item.courseid)
+          this.editedIndex = this.courselist.indexOf(item)
           this.editedItem = Object.assign({}, item)
           this.dialogDelete = true
         },
   
         deleteItemConfirm () {
           axios
-            .post('http://localhost:3000/deleteClass', {
-                classid: this.editedItem.classid
+            .post('http://localhost:3000/deleteCourse', {
+              courseid: this.editedItem.courseid
             })
             .then(response => {
                 console.dir(response);
@@ -289,18 +234,16 @@
         save () {
           if (this.editedIndex > -1) {
             let saveObj = {
-                classid: this.editedItem.classid,
-                courseid: this.courseidSelected.courseid,
-                classday: this.editedItem.classday,
-                classtime: this.editedItem.classtime,
-                maxperson: this.editedItem.maxperson
+                courseid: this.editedItem.courseid,
+                coursename: this.editedItem.coursename,
+                course_shortname: this.editedItem.course_shortname,
             }
             axios
-            .post('http://localhost:3000/updateClass', saveObj)
+            .post('http://localhost:3000/updateCourse', saveObj)
             .then(response => {
                 console.dir(response);
                 if (response.data.success) {
-                    this.$emit('onInfoHandler', 'สำเร็จ แก้ไขข้อมูลคลาสแล้ว');
+                    this.$emit('onInfoHandler', 'สำเร็จ แก้ไขข้อมูลคอร์สแล้ว');
                 } else {
                     this.$emit('onErrorHandler', response.data.message || 'เสียใจ แก้ไขไม่ได้ ลองใหม่อีกครั้งนะ');
                 }
@@ -308,19 +251,17 @@
             })
           } else {
             let saveObj = {
-                courseid: this.courseidSelected.courseid,
-                classday: this.editedItem.classday,
-                classtime: this.editedItem.classtime,
-                maxperson: this.editedItem.maxperson
+                coursename: this.editedItem.coursename,
+                course_shortname: this.editedItem.course_shortname,
             }
             axios
-            .post('http://localhost:3000/addClass', saveObj)
+            .post('http://localhost:3000/addCourse', saveObj)
             .then(response => {
                 console.dir(response);
                 if (response.data.success) {
-                    this.$emit('onInfoHandler', 'สำเร็จ สร้างคลาสใหม่แล้ว');
+                    this.$emit('onInfoHandler', 'สำเร็จ สร้างคอร์สใหม่แล้ว');
                 } else {
-                    this.$emit('onErrorHandler', response.data.message || 'เสียใจ สร้างคลาสไม่ได้ ลองใหม่อีกครั้งนะ');
+                    this.$emit('onErrorHandler', response.data.message || 'เสียใจ สร้างคอร์สไม่ได้ ลองใหม่อีกครั้งนะ');
                 }
                 this.initialize()
             })

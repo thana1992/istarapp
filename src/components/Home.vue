@@ -1,4 +1,5 @@
 <template>
+<div class="container">
   <div v-if="isLoggedIn">
       <div class="container-header">
           <h1><font-awesome-icon icon="fa-solid fa-house-user" /> Home</h1>
@@ -100,6 +101,7 @@
   <div v-else>
     <p>Please Logon to access this page</p>
   </div>
+</div>
 </template>
 
 <script>

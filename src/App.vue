@@ -21,7 +21,11 @@
           </v-list-item>
           <v-list-item v-if="isLoggedIn" prepend-icon="mdi-account-multiple" title="FAMILY" value="familylist" @click="onClickChangeState('familylist')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn" prepend-icon="mdi-gymnastics" title="CLASSES" value="classes" @click="onClickChangeState('classes')">
+          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-view-dashboard" title="DASHBOARD" value="dashboard" @click="onClickChangeState('dashboard')">
+          </v-list-item>
+          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-star-shooting-outline" title="COURSES" value="course" @click="onClickChangeState('course')">
+          </v-list-item>
+          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-gymnastics" title="CLASSES" value="classes" @click="onClickChangeState('classes')">
           </v-list-item>
           <v-list-item v-if="isLoggedIn" prepend-icon="mdi-logout" title="Logout" value="logout" @click="logout()">
           </v-list-item>
@@ -81,10 +85,23 @@
           @onInfoHandler="onShowInfoDialog($event)"
           ></AddFamily>
 
+          <Dashboard v-else-if="state=='dashboard'"
+          @onErrorHandler="onError($event)"
+          @onInfoHandler="onShowInfoDialog($event)"
+          ></Dashboard>
+
+          <Course v-else-if="state=='course'"
+          @onErrorHandler="onError($event)"
+          @onInfoHandler="onShowInfoDialog($event)"
+          ></Course>
+
           <Classes v-else-if="state=='classes'"
           @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)"
           ></Classes>
+
+          
+
         </Transition>
 
       </v-main>
@@ -126,6 +143,8 @@ import Home from './components/Home.vue'
 import Reservation from '@/components/Reservation.vue'
 import FamilyList from './components/FamilyList.vue'
 import AddFamily from './components/AddFamily.vue';
+import Dashboard from './components/Dashboard.vue'
+import Course from './components/Courses.vue'
 import Classes from './components/Classes.vue'
 import { ref, computed, onMounted, inject } from 'vue';
 
@@ -145,7 +164,8 @@ export default {
         infoDialog: false,
         inforMsg: '',
         user_details: {},
-        student: null
+        student: null,
+        adminflag: false
       }
     },
   name: 'App',
@@ -156,6 +176,8 @@ export default {
     Home,
     FamilyList,
     AddFamily,
+    Dashboard,
+    Course,
     Classes,
   },
   methods: {
@@ -164,9 +186,11 @@ export default {
       this.parent = this.user_details.fullname
       this.student = null;
         if (this.user_details.usertype == 1) {
-          this.state = 'home'
+          this.adminflag = true
+          this.state = 'dashboard'
         } else {
-          this.state = 'admin'
+          this.adminflag = false
+          this.state = 'home'
         }
         this.isLoggedIn = tokenService.isLoggedIn();
     },
@@ -241,19 +265,21 @@ export default {
   },
   created() {
     this.user_details = JSON.parse(localStorage.getItem('userdata'))
+    console.log("user_details", this.user_details);
     if (this.user_details) {
       this.parent = this.user_details.fullname
       this.student = null;
       if (this.user_details.usertype == 1) {
-        this.state = 'home'
-      } else {
-        this.state = 'admin'
-      }
+          this.adminflag = true
+          this.state = 'dashboard'
+        } else {
+          this.adminflag = false
+          this.state = 'home'
+        }
     }
     this.isLoggedIn = tokenService.isLoggedIn();
   },
   mounted() {
-    alert('mounted')
     this.isLoggedIn = tokenService.isLoggedIn();
   },
   computed: {
