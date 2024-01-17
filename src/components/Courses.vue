@@ -28,7 +28,6 @@
               <v-btn
                 color="primary"
                 dark
-                class="mb-2"
                 v-bind="props"
               >
                 New Course
@@ -49,6 +48,7 @@
                       <v-text-field
                         v-model="editedItem.coursename"
                         label="Course Name"
+                        variant="solo-filled"
                       ></v-text-field>
                     </v-col>
                     <v-col
@@ -59,6 +59,7 @@
                       <v-text-field
                         v-model="editedItem.course_shortname"
                         label="Course Short Name"
+                        variant="solo-filled"
                       ></v-text-field>
                     </v-col>
                   </v-row>

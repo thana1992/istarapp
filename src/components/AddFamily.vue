@@ -45,6 +45,7 @@
                 <DatePicker 
                 label="Date of Birth"
                 v-model="dateofbirth"
+                :maxdate="new Date()"
                 ></DatePicker>
 
                 <v-btn
@@ -85,7 +86,7 @@ export default {
         nickname: '',
         gender: '',
         dateofbirth: null,
-        format: 'dddd MMMM Do, YYYY',
+        format: 'dddd MMMM DD, YYYY',
         nameRules: [
             v => !!v || 'Username is required',
         ],
@@ -110,19 +111,19 @@ export default {
                 gender: this.gender,
                 dateofbirth: this.format_date(this.dateofbirth),
                 familyid: user.familyid,
-                remaining: 0,
                 })
                 .then(response => {
-                if (response.data.success) {
-                    this.$emit('onInfoHandler', 'เพิ่มสมาชิกครอบครัวสำเร็จแล้ว');
-                    this.$emit('onClickChangeState', 'familylist')
-                } else {
-                    this.$emit('onErrorHandler', response.data.message || 'เพิ่มสมาชิกครอบครัวไม่สำเร็จ');
-                }
+                    console.log(response)
+                    if (response.data.success) {
+                        this.$emit('onInfoHandler', response.data.message || 'เพิ่มสมาชิกครอบครัวสำเร็จแล้ว');
+                        this.$emit('onClickChangeState', 'familylist')
+                    } else {
+                        this.$emit('onErrorHandler', response.data.message || 'เพิ่มสมาชิกครอบครัวไม่สำเร็จ');
+                    }
                 })
                 .catch(error => {
-                console.error(error);
-                alert(error.message)
+                    console.error(error);
+                    alert(error.message)
                 });
             }
         },

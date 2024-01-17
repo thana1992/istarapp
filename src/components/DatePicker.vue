@@ -8,21 +8,32 @@
           v-bind="props"
           variant="solo-filled"
           hide-details
+          required
         ></v-text-field>
       </template>
-      <v-date-picker ref="picker" v-model="selectedDate" hide-actions title="" :color="color">
+      <v-date-picker ref="picker" v-model="selectedDate" hide-actions title="" :color="color" :max="maxdate" :min="mindate">
         <template v-slot:header></template>
       </v-date-picker>
     </v-menu>
   </template>
-  
-  <script setup>
+<script>
+export default {
+    data: () => ({
+      srules: [
+            v => !!v || 'Username is required',
+        ],
+    })
+  }  
+</script>  
+<script setup>
   import { ref, computed, watch, defineProps, defineEmits } from "vue";
   
-  const { label, color, modelValue } = defineProps([
+  const { label, color, modelValue, mindate, maxdate } = defineProps([
     "label",
     "color",
     "modelValue",
+    "mindate",
+    "maxdate",
   ]);
   const emit = defineEmits("update:modelValue");
   
@@ -32,7 +43,7 @@
   const formattedDate = computed(() => {
     return selectedDate.value ? selectedDate.value.toDateString() : "";
   });
-  
+ 
   watch(modelValue, (newDate) => {
     selectedDate.value = newDate;
   });
@@ -42,6 +53,7 @@
     emit("update:modelValue", newDate);
     isMenuOpen.value = false;
   });
+  
   </script>
   <style>
   .v-overlay__content:has(> .v-date-picker) {

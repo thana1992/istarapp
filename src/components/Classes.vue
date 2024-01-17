@@ -23,12 +23,11 @@
           <v-dialog
             v-model="dialog"
             max-width="500px"
-          >
+            >
             <template v-slot:activator="{ props }">
               <v-btn
                 color="primary"
                 dark
-                class="mb-2"
                 v-bind="props"
               >
                 New Class
@@ -48,14 +47,13 @@
                       md="50"
                     >
                       <v-select
-                      v-model="courseidSelected"
+                      v-model="editedItem.courseid"
                       label="Course Name"
                       item-title="coursename"
                       item-value="courseid"
                       :items="courseLookup"
                       variant="solo-filled"
                       no-data-text="No course data"
-                      return-object
                       required
                       ></v-select>
                     </v-col>
@@ -67,6 +65,7 @@
                       <v-text-field
                         v-model="editedItem.classday"
                         label="Class Day"
+                        variant="solo-filled"
                       ></v-text-field>
                     </v-col>
                     <v-col
@@ -77,6 +76,7 @@
                       <v-text-field
                         v-model="editedItem.classtime"
                         label="Class Time"
+                        variant="solo-filled"
                       ></v-text-field>
                     </v-col>
                     <v-col
@@ -87,6 +87,7 @@
                       <v-text-field
                         v-model="editedItem.maxperson"
                         label="Max Student"
+                        variant="solo-filled"
                       ></v-text-field>
                     </v-col>
                   </v-row>
@@ -184,7 +185,6 @@
         },
         classlist: [],
         courseLookup: [],
-        courseidSelected: null,
       }),
   
       computed: {
@@ -238,14 +238,12 @@
   
         editItem (item) {
           this.editedIndex = this.classlist.indexOf(item)
-          this.courseidSelected = this.courseLookup.find(x => x.courseid == item.courseid)
           this.editedItem = Object.assign({}, item)
           this.dialog = true
         },
   
         deleteItem (item) {
           this.editedIndex = this.classlist.indexOf(item)
-          this.courseidSelected = this.courseLookup.find(x => x.courseid == item.courseid)
           this.editedItem = Object.assign({}, item)
           this.dialogDelete = true
         },
@@ -290,7 +288,7 @@
           if (this.editedIndex > -1) {
             let saveObj = {
                 classid: this.editedItem.classid,
-                courseid: this.courseidSelected.courseid,
+                courseid: this.editedItem.courseid,
                 classday: this.editedItem.classday,
                 classtime: this.editedItem.classtime,
                 maxperson: this.editedItem.maxperson
@@ -308,7 +306,7 @@
             })
           } else {
             let saveObj = {
-                courseid: this.courseidSelected.courseid,
+                courseid: this.editedItem.courseid,
                 classday: this.editedItem.classday,
                 classtime: this.editedItem.classtime,
                 maxperson: this.editedItem.maxperson

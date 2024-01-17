@@ -83,7 +83,11 @@ body {
 }
 
 .v-icon--clickable:hover {
-  color: #ff09b5;
+  opacity: 1;
+  
+}
+.v-icon--clickable {
+  opacity: 0.5;
 }
 @media only screen and (max-width: 600px) {
 

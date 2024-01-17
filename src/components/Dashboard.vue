@@ -7,78 +7,74 @@
             <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
             <div class="mx-auto mt-5 px-2 py-1">
                 <v-row>
-                    <v-col cols="12" sm="6" md="3" xl="3">
-                        <v-card class="mx-auto" link>
-                            <v-list-item class="header-card">
-                                <div>Total Students</div>
+                    <v-col cols="12" sm="6" md="2" xl="2">
+                        <v-card class="mx-auto" link @click="onClickCardStudent" >
+                            <v-list-item class="header-card" min-height="60">
+                                <div>Total <br>Students</div>
                             </v-list-item>
                             <v-list-item three-line class="dashboard-card">
-                                <v-list-item-content>
-                                    <v-list-item-title class="headline mb-1">{{ totalStudents }}</v-list-item-title>
-                                    <v-list-item-subtitle>Students</v-list-item-subtitle>
-                                </v-list-item-content>
-                                <v-list-item-avatar color="grey" size="80">
-                                    <span class="mdi mdi-account-group"></span>
-                                </v-list-item-avatar>
+                                <v-list-item-title class="headline mb-1">{{ totalStudents }}</v-list-item-title>
+                                <v-list-item-subtitle>Students</v-list-item-subtitle>
+                                <span class="mdi mdi-face-man-shimmer"></span>
+                                <span class="mdi mdi-face-woman-shimmer"></span>
+                            </v-list-item>
+                        </v-card>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="2" xl="2">
+                        <v-card class="mx-auto" link @click="onClickCardToday" >
+                            <v-list-item class="header-card" height="60">
+                                <div>Bookings Today</div>
+                            </v-list-item>
+                            <v-list-item three-line class="dashboard-card">
+                                <v-list-item-title class="headline mb-1">{{ totalBookingToday }}</v-list-item-title>
+                                <v-list-item-subtitle>Bookings</v-list-item-subtitle>
+                                <span class="mdi mdi-gymnastics"></span>
+                            </v-list-item>
+                        </v-card>
+                    </v-col>
+                    <v-col cols="12" sm="6" md="2" xl="2">
+                        <v-card class="mx-auto" link>
+                            <v-list-item class="header-card" height="60">
+                                <div>Bookings Tomorrow</div>
+                            </v-list-item>
+                            <v-list-item three-line class="dashboard-card" >
+                                <v-list-item-title class="headline mb-1">{{ totalBookingTomorrow }}</v-list-item-title>
+                                <v-list-item-subtitle>Bookings</v-list-item-subtitle>
+                                <span class="mdi mdi-gymnastics"></span>
                             </v-list-item>
                         </v-card>
                     </v-col>
                     <v-col cols="12" sm="6" md="3" xl="3">
-                        <v-card class="mx-auto" link @click="onClickCardToday">
-                            <v-list-item class="header-card">
-                                <div>Total bookings today</div>
+                        <v-card class="mx-auto" link @click="onClickNewStudent">
+                            <v-list-item class="header-card" height="60">
+                                <div>Approve New Students</div>
                             </v-list-item>
                             <v-list-item three-line class="dashboard-card">
-                                <v-list-item-content>
-                                    <v-list-item-title class="headline mb-1">{{ totalBookingToday }}</v-list-item-title>
-                                    <v-list-item-subtitle>Bookings</v-list-item-subtitle>
-                                </v-list-item-content>
-                                <v-list-item-avatar color="grey" size="80">
-                                    <span class="mdi mdi-account-group"></span>
-                                </v-list-item-avatar>
+                                <v-list-item-title class="headline mb-1">{{ totalWaitingNewStudents }}</v-list-item-title>
+                                <v-list-item-subtitle>Students</v-list-item-subtitle>
+                                <span class="mdi mdi-account-multiple-check"></span>
                             </v-list-item>
                         </v-card>
                     </v-col>
                     <v-col cols="12" sm="6" md="3" xl="3">
                         <v-card class="mx-auto" link>
-                            <v-list-item class="header-card">
-                                <div>Approve new students</div>
+                            <v-list-item class="header-card" height="60">
+                                <div>Approve Cancel booking</div>
                             </v-list-item>
                             <v-list-item three-line class="dashboard-card">
-                                <v-list-item-content>
-                                    <v-list-item-title class="headline mb-1">{{ totalWaitNewStudents }}</v-list-item-title>
-                                    <v-list-item-subtitle>Students</v-list-item-subtitle>
-                                </v-list-item-content>
-                                <v-list-item-avatar color="grey" size="80">
-                                    <span class="mdi mdi-account-group"></span>
-                                </v-list-item-avatar>
-                            </v-list-item>
-                        </v-card>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="3" xl="3">
-                        <v-card class="mx-auto" link>
-                            <v-list-item class="header-card">
-                                <div>Approve cancel booking class</div>
-                            </v-list-item>
-                            <v-list-item three-line class="dashboard-card">
-                                <v-list-item-content>
-                                    <v-list-item-title class="headline mb-1">{{ totalWaitCancelBooking }}</v-list-item-title>
-                                    <v-list-item-subtitle>Bookings</v-list-item-subtitle>
-                                </v-list-item-content>
-                                <v-list-item-avatar color="grey" size="80">
-                                    <span class="mdi mdi-account-group"></span>
-                                </v-list-item-avatar>
+                                <v-list-item-title class="headline mb-1">{{ totalWaitCancelBooking }}</v-list-item-title>
+                                <v-list-item-subtitle>Bookings</v-list-item-subtitle>
+                                <span class="mdi mdi-account-multiple-check"></span>
                             </v-list-item>
                         </v-card>
                     </v-col>
                 </v-row>
                 <v-row>
-                    <v-col cols="12" sm="6" md="4" xl="3">
+                    <v-col cols="12" sm="12" md="5" xl="3">
                         <v-card class="mx-0" height="400">
                             <v-list-item class="header-card">
                                 <div>View class booking by date</div>
                             </v-list-item>
-                            <v-list-item-content>
                             <v-container>
                                 <v-row justify="space-around">
                                     <v-date-picker
@@ -87,62 +83,217 @@
                                     ></v-date-picker>
                                 </v-row>
                             </v-container>
-                        </v-list-item-content>
                         </v-card>
                     </v-col>
-                    <v-col cols="12" sm="6" md="8" xl="9">
-                        <v-card class="mx-0">
-                            <v-data-table
-                                :loading="loading"
-                                :headers="headers"
-                                :items="BookingList"
-                                :sort-by="[{ key: 'classtime', order: 'asc' }]"
-                                >
-                                <template v-slot:top>
-                                    <v-toolbar
-                                    flat
+                    <v-col cols="12" sm="12" md="7" xl="9">
+                        <Transition name="fade" mode="out-in">
+                            <v-card class="mx-0" v-if="state=='bookinglist'" min-height="400">
+                                <v-data-table
+                                    fixed-header="true"
+                                    height="580"
+                                    :loading="loadingBooking"
+                                    :headers="BookingListHeaders"
+                                    :items="BookingList"
+                                    :sort-by="[{ key: 'classtime', order: 'asc' }]"
                                     >
-                                    <v-toolbar-title>All class bookings today</v-toolbar-title>
-                                    <v-dialog v-model="dialogDelete" persistent width="auto">
-                                        <v-card>
-                                            <v-card-title></v-card-title>
-                                            <v-card-text>ลบแน่นะอีฟ ?</v-card-text>
-                                        <v-card-actions>
-                                            <v-spacer></v-spacer>
-                                            <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">ใช่! ลบเลย</v-btn>
-                                            <v-btn color="#F44336" variant="tonal" @click="closeDelete">ไม่ลบละ เปลี่ยนใจ</v-btn>
-                                            
-                                            <v-spacer></v-spacer>
-                                        </v-card-actions>
-                                        </v-card>
-                                    </v-dialog>
-                                    </v-toolbar>
-                                </template>
-                                <template v-slot:item.checkin="{ item }">
-                                    <v-icon
-                                    size="large"
-                                    class="me-2"
-                                    @click="checkin(item)"
-                                    >
-                                    mdi-check-bold
-                                    </v-icon>
-                                </template>
-                                <template v-slot:loading>
-                                    <v-skeleton-loader type="table-row@5"></v-skeleton-loader>
-                                </template>
-                                <template v-slot:item.delete="{ item }">
-                                    <v-icon
-                                    size="small"
-                                    @click="deleteItem(item)"
-                                    >
-                                    mdi-delete
-                                    </v-icon>
-                                </template>
-                                <template v-slot:no-data>
-                                    No booking class
-                                </template>
+                                    <template v-slot:top>
+                                        <v-toolbar flat>
+                                            <v-toolbar-title>All class bookings today</v-toolbar-title>
+                                                <v-dialog v-model="dialogBookingDelete" persistent width="auto">
+                                                <v-card>
+                                                    <v-card-title></v-card-title>
+                                                    <v-card-text>ต้องการลบการจองนี้ ?</v-card-text>
+                                                <v-card-actions>
+                                                    <v-spacer></v-spacer>
+                                                    <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteBooking">ใช่! ลบเลย</v-btn>
+                                                    <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteBooking">ไม่ลบละ เปลี่ยนใจ</v-btn>
+                                                    
+                                                    <v-spacer></v-spacer>
+                                                </v-card-actions>
+                                                </v-card>
+                                            </v-dialog>
+                                        </v-toolbar>
+                                    </template>
+                                    <template v-slot:item.index="{ item }">{{ BookingList.indexOf(item) + 1 }}</template>
+                                    <template v-slot:item.checkin="{ item }">
+                                        <v-icon size="large" @click="checkin(item)">mdi-check-bold</v-icon>
+                                    </template>
+                                    <template v-slot:item.delete="{ item }">
+                                        <v-icon size="large" color="error" @click="deleteBookingItem(item)">mdi-delete-forever</v-icon>
+                                    </template>
+                                    <template v-slot:loadingBooking><v-skeleton-loader type="table-row@5"></v-skeleton-loader></template>
+                                    <template v-slot:no-data> No booking class </template>
                                 </v-data-table>
-                        </v-card>
+                            </v-card>
+
+                            <v-card class="mx-0" v-else-if="state=='studentlist'">
+                                <v-data-table
+                                    :loading="loadingStudent"
+                                    :headers="StudentListHeaders"
+                                    :items="StudentList"
+                                    :sort-by="[{ key: 'childid', order: 'asc' }]"
+                                    >
+                                    <template v-slot:top>
+                                        <v-toolbar flat>
+                                            <v-toolbar-title>Student list</v-toolbar-title>
+                                            <v-dialog v-model="dialogStudent" max-width="800px">
+                                                <template v-slot:activator="{ props }">
+                                                    <v-btn color="primary" dark v-bind="props"><span class="mdi mdi-emoticon-plus-outline"></span> New Student</v-btn>
+                                                </template>
+                                                <v-card>
+                                                    <v-card-title>
+                                                        <v-span v-if="editedStudentIndex==-1" class="mdi mdi-emoticon-plus-outline"></v-span>
+                                                        <v-span v-if="editedStudentIndex!=-1" class="mdi mdi-human-edit"></v-span>
+                                                        <span>{{ formStudentTitle }}</span>
+                                                    </v-card-title>
+                                                    <v-card-text>
+                                                        <v-container>
+                                                            <v-form ref="newstdform">
+                                                                <v-row>
+                                                                    <v-col cols="12" sm="6" md="6">
+                                                                        <v-text-field
+                                                                            v-model="editedStudentItem.firstname"
+                                                                            label="Firstname"
+                                                                            variant="solo-filled"
+                                                                            :rules="notNullRules"
+                                                                            required
+                                                                        ></v-text-field>
+                                                                    </v-col>
+                                                                    <v-col cols="12" sm="6" md="6">
+                                                                        <v-text-field
+                                                                            v-model="editedStudentItem.lastname"
+                                                                            label="Lastname"
+                                                                            variant="solo-filled"
+                                                                            :rules="notNullRules"
+                                                                            required
+                                                                        ></v-text-field>
+                                                                    </v-col>
+                                                                    <v-col cols="12" sm="6" md="3">
+                                                                        <v-text-field
+                                                                            v-model="editedStudentItem.nickname"
+                                                                            label="Nickname"
+                                                                            variant="solo-filled"
+                                                                            :rules="notNullRules"
+                                                                            required
+                                                                        ></v-text-field>
+                                                                    </v-col>
+                                                                    <v-col cols="12" sm="6" md="3">
+                                                                        <v-select
+                                                                            v-model="editedStudentItem.gender"
+                                                                            label="Gender"
+                                                                            :items="['ชาย', 'หญิง']"
+                                                                            variant="solo-filled"
+                                                                            :rules="notNullRules"
+                                                                            required
+                                                                        ></v-select>
+                                                                    </v-col>
+                                                                    <v-col cols="12" sm="6" md="3">
+                                                                        <DatePicker 
+                                                                            label="Date of Birth"
+                                                                            variant="solo-filled"
+                                                                            v-model="editedStudentItem.dateofbirth"
+                                                                            :maxdate="new Date()"
+                                                                            @click="calculateAgeNewStudent"
+                                                                            rules="notNullRules"
+                                                                            required
+                                                                        ></DatePicker>
+                                                                    </v-col>
+                                                                    <v-col cols="12" sm="6" md="3">
+                                                                        <v-text-field 
+                                                                            label="Age"
+                                                                            v-model="editedStudentItem.age"
+                                                                            readonly="true"
+                                                                            variant="solo-filled"
+                                                                        ></v-text-field>
+                                                                    </v-col>
+
+                                                                    <v-col cols="12" sm="6" md="6">
+                                                                        <v-select
+                                                                            v-model="editedStudentItem.courseid"
+                                                                            label="Course Name"
+                                                                            item-title="coursename"
+                                                                            item-value="courseid"
+                                                                            :items="courseLookup"
+                                                                            variant="solo-filled"
+                                                                            no-data-text="No course data"
+                                                                            :rules="notNullRules"
+                                                                            required
+                                                                        ></v-select>
+                                                                    </v-col>
+                                                                    <v-col cols="12" sm="6" md="3">
+                                                                        <v-text-field
+                                                                            v-model="editedStudentItem.remaining"
+                                                                            label="Class Remaining"
+                                                                            variant="solo-filled"
+                                                                            :rules="notNullRules"
+                                                                            required
+                                                                        ></v-text-field>
+                                                                    </v-col>
+                                                                    <v-col cols="12" sm="6" md="3">
+                                                                        <v-select
+                                                                            v-model="editedStudentItem.familyid"
+                                                                            label="Parent"
+                                                                            item-title="username"
+                                                                            item-value="familyid"
+                                                                            :items="familyLookup"
+                                                                            variant="solo-filled"
+                                                                            :rules="notNullRules"
+                                                                            required
+                                                                        ></v-select>
+                                                                    </v-col>
+                                                                </v-row>
+                                                            </v-form>
+                                                        </v-container>
+                                                    </v-card-text>
+                                        
+                                                    <v-card-actions>
+                                                        <v-spacer></v-spacer>
+                                                        <v-btn
+                                                        color="blue-darken-1"
+                                                        variant="text"
+                                                        @click="closeStudent"
+                                                        >
+                                                        Cancel
+                                                        </v-btn>
+                                                        <v-btn
+                                                        color="blue-darken-1"
+                                                        variant="text"
+                                                        @click="doSaveNewStudent"
+                                                        >
+                                                        Save
+                                                        </v-btn>
+                                                    </v-card-actions>
+                                                </v-card>
+                                            </v-dialog>
+                                            <v-dialog v-model="dialogStudentDelete" persistent width="auto">
+                                                <v-card>
+                                                    <v-card-title></v-card-title>
+                                                    <v-card-text>ต้องการลบเด็กคนนี้ใช่มั้ย ?</v-card-text>
+                                                <v-card-actions>
+                                                    <v-spacer></v-spacer>
+                                                    <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteStd">ใช่! ลบเลย</v-btn>
+                                                    <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteStd">เดี๋ยวก่อน รอแปบ</v-btn>
+                                                    <v-spacer></v-spacer>
+                                                </v-card-actions>
+                                                </v-card>
+                                            </v-dialog>
+                                        </v-toolbar>
+                                    </template>
+                                    <template v-slot:item.index="{ item }">{{ StudentList.indexOf(item)+1 }}</template>
+                                    <template v-slot:item.edit="{ item }">
+                                        <v-icon size="large" color="info" @click="clickEditStudent(item)">mdi-pencil</v-icon>
+                                    </template>
+                                    <template v-slot:item.delete="{ item }">
+                                        <v-icon size="large" color="error" @click="clickDeleteStudent(item)">mdi-delete-forever</v-icon>
+                                    </template>
+                                    <template v-slot:loadingStudent><v-skeleton-loader type="table-row@5"></v-skeleton-loader></template>
+                                    <template v-slot:no-data> No Student list </template>
+                                </v-data-table>
+                            </v-card>
+                            <v-card v-else-if="state=='approvenewstudent'">
+                                <ApproveNewStudent></ApproveNewStudent>
+                            </v-card>
+                        </Transition>
                     </v-col>
                 </v-row>
                 <v-row>
@@ -153,32 +304,97 @@
 </template>
 <script>
 import axios from 'axios'
+import DatePicker from '@/components/DatePicker.vue'
+import ApproveNewStudent from './ApproveNewStudent.vue'
 import moment from 'moment'
 export default ({
+    components: {
+        DatePicker,
+        ApproveNewStudent
+    },
+    computed: {
+        formStudentTitle () {
+          return this.editedStudentIndex === -1 ? 'Add a new student' : 'Edit student information'
+        },
+      },
     data() {
         return {
+            interval:null,
             date: new Date(),
             tomorrow: new Date(),
             totalStudents: 0,
             totalBookingToday: 0,
-            totalWaitNewStudents: 0,
+            totalBookingTomorrow: 0,
+            totalWaitingNewStudents: 0,
             totalWaitCancelBooking: 0,
+
             BookingList: [],
-            headers: [
+            BookingListHeaders: [
+            { title: 'No.', key: 'index'},
             { title: 'Name', key: 'fullname' },
             { title: 'Course', key: 'coursename' },
             { title: 'Class Time', key: 'classtime' },
-            
             { title: 'Check-in', key: 'checkin', align: 'center', sortable: false },
             { title: 'Delete', key: 'delete', align: 'center', sortable: false },
             ],
-            editedIndex: -1,
-            dialog: false,
-            dialogDelete: false,
-            loading: false,
+            editedBookingItem: {
+                reservationid: null,
+                childid: null,
+                fullname: null,
+                coursename: null,
+                classtime: null,
+            },
+            editedBookingIndex: -1,
+            dialogBooking: false,
+            dialogBookingDelete: false,
+            loadingBooking: false,
+
+            StudentList: [],
+            StudentListHeaders: [
+            { title: 'No.', key: 'index'},
+            { title: 'Name', key: 'fullname' },
+            { title: 'Course', key: 'coursename' },
+            { title: 'Remaining', key: 'remaining' },
+            { title: 'Mobile Number', key: 'mobileno', align: 'center' },
+            { title: 'Edit', key: 'edit', align: 'center', sortable: false },
+            { title: 'Delete', key: 'delete', align: 'center', sortable: false },
+            ],
+            editedStudentItem: {
+                childid: null,
+                familyid: null,
+                firstname: null,
+                lastname: null,
+                nickname: null,
+                gender: null,
+                dateofbirth: null,
+                age: null,
+                courseid: 1,
+                username: null,
+            },
+            defaultStudentItem: {
+                childid: null,
+                familyid: null,
+                firstname: null,
+                lastname: null,
+                nickname: null,
+                gender: null,
+                dateofbirth: null,
+                age: null,
+                courseid: 1,
+                username: null,
+            },
+            editedStudentIndex: -1,
+            dialogStudent: false,
+            dialogStudentDelete: false,
+            loadingStudent: false,
+
+            state: 'bookinglist',
+
+            notNullRules: [ v => !!v || 'This field is required', ]
         }
     },
     setup() {
+        console.log('setup...'+new Date())
         return {
             editedItem: {
                 coursename: '',
@@ -187,15 +403,42 @@ export default ({
         }
     },
     created() {
-        this.getTotalStudents()
-        this.getTotalReservationToday()
-        this.getReservationList()
-        //this.getApproveNewStudents()
-        //this.getApproveCancelBookingClass()
+        console.log('created...'+new Date())
+        this.initialize()
+        // this.interval = setInterval(() =>{
+        // this.refreshData() },60000)
+    },
+    mounted() {
+        console.log('mounted...'+new Date())
+    },
+    destroyed(){
+        console.log('dashboard destroyed...'+new Date())
+        clearInterval(this.interval)
     },
     methods: {
+        initialize() {
+            this.getTotalStudents()
+            this.getTotalBookingToday()
+            this.getTotalBookingTomorrow()
+            this.getReservationList()
+            this.getTotalWaitingApprove()
+            this.courseLookup = this.getCourseLookup()
+            this.familyLookup = this.getFamilyLookup()
+            //this.getApproveNewStudents()
+            //this.getApproveCancelBookingClass()
+        },
+        refreshData() {
+            console.log('refreshData...'+new Date())
+            this.getTotalStudents()
+            this.getTotalBookingToday()
+            this.getTotalBookingTomorrow()
+            this.getReservationList()
+            this.getTotalWaitingApprove()
+            //this.getApproveNewStudents()
+            //this.getApproveCancelBookingClass()
+        },
         selectDate() {
-            console.log(this.SQLDate(this.date))
+            this.state = 'bookinglist'
             this.getReservationList()
         },
         onClickCardToday() {
@@ -206,7 +449,7 @@ export default ({
             axios
             .get('http://localhost:3000/getTotalStudents', {})
             .then(response => {
-                console.dir(response);
+                //console.dir(response);
                 if (response.data.success) {
                     this.totalStudents = response.data.results[0].total
                 }
@@ -215,11 +458,11 @@ export default ({
                 console.error(error);
             });
         },
-        getTotalReservationToday() {
+        getTotalBookingToday() {
             axios
-            .get('http://localhost:3000/getTotalReservationToday', {})
+            .get('http://localhost:3000/getTotalBookingToday', {})
             .then(response => {
-                console.dir(response);
+                //console.dir(response);
                 if (response.data.success) {
                     this.totalBookingToday = response.data.results[0].total
                 }
@@ -228,31 +471,38 @@ export default ({
                 console.error(error);
             });
         },
-        async getReservationList() {
-            this.loading = true
+        getTotalBookingTomorrow() {
             axios
-                .post('http://localhost:3000/getReservationList', { classdate: this.SQLDate(this.date) })
-                .then(response => {
-                    console.dir(response);
-                    if (response.data.success) {
-                        this.BookingList = response.data.results
-                    } else {
-                        this.BookingList = []
-                    }
-                })
-                .catch(error => {
-                    console.error(error);
-                });
-            setTimeout(() => {
-                this.loading = false
-            }, 2000)
-            
+            .get('http://localhost:3000/getTotalBookingTomorrow', {})
+            .then(response => {
+                //console.dir(response);
+                if (response.data.success) {
+                    this.totalBookingTomorrow = response.data.results[0].total
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
         },
+        getTotalWaitingApprove() {
+            axios
+            .get('http://localhost:3000/getTotalWaitingApprove', {})
+            .then(response => {
+                //console.dir(response);
+                if (response.data.success) {
+                    this.totalWaitingNewStudents = response.data.results[0].total
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        },
+        
         getApproveNewStudents() {
             axios
             .get('http://localhost:3000/getApproveNewStudents', {})
             .then(response => {
-                console.dir(response);
+                //console.dir(response);
                 if (response.data.success) {
                     this.courselist = response.data.results
                 }
@@ -265,7 +515,7 @@ export default ({
             axios
             .get('http://localhost:3000/getApproveCancelBookingClass', {})
             .then(response => {
-                console.dir(response);
+                //console.dir(response);
                 if (response.data.success) {
                     this.courselist = response.data.results
                 }
@@ -274,22 +524,197 @@ export default ({
                 console.error(error);
             });
         },
-        editItem (item) {
-          this.editedIndex = this.BookingList.indexOf(item)
-          this.editedItem = Object.assign({}, item)
-          this.dialog = true
+        async doSaveNewStudent () {
+            const { valid } = await this.$refs.newstdform.validate()
+            alert('valid : ' + valid)
+            if (valid) {
+            // Make API request to register the user
+            const StudentObj = {
+                firstname: this.editedStudentItem.firstname,
+                lastname: this.editedStudentItem.lastname,
+                nickname: this.editedStudentItem.nickname,
+                gender: this.editedStudentItem.gender,
+                dateofbirth: this.SQLDate(this.editedStudentItem.dateofbirth),
+                familyid: this.editedStudentItem.familyid,
+                courseid: this.editedStudentItem.courseid,
+                remaining: this.editedStudentItem.remaining,
+            }
+            console.log('StudentObj : ', StudentObj)
+            axios
+                .post('http://localhost:3000/addStudentByAdmin', StudentObj)
+                .then(response => {
+                    if (response.data.success) {
+                        this.$emit('onInfoHandler', 'เพิ่มสมาชิกสำเร็จแล้ว');
+                        this.initialize()
+                        this.getStudentList()
+                        this.dialogStudent = false
+                    } else {
+                        this.$emit('onErrorHandler', response.data.message || 'เพิ่มสมาชิกไม่สำเร็จ ลองใหม่อีกครั้งนะ');
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+            }
         },
-        deleteItem (item) {
-          this.editedIndex = this.BookingList.indexOf(item)
-          this.editedItem = Object.assign({}, item)
-          this.dialogDelete = true
+        getCourseLookup () {
+            axios
+            .get('http://localhost:3000/courseLookup', {})
+            .then(response => {
+                //console.dir(response);
+                if (response.data.success) {
+                    this.courseLookup = response.data.results
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
         },
-        closeDelete () {
-          this.dialogDelete = false
+        getFamilyLookup () {
+            axios
+            .get('http://localhost:3000/familyLookup', {})
+            .then(response => {
+                //console.dir(response);
+                if (response.data.success) {
+                    this.familyLookup = response.data.results
+                }
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        },
+        editBookingItem (item) {
+          this.editedBookingIndex = this.BookingList.indexOf(item)
+          this.editedBookingItem = Object.assign({}, item)
+          this.dialogBooking = true
+        },
+        deleteBookingItem (item) {
+          this.editedBookingIndex = this.BookingList.indexOf(item)
+          this.editedBookingItem = Object.assign({}, item)
+          this.dialogBookingDelete = true
+        },
+        clickEditStudent (item) {
+          this.editedStudentIndex = this.StudentList.indexOf(item)
+          this.editedStudentItem = Object.assign({}, item)
+          this.editedStudentItem.dateofbirth = new Date(item.dateofbirth)
+          this.editedStudentItem.age = this.calculateAge(item.dateofbirth)
+          this.dialogStudent = true
+        },
+        clickDeleteStudent (item) {
+          this.editedStudentIndex = this.StudentList.indexOf(item)
+          this.editedStudentItem = Object.assign({}, item)
+          this.dialogStudentDelete = true
+        },
+        async clickConfirmDeleteBooking() {
+            // delete booking
+        },
+        async clickConfirmDeleteStd() {
+            axios.post('http://localhost:3000/deleteFamilyMember', {
+                familyid: this.editedStudentItem.familyid,
+                childid: this.editedStudentItem.childid,
+            })
+            .then(response => {
+                //console.dir(response);
+                if (response.data.success) {
+                    this.$emit('onInfoHandler', 'Delete Student Successful');
+                } else {
+                    this.$emit('onErrorHandler', response.data.message || 'Delete Student failed');
+                }
+                this.dialogStudentDelete = false
+                this.initialize()
+                this.getStudentList()
+            })
+        },
+        closeBooking () {
+          this.dialogBooking = false
           this.$nextTick(() => {
-            this.editedItem = Object.assign({}, this.defaultItem)
-            this.editedIndex = -1
+            this.editedBookingItem = Object.assign({}, this.defaultBookingItem)
+            this.editedBookingIndex = -1
           })
+        },
+        clickCancelDeleteBooking () {
+          this.dialogBookingDelete = false
+          this.$nextTick(() => {
+            this.editedBookingItem = Object.assign({}, this.defaultBookingItem)
+            this.editedBookingIndex = -1
+          })
+        },
+        closeStudent () {
+          this.dialogStudent = false
+          this.$nextTick(() => {
+            this.editedStudentItem = Object.assign({}, this.defaultStudentItem)
+            this.editedStudentIndex = -1
+          })
+        },
+        clickCancelDeleteStd () {
+          this.dialogStudentDelete = false
+          this.$nextTick(() => {
+            this.editedStudentItem = Object.assign({}, this.defaultStudentItem)
+            this.editedStudentIndex = -1
+          })
+        },
+        onClickCardStudent () {
+            this.state = 'studentlist'
+            this.getStudentList()
+        },
+        onClickNewStudent () {
+            this.state = 'approvenewstudent'
+        },
+        getStudentList() {
+            this.loadingStudent = true
+            DashboardAPI.fetchDataStudent()
+            .then(({ success, results, message }) => {
+                if(success) {
+                    this.StudentList = results
+                    this.loadingStudent = false
+                }else{
+                    this.$emit('onErrorHandler', message || 'Get Student list failed')
+                    this.loadingStudent = false
+                }
+            })
+            .catch(error => {
+                alert(error);
+            });
+        },
+        getReservationList() {
+            const reservedate = this.SQLDate(this.date)
+            this.loadingBooking = true
+            DashboardAPI.fetchDataBooking({ reservedate })
+            .then(({ success, results, message }) => {
+                if(success) {
+                    this.BookingList = results
+                    this.loadingBooking = false
+                }else{
+                    this.$emit('onErrorHandler', message || 'Get Reservation failed')
+                    this.loadingBooking = false
+                }
+            })
+            .catch(error => {
+                alert(error);
+            });
+        },
+        calculateAgeNewStudent () {
+            this.editedStudentItem.age = this.calculateAge(new Date(this.editedStudentItem.dateofbirth))
+        },
+        calculateAge(birthDate) {
+          if (!birthDate) return;
+
+          const currentDate = new Date();
+          if (new Date(birthDate) > currentDate) {
+              this.birthDate = null
+              this.years = null;
+              this.months = null;
+              this.days = null;
+              alert('Invalid Date of Birth')
+          }
+
+          const diffTime = currentDate - new Date(birthDate);
+          const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+          let years = Math.floor(totalDays / 365.25);
+          let months = Math.floor((totalDays % 365.25) / 30.4375);
+          let days = Math.floor((totalDays % 365.25) % 30.4375);
+          return years + ' ปี ' + months + ' เดือน '
+
         },
         SQLDate(date) {
             return moment(date).format('YYYY-MM-DD')
@@ -301,14 +726,73 @@ export default ({
         },
     },
     watch: {
-        dialogDelete (val) {
-          val || this.closeDelete()
+        dialogStudent (val) {
+          val || this.closeStudent()
         },
-      },
+        dialogBooking (val) {
+          val || this.closeBooking()
+        },
+        dialogStudentDelete (val) {
+            val || this.clickCancelDeleteStd()
+        },
+        dialogBookingDelete (val) {
+            val || this.clickCancelDeleteBooking()
+        },
+    },
 
 })
+import { Promise } from 'core-js';
+const DashboardAPI = {
+    fetchDataBooking ({ reservedate }) {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                axios
+                    .post('http://localhost:3000/getReservationList', { classdate: reservedate })
+                    .then(response => {
+                        //console.log('fetchDataBooking result',response);
+                        if (response.data.success) {
+                            const datalist = response.data.results
+                            resolve({ success: true, results: datalist })
+                        }else{
+                            resolve({ success: true, results: [] })
+                        }
+                    })
+                    .catch(error => {
+                        //console.log("fetchDataBooking error",error);
+                        resolve({ success: false, message: error.message })
+                    });
+            }, 750)
+        });
+    },
+    fetchDataStudent () {
+        return new Promise(resolve => {
+            setTimeout(() => {
+                axios
+                    .get('http://localhost:3000/getStudentList')
+                    .then(response => {
+                        //console.log('fetchDataStudent result',response);
+                        if (response.data.success) {
+                            const datalist = response.data.results
+                            resolve({ success: true, results: datalist })
+                        }else{
+                            resolve({ success: true, results: [] })
+                        }
+                    })
+                    .catch(error => {
+                        //console.log("fetchDataStudent error",error);
+                        resolve({ success: false, message: error.message })
+                    });
+            }, 750)
+        });
+    }
+}
 </script>
 <style scoped>
+button span.mdi,
+.dashboard-card span.mdi {
+    font-size: 22px;
+    margin-right: 5px;
+}
 .dashboard-card:hover {
     background-color: rgba(187, 187, 187, 0.342);
     cursor: pointer;
@@ -316,6 +800,15 @@ export default ({
 .header-card {
     background-color: #eeeeee;
     color: black;
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 </style>
 

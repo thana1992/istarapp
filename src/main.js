@@ -22,7 +22,6 @@ import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 
 import axios from 'axios';
-import router from '@/router';
 
 const vuetify = createVuetify({
     components,
@@ -34,4 +33,4 @@ const app = createApp(App)
 app.provide('$http', axios.create({
   baseURL: 'http://localhost:3000',
 }));
-app.component('font-awesome-icon', FontAwesomeIcon).component('VueDatePicker', VueDatePicker).use(router).use(vuetify).mount('#app')
+app.component('font-awesome-icon', FontAwesomeIcon).component('VueDatePicker', VueDatePicker).use(vuetify).mount('#app')

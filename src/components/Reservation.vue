@@ -172,7 +172,7 @@ import moment from 'moment'
             });
 
             if(!isDuplicate) {
-                await axios.post('http://localhost:3000/addReservation', reservaObj)
+                await axios.post('http://localhost:3000/createReservation', reservaObj)
                 .then(response => {
                     console.dir(response);
                     if (response.data.success) {
