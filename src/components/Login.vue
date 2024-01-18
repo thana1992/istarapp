@@ -90,27 +90,43 @@ export default {
           return;
         }
         // Make API request to login
-        axios
-          .post('http://localhost:3000/login', {
-            username: this.username,
-            password: this.password,
-          })
-          .then(response => {
-            console.dir(response);
-            if (response.data.success) {
+        this.$http.post('/login', {
+          username: this.username,
+          password: this.password,
+        })
+        .then(response => {
+          console.dir(response);
+          if (response.data.success) {
+            
+            tokenService.setToken(response.data.token);
+            // Redirect or perform other actions on successful login
+            localStorage.setItem("userdata", JSON.stringify(response.data.userdata));
+            this.$emit('onAffterLogin')
+          } else {
+            this.$emit('onErrorHandler', response.data.message)
+          }
+        });
+        // axios
+        //   .post('http://localhost:3000/login', {
+        //     username: this.username,
+        //     password: this.password,
+        //   })
+        //   .then(response => {
+        //     console.dir(response);
+        //     if (response.data.success) {
               
-              tokenService.setToken(response.data.token);
-              // Redirect or perform other actions on successful login
-              localStorage.setItem("userdata", JSON.stringify(response.data.userdata));
-              this.$emit('onAffterLogin')
-            } else {
-              this.$emit('onErrorHandler', response.data.message)
-            }
-          })
-          .catch(error => {
-              console.error(error);
-              alert(error.message)
-            });
+        //       tokenService.setToken(response.data.token);
+        //       // Redirect or perform other actions on successful login
+        //       localStorage.setItem("userdata", JSON.stringify(response.data.userdata));
+        //       this.$emit('onAffterLogin')
+        //     } else {
+        //       this.$emit('onErrorHandler', response.data.message)
+        //     }
+        //   })
+        //   .catch(error => {
+        //       console.error(error);
+        //       alert(error.message)
+        //   });
         }
       },
       reset () {

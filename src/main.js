@@ -31,6 +31,6 @@ const vuetify = createVuetify({
   
 const app = createApp(App)
 app.provide('$http', axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: 'https://wild-rose-pigeon-tutu.cyclic.app/',
 }));
 app.component('font-awesome-icon', FontAwesomeIcon).component('VueDatePicker', VueDatePicker).use(vuetify).mount('#app')
