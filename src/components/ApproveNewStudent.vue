@@ -18,7 +18,7 @@ import axios from 'axios'
     },
     methods: {
       getNewStudentList() {
-        axios.get('http://localhost:3000/getNewStudentList')
+        axios.get(this.baseURL+'/getNewStudentList')
         .then(response => {
             console.log('newstudent : ',response)
           this.newStudentList = response.data.results
@@ -28,7 +28,7 @@ import axios from 'axios'
         })
       },
       approveNewStudent() {
-        axios.post('http://localhost:3000/approveFamilyMember', {
+        axios.post(this.baseURL+'/approveFamilyMember', {
           newStudentList: this.newStudentList
         })
         .then(response => {

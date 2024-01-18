@@ -8,7 +8,7 @@
             <div class="mx-auto mt-5 px-2 py-1">
                 <v-row>
                     <v-col cols="12" sm="6" md="2" xl="2">
-                        <v-card class="mx-auto" link @click="onClickCardStudent" >
+                        <v-card class="mx-auto" link @click="onClickCardTotalStudent" >
                             <v-list-item class="header-card" min-height="60">
                                 <div>Total <br>Students</div>
                             </v-list-item>
@@ -45,7 +45,7 @@
                         </v-card>
                     </v-col>
                     <v-col cols="12" sm="6" md="3" xl="3">
-                        <v-card class="mx-auto" link @click="onClickNewStudent">
+                        <v-card class="mx-auto" link @click="onClickCardNewStudent">
                             <v-list-item class="header-card" height="60">
                                 <div>Approve New Students</div>
                             </v-list-item>
@@ -447,7 +447,7 @@ export default ({
         },
         getTotalStudents() {
             axios
-            .get('http://localhost:3000/getTotalStudents', {})
+            .get(this.baseURL+'/getTotalStudents', {})
             .then(response => {
                 //console.dir(response);
                 if (response.data.success) {
@@ -460,7 +460,7 @@ export default ({
         },
         getTotalBookingToday() {
             axios
-            .get('http://localhost:3000/getTotalBookingToday', {})
+            .get(this.baseURL+'/getTotalBookingToday', {})
             .then(response => {
                 //console.dir(response);
                 if (response.data.success) {
@@ -473,7 +473,7 @@ export default ({
         },
         getTotalBookingTomorrow() {
             axios
-            .get('http://localhost:3000/getTotalBookingTomorrow', {})
+            .get(this.baseURL+'/getTotalBookingTomorrow', {})
             .then(response => {
                 //console.dir(response);
                 if (response.data.success) {
@@ -486,7 +486,7 @@ export default ({
         },
         getTotalWaitingApprove() {
             axios
-            .get('http://localhost:3000/getTotalWaitingApprove', {})
+            .get(this.baseURL+'/getTotalWaitingApprove', {})
             .then(response => {
                 //console.dir(response);
                 if (response.data.success) {
@@ -500,7 +500,7 @@ export default ({
         
         getApproveNewStudents() {
             axios
-            .get('http://localhost:3000/getApproveNewStudents', {})
+            .get(this.baseURL+'/getApproveNewStudents', {})
             .then(response => {
                 //console.dir(response);
                 if (response.data.success) {
@@ -513,7 +513,7 @@ export default ({
         },
         getApproveCancelBookingClass() {
             axios
-            .get('http://localhost:3000/getApproveCancelBookingClass', {})
+            .get(this.baseURL+'/getApproveCancelBookingClass', {})
             .then(response => {
                 //console.dir(response);
                 if (response.data.success) {
@@ -541,7 +541,7 @@ export default ({
             }
             console.log('StudentObj : ', StudentObj)
             axios
-                .post('http://localhost:3000/addStudentByAdmin', StudentObj)
+                .post(this.baseURL+'/addStudentByAdmin', StudentObj)
                 .then(response => {
                     if (response.data.success) {
                         this.$emit('onInfoHandler', 'เพิ่มสมาชิกสำเร็จแล้ว');
@@ -559,7 +559,7 @@ export default ({
         },
         getCourseLookup () {
             axios
-            .get('http://localhost:3000/courseLookup', {})
+            .get(this.baseURL+'/courseLookup', {})
             .then(response => {
                 //console.dir(response);
                 if (response.data.success) {
@@ -572,7 +572,7 @@ export default ({
         },
         getFamilyLookup () {
             axios
-            .get('http://localhost:3000/familyLookup', {})
+            .get(this.baseURL+'/familyLookup', {})
             .then(response => {
                 //console.dir(response);
                 if (response.data.success) {
@@ -609,7 +609,7 @@ export default ({
             // delete booking
         },
         async clickConfirmDeleteStd() {
-            axios.post('http://localhost:3000/deleteFamilyMember', {
+            axios.post(this.baseURL+'/deleteFamilyMember', {
                 familyid: this.editedStudentItem.familyid,
                 childid: this.editedStudentItem.childid,
             })
@@ -653,11 +653,11 @@ export default ({
             this.editedStudentIndex = -1
           })
         },
-        onClickCardStudent () {
+        onClickCardTotalStudent () {
             this.state = 'studentlist'
             this.getStudentList()
         },
-        onClickNewStudent () {
+        onClickCardNewStudent () {
             this.state = 'approvenewstudent'
         },
         getStudentList() {
@@ -743,11 +743,13 @@ export default ({
 })
 import { Promise } from 'core-js';
 const DashboardAPI = {
+    baseURL: 'https://wild-rose-pigeon-tutu.cyclic.app',
     fetchDataBooking ({ reservedate }) {
         return new Promise(resolve => {
             setTimeout(() => {
+                console.log('DashboardAPI : ' + this.baseURL+'/getReservationList')
                 axios
-                    .post('http://localhost:3000/getReservationList', { classdate: reservedate })
+                    .post(this.baseURL+'/getReservationList', { classdate: reservedate })
                     .then(response => {
                         //console.log('fetchDataBooking result',response);
                         if (response.data.success) {
@@ -768,7 +770,7 @@ const DashboardAPI = {
         return new Promise(resolve => {
             setTimeout(() => {
                 axios
-                    .get('http://localhost:3000/getStudentList')
+                    .get(this.baseURL+'/getStudentList')
                     .then(response => {
                         //console.log('fetchDataStudent result',response);
                         if (response.data.success) {

@@ -61,11 +61,11 @@
 </template>
 
 <script>
-import { ref, inject } from 'vue';
-import { useRouter } from 'vue-router';
-import axios from 'axios';
+
 import tokenService from '@/services/tokenService';
+import axios from 'axios';
 export default {
+  inject: ['$http'],
     data: () => ({
       login_form: null,
       username: '',
@@ -89,25 +89,9 @@ export default {
           
           return;
         }
-        // Make API request to login
-        this.$http.post('/login', {
-          username: this.username,
-          password: this.password,
-        })
-        .then(response => {
-          console.dir(response);
-          if (response.data.success) {
-            
-            tokenService.setToken(response.data.token);
-            // Redirect or perform other actions on successful login
-            localStorage.setItem("userdata", JSON.stringify(response.data.userdata));
-            this.$emit('onAffterLogin')
-          } else {
-            this.$emit('onErrorHandler', response.data.message)
-          }
-        });
-        // axios
-        //   .post('http://localhost:3000/login', {
+        
+        //try {
+        // await this.$http.post('/login', {
         //     username: this.username,
         //     password: this.password,
         //   })
@@ -123,10 +107,30 @@ export default {
         //       this.$emit('onErrorHandler', response.data.message)
         //     }
         //   })
-        //   .catch(error => {
-        //       console.error(error);
-        //       alert(error.message)
-        //   });
+        // } catch (error) {
+        //   console.error('Error fetching data:', error);
+        // }
+        axios
+          .post(this.baseURL+'/login', {
+            username: this.username,
+            password: this.password,
+          })
+          .then(response => {
+            console.dir(response);
+            if (response.data.success) {
+              
+              tokenService.setToken(response.data.token);
+              // Redirect or perform other actions on successful login
+              localStorage.setItem("userdata", JSON.stringify(response.data.userdata));
+              this.$emit('onAffterLogin')
+            } else {
+              this.$emit('onErrorHandler', response.data.message)
+            }
+          })
+          .catch(error => {
+              console.error(error);
+              alert(error.message)
+          });
         }
       },
       reset () {

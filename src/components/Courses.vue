@@ -172,7 +172,7 @@
       methods: {
          initialize () {
              axios
-            .get('http://localhost:3000/getAllCourses', {})
+            .get(this.baseURL+'/getAllCourses', {})
             .then(response => {
                 console.dir(response);
                 if (response.data.success) {
@@ -198,7 +198,7 @@
   
         deleteItemConfirm () {
           axios
-            .post('http://localhost:3000/deleteCourse', {
+            .post(this.baseURL+'/deleteCourse', {
               courseid: this.editedItem.courseid
             })
             .then(response => {
@@ -240,7 +240,7 @@
                 course_shortname: this.editedItem.course_shortname,
             }
             axios
-            .post('http://localhost:3000/updateCourse', saveObj)
+            .post(this.baseURL+'/updateCourse', saveObj)
             .then(response => {
                 console.dir(response);
                 if (response.data.success) {
@@ -256,7 +256,7 @@
                 course_shortname: this.editedItem.course_shortname,
             }
             axios
-            .post('http://localhost:3000/addCourse', saveObj)
+            .post(this.baseURL+'/addCourse', saveObj)
             .then(response => {
                 console.dir(response);
                 if (response.data.success) {

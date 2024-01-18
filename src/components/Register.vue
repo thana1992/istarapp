@@ -132,7 +132,7 @@ export default {
 
           // Make API request to register the user
           axios
-            .post('http://localhost:3000/register', {
+            .post(this.baseURL+'/register', {
               username: this.username,
               password: this.password,
               fullname: this.fullname,

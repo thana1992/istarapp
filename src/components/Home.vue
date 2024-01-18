@@ -144,7 +144,7 @@ export default {
       async getFamilyMember() {
           const user = JSON.parse(localStorage.getItem('userdata'))
           await axios
-          .post('http://localhost:3000/getFamilyMember', {
+          .post(this.baseURL+'/getFamilyMember', {
               familyid: user.familyid,
           })
           .then(response => {
@@ -160,7 +160,7 @@ export default {
       async getReservationDetail(childid) {
           const user = JSON.parse(localStorage.getItem('userdata'))
           await axios
-          .post('http://localhost:3000/getMemberReservationDetail', {
+          .post(this.baseURL+'/getMemberReservationDetail', {
               childid: childid,
           })
           .then(response => {

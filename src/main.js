@@ -21,8 +21,6 @@ library.add(faRightToBracket, faUser, faHouse, faHouseUser, faPeopleRoof, faCale
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css'
 
-import axios from 'axios';
-
 const vuetify = createVuetify({
     components,
     directives,
@@ -30,7 +28,6 @@ const vuetify = createVuetify({
   })
   
 const app = createApp(App)
-app.provide('$http', axios.create({
-  baseURL: 'https://wild-rose-pigeon-tutu.cyclic.app/',
-}));
+app.config.globalProperties.baseURL = 'https://wild-rose-pigeon-tutu.cyclic.app'
+
 app.component('font-awesome-icon', FontAwesomeIcon).component('VueDatePicker', VueDatePicker).use(vuetify).mount('#app')

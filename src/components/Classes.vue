@@ -210,7 +210,7 @@
       methods: {
          initialize () {
              axios
-            .get('http://localhost:3000/getAllClasses', {})
+            .get(this.baseURL+'/getAllClasses', {})
             .then(response => {
                 console.dir(response);
                 if (response.data.success) {
@@ -224,7 +224,7 @@
         
         getCourseLookup () {
             axios
-            .get('http://localhost:3000/courseLookup', {})
+            .get(this.baseURL+'/courseLookup', {})
             .then(response => {
                 console.dir(response);
                 if (response.data.success) {
@@ -250,7 +250,7 @@
   
         deleteItemConfirm () {
           axios
-            .post('http://localhost:3000/deleteClass', {
+            .post(this.baseURL+'/deleteClass', {
                 classid: this.editedItem.classid
             })
             .then(response => {
@@ -294,7 +294,7 @@
                 maxperson: this.editedItem.maxperson
             }
             axios
-            .post('http://localhost:3000/updateClass', saveObj)
+            .post(this.baseURL+'/updateClass', saveObj)
             .then(response => {
                 console.dir(response);
                 if (response.data.success) {
@@ -312,7 +312,7 @@
                 maxperson: this.editedItem.maxperson
             }
             axios
-            .post('http://localhost:3000/addClass', saveObj)
+            .post(this.baseURL+'/addClass', saveObj)
             .then(response => {
                 console.dir(response);
                 if (response.data.success) {

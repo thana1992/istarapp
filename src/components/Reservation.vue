@@ -134,7 +134,7 @@ import moment from 'moment'
                 courseid: this.student.courseid
             }
             console.log("request", req)
-            axios.post('http://localhost:3000/getClassTime', req)
+            axios.post(this.baseURL+'/getClassTime', req)
             .then(response => {
                 console.dir(response);
                 if (response.data.success) {
@@ -162,7 +162,7 @@ import moment from 'moment'
             }
             console.log('checkDuplicateReservation : ' ,reservaObj)
 
-            await axios.post('http://localhost:3000/checkDuplicateReservation', reservaObj)
+            await axios.post(this.baseURL+'/checkDuplicateReservation', reservaObj)
             .then(response => {
                 console.dir(response);
                 if (!response.data.success) {
@@ -172,7 +172,7 @@ import moment from 'moment'
             });
 
             if(!isDuplicate) {
-                await axios.post('http://localhost:3000/createReservation', reservaObj)
+                await axios.post(this.baseURL+'/createReservation', reservaObj)
                 .then(response => {
                     console.dir(response);
                     if (response.data.success) {

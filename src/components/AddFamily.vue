@@ -104,7 +104,7 @@ export default {
 
             // Make API request to register the user
             axios
-                .post('http://localhost:3000/addFamilyMember', {
+                .post(this.baseURL+'/addFamilyMember', {
                 firstname: this.firstname,
                 lastname: this.lastname,
                 nickname: this.nickname,
