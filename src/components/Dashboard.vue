@@ -463,9 +463,6 @@ export default ({
             this.getTotalBookingTomorrow()
             this.getTotalWaitingApprove()
             this.getReservationList()
-            
-            this.courseLookup = this.getCourseLookup()
-            this.familyLookup = this.getFamilyLookup()
             //this.getApproveNewStudents()
             //this.getApproveCancelBookingClass()
         },
@@ -650,6 +647,8 @@ export default ({
           this.dialogBookingDelete = true
         },
         clickEditStudent (item) {
+          this.courseLookup = this.getCourseLookup()
+          this.familyLookup = this.getFamilyLookup()
           this.editedStudentIndex = this.StudentList.indexOf(item)
           this.editedStudentItem = Object.assign({}, item)
           this.editedStudentItem.dateofbirth = new Date(item.dateofbirth)
@@ -807,6 +806,8 @@ export default ({
     },
     watch: {
         dialogStudent (val) {
+          this.courseLookup = this.getCourseLookup()
+          this.familyLookup = this.getFamilyLookup()
           val || this.closeStudent()
         },
         dialogBooking (val) {
