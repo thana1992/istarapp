@@ -91,7 +91,7 @@ export default {
             password: encryptedPassword,
           })
           .then(response => {
-            console.dir(response);
+            console.dir('login ',response);
             if (response.data.success) {
               tokenService.setToken(response.data.token);
               // Redirect or perform other actions on successful login
@@ -103,7 +103,7 @@ export default {
           })
           .catch(error => {
               console.error(error);
-              alert(error.message)
+              this.$emit('onErrorHandler', error.message)
           });
         }
       },
