@@ -28,6 +28,6 @@ const vuetify = createVuetify({
   })
   
 const app = createApp(App)
-app.config.globalProperties.baseURL = 'https://wild-rose-pigeon-tutu.cyclic.app'
+app.config.globalProperties.baseURL = 'https://istardb.cyclic.app/'
 
 app.component('font-awesome-icon', FontAwesomeIcon).component('VueDatePicker', VueDatePicker).use(vuetify).mount('#app')

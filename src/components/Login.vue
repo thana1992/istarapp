@@ -64,6 +64,7 @@
 
 import tokenService from '@/services/tokenService';
 import axios from 'axios';
+import bcrypt from 'bcryptjs';
 export default {
     data: () => ({
       login_form: null,
@@ -80,6 +81,10 @@ export default {
     },
     methods: {
       async doLogin () {
+        bcrypt.hash(this.password, 10, function(err, hashedPassword) {
+          // Store hash in your password DB.
+          console.log("hashedPassword : " + hashedPassword);
+        });
         const { valid } = await this.$refs.login_form.validate()
         if (valid) {
           // Check if username and password are not empty
