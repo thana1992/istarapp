@@ -13,7 +13,7 @@
                                 <div>Total <br>Students</div>
                             </v-list-item>
                             <v-list-item three-line class="dashboard-card">
-                                <v-list-item-title class="headline mb-1">{{ totalStudents }}</v-list-item-title>
+                                <v-list-item-title class="headline mb-1"><p class="font-card">{{ totalStudents }}</p></v-list-item-title>
                                 <v-list-item-subtitle>Students</v-list-item-subtitle>
                                 <span class="mdi mdi-face-man-shimmer"></span>
                                 <span class="mdi mdi-face-woman-shimmer"></span>
@@ -26,7 +26,7 @@
                                 <div>Bookings Today</div>
                             </v-list-item>
                             <v-list-item three-line class="dashboard-card">
-                                <v-list-item-title class="headline mb-1">{{ totalBookingToday }}</v-list-item-title>
+                                <v-list-item-title class="headline mb-1"><p class="font-card">{{ totalBookingToday }}</p></v-list-item-title>
                                 <v-list-item-subtitle>Bookings</v-list-item-subtitle>
                                 <span class="mdi mdi-gymnastics"></span>
                             </v-list-item>
@@ -38,19 +38,19 @@
                                 <div>Bookings Tomorrow</div>
                             </v-list-item>
                             <v-list-item three-line class="dashboard-card" >
-                                <v-list-item-title class="headline mb-1">{{ totalBookingTomorrow }}</v-list-item-title>
+                                <v-list-item-title class="headline mb-1"><p class="font-card">{{ totalBookingTomorrow }}</p></v-list-item-title>
                                 <v-list-item-subtitle>Bookings</v-list-item-subtitle>
                                 <span class="mdi mdi-gymnastics"></span>
                             </v-list-item>
                         </v-card>
                     </v-col>
                     <v-col cols="12" sm="6" md="3" xl="3">
-                        <v-card class="mx-auto" link @click="onClickCardNewStudent">
+                        <v-card :class="pulse" link @click="onClickCardNewStudent">
                             <v-list-item class="header-card" height="60">
-                                <div>Approve New Students</div>
+                                <div>Approve New Students <span class=""></span></div>
                             </v-list-item>
                             <v-list-item three-line class="dashboard-card">
-                                <v-list-item-title class="headline mb-1">{{ totalWaitingNewStudents }}</v-list-item-title>
+                                <v-list-item-title class="headline mb-1"><p class="font-card">{{ totalWaitingNewStudents }}</p></v-list-item-title>
                                 <v-list-item-subtitle>Students</v-list-item-subtitle>
                                 <span class="mdi mdi-account-multiple-check"></span>
                             </v-list-item>
@@ -62,7 +62,7 @@
                                 <div>Approve Cancel booking</div>
                             </v-list-item>
                             <v-list-item three-line class="dashboard-card">
-                                <v-list-item-title class="headline mb-1">{{ totalWaitCancelBooking }}</v-list-item-title>
+                                <v-list-item-title class="headline mb-1"><p class="font-card">{{ totalWaitCancelBooking }}</p></v-list-item-title>
                                 <v-list-item-subtitle>Bookings</v-list-item-subtitle>
                                 <span class="mdi mdi-account-multiple-check"></span>
                             </v-list-item>
@@ -114,7 +114,6 @@
                                             </v-dialog>
                                         </v-toolbar>
                                     </template>
-                                    <template v-slot:item.index="{ item }">{{ BookingList.indexOf(item) + 1 }}</template>
                                     <template v-slot:item.checkin="{ item }">
                                         <v-icon size="large" @click="checkin(item)">mdi-check-bold</v-icon>
                                     </template>
@@ -362,10 +361,10 @@ export default ({
             totalBookingTomorrow: 0,
             totalWaitingNewStudents: 0,
             totalWaitCancelBooking: 0,
+            pulse: 'pulse',
 
             BookingList: [],
             BookingListHeaders: [
-            { title: 'No.', key: 'index'},
             { title: 'Name', key: 'fullname' },
             { title: 'Course', key: 'coursename' },
             { title: 'Class Time', key: 'classtime' },
@@ -386,7 +385,6 @@ export default ({
 
             StudentList: [],
             StudentListHeaders: [
-            { title: 'No.', key: 'index'},
             { title: 'Name', key: 'fullname' },
             { title: 'Course', key: 'coursename' },
             { title: 'Remaining', key: 'remaining' },
@@ -473,6 +471,11 @@ export default ({
                     this.totalBookingToday = response.data.datacard.totalBookingToday
                     this.totalBookingTomorrow = response.data.datacard.totalBookingTomorrow
                     this.totalWaitingNewStudents = response.data.datacard.totalWaitingNewStudents
+                    if (this.totalWaitingNewStudents > 0) {
+                        this.pulse = 'pulse'
+                    }else{
+                        this.pulse = ''
+                    }
                     this.totalWaitCancelBooking = response.data.datacard.totalWaitCancelBooking
                 }
             })
@@ -815,6 +818,10 @@ const DashboardAPI = {
 }
 </script>
 <style scoped>
+.font-card {
+    font-size: 20px;
+    font-weight: bold;
+}
 button span.mdi,
 .dashboard-card span.mdi {
     font-size: 22px;
@@ -837,5 +844,40 @@ button span.mdi,
 .fade-leave-to {
   opacity: 0;
 }
-</style>
 
+.pulse {
+  cursor: pointer;
+  /*box-shadow: 0 0 0 rgba(204,169,44, 0.4);*/
+  box-shadow:  0px 2px 1px -1px var(--v-shadow-key-umbra-opacity, rgba(0, 0, 0, 0.2)), 0px 1px 1px 0px var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.14)), 0px 1px 3px 0px var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.12));
+  animation: pulse 2s infinite;
+}
+.pulse:hover {
+  animation: none;
+}
+
+@-webkit-keyframes pulse {
+  0% {
+    -webkit-box-shadow: 0 0 0 0 var(--v-shadow-key-umbra-opacity, rgba(255, 0, 0, 0.2)), 0px 1px 1px 0px var(--v-shadow-key-penumbra-opacity, rgba(255, 0, 0, 0.14)), 0px 1px 3px 0px var(--v-shadow-key-penumbra-opacity, rgba(255, 0, 0, 0.12));
+  }
+  70% {
+      -webkit-box-shadow: 0 0 0 10px var(--v-shadow-key-umbra-opacity, rgba(204,169,44, 0)), 0px 1px 1px 0px var(--v-shadow-key-penumbra-opacity, rgba(204,169,44, 0.14)), 0px 1px 3px 0px var(--v-shadow-key-penumbra-opacity, rgba(204,169,44, 0.12));
+  }
+  100% {
+      -webkit-box-shadow: 0 0 0 0 var(--v-shadow-key-umbra-opacity, rgba(204,169,44, 0)), 0px 1px 1px 0px var(--v-shadow-key-penumbra-opacity, rgba(204,169,44, 0.14)), 0px 1px 3px 0px var(--v-shadow-key-penumbra-opacity, rgba(204,169,44, 0.12));
+  }
+}
+@keyframes pulse {
+  0% {
+    -moz-box-shadow: 0 0 0 0 var(--v-shadow-key-umbra-opacity, rgba(255, 0, 0, 0.4)), 0px 1px 1px 0px var(--v-shadow-key-penumbra-opacity, rgba(255, 0, 0, 0.14)), 0px 1px 3px 0px var(--v-shadow-key-penumbra-opacity, rgba(255, 0, 0, 0.12));
+    box-shadow: 0 0 0 0 var(--v-shadow-key-umbra-opacity, rgba(204,169,44, 0.4)), 0px 1px 1px 0px var(--v-shadow-key-penumbra-opacity, rgba(255, 0, 0, 0.14)), 0px 1px 3px 0px var(--v-shadow-key-penumbra-opacity, rgba(255, 0, 0, 0.12));
+  }
+  70% {
+      -moz-box-shadow: 0 0 0 10px var(--v-shadow-key-umbra-opacity, rgba(204,169,44, 0)), 0px 1px 1px 0px var(--v-shadow-key-penumbra-opacity, rgba(204,169,44, 0.14)), 0px 1px 3px 0px var(--v-shadow-key-penumbra-opacity, rgba(204,169,44, 0.12));
+      box-shadow: 0 0 0 10px var(--v-shadow-key-umbra-opacity, rgba(204,169,44, 0)), 0px 1px 1px 0px var(--v-shadow-key-penumbra-opacity, rgba(204,169,44, 0.14)), 0px 1px 3px 0px var(--v-shadow-key-penumbra-opacity, rgba(204,169,44, 0.12));
+  }
+  100% {
+      -moz-box-shadow: 0 0 0 0 var(--v-shadow-key-umbra-opacity, rgba(204,169,44, 0)), 0px 1px 1px 0px var(--v-shadow-key-penumbra-opacity, rgba(204,169,44, 0.14)), 0px 1px 3px 0px var(--v-shadow-key-penumbra-opacity, rgba(204,169,44, 0.12));
+      box-shadow: 0 0 0 0 var(--v-shadow-key-umbra-opacity, rgba(204,169,44, 0)), 0px 1px 1px 0px var(--v-shadow-key-penumbra-opacity, rgba(204,169,44, 0.14)), 0px 1px 3px 0px var(--v-shadow-key-penumbra-opacity, rgba(204,169,44, 0.12));
+  }
+}
+</style>
