@@ -88,12 +88,11 @@ export default {
         axios
           .post(this.baseURL+'/login', {
             username: this.username,
-            password: this.encryptedPassword,
+            password: encryptedPassword,
           })
           .then(response => {
             console.dir(response);
             if (response.data.success) {
-              
               tokenService.setToken(response.data.token);
               // Redirect or perform other actions on successful login
               localStorage.setItem("userdata", JSON.stringify(response.data.userdata));
