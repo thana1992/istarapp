@@ -84,36 +84,11 @@ export default {
       async doLogin () {
         const { valid } = await this.$refs.login_form.validate()
         if (valid) {
-        
-        try {
-          const encryptedPassword = this.encryptPassword(this.password);
-          await this.$http.post('/login', {
-            username: this.username,
-            password: this.encryptedPassword,
-          })
-          .then(response => {
-            console.dir(response);
-            if (response.data.success) {
-              
-              tokenService.setToken(response.data.token);
-              // Redirect or perform other actions on successful login
-              localStorage.setItem("userdata", JSON.stringify(response.data.userdata));
-              this.$emit('onAffterLogin')
-            } else {
-              this.$emit('onErrorHandler', response.data.message)
-            }
-          })
-          .error(error => {
-              console.error(error);
-              this.$emit('onErrorHandler', error.message)
-          });
-        } catch (error) {
-          console.error('Error fetching data:', error);
-        }
+        const encryptedPassword = this.encryptPassword(this.password);
         axios
           .post(this.baseURL+'/login', {
             username: this.username,
-            password: this.password,
+            password: this.encryptedPassword,
           })
           .then(response => {
             console.dir(response);
