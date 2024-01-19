@@ -64,7 +64,8 @@
 
 import tokenService from '@/services/tokenService';
 import axios from 'axios';
-import bcrypt from 'bcryptjs';
+import CryptoJS from 'crypto-js';
+
 export default {
     data: () => ({
       login_form: null,
@@ -81,39 +82,34 @@ export default {
     },
     methods: {
       async doLogin () {
-        bcrypt.hash(this.password, 10, function(err, hashedPassword) {
-          // Store hash in your password DB.
-          console.log("hashedPassword : " + hashedPassword);
-        });
         const { valid } = await this.$refs.login_form.validate()
         if (valid) {
-          // Check if username and password are not empty
-        if (!this.username || !this.password) {
-          alert('Please enter both username and password.');
-          
-          return;
-        }
         
-        //try {
-        // await this.$http.post('/login', {
-        //     username: this.username,
-        //     password: this.password,
-        //   })
-        //   .then(response => {
-        //     console.dir(response);
-        //     if (response.data.success) {
+        try {
+          const encryptedPassword = this.encryptPassword(this.password);
+          await this.$http.post('/login', {
+            username: this.username,
+            password: this.encryptedPassword,
+          })
+          .then(response => {
+            console.dir(response);
+            if (response.data.success) {
               
-        //       tokenService.setToken(response.data.token);
-        //       // Redirect or perform other actions on successful login
-        //       localStorage.setItem("userdata", JSON.stringify(response.data.userdata));
-        //       this.$emit('onAffterLogin')
-        //     } else {
-        //       this.$emit('onErrorHandler', response.data.message)
-        //     }
-        //   })
-        // } catch (error) {
-        //   console.error('Error fetching data:', error);
-        // }
+              tokenService.setToken(response.data.token);
+              // Redirect or perform other actions on successful login
+              localStorage.setItem("userdata", JSON.stringify(response.data.userdata));
+              this.$emit('onAffterLogin')
+            } else {
+              this.$emit('onErrorHandler', response.data.message)
+            }
+          })
+          .error(error => {
+              console.error(error);
+              this.$emit('onErrorHandler', error.message)
+          });
+        } catch (error) {
+          console.error('Error fetching data:', error);
+        }
         axios
           .post(this.baseURL+'/login', {
             username: this.username,
@@ -136,6 +132,11 @@ export default {
               alert(error.message)
           });
         }
+      },
+      encryptPassword(password) {
+        const encryptedPassword = CryptoJS.SHA256(password).toString();
+
+        return encryptedPassword;
       },
       reset () {
         this.$refs.login_form.reset()

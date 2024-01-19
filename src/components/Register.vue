@@ -101,6 +101,7 @@
 <script>
 import { VBottomNavigation, VBottomSheet } from 'vuetify/lib/components/index.mjs'
 import axios from 'axios';
+import CryptoJS from 'crypto-js';
 
 export default {
     data: () => ({
@@ -130,11 +131,12 @@ export default {
             return;
           }
 
+          const encryptedPassword = this.encryptPassword(this.password);
           // Make API request to register the user
           axios
             .post(this.baseURL+'/register', {
               username: this.username,
-              password: this.password,
+              password: encryptedPassword,
               fullname: this.fullname,
               address: this.address,
               email: this.email,
@@ -163,6 +165,10 @@ export default {
       register() {
       
       },
+      encryptPassword(password) {
+      const encryptedPassword = CryptoJS.SHA256(password).toString();
+      return encryptedPassword;
+    },
     },
 }
 </script>
