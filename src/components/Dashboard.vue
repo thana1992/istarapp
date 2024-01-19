@@ -89,7 +89,7 @@
                         <Transition name="fade" mode="out-in">
                             <v-card class="mx-0" v-if="state=='bookinglist'" min-height="400">
                                 <v-data-table
-                                    fixed-header="true"
+                                    fixed-header
                                     height="580"
                                     :loading="loadingBooking"
                                     :headers="BookingListHeaders"
@@ -142,8 +142,8 @@
                                                 </template>
                                                 <v-card>
                                                     <v-card-title>
-                                                        <v-span v-if="editedStudentIndex==-1" class="mdi mdi-emoticon-plus-outline"></v-span>
-                                                        <v-span v-if="editedStudentIndex!=-1" class="mdi mdi-human-edit"></v-span>
+                                                        <span v-if="editedStudentIndex==-1" class="mdi mdi-emoticon-plus-outline"></span>
+                                                        <span v-if="editedStudentIndex!=-1" class="mdi mdi-human-edit"></span>
                                                         <span>{{ formStudentTitle }}</span>
                                                     </v-card-title>
                                                     <v-card-text>
@@ -202,7 +202,7 @@
                                                                         <v-text-field 
                                                                             label="Age"
                                                                             v-model="editedStudentItem.age"
-                                                                            readonly="true"
+                                                                            readonly
                                                                             variant="solo-filled"
                                                                         ></v-text-field>
                                                                     </v-col>
@@ -307,9 +307,7 @@
         </div>
         {{ this.tomorrow }}
     </div>
-<<<<<<< HEAD
     {{ test }}
-=======
     <v-dialog width="500" v-model="errorDialog">
         <template v-slot:default="{ isActive }">
         <v-card title="ผิดพลาด!!" color="#F44336">
@@ -335,13 +333,13 @@
         </v-card>
         </template>
     </v-dialog>
->>>>>>> 48cbedfb3a48b9f2394752eb13498fe650e66d0f
 </template>
 <script>
 import axios from 'axios'
 import DatePicker from '@/components/DatePicker.vue'
 import ApproveNewStudent from './ApproveNewStudent.vue'
 import moment from 'moment'
+
 export default ({
     components: {
         DatePicker,
@@ -360,17 +358,13 @@ export default ({
       },
     data() {
         return {
-<<<<<<< HEAD
             fetchData: null,
-=======
             errorDialog: false,
             errorMsg: '',
             infoDialog: false,
             infoMsg: '',
->>>>>>> 48cbedfb3a48b9f2394752eb13498fe650e66d0f
             interval:null,
             date: new Date(),
-            tomorrow: new Date(),
             totalStudents: 0,
             totalBookingToday: 0,
             totalBookingTomorrow: 0,
@@ -445,30 +439,31 @@ export default ({
     
     created() {
         console.log('created...'+new Date())
+        clearInterval(this.interval)
         this.initialize()
-        // this.interval = setInterval(() =>{
-        // this.refreshData() },60000)
+        
     },
     mounted() {
-        this.refreshData();
-        setInterval(this.fetchDataFromServer, 60000); // 1 minute
+        console.log('mounted...'+new Date())
+        this.interval = setInterval(() =>{
+        this.refreshData() }, 3000)
     },
+    unmounted() {
+        console.log('unmounted...'+new Date())
+        clearInterval(this.interval)
+  },
     destroyed(){
         console.log('dashboard destroyed...'+new Date())
         clearInterval(this.interval)
     },
     methods: {
-        fetchDataFromServer() {
-            // Fetch data from the server or any source
-            // Update the fetchData property
-            this.fetchData = fetchDataFromServer();
-        },
         initialize() {
             this.getTotalStudents()
             this.getTotalBookingToday()
             this.getTotalBookingTomorrow()
-            this.getReservationList()
             this.getTotalWaitingApprove()
+            this.getReservationList()
+            
             this.courseLookup = this.getCourseLookup()
             this.familyLookup = this.getFamilyLookup()
             //this.getApproveNewStudents()
@@ -839,7 +834,7 @@ const DashboardAPI = {
     baseURL: 'https://wild-rose-pigeon-tutu.cyclic.app',
     fetchDataBooking ({ reservedate }) {
         return new Promise(resolve => {
-                console.log('DashboardAPI : ' + this.baseURL+'/getReservationList')
+                //console.log('DashboardAPI : ' + this.baseURL+'/getReservationList')
                 axios
                     .post(this.baseURL+'/getReservationList', { classdate: reservedate })
                     .then(response => {

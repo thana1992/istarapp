@@ -37,8 +37,6 @@
         
       </v-app-bar>
       <v-main class="root-container">
-        <Transition>
-
           <Login v-if="state=='login'"
           @onAffterLogin="AffterLogin($event)"
           :user_details="user_details"
@@ -86,8 +84,6 @@
           ></AddFamily>
 
           <Dashboard v-else-if="state=='dashboard'"
-          @onErrorHandler="onError($event)"
-          @onInfoHandler="onShowInfoDialog($event)"
           :test="test"
           ></Dashboard>
 
@@ -100,10 +96,6 @@
           @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)"
           ></Classes>
-
-          
-
-        </Transition>
 
       </v-main>
     </v-layout>
