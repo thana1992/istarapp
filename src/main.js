@@ -28,7 +28,7 @@ const vuetify = createVuetify({
   })
   
 const app = createApp(App)
-//app.config.globalProperties.baseURL = 'https://istardb.cyclic.app/'
-app.config.globalProperties.baseURL = 'http://localhost:3000'
+app.config.globalProperties.baseURL = 'https://istardb.cyclic.app/'
+//app.config.globalProperties.baseURL = 'http://localhost:3000'
 
 app.component('font-awesome-icon', FontAwesomeIcon).component('VueDatePicker', VueDatePicker).use(vuetify).mount('#app')
