@@ -88,6 +88,7 @@
           <Dashboard v-else-if="state=='dashboard'"
           @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)"
+          :test="test"
           ></Dashboard>
 
           <Course v-else-if="state=='course'"
@@ -165,9 +166,17 @@ export default {
         inforMsg: '',
         user_details: {},
         student: null,
-        adminflag: false
+        adminflag: false,
+        interval:null,
+        test: {name: 'test', times: 0}
       }
     },
+    setup() {
+        console.log('App.vue ...'+new Date())
+        this.interval = setInterval(() =>{
+          console.log('111111111111')
+        this.test.times = this.test.times+1 },1000)
+    },  
   name: 'App',
   components: {
     Login,
@@ -181,6 +190,7 @@ export default {
     Classes,
   },
   methods: {
+    
     AffterLogin () {
       this.user_details = JSON.parse(localStorage.getItem('userdata'))
       this.parent = this.user_details.fullname

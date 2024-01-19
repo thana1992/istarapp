@@ -301,6 +301,7 @@
             </div>
         </div>
     </div>
+    {{ test }}
 </template>
 <script>
 import axios from 'axios'
@@ -317,8 +318,15 @@ export default ({
           return this.editedStudentIndex === -1 ? 'Add a new student' : 'Edit student information'
         },
       },
+      props: {
+        test: {
+          type: Object,
+          default: '{}'
+        }
+      },
     data() {
         return {
+            fetchData: null,
             interval:null,
             date: new Date(),
             tomorrow: new Date(),
@@ -393,15 +401,7 @@ export default ({
             notNullRules: [ v => !!v || 'This field is required', ]
         }
     },
-    setup() {
-        console.log('setup...'+new Date())
-        return {
-            editedItem: {
-                coursename: '',
-                course_shortname: ''
-            }
-        }
-    },
+    
     created() {
         console.log('created...'+new Date())
         this.initialize()
@@ -409,13 +409,19 @@ export default ({
         // this.refreshData() },60000)
     },
     mounted() {
-        console.log('mounted...'+new Date())
+        this.refreshData();
+        setInterval(this.fetchDataFromServer, 60000); // 1 minute
     },
     destroyed(){
         console.log('dashboard destroyed...'+new Date())
         clearInterval(this.interval)
     },
     methods: {
+        fetchDataFromServer() {
+            // Fetch data from the server or any source
+            // Update the fetchData property
+            this.fetchData = fetchDataFromServer();
+        },
         initialize() {
             this.getTotalStudents()
             this.getTotalBookingToday()
