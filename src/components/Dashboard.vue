@@ -446,7 +446,7 @@ export default ({
     mounted() {
         console.log('mounted...'+new Date())
         this.interval = setInterval(() =>{
-        this.refreshData() }, 3000)
+        this.refreshData() }, 30000)
     },
     unmounted() {
         console.log('unmounted...'+new Date())
@@ -474,7 +474,6 @@ export default ({
             this.getTotalStudents()
             this.getTotalBookingToday()
             this.getTotalBookingTomorrow()
-            this.getReservationList()
             this.getTotalWaitingApprove()
             //this.getApproveNewStudents()
             //this.getApproveCancelBookingClass()
