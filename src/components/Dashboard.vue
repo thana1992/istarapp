@@ -458,81 +458,33 @@ export default ({
     },
     methods: {
         initialize() {
-            this.getTotalStudents()
-            this.getTotalBookingToday()
-            this.getTotalBookingTomorrow()
-            this.getTotalWaitingApprove()
+            this.refreshCardDashboard()
             this.getReservationList()
-            //this.getApproveNewStudents()
-            //this.getApproveCancelBookingClass()
+            this.getCourseLookup()
+            this.getFamilyLookup()
         },
         refreshData() {
             console.log('refreshData...'+new Date())
-            this.getTotalStudents()
-            this.getTotalBookingToday()
-            this.getTotalBookingTomorrow()
-            this.getTotalWaitingApprove()
-            //this.getApproveNewStudents()
-            //this.getApproveCancelBookingClass()
+            this.refreshCardDashboard()
         },
         selectDate() {
             this.state = 'bookinglist'
             this.getReservationList()
         },
-        
-        getTotalStudents() {
+        refreshCardDashboard() {
             axios
-            .get(this.baseURL+'/getTotalStudents', {})
+            .get(this.baseURL+'/refreshCardDashboard', {})
             .then(response => {
                 //console.dir(response);
                 if (response.data.success) {
-                    this.totalStudents = response.data.results[0].total
+                    this.totalStudents = response.data.datacard.totalStudents
+                    this.totalBookingToday = response.data.datacard.totalBookingToday
+                    this.totalBookingTomorrow = response.data.datacard.totalBookingTomorrow
+                    this.totalWaitingNewStudents = response.data.datacard.totalWaitingNewStudents
+                    this.totalWaitCancelBooking = response.data.datacard.totalWaitCancelBooking
                 }
             })
-            .catch(error => {
-                console.error(error);
-            });
         },
-        getTotalBookingToday() {
-            axios
-            .get(this.baseURL+'/getTotalBookingToday', {})
-            .then(response => {
-                //console.dir(response);
-                if (response.data.success) {
-                    this.totalBookingToday = response.data.results[0].total
-                }
-            })
-            .catch(error => {
-                console.error(error);
-            });
-        },
-        getTotalBookingTomorrow() {
-            axios
-            .get(this.baseURL+'/getTotalBookingTomorrow', {})
-            .then(response => {
-                //console.dir(response);
-                if (response.data.success) {
-                    this.totalBookingTomorrow = response.data.results[0].total
-                }
-            })
-            .catch(error => {
-                console.error(error);
-            });
-        },
-        getTotalWaitingApprove() {
-            axios
-            .get(this.baseURL+'/getTotalWaitingApprove', {})
-            .then(response => {
-                //console.dir(response);
-                if (response.data.success) {
-                    this.totalWaitingNewStudents = response.data.results[0].total
-                }
-            })
-            .catch(error => {
-                console.error(error);
-            });
-        },
-        
         getApproveNewStudents() {
             axios
             .get(this.baseURL+'/getApproveNewStudents', {})
@@ -573,7 +525,7 @@ export default ({
                     courseid: this.editedStudentItem.courseid,
                     remaining: this.editedStudentItem.remaining,
                 }
-                console.log(this.editedStudentIndex+ ' StudentObj : ', StudentObj)
+                //console.log(this.editedStudentIndex+ ' StudentObj : ', StudentObj)
                 if (this.editedStudentIndex > -1) {
                     StudentObj.childid = this.editedStudentItem.childid
                     axios
@@ -647,8 +599,6 @@ export default ({
           this.dialogBookingDelete = true
         },
         clickEditStudent (item) {
-          this.courseLookup = this.getCourseLookup()
-          this.familyLookup = this.getFamilyLookup()
           this.editedStudentIndex = this.StudentList.indexOf(item)
           this.editedStudentItem = Object.assign({}, item)
           this.editedStudentItem.dateofbirth = new Date(item.dateofbirth)
@@ -806,8 +756,6 @@ export default ({
     },
     watch: {
         dialogStudent (val) {
-          this.courseLookup = this.getCourseLookup()
-          this.familyLookup = this.getFamilyLookup()
           val || this.closeStudent()
         },
         dialogBooking (val) {
