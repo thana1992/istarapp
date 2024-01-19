@@ -64,8 +64,9 @@
 
 import tokenService from '@/services/tokenService';
 import axios from 'axios';
+import CryptoJS from 'crypto-js';
+
 export default {
-  inject: ['$http'],
     data: () => ({
       login_form: null,
       username: '',
@@ -83,42 +84,15 @@ export default {
       async doLogin () {
         const { valid } = await this.$refs.login_form.validate()
         if (valid) {
-          // Check if username and password are not empty
-        if (!this.username || !this.password) {
-          alert('Please enter both username and password.');
-          
-          return;
-        }
-        
-        //try {
-        // await this.$http.post('/login', {
-        //     username: this.username,
-        //     password: this.password,
-        //   })
-        //   .then(response => {
-        //     console.dir(response);
-        //     if (response.data.success) {
-              
-        //       tokenService.setToken(response.data.token);
-        //       // Redirect or perform other actions on successful login
-        //       localStorage.setItem("userdata", JSON.stringify(response.data.userdata));
-        //       this.$emit('onAffterLogin')
-        //     } else {
-        //       this.$emit('onErrorHandler', response.data.message)
-        //     }
-        //   })
-        // } catch (error) {
-        //   console.error('Error fetching data:', error);
-        // }
+        const encryptedPassword = this.encryptPassword(this.password);
         axios
           .post(this.baseURL+'/login', {
             username: this.username,
-            password: this.password,
+            password: encryptedPassword,
           })
           .then(response => {
-            console.dir(response);
+            console.dir('login ',response);
             if (response.data.success) {
-              
               tokenService.setToken(response.data.token);
               // Redirect or perform other actions on successful login
               localStorage.setItem("userdata", JSON.stringify(response.data.userdata));
@@ -129,9 +103,14 @@ export default {
           })
           .catch(error => {
               console.error(error);
-              alert(error.message)
+              this.$emit('onErrorHandler', error.message)
           });
         }
+      },
+      encryptPassword(password) {
+        const encryptedPassword = CryptoJS.SHA256(password).toString();
+
+        return encryptedPassword;
       },
       reset () {
         this.$refs.login_form.reset()

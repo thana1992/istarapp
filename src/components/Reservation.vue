@@ -190,14 +190,14 @@ import moment from 'moment'
             this.$emit('onClickChangeState', this.student)
         },
         SQLDate(value){
-         if (value) {
-           return moment(String(value)).format('YYYYMMDD')
-          }
+            if (value) {
+                return moment(String(value)).format('YYYYMMDD')
+            }
         },
         format_date(value){
-         if (value) {
-           return moment(String(value)).format('DD/MM/YYYY')
-          }
+            if (value) {
+                return moment(String(value)).format('DD/MM/YYYY')
+            }
         },
     }
 
