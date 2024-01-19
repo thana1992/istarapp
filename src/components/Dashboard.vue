@@ -305,9 +305,7 @@
                 </v-row>
             </div>
         </div>
-        {{ this.tomorrow }}
     </div>
-    {{ test }}
     <v-dialog width="500" v-model="errorDialog">
         <template v-slot:default="{ isActive }">
         <v-card title="ผิดพลาด!!" color="#F44336">
@@ -349,12 +347,6 @@ export default ({
         formStudentTitle () {
           return this.editedStudentIndex === -1 ? 'Add a new student' : 'Edit student information'
         },
-      },
-      props: {
-        test: {
-          type: Object,
-          default: '{}'
-        }
       },
     data() {
         return {
