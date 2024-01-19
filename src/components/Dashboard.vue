@@ -33,7 +33,7 @@
                         </v-card>
                     </v-col>
                     <v-col cols="12" sm="6" md="2" xl="2">
-                        <v-card class="mx-auto" link>
+                        <v-card class="mx-auto" link @click="oncClickCardTomorrow">
                             <v-list-item class="header-card" height="60">
                                 <div>Bookings Tomorrow</div>
                             </v-list-item>
@@ -291,7 +291,12 @@
                                 </v-data-table>
                             </v-card>
                             <v-card v-else-if="state=='approvenewstudent'">
-                                <ApproveNewStudent></ApproveNewStudent>
+                                <ApproveNewStudent
+                                    @onErrorHandler="onError($event)"
+                                    @onInfoHandler="onShowInfoDialog($event)"
+                                    @onSuccessHandler="refreshData"
+                                    >
+                                </ApproveNewStudent>
                             </v-card>
                         </Transition>
                     </v-col>
@@ -300,7 +305,33 @@
                 </v-row>
             </div>
         </div>
+        {{ this.tomorrow }}
     </div>
+    <v-dialog width="500" v-model="errorDialog">
+        <template v-slot:default="{ isActive }">
+        <v-card title="ผิดพลาด!!" color="#F44336">
+            <v-card-text>
+            {{ errorMsg }}
+            </v-card-text>
+            <v-card-actions>
+            <v-btn color="primary" variant="tonal" block @click="errorDialog = false">ปิด</v-btn>
+            </v-card-actions>
+        </v-card>
+        </template>
+    </v-dialog>
+
+    <v-dialog width="500" v-model="infoDialog">
+        <template v-slot:default="{ isActive }">
+        <v-card title="สำเร็จ!!" color="#98FB98">
+            <v-card-text>
+            {{ infoMsg }}
+            </v-card-text>
+            <v-card-actions>
+            <v-btn color="primary" variant="tonal" block @click="infoDialog = false">โอเค</v-btn>
+            </v-card-actions>
+        </v-card>
+        </template>
+    </v-dialog>
 </template>
 <script>
 import axios from 'axios'
@@ -319,6 +350,10 @@ export default ({
       },
     data() {
         return {
+            errorDialog: false,
+            errorMsg: '',
+            infoDialog: false,
+            infoMsg: '',
             interval:null,
             date: new Date(),
             tomorrow: new Date(),
@@ -368,7 +403,7 @@ export default ({
                 gender: null,
                 dateofbirth: null,
                 age: null,
-                courseid: 1,
+                courseid: null,
                 username: null,
             },
             defaultStudentItem: {
@@ -380,7 +415,7 @@ export default ({
                 gender: null,
                 dateofbirth: null,
                 age: null,
-                courseid: 1,
+                courseid: null,
                 username: null,
             },
             editedStudentIndex: -1,
@@ -441,10 +476,7 @@ export default ({
             this.state = 'bookinglist'
             this.getReservationList()
         },
-        onClickCardToday() {
-            this.date = new Date()
-            this.selectDate()
-        },
+        
         getTotalStudents() {
             axios
             .get(this.baseURL+'/getTotalStudents', {})
@@ -526,35 +558,53 @@ export default ({
         },
         async doSaveNewStudent () {
             const { valid } = await this.$refs.newstdform.validate()
-            alert('valid : ' + valid)
             if (valid) {
             // Make API request to register the user
-            const StudentObj = {
-                firstname: this.editedStudentItem.firstname,
-                lastname: this.editedStudentItem.lastname,
-                nickname: this.editedStudentItem.nickname,
-                gender: this.editedStudentItem.gender,
-                dateofbirth: this.SQLDate(this.editedStudentItem.dateofbirth),
-                familyid: this.editedStudentItem.familyid,
-                courseid: this.editedStudentItem.courseid,
-                remaining: this.editedStudentItem.remaining,
-            }
-            console.log('StudentObj : ', StudentObj)
-            axios
-                .post(this.baseURL+'/addStudentByAdmin', StudentObj)
-                .then(response => {
-                    if (response.data.success) {
-                        this.$emit('onInfoHandler', 'เพิ่มสมาชิกสำเร็จแล้ว');
-                        this.initialize()
-                        this.getStudentList()
-                        this.dialogStudent = false
-                    } else {
-                        this.$emit('onErrorHandler', response.data.message || 'เพิ่มสมาชิกไม่สำเร็จ ลองใหม่อีกครั้งนะ');
-                    }
-                })
-                .catch(error => {
-                    console.error(error);
-                });
+                const StudentObj = {
+                    firstname: this.editedStudentItem.firstname,
+                    lastname: this.editedStudentItem.lastname,
+                    nickname: this.editedStudentItem.nickname,
+                    gender: this.editedStudentItem.gender,
+                    dateofbirth: this.SQLDate(this.editedStudentItem.dateofbirth),
+                    familyid: this.editedStudentItem.familyid,
+                    courseid: this.editedStudentItem.courseid,
+                    remaining: this.editedStudentItem.remaining,
+                }
+                console.log(this.editedStudentIndex+ ' StudentObj : ', StudentObj)
+                if (this.editedStudentIndex > -1) {
+                    StudentObj.childid = this.editedStudentItem.childid
+                    axios
+                    .post(this.baseURL+'/updateStudentByAdmin', StudentObj)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.$emit('onInfoHandler', 'แก้ไขข้อมูลสำเร็จแล้ว');
+                            this.initialize()
+                            this.getStudentList()
+                            this.dialogStudent = false
+                        } else {
+                            this.$emit('onErrorHandler', response.data.message || 'แก้ไขข้อมูลไม่สำเร็จ ลองใหม่อีกครั้งนะ');
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+                }else{
+                    axios
+                    .post(this.baseURL+'/addStudentByAdmin', StudentObj)
+                    .then(response => {
+                        if (response.data.success) {
+                            this.$emit('onInfoHandler', 'เพิ่มสมาชิกสำเร็จแล้ว');
+                            this.initialize()
+                            this.getStudentList()
+                            this.dialogStudent = false
+                        } else {
+                            this.$emit('onErrorHandler', response.data.message || 'เพิ่มสมาชิกไม่สำเร็จ ลองใหม่อีกครั้งนะ');
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                    });
+                }
             }
         },
         getCourseLookup () {
@@ -656,9 +706,26 @@ export default ({
         onClickCardTotalStudent () {
             this.state = 'studentlist'
             this.getStudentList()
+            this.refreshData()
+        },
+        onClickCardToday() {
+            this.date = new Date()
+            this.selectDate()
+            this.refreshData()
+        },
+        oncClickCardTomorrow() {
+            this.date = this.addOneDay(new Date())
+            console.log(this.date)
+            this.selectDate()
+            this.refreshData()
         },
         onClickCardNewStudent () {
             this.state = 'approvenewstudent'
+            this.refreshData();
+        },
+        addOneDay(date = new Date()) {
+            date.setDate(date.getDate() + 1);
+            return date;
         },
         getStudentList() {
             this.loadingStudent = true
@@ -716,6 +783,13 @@ export default ({
           return years + ' ปี ' + months + ' เดือน '
 
         },
+        onError(msg) {
+            this.$emit('onErrorHandler', msg)
+        },
+        onShowInfoDialog(msg) {
+            this.infoMsg = msg
+            this.infoDialog = true
+        },
         SQLDate(date) {
             return moment(date).format('YYYY-MM-DD')
         },
@@ -739,6 +813,13 @@ export default ({
             val || this.clickCancelDeleteBooking()
         },
     },
+    computed: {
+    tomorrow() {
+        const d = new Date()
+        d.setDate(d.getDate() +1)
+        return d 
+    }
+    }
 
 })
 import { Promise } from 'core-js';
@@ -746,7 +827,6 @@ const DashboardAPI = {
     baseURL: 'https://wild-rose-pigeon-tutu.cyclic.app',
     fetchDataBooking ({ reservedate }) {
         return new Promise(resolve => {
-            setTimeout(() => {
                 console.log('DashboardAPI : ' + this.baseURL+'/getReservationList')
                 axios
                     .post(this.baseURL+'/getReservationList', { classdate: reservedate })
@@ -763,12 +843,10 @@ const DashboardAPI = {
                         //console.log("fetchDataBooking error",error);
                         resolve({ success: false, message: error.message })
                     });
-            }, 750)
         });
     },
     fetchDataStudent () {
         return new Promise(resolve => {
-            setTimeout(() => {
                 axios
                     .get(this.baseURL+'/getStudentList')
                     .then(response => {
@@ -784,7 +862,7 @@ const DashboardAPI = {
                         //console.log("fetchDataStudent error",error);
                         resolve({ success: false, message: error.message })
                     });
-            }, 750)
+            
         });
     }
 }

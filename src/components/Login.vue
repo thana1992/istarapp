@@ -65,7 +65,6 @@
 import tokenService from '@/services/tokenService';
 import axios from 'axios';
 export default {
-  inject: ['$http'],
     data: () => ({
       login_form: null,
       username: '',

@@ -26,11 +26,13 @@
           </v-dialog>
         </v-toolbar>
     </template>
+    <template v-slot:no-data> No New Student waiting for approve </template>
     </v-data-table>
   </template>
 
 <script>
 import axios from 'axios'
+import moment from 'moment'
   export default {
     data () {
       return {
@@ -41,7 +43,7 @@ import axios from 'axios'
         newStudentlistHeaders: [
           { title: 'Firstname', key: 'fullname', },
           { title: 'Gender', key: 'gender', align: 'center' },
-          { title: 'Date of birth', key: 'dateofbirth', align: 'center' },
+          { title: 'Date of birth', key: 'dateofbirthshow', align: 'center' },
           { title: 'Username', key: 'familyid', align: 'center' },
           { title: 'Course Name', key: 'courseid', align: 'center'},
           { title: 'Remaining', key: 'remaining', align: 'left'},
@@ -53,13 +55,42 @@ import axios from 'axios'
       getNewStudentList() {
         axios.get(this.baseURL+'/getNewStudentList')
         .then(response => {
-            console.log('newstudent : ',response)
-          this.newStudentList = response.data.results
+          console.log('getNewStudentList res : ',response)
+          if(response.data.results.length == 0) {
+            this.newStudentList = []
+          }else{
+            console.log('getNewStudentList res : ',response.data.results)
+            const arrObj = this.convertDate(response.data.results)
+            this.newStudentList = arrObj
+          }
         })
         .catch(error => {
           console.log(error)
         })
       },
+      
+      approveNewStudent() {
+        console.log('approveNewStudent : ',this.newStudentList)
+        console.log('confirmStudentList : ',this.confirmStudentList)
+        const apprObj = this.convertToSQL(this.confirmStudentList)
+        axios.post(this.baseURL+'/approveNewStudent', {
+          apprObj: apprObj
+        })
+        .then(response => {
+          console.log(response)
+          this.dialogConfirmApprove = false;
+          this.getNewStudentList()
+          this.$emit('onSuccessHandler');
+          this.$emit('onInfoHandler', response.data.message || 'Approve new student success');
+          
+        })
+        .catch(error => {
+          this.dialogConfirmApprove = false;
+          this.$emit('onErrorHandler', error.message || 'Approve new student failed');
+          console.log(error)
+        })
+      },
+
       clickApprove() {
         this.dialogConfirmApprove = true
       },
@@ -70,19 +101,26 @@ import axios from 'axios'
       clickCancelApprove() {
         this.dialogConfirmApprove = false
       },
-      approveNewStudent() {
-        console.log('approveNewStudent : ',this.newStudentList)
-        console.log('confirmStudentList : ',this.confirmStudentList)
-        axios.post(this.baseURL+'/approveFamilyMember', {
-          confirmStudentList: this.confirmStudentList
-        })
-        .then(response => {
-          console.log(response)
-        })
-        .catch(error => {
-          console.log(error)
-        })
-      }
+      convertDate (arrObj) {
+        arrObj.forEach(obj => {
+          obj.dateofbirthshow = this.format_date(obj.dateofbirth);
+        });
+        return arrObj;
+      },
+      convertToSQL (arrObj) {
+        arrObj.forEach(obj => {
+          obj.dateofbirth = this.SQLDate(obj.dateofbirth);
+        });
+        return arrObj;
+      },
+      SQLDate(date) {
+          return moment(date).format('YYYY-MM-DD')
+      },
+      format_date(value){
+          if (value) {
+              return moment(String(value)).format('DD/MM/YYYY')
+          }
+      },
     },
     created() {
       this.getNewStudentList()
