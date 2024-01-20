@@ -330,6 +330,8 @@
         </v-card>
         </template>
     </v-dialog>
+    {{ today }}
+    {{ tomorrow }}
 </template>
 <script>
 import axios from 'axios'
@@ -693,7 +695,32 @@ export default ({
           this.dialogStudentDelete = true
         },
         async clickConfirmDeleteBooking() {
-            // delete booking
+            const token = this.$store.getters.getToken;
+            axios.post(this.baseURL+'/deleteReservationByAdmin', {
+                reservationid: this.editedBookingItem.reservationid,
+                childid: this.editedBookingItem.childid,
+            },
+            { headers:{ Authorization: `Bearer ${token}`, } 
+            })
+            .then(response => {
+                //console.dir(response);
+                if (response.data.success) {
+                    this.$emit('onInfoHandler', 'Delete Reservation Successful');
+                } else {
+                    this.$emit('onErrorHandler', response.data.message || 'Delete Reservation failed');
+                }
+                this.dialogBookingDelete = false
+                this.refreshCardDashboard()
+                this.getReservationList()
+            })
+            .catch(error => {
+                if(error.response.status == 401) {
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                }else{
+                    this.$emit('onErrorHandler', error.message)
+                }
+            });
         },
         async clickConfirmDeleteStd() {
             const token = this.$store.getters.getToken;
@@ -714,6 +741,14 @@ export default ({
                 this.initialize()
                 this.getStudentList()
             })
+            .catch(error => {
+                if(error.response.status == 401) {
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                }else{
+                    this.$emit('onErrorHandler', error.message)
+                }
+            });
         },
         closeBooking () {
           this.dialogBooking = false
@@ -873,6 +908,9 @@ export default ({
             const d = new Date()
             d.setDate(d.getDate() +1)
             return d 
+        },
+        today() {
+            return new Date()
         },
         formStudentTitle () {
           return this.editedStudentIndex === -1 ? 'Add a new student' : 'Edit student information'
