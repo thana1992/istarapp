@@ -331,7 +331,7 @@
         </template>
     </v-dialog>
     today {{ this.today }}
-    tomorrow {{ thistomorrow }}
+    tomorrow {{ this.tomorrow }}
 </template>
 <script>
 import axios from 'axios'
