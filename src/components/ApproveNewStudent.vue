@@ -92,13 +92,13 @@ import { mapGetters } from 'vuex';
           this.getNewStudentList()
           this.$emit('onSuccessHandler');
           this.$emit('onInfoHandler', response.data.message || 'Approve new student success');
-          
         })
         .catch(error => {
           this.dialogConfirmApprove = false;
           this.$emit('onErrorHandler', error.message || 'Approve new student failed');
           console.log(error)
         })
+        this.confirmStudentList = []
       },
 
       clickApprove() {
