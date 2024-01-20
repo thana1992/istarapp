@@ -84,6 +84,7 @@
 <script>
 import axios from 'axios'
 import moment from 'moment'
+import { mapGetters } from 'vuex';
   export default {
     props: {
         student: {
@@ -134,7 +135,12 @@ import moment from 'moment'
                 courseid: this.student.courseid
             }
             console.log("request", req)
-            axios.post(this.baseURL+'/getClassTime', req)
+            const token = this.$store.getters.getToken;
+            axios.post(this.baseURL+'/getClassTime', req, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            })
             .then(response => {
                 console.dir(response);
                 if (response.data.success) {
@@ -161,8 +167,12 @@ import moment from 'moment'
                 classday: this.weekday[this.date.getDay()]
             }
             console.log('checkDuplicateReservation : ' ,reservaObj)
-
-            await axios.post(this.baseURL+'/checkDuplicateReservation', reservaObj)
+            const token = this.$store.getters.getToken;
+            await axios.post(this.baseURL+'/checkDuplicateReservation', reservaObj, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            })
             .then(response => {
                 console.dir(response);
                 if (!response.data.success) {
@@ -172,7 +182,12 @@ import moment from 'moment'
             });
 
             if(!isDuplicate) {
-                await axios.post(this.baseURL+'/createReservation', reservaObj)
+                const token = this.$store.getters.getToken;
+                await axios.post(this.baseURL+'/createReservation', reservaObj, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                })
                 .then(response => {
                     console.dir(response);
                     if (response.data.success) {
@@ -199,6 +214,11 @@ import moment from 'moment'
                 return moment(String(value)).format('DD/MM/YYYY')
             }
         },
+    },
+    computed: {
+        ...mapGetters({
+            token: 'getToken',
+        }),
     }
 
   }

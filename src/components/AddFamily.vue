@@ -75,6 +75,8 @@ import { VBottomNavigation, VBottomSheet } from 'vuetify/lib/components/index.mj
 import axios from 'axios'
 import DatePicker from '@/components/DatePicker.vue'
 import moment from 'moment'
+import { mapGetters } from 'vuex';
+
 export default {
     components: {
         DatePicker,
@@ -101,7 +103,7 @@ export default {
 
             const userdata = localStorage.getItem('userdata')
             const user = JSON.parse(userdata)
-
+            const token = this.$store.getters.getToken;
             // Make API request to register the user
             axios
                 .post(this.baseURL+'/addFamilyMember', {
@@ -111,6 +113,9 @@ export default {
                 gender: this.gender,
                 dateofbirth: this.format_date(this.dateofbirth),
                 familyid: user.familyid,
+                },
+                { 
+                    headers:{ Authorization: `Bearer ${token}`, } 
                 })
                 .then(response => {
                     console.log(response)
@@ -143,6 +148,11 @@ export default {
           }
         },
     },
+    computed: {
+        ...mapGetters({
+            token: 'getToken',
+        }),
+    }
 }
 </script>
 <style scoped>

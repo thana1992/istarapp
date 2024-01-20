@@ -27,14 +27,44 @@
           </v-list-item>
           <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-gymnastics" title="CLASSES" value="classes" @click="onClickChangeState('classes')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn" prepend-icon="mdi-logout" title="Logout" value="logout" @click="logout()">
+          <v-list-item v-if="isLoggedIn" prepend-icon="mdi-logout" title="Logout" value="logout" @click="onClickLogout()">
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
       <v-app-bar :elevation="20">
         <v-btn v-if="!black" @click.stop="drawer = !drawer"  variant="tonal"><span class="mdi mdi-menu" style="font-size: large;"></span></v-btn>
         <v-btn v-if="black" @click="onClickBack(recentState)"  variant="tonal"><span class="mdi mdi-arrow-left" style="font-size: large;" ></span></v-btn>
-        
+        <template v-slot:append v-if="isLoggedIn">
+          <v-dialog
+            v-model="LogoutDialog"
+            persistent
+            width="auto"
+          >
+            <template v-slot:activator="{ props }">
+              <v-btn icon="mdi-logout" @click="onClickLogout()"></v-btn>
+            </template>
+            <v-card>
+              <v-card-text>Do you want to logout ?</v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn
+                  color="green-darken-1"
+                  variant="text"
+                  @click="logout()"
+                >
+                  Yes
+                </v-btn>
+                <v-btn
+                  color="green-darken-1"
+                  variant="text"
+                  @click="LogoutDialog = false"
+                >
+                  No
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+        </template>
       </v-app-bar>
       <v-main class="root-container">
           <Login v-if="state=='login'"
@@ -84,7 +114,8 @@
           ></AddFamily>
 
           <Dashboard v-else-if="state=='dashboard'"
-          :test="test"
+          @onErrorHandler="onError($event)"
+          @onClickChangeState="onClickChangeState($event)"
           ></Dashboard>
 
           <Course v-else-if="state=='course'"
@@ -129,6 +160,7 @@
 </template>
 
 <script>
+import axios from 'axios'
 import tokenService from '@/services/tokenService';
 import Login from './components/Login.vue'
 import Register from './components/Register.vue'
@@ -139,36 +171,30 @@ import AddFamily from './components/AddFamily.vue';
 import Dashboard from './components/Dashboard.vue'
 import Course from './components/Courses.vue'
 import Classes from './components/Classes.vue'
+import CryptoJS from 'crypto-js';
 import { ref, computed, onMounted, inject } from 'vue';
-
+import { mapGetters } from 'vuex';
 export default {
   data () {
-      return {
-        drawer: false,
-        rail: true,
-        parent: 'Guest',
-        state: 'login',
-        isLoggedIn: false,
-        black: false,
-        blackstate: 'home',
-        homestate: 'family',
-        errorDialog: false,
-        errorMsg: '',
-        infoDialog: false,
-        inforMsg: '',
-        user_details: {},
-        student: null,
-        adminflag: false,
-        interval:null,
-        test: {name: 'test', times: 0}
-      }
-    },
-    setup() {
-        console.log('App.vue ...'+new Date())
-        this.interval = setInterval(() =>{
-          console.log('111111111111')
-        this.test.times = this.test.times+1 },1000)
-    },  
+    return {
+      drawer: false,
+      rail: true,
+      parent: 'Guest',
+      state: 'login',
+      black: false,
+      blackstate: 'home',
+      homestate: 'family',
+      errorDialog: false,
+      errorMsg: '',
+      infoDialog: false,
+      inforMsg: '',
+      user_details: {},
+      student: null,
+      adminflag: false,
+      interval:null,
+      LogoutDialog: false,
+    }
+  },
   name: 'App',
   components: {
     Login,
@@ -194,7 +220,6 @@ export default {
           this.adminflag = false
           this.state = 'home'
         }
-        this.isLoggedIn = tokenService.isLoggedIn();
     },
     toggleRail (page) {
       this.$router.push('/'+page)
@@ -203,6 +228,10 @@ export default {
       this.student = student
     },
     onClickChangeState (state) {
+      if(state == 'login') {
+        this.$store.dispatch('logout');
+        localStorage.removeItem('userdata');
+      }
       this.drawer= false
       this.black = false
       this.state = state
@@ -234,36 +263,34 @@ export default {
       this.infoDialog = true
       this.state = 'login'
     },
-    logout () {
-      localStorage.removeItem('userdata');
-      tokenService.removeToken();
-      this.isLoggedIn = tokenService.isLoggedIn();
-      this.state = 'login'
-      this.drawer = false
+    onClickLogout () {
+      this.LogoutDialog = true
+    },
+    async logout() {
+      this.LogoutDialog = false;
+      try {
+        const token = this.$store.getters.getToken;
+
+        await axios.post(this.baseURL + '/logout', {}, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        .then(response => {
+          console.log(response)
+          this.$store.dispatch('logout');
+          localStorage.removeItem('userdata');
+          this.state = 'login'
+          this.drawer = false
+        })
+      } catch (error) {
+        // Handle errors
+        console.error('Error during logout:', error);
+        localStorage.removeItem('userdata');
+        this.state = 'login'
+        this.drawer = false
+      }
     }
-  },
-  setup() {
-    // const isAuthenticated = computed(() => !!localStorage.getItem('token'));
-    // const isLoggedIn = ref(false);
-    // const state = ref('login');
-    // const drawer = ref(false);
-    // // Check if the user is logged in
-    // const checkLoginStatus = () => {
-    //   const token = localStorage.getItem('token');
-    //   isLoggedIn.value = !!token;
-    // };
-
-    // const logout = () => {
-    //   localStorage.removeItem('token');
-    //   // Redirect to the login page
-    //   checkLoginStatus();
-    //   state.value = 'login'
-    //   drawer.value = false
-    // };
-
-    // checkLoginStatus();
-
-    // return { isAuthenticated, isLoggedIn, logout, state, drawer };
   },
   created() {
     this.user_details = JSON.parse(localStorage.getItem('userdata'))
@@ -279,16 +306,15 @@ export default {
           this.state = 'home'
         }
     }
-    this.isLoggedIn = tokenService.isLoggedIn();
-  },
-  mounted() {
-    this.isLoggedIn = tokenService.isLoggedIn();
   },
   computed: {
+    ...mapGetters({
+      isLoggedIn: 'isLoggedIn',
+    }),
     iconUrl () {
       return require('./assets/avatar/1.png')
       // The path could be '../assets/img.png', etc., which depends on where your vue file is
-    }
+    },
   }
 }
 </script>

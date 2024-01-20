@@ -65,6 +65,7 @@
 import tokenService from '@/services/tokenService';
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
+import { mapActions } from "vuex";
 
 export default {
     data: () => ({
@@ -81,6 +82,7 @@ export default {
     setup() {
     },
     methods: {
+      ...mapActions(["setToken"]),
       async doLogin () {
         const { valid } = await this.$refs.login_form.validate()
         if (valid) {
@@ -93,9 +95,14 @@ export default {
           .then(response => {
             console.dir('login ',response);
             if (response.data.success) {
-              tokenService.setToken(response.data.token);
+              //tokenService.setToken(response.data.token);
               // Redirect or perform other actions on successful login
+              this.setToken(response.data.token);
+              localStorage.setItem('token', response.data.token);
               localStorage.setItem("userdata", JSON.stringify(response.data.userdata));
+              // Example usage in Login.vue
+              this.$store.dispatch('setToken', { token: response.data.token, user: response.data.userdata });
+
               this.$emit('onAffterLogin')
             } else {
               this.$emit('onErrorHandler', response.data.message)

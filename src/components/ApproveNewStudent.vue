@@ -33,6 +33,8 @@
 <script>
 import axios from 'axios'
 import moment from 'moment'
+import { mapGetters } from 'vuex';
+
   export default {
     data () {
       return {
@@ -53,7 +55,11 @@ import moment from 'moment'
     },
     methods: {
       getNewStudentList() {
-        axios.get(this.baseURL+'/getNewStudentList')
+        const token = this.$store.getters.getToken;
+        axios.get(this.baseURL+'/getNewStudentList',
+        { 
+            headers:{ Authorization: `Bearer ${token}`, } 
+        })
         .then(response => {
           console.log('getNewStudentList res : ',response)
           if(response.data.results.length == 0) {
@@ -73,8 +79,12 @@ import moment from 'moment'
         console.log('approveNewStudent : ',this.newStudentList)
         console.log('confirmStudentList : ',this.confirmStudentList)
         const apprObj = this.convertToSQL(this.confirmStudentList)
+        const token = this.$store.getters.getToken;
         axios.post(this.baseURL+'/approveNewStudent', {
           apprObj: apprObj
+        },
+        { 
+            headers:{ Authorization: `Bearer ${token}`, } 
         })
         .then(response => {
           console.log(response)
@@ -125,8 +135,10 @@ import moment from 'moment'
     created() {
       this.getNewStudentList()
     },
-    destroyed(){
-        console.log('destroyed...'+new Date())
-    },
+    computed: {
+      ...mapGetters({
+          token: 'getToken',
+      }),
+    }
   }
 </script>

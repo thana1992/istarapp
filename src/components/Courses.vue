@@ -129,6 +129,8 @@
   </template>
   <script>
   import axios from 'axios'
+  import { mapGetters } from 'vuex';
+
     export default {
       data: () => ({
         dialog: false,
@@ -151,6 +153,9 @@
       }),
   
       computed: {
+        ...mapGetters({
+            token: 'getToken',
+        }),
         formTitle () {
           return this.editedIndex === -1 ? 'New Course' : 'Edit Course'
         },
@@ -171,17 +176,21 @@
   
       methods: {
          initialize () {
-             axios
-            .get(this.baseURL+'/getAllCourses', {})
-            .then(response => {
-                console.dir(response);
-                if (response.data.success) {
-                    this.courselist = response.data.results
-                }
-            })
-            .catch(error => {
-                console.error(error);
-            });
+          const token = this.$store.getters.getToken;
+            axios
+          .get(this.baseURL+'/getAllCourses',
+          { 
+              headers:{ Authorization: `Bearer ${token}`, } 
+          })
+          .then(response => {
+              console.dir(response);
+              if (response.data.success) {
+                  this.courselist = response.data.results
+              }
+          })
+          .catch(error => {
+              console.error(error);
+          });
         },
   
         editItem (item) {
@@ -197,9 +206,13 @@
         },
   
         deleteItemConfirm () {
+          const token = this.$store.getters.getToken;
           axios
             .post(this.baseURL+'/deleteCourse', {
               courseid: this.editedItem.courseid
+            },
+            { 
+                headers:{ Authorization: `Bearer ${token}`, } 
             })
             .then(response => {
                 console.dir(response);
@@ -233,6 +246,7 @@
         },
   
         save () {
+          const token = this.$store.getters.getToken;
           if (this.editedIndex > -1) {
             let saveObj = {
                 courseid: this.editedItem.courseid,
@@ -240,7 +254,10 @@
                 course_shortname: this.editedItem.course_shortname,
             }
             axios
-            .post(this.baseURL+'/updateCourse', saveObj)
+            .post(this.baseURL+'/updateCourse', saveObj,
+            { 
+                headers:{ Authorization: `Bearer ${token}`, } 
+            })
             .then(response => {
                 console.dir(response);
                 if (response.data.success) {
@@ -256,7 +273,10 @@
                 course_shortname: this.editedItem.course_shortname,
             }
             axios
-            .post(this.baseURL+'/addCourse', saveObj)
+            .post(this.baseURL+'/addCourse', saveObj,
+            { 
+                headers:{ Authorization: `Bearer ${token}`, } 
+            })
             .then(response => {
                 console.dir(response);
                 if (response.data.success) {

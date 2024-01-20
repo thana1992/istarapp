@@ -157,6 +157,8 @@
   </template>
   <script>
   import axios from 'axios'
+  import { mapGetters } from 'vuex';
+  
     export default {
       data: () => ({
         dialog: false,
@@ -188,6 +190,9 @@
       }),
   
       computed: {
+        ...mapGetters({
+            token: 'getToken',
+        }),
         formTitle () {
           return this.editedIndex === -1 ? 'New Class' : 'Edit Class'
         },
@@ -208,123 +213,142 @@
       },
   
       methods: {
-         initialize () {
-             axios
-            .get(this.baseURL+'/getAllClasses', {})
-            .then(response => {
-                console.dir(response);
-                if (response.data.success) {
-                    this.classlist = response.data.results
-                }
-            })
-            .catch(error => {
-                console.error(error);
-            });
-        },
+        initialize () {
+        const token = this.$store.getters.getToken;
+        axios
+        .get(this.baseURL+'/getAllClasses',
+        { 
+            headers:{ Authorization: `Bearer ${token}`, } 
+        })
+        .then(response => {
+            console.dir(response);
+            if (response.data.success) {
+                this.classlist = response.data.results
+            }
+        })
+        .catch(error => {
+            console.error(error);
+        });
+      },
         
-        getCourseLookup () {
-            axios
-            .get(this.baseURL+'/courseLookup', {})
-            .then(response => {
-                console.dir(response);
-                if (response.data.success) {
-                    this.courseLookup = response.data.results
-                }
-            })
-            .catch(error => {
-                console.error(error);
-            });
-        },
-  
-        editItem (item) {
-          this.editedIndex = this.classlist.indexOf(item)
-          this.editedItem = Object.assign({}, item)
-          this.dialog = true
-        },
-  
-        deleteItem (item) {
-          this.editedIndex = this.classlist.indexOf(item)
-          this.editedItem = Object.assign({}, item)
-          this.dialogDelete = true
-        },
-  
-        deleteItemConfirm () {
-          axios
-            .post(this.baseURL+'/deleteClass', {
-                classid: this.editedItem.classid
-            })
-            .then(response => {
-                console.dir(response);
-                if (response.data.success) {
-                    this.$emit('onInfoHandler', 'สำเร็จ ระเบิดคลาสนี้สมดั่งใจคุณแล้ว');
-                } else {
-                    this.$emit('onErrorHandler', response.data.message || 'เสียใจ ลบไม่ได้ ลองใหม่อีกครั้งนะ');
-                }
-                this.initialize()
-            })
-            .catch(error => {
-                console.error(error);
-            });
-          this.closeDelete()
-        },
-  
-        close () {
-          this.dialog = false
-          this.$nextTick(() => {
-            this.editedItem = Object.assign({}, this.defaultItem)
-            this.editedIndex = -1
-          })
-        },
-  
-        closeDelete () {
-          this.dialogDelete = false
-          this.$nextTick(() => {
-            this.editedItem = Object.assign({}, this.defaultItem)
-            this.editedIndex = -1
-          })
-        },
-  
-        save () {
-          if (this.editedIndex > -1) {
-            let saveObj = {
-                classid: this.editedItem.classid,
-                courseid: this.editedItem.courseid,
-                classday: this.editedItem.classday,
-                classtime: this.editedItem.classtime,
-                maxperson: this.editedItem.maxperson
+      getCourseLookup () {
+        const token = this.$store.getters.getToken;
+        axios
+        .get(this.baseURL+'/courseLookup',
+        { 
+            headers:{ Authorization: `Bearer ${token}`, } 
+        })
+        .then(response => {
+            console.dir(response);
+            if (response.data.success) {
+                this.courseLookup = response.data.results
             }
-            axios
-            .post(this.baseURL+'/updateClass', saveObj)
-            .then(response => {
-                console.dir(response);
-                if (response.data.success) {
-                    this.$emit('onInfoHandler', 'สำเร็จ แก้ไขข้อมูลคลาสแล้ว');
-                } else {
-                    this.$emit('onErrorHandler', response.data.message || 'เสียใจ แก้ไขไม่ได้ ลองใหม่อีกครั้งนะ');
-                }
-                this.initialize()
-            })
-          } else {
-            let saveObj = {
-                courseid: this.editedItem.courseid,
-                classday: this.editedItem.classday,
-                classtime: this.editedItem.classtime,
-                maxperson: this.editedItem.maxperson
+        })
+        .catch(error => {
+            console.error(error);
+        });
+      },
+  
+      editItem (item) {
+        this.editedIndex = this.classlist.indexOf(item)
+        this.editedItem = Object.assign({}, item)
+        this.dialog = true
+      },
+
+      deleteItem (item) {
+        this.editedIndex = this.classlist.indexOf(item)
+        this.editedItem = Object.assign({}, item)
+        this.dialogDelete = true
+      },
+  
+      deleteItemConfirm () {
+        const token = this.$store.getters.getToken;
+        axios
+        .post(this.baseURL+'/deleteClass', {
+            classid: this.editedItem.classid
+        },
+        { 
+            headers:{ Authorization: `Bearer ${token}`, } 
+        })
+        .then(response => {
+            console.dir(response);
+            if (response.data.success) {
+                this.$emit('onInfoHandler', 'สำเร็จ ระเบิดคลาสนี้สมดั่งใจคุณแล้ว');
+            } else {
+                this.$emit('onErrorHandler', response.data.message || 'เสียใจ ลบไม่ได้ ลองใหม่อีกครั้งนะ');
             }
-            axios
-            .post(this.baseURL+'/addClass', saveObj)
-            .then(response => {
-                console.dir(response);
-                if (response.data.success) {
-                    this.$emit('onInfoHandler', 'สำเร็จ สร้างคลาสใหม่แล้ว');
-                } else {
-                    this.$emit('onErrorHandler', response.data.message || 'เสียใจ สร้างคลาสไม่ได้ ลองใหม่อีกครั้งนะ');
-                }
-                this.initialize()
-            })
+            this.initialize()
+        })
+        .catch(error => {
+            console.error(error);
+        });
+        this.closeDelete()
+      },
+
+      close () {
+        this.dialog = false
+        this.$nextTick(() => {
+          this.editedItem = Object.assign({}, this.defaultItem)
+          this.editedIndex = -1
+        })
+      },
+
+      closeDelete () {
+        this.dialogDelete = false
+        this.$nextTick(() => {
+          this.editedItem = Object.assign({}, this.defaultItem)
+          this.editedIndex = -1
+        })
+      },
+
+      save () {
+        const token = this.$store.getters.getToken;
+        if (this.editedIndex > -1) {
+          let saveObj = {
+              classid: this.editedItem.classid,
+              courseid: this.editedItem.courseid,
+              classday: this.editedItem.classday,
+              classtime: this.editedItem.classtime,
+              maxperson: this.editedItem.maxperson
           }
-          this.close()
-        },
+          axios
+          .post(this.baseURL+'/updateClass', saveObj,
+          { 
+              headers:{ Authorization: `Bearer ${token}`, } 
+          })
+          .then(response => {
+              console.dir(response);
+              if (response.data.success) {
+                  this.$emit('onInfoHandler', 'สำเร็จ แก้ไขข้อมูลคลาสแล้ว');
+              } else {
+                  this.$emit('onErrorHandler', response.data.message || 'เสียใจ แก้ไขไม่ได้ ลองใหม่อีกครั้งนะ');
+              }
+              this.initialize()
+          })
+        } else {
+          let saveObj = {
+              courseid: this.editedItem.courseid,
+              classday: this.editedItem.classday,
+              classtime: this.editedItem.classtime,
+              maxperson: this.editedItem.maxperson
+          }
+          axios
+          .post(this.baseURL+'/addClass', saveObj,
+          { 
+              headers:{ Authorization: `Bearer ${token}`, } 
+          })
+          .then(response => {
+              console.dir(response);
+              if (response.data.success) {
+                  this.$emit('onInfoHandler', 'สำเร็จ สร้างคลาสใหม่แล้ว');
+              } else {
+                  this.$emit('onErrorHandler', response.data.message || 'เสียใจ สร้างคลาสไม่ได้ ลองใหม่อีกครั้งนะ');
+              }
+              this.initialize()
+          })
+        }
+        this.close()
+      },
       },
     }
   </script>

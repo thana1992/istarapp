@@ -12,7 +12,7 @@
                 v-model="username"
                 :counter="10"
                 label="Username"
-                :rules="nameRules"
+                :rules="usernameRules"
                 required
                 ></v-text-field>
 
@@ -39,8 +39,6 @@
                 v-model="address"
                 label="Address"
                 type="text"
-                :rules="nameRules"
-                required
                 ></v-text-field>
 
                 <v-text-field
@@ -48,17 +46,17 @@
                 v-model="email"
                 label="E-mail"
                 type="text"
-                :rules="nameRules"
+                :rules="emailRules"
                 required
                 ></v-text-field>
 
                 <v-text-field
                 variant="solo-filled"
                 v-model="mobileno"
-                label="Phone Number"
-                placeholder="123-456-7890"
-                    type="tel"
-                :rules="nameRules"
+                label="Mobile Number"
+                @input="acceptNumber"
+                type="text"
+                :rules="mobileRules"
                 required
                 ></v-text-field>
 
@@ -113,11 +111,21 @@ export default {
       email: '',
       mobileno: '',
       lineid: '',
-      nameRules: [
+      usernameRules: [
         v => !!v || 'Username is required',
       ],
       passwordRules: [
         v => !!v || 'Password is required',
+      ],
+      nameRules: [
+        v => !!v || 'Name is required',
+      ],
+      mobileRules: [
+        v => !!v || 'Mobile Number is required',
+      ],
+      emailRules: [ 
+        v => !!v || 'E-mail is required',
+        v => !v || /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail must be valid'
       ]
     }),
     methods: {
@@ -155,6 +163,10 @@ export default {
               alert(error.message)
             });
         }
+      },
+      acceptNumber() {
+        var x = this.mobileno.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+        this.mobileno = !x[2] ? x[1] : x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '');
       },
       reset () {
         this.$refs.form.reset()

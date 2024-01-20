@@ -58,6 +58,7 @@ import tokenService from '@/services/tokenService';
 import { ref, computed, onMounted, inject } from 'vue';
 import AddFamily from './AddFamily.vue'
 import axios from 'axios';
+import { mapGetters } from 'vuex';
 export default {
     components: {
         AddFamily,
@@ -65,44 +66,7 @@ export default {
     data() {
         return {
             isAddFamily: false,
-            family: [
-                // {
-                //     childid: 1,
-                //     familyid: 1,
-                //     photo: 'https://as1.ftcdn.net/v2/jpg/01/16/24/44/1000_F_116244459_pywR1e0T3H7FPk3LTMjG6jsL3UchDpht.jpg',
-                //     firstname: 'มณัญฌญา',
-                //     lastname: 'จันทราพรไพลิน',
-                //     nickname: 'ไอซ์',
-                //     gender: 'หญิง',
-                //     age: '10',
-                //     coursename: 'iStar',
-                //     remaining: 1
-                // },
-                // {
-                //     childid: 2,
-                //     familyid: 1,
-                //     photo: 'https://creazilla-store.fra1.digitaloceanspaces.com/icons/7912642/avatar-icon-md.png',
-                //     firstname: 'ธนา',
-                //     lastname: 'ผโลดม',
-                //     nickname: 'บุช',
-                //     gender: 'ชาย',
-                //     age: '12',
-                //     coursename: 'G.A.',
-                //     remaining: 2
-                // },
-                // {
-                //     childid: 3,
-                //     familyid: 1,
-                //     photo: 'https://cdn.icon-icons.com/icons2/2643/PNG/512/female_woman_person_people_avatar_icon_159366.png',
-                //     firstname: 'ธนภรณ์',
-                //     lastname: 'อุทัยศรี',
-                //     nickname: 'อีฟ',
-                //     gender: 'หญิง',
-                //     age: '11',
-                //     coursename: 'G.A.',
-                //     remaining: 3,
-                // },
-            ],
+            family: [],
         }
     },
     methods: {
@@ -120,10 +84,14 @@ export default {
             }
         },
         async getFamilyMember() {
+            const token = this.$store.getters.getToken;
             const user = JSON.parse(localStorage.getItem('userdata'))
             await axios
             .post(this.baseURL+'/getFamilyMember', {
                 familyid: user.familyid,
+            },
+            { 
+                headers:{ Authorization: `Bearer ${token}`, } 
             })
             .then(response => {
                 console.dir(response);
@@ -138,9 +106,13 @@ export default {
             });
         },
         async deleteFamily(people) {
+            const token = this.$store.getters.getToken;
             axios.post(this.baseURL+'/deleteFamilyMember', {
                 familyid: people.familyid,
                 childid: people.childid,
+            },
+            { 
+                headers:{ Authorization: `Bearer ${token}`, } 
             })
             .then(response => {
                 console.dir(response);
@@ -159,13 +131,13 @@ export default {
             this.$emit('onInfoHandler', message)
         }
     },
-    setup() {
-        const isAuthenticated = computed(() => !!localStorage.getItem('token'));
-        console.log(isAuthenticated.value)
-        return { isAuthenticated };
-    },
     created() {
         this.getFamilyMember()
+    },
+    computed: {
+        ...mapGetters({
+            token: 'getToken',
+        }),
     }
 
 }

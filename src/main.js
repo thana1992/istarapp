@@ -1,34 +1,37 @@
-import { createApp } from 'vue'
-import App from './App.vue'
+// main.js
+import { createApp } from 'vue';
+import App from './App.vue';
+import store from './store';
 
-import 'vuetify/styles'
-import { createVuetify } from 'vuetify'
-import * as components from 'vuetify/components'
-import * as directives from 'vuetify/directives'
+import 'vuetify/styles';
+import { createVuetify } from 'vuetify';
+import * as components from 'vuetify/components';
+import * as directives from 'vuetify/directives';
 
-import { library } from '@fortawesome/fontawesome-svg-core'
-import { faCamera } from '@fortawesome/free-solid-svg-icons'
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { faCamera, faRightToBracket, faUser, faHouse, faHouseUser, faPeopleRoof, faCalendarPlus } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 
-library.add(faCamera)
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
-import { faRightToBracket } from '@fortawesome/free-solid-svg-icons'
-import { faUser } from '@fortawesome/free-solid-svg-icons'
-import { faHouseUser } from '@fortawesome/free-solid-svg-icons'
-import { faHouse } from '@fortawesome/free-solid-svg-icons'
-import { faPeopleRoof } from '@fortawesome/free-solid-svg-icons'
-import { faCalendarPlus } from '@fortawesome/free-solid-svg-icons'
-library.add(faRightToBracket, faUser, faHouse, faHouseUser, faPeopleRoof, faCalendarPlus)
+library.add(faCamera, faRightToBracket, faUser, faHouse, faHouseUser, faPeopleRoof, faCalendarPlus);
+
 import VueDatePicker from '@vuepic/vue-datepicker';
-import '@vuepic/vue-datepicker/dist/main.css'
+import '@vuepic/vue-datepicker/dist/main.css';
 
 const vuetify = createVuetify({
-    components,
-    directives,
-    defaultTheme: 'dark',
-  })
-  
-const app = createApp(App)
-app.config.globalProperties.baseURL = 'https://istardb.cyclic.app/'
-//app.config.globalProperties.baseURL = 'http://localhost:3000'
+  components,
+  directives,
+  defaultTheme: 'dark',
+});
 
-app.component('font-awesome-icon', FontAwesomeIcon).component('VueDatePicker', VueDatePicker).use(vuetify).mount('#app')
+const app = createApp(App);
+
+// Check if there is a token in localStorage and set it in the store
+const token = localStorage.getItem('token');
+if (token) {
+  store.dispatch('setToken', token);
+}
+
+app.config.globalProperties.baseURL = 'https://istardb.cyclic.app/';
+//app.config.globalProperties.baseURL = 'http://localhost:3000';
+
+app.component('font-awesome-icon', FontAwesomeIcon).component('VueDatePicker', VueDatePicker).use(vuetify).use(store).mount('#app');

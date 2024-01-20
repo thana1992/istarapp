@@ -336,17 +336,13 @@ import axios from 'axios'
 import DatePicker from '@/components/DatePicker.vue'
 import ApproveNewStudent from './ApproveNewStudent.vue'
 import moment from 'moment'
+import { mapGetters } from 'vuex';
 
 export default ({
     components: {
         DatePicker,
         ApproveNewStudent
     },
-    computed: {
-        formStudentTitle () {
-          return this.editedStudentIndex === -1 ? 'Add a new student' : 'Edit student information'
-        },
-      },
     data() {
         return {
             fetchData: null,
@@ -427,10 +423,41 @@ export default ({
         }
     },
     
-    created() {
+    async created() {
         console.log('created...'+new Date())
         clearInterval(this.interval)
-        this.initialize()
+        try {
+            const token = this.$store.getters.getToken;
+            console.log('token ', token)
+            if (!token) {
+                this.errorMsg = 'Not found token, Please login...'
+                this.errorDialog = true
+                this.$emit('onClickChangeState', 'login')
+                return;
+            }
+
+            await axios
+            .post(this.baseURL+'/verifyToken', {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            })
+            .then(response => {
+                console.dir(response);
+                if (response.data.success) {
+                    this.initialize()
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                this.$emit('onErrorHandler', error.response.data.message)
+                this.$emit('onClickChangeState', 'login')
+            });
+        } catch (error) {
+            this.$emit('onErrorHandler', error.message)
+        }
+
+        
         
     },
     mounted() {
@@ -441,13 +468,23 @@ export default ({
     unmounted() {
         console.log('unmounted...'+new Date())
         clearInterval(this.interval)
-  },
-    destroyed(){
-        console.log('dashboard destroyed...'+new Date())
-        clearInterval(this.interval)
     },
     methods: {
         initialize() {
+            /*
+            axios.get(this.baseURL+'/checkToken', {})
+            .then(response => {
+                console.dir(response);
+                if (response.data) {
+                    const activeSessions = response.data.activeSessions
+                    activeSessions.forEach(item => {
+                        let iat = new Date(item.iat * 1000)
+                        let exp = new Date(item.exp * 1000)
+                        console.log(item.username + " : " + iat.toLocaleString() + " : " + exp.toLocaleString())
+                    });
+                }
+            })
+            */
             this.refreshCardDashboard()
             this.getReservationList()
             this.getCourseLookup()
@@ -462,8 +499,13 @@ export default ({
             this.getReservationList()
         },
         refreshCardDashboard() {
+            const token = this.$store.getters.getToken;
             axios
-            .get(this.baseURL+'/refreshCardDashboard', {})
+            .get(this.baseURL+'/refreshCardDashboard', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            })
             .then(response => {
                 //console.dir(response);
                 if (response.data.success) {
@@ -479,6 +521,14 @@ export default ({
                     this.totalWaitCancelBooking = response.data.datacard.totalWaitCancelBooking
                 }
             })
+            .catch(error => {
+                if(error.response.status == 401) {
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                }else{
+                    this.$emit('onErrorHandler', error.message)
+                }
+            });
         },
         getApproveNewStudents() {
             axios
@@ -490,7 +540,12 @@ export default ({
                 }
             })
             .catch(error => {
-                console.error(error);
+                if(error.response.status == 401) {
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                }else{
+                    this.$emit('onErrorHandler', error.message)
+                }
             });
         },
         getApproveCancelBookingClass() {
@@ -503,7 +558,12 @@ export default ({
                 }
             })
             .catch(error => {
-                console.error(error);
+                if(error.response.status == 401) {
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                }else{
+                    this.$emit('onErrorHandler', error.message)
+                }
             });
         },
         async doSaveNewStudent () {
@@ -521,10 +581,11 @@ export default ({
                     remaining: this.editedStudentItem.remaining,
                 }
                 //console.log(this.editedStudentIndex+ ' StudentObj : ', StudentObj)
+                const token = this.$store.getters.getToken;
                 if (this.editedStudentIndex > -1) {
                     StudentObj.childid = this.editedStudentItem.childid
                     axios
-                    .post(this.baseURL+'/updateStudentByAdmin', StudentObj)
+                    .post(this.baseURL+'/updateStudentByAdmin', StudentObj, { headers:{ Authorization: `Bearer ${token}`, } })
                     .then(response => {
                         if (response.data.success) {
                             this.$emit('onInfoHandler', 'แก้ไขข้อมูลสำเร็จแล้ว');
@@ -536,11 +597,16 @@ export default ({
                         }
                     })
                     .catch(error => {
-                        console.error(error);
+                        if(error.response.status == 401) {
+                            this.$emit('onErrorHandler', error.response.data.message)
+                            this.$emit('onClickChangeState', 'login')
+                        }else{
+                            this.$emit('onErrorHandler', error.message)
+                        }
                     });
                 }else{
                     axios
-                    .post(this.baseURL+'/addStudentByAdmin', StudentObj)
+                    .post(this.baseURL+'/addStudentByAdmin', StudentObj, { headers:{ Authorization: `Bearer ${token}`, } })
                     .then(response => {
                         if (response.data.success) {
                             this.$emit('onInfoHandler', 'เพิ่มสมาชิกสำเร็จแล้ว');
@@ -552,14 +618,24 @@ export default ({
                         }
                     })
                     .catch(error => {
-                        console.error(error);
+                        if(error.response.status == 401) {
+                            this.$emit('onErrorHandler', error.response.data.message)
+                            this.$emit('onClickChangeState', 'login')
+                        }else{
+                            this.$emit('onErrorHandler', error.message)
+                        }
                     });
                 }
             }
         },
         getCourseLookup () {
+            const token = this.$store.getters.getToken;
             axios
-            .get(this.baseURL+'/courseLookup', {})
+            .get(this.baseURL+'/courseLookup', { 
+                headers:{
+                    Authorization: `Bearer ${token}`,
+                }
+            })
             .then(response => {
                 //console.dir(response);
                 if (response.data.success) {
@@ -567,12 +643,18 @@ export default ({
                 }
             })
             .catch(error => {
-                console.error(error);
+                if(error.response.status == 401) {
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                }else{
+                    this.$emit('onErrorHandler', error.message)
+                }
             });
         },
         getFamilyLookup () {
+            const token = this.$store.getters.getToken;
             axios
-            .get(this.baseURL+'/familyLookup', {})
+            .get(this.baseURL+'/familyLookup', { headers:{ Authorization: `Bearer ${token}`, } })
             .then(response => {
                 //console.dir(response);
                 if (response.data.success) {
@@ -580,7 +662,12 @@ export default ({
                 }
             })
             .catch(error => {
-                console.error(error);
+                if(error.response.status == 401) {
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                }else{
+                    this.$emit('onErrorHandler', error.message)
+                }
             });
         },
         editBookingItem (item) {
@@ -609,9 +696,12 @@ export default ({
             // delete booking
         },
         async clickConfirmDeleteStd() {
+            const token = this.$store.getters.getToken;
             axios.post(this.baseURL+'/deleteFamilyMember', {
                 familyid: this.editedStudentItem.familyid,
                 childid: this.editedStudentItem.childid,
+            },
+            { headers:{ Authorization: `Bearer ${token}`, } 
             })
             .then(response => {
                 //console.dir(response);
@@ -679,7 +769,8 @@ export default ({
         },
         getStudentList() {
             this.loadingStudent = true
-            DashboardAPI.fetchDataStudent()
+            const token = this.$store.getters.getToken;
+            DashboardAPI.fetchDataStudent({ token})
             .then(({ success, results, message }) => {
                 if(success) {
                     this.StudentList = results
@@ -690,13 +781,19 @@ export default ({
                 }
             })
             .catch(error => {
-                alert(error);
+                if(error.response.status == 401) {
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                }else{
+                    this.$emit('onErrorHandler', error.message)
+                }
             });
         },
         getReservationList() {
             const reservedate = this.SQLDate(this.date)
             this.loadingBooking = true
-            DashboardAPI.fetchDataBooking({ reservedate })
+            const token = this.$store.getters.getToken;
+            DashboardAPI.fetchDataBooking({ token, reservedate })
             .then(({ success, results, message }) => {
                 if(success) {
                     this.BookingList = results
@@ -707,7 +804,12 @@ export default ({
                 }
             })
             .catch(error => {
-                alert(error);
+                if(error.response.status == 401) {
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                }else{
+                    this.$emit('onErrorHandler', error.message)
+                }
             });
         },
         calculateAgeNewStudent () {
@@ -764,55 +866,70 @@ export default ({
         },
     },
     computed: {
-    tomorrow() {
-        const d = new Date()
-        d.setDate(d.getDate() +1)
-        return d 
-    }
+        ...mapGetters({
+            token: 'getToken',
+        }),
+        tomorrow() {
+            const d = new Date()
+            d.setDate(d.getDate() +1)
+            return d 
+        },
+        formStudentTitle () {
+          return this.editedStudentIndex === -1 ? 'Add a new student' : 'Edit student information'
+        },
     }
 
 })
 import { Promise } from 'core-js';
 const DashboardAPI = {
     baseURL: 'https://wild-rose-pigeon-tutu.cyclic.app',
-    fetchDataBooking ({ reservedate }) {
+    //baseURL: 'http://localhost:3000',
+    fetchDataBooking ({ token, reservedate }) {
         return new Promise(resolve => {
-                //console.log('DashboardAPI : ' + this.baseURL+'/getReservationList')
-                axios
-                    .post(this.baseURL+'/getReservationList', { classdate: reservedate })
-                    .then(response => {
-                        //console.log('fetchDataBooking result',response);
-                        if (response.data.success) {
-                            const datalist = response.data.results
-                            resolve({ success: true, results: datalist })
-                        }else{
-                            resolve({ success: true, results: [] })
-                        }
-                    })
-                    .catch(error => {
-                        //console.log("fetchDataBooking error",error);
-                        resolve({ success: false, message: error.message })
-                    });
+            //console.log('DashboardAPI : ' + this.baseURL+'/getReservationList')
+            axios
+            .post(this.baseURL+'/getReservationList', {
+                classdate: reservedate
+            },
+            {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            })
+            .then(response => {
+                //console.log('fetchDataBooking result',response);
+                if (response.data.success) {
+                    const datalist = response.data.results
+                    resolve({ success: true, results: datalist })
+                }else{
+                    resolve({ success: true, results: [] })
+                }
+            })
+            .catch(error => {
+                resolve({ success: false, error: error })
+            });
         });
     },
-    fetchDataStudent () {
+    fetchDataStudent ({ token }) {
         return new Promise(resolve => {
-                axios
-                    .get(this.baseURL+'/getStudentList')
-                    .then(response => {
-                        //console.log('fetchDataStudent result',response);
-                        if (response.data.success) {
-                            const datalist = response.data.results
-                            resolve({ success: true, results: datalist })
-                        }else{
-                            resolve({ success: true, results: [] })
-                        }
-                    })
-                    .catch(error => {
-                        //console.log("fetchDataStudent error",error);
-                        resolve({ success: false, message: error.message })
-                    });
-            
+            axios
+            .get(this.baseURL+'/getStudentList', {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            })
+            .then(response => {
+                //console.log('fetchDataStudent result',response);
+                if (response.data.success) {
+                    const datalist = response.data.results
+                    resolve({ success: true, results: datalist })
+                }else{
+                    resolve({ success: true, results: [] })
+                }
+            })
+            .catch(error => {
+                resolve({ success: false, error: error })
+            });
         });
     }
 }
