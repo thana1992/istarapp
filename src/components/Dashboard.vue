@@ -330,8 +330,8 @@
         </v-card>
         </template>
     </v-dialog>
-    {{ today }}
-    {{ tomorrow }}
+    today {{ this.today }}
+    tomorrow {{ thistomorrow }}
 </template>
 <script>
 import axios from 'axios'
