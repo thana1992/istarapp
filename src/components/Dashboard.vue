@@ -503,7 +503,10 @@ export default ({
         refreshCardDashboard() {
             const token = this.$store.getters.getToken;
             axios
-            .get(this.baseURL+'/refreshCardDashboard', {
+            .post(this.baseURL+'/refreshCardDashboard', {
+                today: this.SQLDate(this.today),
+                tomorrow: this.SQLDate(this.tomorrow),
+            },{
                 headers: {
                     Authorization: `Bearer ${token}`,
                 }
