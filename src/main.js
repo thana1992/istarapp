@@ -11,7 +11,7 @@ import * as directives from 'vuetify/directives';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { faCamera, faRightToBracket, faUser, faHouse, faHouseUser, faPeopleRoof, faCalendarPlus } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-
+import Vue3Autocounter from 'vue3-autocounter';
 library.add(faCamera, faRightToBracket, faUser, faHouse, faHouseUser, faPeopleRoof, faCalendarPlus);
 
 import VueDatePicker from '@vuepic/vue-datepicker';
@@ -23,7 +23,7 @@ const vuetify = createVuetify({
   defaultTheme: 'dark',
 });
 
-const app = createApp(App);
+const app = createApp(App).component('vue3-autocounter', Vue3Autocounter)
 
 // Check if there is a token in localStorage and set it in the store
 const token = localStorage.getItem('token');

@@ -13,7 +13,7 @@
                                 <div>Total <br>Students</div>
                             </v-list-item>
                             <v-list-item three-line class="dashboard-card">
-                                <v-list-item-title class="headline mb-1"><p class="font-card">{{ totalStudents }}</p></v-list-item-title>
+                                <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalStudents' :duration='2'  separator=',' :autoinit='true' /></p></v-list-item-title>
                                 <v-list-item-subtitle>Students</v-list-item-subtitle>
                                 <span class="mdi mdi-face-man-shimmer"></span>
                                 <span class="mdi mdi-face-woman-shimmer"></span>
@@ -26,7 +26,7 @@
                                 <div>Bookings Today</div>
                             </v-list-item>
                             <v-list-item three-line class="dashboard-card">
-                                <v-list-item-title class="headline mb-1"><p class="font-card">{{ totalBookingToday }}</p></v-list-item-title>
+                                <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalBookingToday' :duration='2'  separator=',' :autoinit='true' /></p></v-list-item-title>
                                 <v-list-item-subtitle>Bookings</v-list-item-subtitle>
                                 <span class="mdi mdi-gymnastics"></span>
                             </v-list-item>
@@ -38,7 +38,7 @@
                                 <div>Bookings Tomorrow</div>
                             </v-list-item>
                             <v-list-item three-line class="dashboard-card" >
-                                <v-list-item-title class="headline mb-1"><p class="font-card">{{ totalBookingTomorrow }}</p></v-list-item-title>
+                                <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalBookingTomorrow' :duration='2'  separator=',' :autoinit='true' /></p></v-list-item-title>
                                 <v-list-item-subtitle>Bookings</v-list-item-subtitle>
                                 <span class="mdi mdi-gymnastics"></span>
                             </v-list-item>
@@ -50,7 +50,7 @@
                                 <div>Approve New Students <span class=""></span></div>
                             </v-list-item>
                             <v-list-item three-line class="dashboard-card">
-                                <v-list-item-title class="headline mb-1"><p class="font-card">{{ totalWaitingNewStudents }}</p></v-list-item-title>
+                                <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalWaitingNewStudents' :duration='2'  separator=',' :autoinit='true' /></p></v-list-item-title>
                                 <v-list-item-subtitle>Students</v-list-item-subtitle>
                                 <span class="mdi mdi-account-multiple-check"></span>
                             </v-list-item>
@@ -62,7 +62,7 @@
                                 <div>Approve Cancel booking</div>
                             </v-list-item>
                             <v-list-item three-line class="dashboard-card">
-                                <v-list-item-title class="headline mb-1"><p class="font-card">{{ totalWaitCancelBooking }}</p></v-list-item-title>
+                                <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalWaitCancelBooking' :duration='2'  separator=',' :autoinit='true' /></p></v-list-item-title>
                                 <v-list-item-subtitle>Bookings</v-list-item-subtitle>
                                 <span class="mdi mdi-account-multiple-check"></span>
                             </v-list-item>
@@ -330,6 +330,7 @@
         </v-card>
         </template>
     </v-dialog>
+    <!-- <vue3-autocounter ref='counter' :startAmount='0' :endAmount='3' :duration='1' prefix='$' suffix='USD' separator=',' :autoinit='true' /> -->
     today {{ this.today }}
     tomorrow {{ this.tomorrow }}
 </template>
@@ -339,11 +340,12 @@ import DatePicker from '@/components/DatePicker.vue'
 import ApproveNewStudent from './ApproveNewStudent.vue'
 import moment from 'moment'
 import { mapGetters } from 'vuex';
-
+import Vue3autocounter from 'vue3-autocounter';
 export default ({
     components: {
         DatePicker,
-        ApproveNewStudent
+        ApproveNewStudent,
+        'vue3-autocounter': Vue3autocounter
     },
     data() {
         return {
@@ -359,7 +361,7 @@ export default ({
             totalBookingTomorrow: 0,
             totalWaitingNewStudents: 0,
             totalWaitCancelBooking: 0,
-            pulse: 'pulse',
+            pulse: '',
 
             BookingList: [],
             BookingListHeaders: [
@@ -495,6 +497,7 @@ export default ({
         refreshData() {
             console.log('refreshData...'+new Date())
             this.refreshCardDashboard()
+            this.getReservationList()
         },
         selectDate() {
             this.state = 'bookinglist'

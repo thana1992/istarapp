@@ -24,6 +24,7 @@
     "volar-service-vetur": "^0.0.17",
     "vue": "^3.2.36",
     "vue-router": "^4.2.5",
+    "vue3-autocounter": "^1.0.6",
     "vuex": "^4.1.0"
   },
   "devDependencies": {

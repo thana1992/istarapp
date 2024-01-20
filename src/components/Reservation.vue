@@ -42,7 +42,7 @@
                         @click="validate"
                         required
                     >
-                        Reserve
+                    Book a class
                     </v-btn>
                 </v-row>
             </v-form>
