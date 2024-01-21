@@ -168,9 +168,9 @@ import Home from './components/Home.vue'
 import Reservation from '@/components/Reservation.vue'
 import FamilyList from './components/FamilyList.vue'
 import AddFamily from './components/AddFamily.vue';
-import Dashboard from './components/Dashboard.vue'
-import Course from './components/Courses.vue'
-import Classes from './components/Classes.vue'
+import Dashboard from './components/admin/Dashboard.vue'
+import Course from './components/admin/Courses.vue'
+import Classes from './components/admin/Classes.vue'
 import CryptoJS from 'crypto-js';
 import { ref, computed, onMounted, inject } from 'vue';
 import { mapGetters } from 'vuex';

@@ -24,9 +24,24 @@
               </v-card-actions>
               </v-card>
           </v-dialog>
+          <v-dialog v-model="dialogStudentNewDelete" persistent width="auto">
+                    <v-card>
+                        <v-card-title></v-card-title>
+                        <v-card-text>ต้องการลบเด็กคนนี้ใช่มั้ย ?</v-card-text>
+                    <v-card-actions>
+                        <v-spacer></v-spacer>
+                        <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteStd">ใช่! ลบเลย</v-btn>
+                        <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteStd">เดี๋ยวก่อน รอแปบ</v-btn>
+                        <v-spacer></v-spacer>
+                    </v-card-actions>
+                    </v-card>
+                </v-dialog>
         </v-toolbar>
-    </template>
-    <template v-slot:no-data> No New Student waiting for approve </template>
+      </template>
+      <template v-slot:item.delete="{ item }">
+          <v-icon size="large" color="error" @click="clickDeleteNewStudent(item)">mdi-delete-forever</v-icon>
+      </template>
+      <template v-slot:no-data> No New Student waiting for approve </template>
     </v-data-table>
   </template>
 
@@ -41,7 +56,8 @@ import { mapGetters } from 'vuex';
         confirmStudentList: [],
         newStudentList: [],
         dialogConfirmApprove: false,
-
+        dialogStudentNewDelete: false,
+        studentNewDeleteObj: null,
         newStudentlistHeaders: [
           { title: 'Firstname', key: 'fullname', },
           { title: 'Gender', key: 'gender', align: 'center' },
@@ -49,7 +65,7 @@ import { mapGetters } from 'vuex';
           { title: 'Username', key: 'familyid', align: 'center' },
           { title: 'Course Name', key: 'courseid', align: 'center'},
           { title: 'Remaining', key: 'remaining', align: 'left'},
-          
+          { title: 'Delete', key: 'delete', align: 'center', sortable: false}
         ]
       }
     },
@@ -90,7 +106,7 @@ import { mapGetters } from 'vuex';
           console.log(response)
           this.dialogConfirmApprove = false;
           this.getNewStudentList()
-          this.$emit('onSuccessHandler');
+          this.$emit('onUpdateDataSuccess');
           this.$emit('onInfoHandler', response.data.message || 'Approve new student success');
         })
         .catch(error => {
@@ -100,7 +116,37 @@ import { mapGetters } from 'vuex';
         })
         this.confirmStudentList = []
       },
-
+      deleteNewStudent() {
+        console.log('deleteNewStudent : ',this.studentNewDeleteObj)
+        const token = this.$store.getters.getToken;
+        axios.post(this.baseURL+'/deleteNewStudent', {
+          childid: this.studentNewDeleteObj.childid
+        },
+        { 
+            headers:{ Authorization: `Bearer ${token}`, } 
+        })
+        .then(response => {
+          console.log(response)
+          this.dialogStudentNewDelete = false;
+          this.getNewStudentList()
+          this.$emit('onUpdateDataSuccess');
+          this.$emit('onInfoHandler', response.data.message || 'Delete new student success');
+        })
+        .catch(error => {
+          this.dialogStudentNewDelete = false;
+          this.$emit('onErrorHandler', error.message || 'Delete new student failed');
+          console.log(error)
+        })
+        this.studentNewDeleteObj = null
+      },
+      clickConfirmDeleteStd() {
+        this.dialogStudentNewDelete = false
+        this.deleteNewStudent()
+      },
+      clickCancelDeleteStd() {
+        this.studentNewDeleteObj = null
+        this.dialogStudentNewDelete = false
+      },
       clickApprove() {
         this.dialogConfirmApprove = true
       },
@@ -110,6 +156,10 @@ import { mapGetters } from 'vuex';
       },
       clickCancelApprove() {
         this.dialogConfirmApprove = false
+      },
+      clickDeleteNewStudent(item) {
+        this.dialogStudentNewDelete = true
+        this.studentNewDeleteObj = item
       },
       convertDate (arrObj) {
         arrObj.forEach(obj => {
