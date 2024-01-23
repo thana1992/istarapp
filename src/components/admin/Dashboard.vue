@@ -87,7 +87,7 @@
                     </v-col>
                     <v-col cols="12" sm="12" md="7" xl="9">
                         <Transition name="fade" mode="out-in">
-                            <v-card class="mx-0" v-if="state=='bookinglist'" min-height="400">
+                            <v-card class="mx-0" v-if="state=='oldbookinglist'" min-height="400">
                                 <v-data-table
                                     fixed-header
                                     height="580"
@@ -143,6 +143,16 @@
                                     >
                                 </ApproveNewStudent>
                             </v-card>
+                            <v-card v-else-if="state=='bookinglist'">
+                                <BookingList
+                                    @onErrorHandler="onError($event)"
+                                    @onInfoHandler="onShowInfoDialog($event)"
+                                    @onClickChangeState="onClickChangeState($event)"
+                                    @onUpdateDataSuccess="refreshData"
+                                    :classdate="date"
+                                    >
+                                </BookingList>
+                            </v-card>
                         </Transition>
                     </v-col>
                 </v-row>
@@ -184,6 +194,7 @@
 import axios from 'axios'
 import DatePicker from '@/components/DatePicker.vue'
 import Student from './Student.vue'
+import BookingList from './BookingList.vue'
 import ApproveNewStudent from './ApproveNewStudent.vue'
 import moment from 'moment'
 import { mapGetters } from 'vuex';
@@ -192,6 +203,7 @@ export default ({
     components: {
         DatePicker,
         Student,
+        BookingList,
         ApproveNewStudent,
         'vue3-autocounter': Vue3autocounter
     },
