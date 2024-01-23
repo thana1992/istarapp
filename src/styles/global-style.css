@@ -89,6 +89,14 @@ body {
 .v-icon--clickable {
   opacity: 0.5;
 }
-@media only screen and (max-width: 600px) {
-
+@media only screen and (min-width: 1280px) {
+  .container-header {
+    width: 90vw;
+  }
+  
+  .container-content {
+    width: 90vw;
+  
+  }
+  
 }

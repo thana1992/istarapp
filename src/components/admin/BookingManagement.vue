@@ -1,74 +1,11 @@
 <template>
     <div class="container">
         <div class="container-header">
-            <h1><span class="mdi mdi-view-dashboard"></span> Dashboard</h1>
+            <h1><span class="mdi mdi-calendar-edit"></span> Booking Management</h1>
         </div>
         <div class="container-content">
             <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
             <div class="mx-auto mt-5 px-2 py-1">
-                <v-row>
-                    <v-col cols="12" sm="6" md="2" xl="2">
-                        <v-card class="mx-auto" link @click="onClickCardTotalStudent" >
-                            <v-list-item class="header-card" min-height="60">
-                                <div>Total <br>Students</div>
-                            </v-list-item>
-                            <v-list-item three-line class="dashboard-card">
-                                <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalStudents' :duration='5'  separator=',' :autoinit='true' /></p></v-list-item-title>
-                                <v-list-item-subtitle>Students</v-list-item-subtitle>
-                                <span class="mdi mdi-face-man-shimmer"></span>
-                                <span class="mdi mdi-face-woman-shimmer"></span>
-                            </v-list-item>
-                        </v-card>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="2" xl="2">
-                        <v-card class="mx-auto" link @click="onClickCardToday" >
-                            <v-list-item class="header-card" height="60">
-                                <div>Today's booking</div>
-                            </v-list-item>
-                            <v-list-item three-line class="dashboard-card">
-                                <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalBookingToday' :duration='1.5'  separator=',' :autoinit='true' /></p></v-list-item-title>
-                                <v-list-item-subtitle>Bookings</v-list-item-subtitle>
-                                <span class="mdi mdi-gymnastics"></span>
-                            </v-list-item>
-                        </v-card>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="2" xl="2">
-                        <v-card class="mx-auto" link @click="oncClickCardTomorrow">
-                            <v-list-item class="header-card" height="60">
-                                <div>Tomorrow's booking</div>
-                            </v-list-item>
-                            <v-list-item three-line class="dashboard-card" >
-                                <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalBookingTomorrow' :duration='1.5'  separator=',' :autoinit='true' /></p></v-list-item-title>
-                                <v-list-item-subtitle>Bookings</v-list-item-subtitle>
-                                <span class="mdi mdi-gymnastics"></span>
-                            </v-list-item>
-                        </v-card>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="3" xl="3">
-                        <v-card :class="pulse" link @click="onClickCardNewStudent">
-                            <v-list-item class="header-card" height="60">
-                                <div>Approve New Students <span class=""></span></div>
-                            </v-list-item>
-                            <v-list-item three-line class="dashboard-card">
-                                <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalWaitingNewStudents' :duration='1'  separator=',' :autoinit='true' /></p></v-list-item-title>
-                                <v-list-item-subtitle>Students</v-list-item-subtitle>
-                                <span class="mdi mdi-account-multiple-check"></span>
-                            </v-list-item>
-                        </v-card>
-                    </v-col>
-                    <v-col cols="12" sm="6" md="3" xl="3">
-                        <v-card class="mx-auto" link>
-                            <v-list-item class="header-card" height="60">
-                                <div>Approve Cancel booking</div>
-                            </v-list-item>
-                            <v-list-item three-line class="dashboard-card">
-                                <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalWaitCancelBooking' :duration='1'  separator=',' :autoinit='true' /></p></v-list-item-title>
-                                <v-list-item-subtitle>Bookings</v-list-item-subtitle>
-                                <span class="mdi mdi-account-multiple-check"></span>
-                            </v-list-item>
-                        </v-card>
-                    </v-col>
-                </v-row>
                 <v-row>
                     <v-col cols="12" sm="12" md="5" xl="3">
                         <v-card class="mx-0" height="400">
@@ -87,7 +24,7 @@
                     </v-col>
                     <v-col cols="12" sm="12" md="7" xl="9">
                         <Transition name="fade" mode="out-in">
-                            <v-card class="mx-0" v-if="state=='oldbookinglist'" min-height="400">
+                            <v-card class="mx-0" v-if="state=='bookinglist'" min-height="400">
                                 <v-data-table
                                     fixed-header
                                     height="580"
@@ -143,7 +80,7 @@
                                     >
                                 </ApproveNewStudent>
                             </v-card>
-                            <v-card v-else-if="state=='bookinglist'">
+                            <v-card v-else-if="state=='bookinglist2'">
                                 <BookingList
                                     @onErrorHandler="onError($event)"
                                     @onInfoHandler="onShowInfoDialog($event)"

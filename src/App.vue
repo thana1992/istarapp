@@ -17,11 +17,13 @@
           </v-list-item>
           <!-- <v-list-item v-if="!isLoggedIn" prepend-icon="mdi-account-plus" title="FAMILY TEST" value="family" @click="onClickChangeState('family')">
           </v-list-item> -->
-          <v-list-item v-if="isLoggedIn" prepend-icon="mdi-home-account" title="HOME" value="home" @click="onClickChangeState('home')">
+          <v-list-item v-if="isLoggedIn && !adminflag" prepend-icon="mdi-home-account" title="HOME" value="home" @click="onClickChangeState('home')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn" prepend-icon="mdi-account-multiple" title="FAMILY" value="familylist" @click="onClickChangeState('familylist')">
+          <v-list-item v-if="isLoggedIn && !adminflag" prepend-icon="mdi-account-multiple" title="FAMILY" value="familylist" @click="onClickChangeState('familylist')">
           </v-list-item>
           <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-view-dashboard" title="DASHBOARD" value="dashboard" @click="onClickChangeState('dashboard')">
+          </v-list-item>
+          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-calendar-edit" title="BOOKING MANAGEMENT" value="bookingmanager" @click="onClickChangeState('bookingmanager')">
           </v-list-item>
           <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-star-shooting-outline" title="COURSES" value="course" @click="onClickChangeState('course')">
           </v-list-item>
@@ -118,6 +120,11 @@
           @onClickChangeState="onClickChangeState($event)"
           ></Dashboard>
 
+          <BookingManager v-else-if="state=='bookingmanager'"
+          @onErrorHandler="onError($event)"
+          @onClickChangeState="onClickChangeState($event)"
+          ></BookingManager>
+
           <Course v-else-if="state=='course'"
           @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)"
@@ -169,6 +176,7 @@ import Reservation from '@/components/Reservation.vue'
 import FamilyList from './components/FamilyList.vue'
 import AddFamily from './components/AddFamily.vue';
 import Dashboard from './components/admin/Dashboard.vue'
+import BookingManager from '@/components/admin/BookingManagement.vue';
 import Course from './components/admin/Courses.vue'
 import Classes from './components/admin/Classes.vue'
 import CryptoJS from 'crypto-js';
@@ -204,6 +212,7 @@ export default {
     FamilyList,
     AddFamily,
     Dashboard,
+    BookingManager,
     Course,
     Classes,
   },

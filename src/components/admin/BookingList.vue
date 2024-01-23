@@ -1,15 +1,36 @@
 <template>
-    <div>
-        <v-data-table :headers="computedHeaders" :items="formattedData" class="elevation-1">
-            <template v-slot:item.checkin="{ item }">
-                <v-icon size="large" @click="checkin(item)">mdi-check-bold</v-icon>
-            </template>
-            <template v-slot:item.delete="{ item }">
-                <v-icon size="large" color="error" @click="deleteBookingItem(item)">mdi-delete-forever</v-icon>
-            </template>
-            <template v-slot:loadingBooking><v-skeleton-loader type="table-row@5"></v-skeleton-loader></template>
-            <template v-slot:no-data> No booking class </template>
-        </v-data-table>
+    <div class="text-center">
+      <v-row>
+        <v-col cols="12" sm="12" md="12" xl="12">
+          <v-card class="mx-auto">
+            <v-card-title>Booking class on {{ classdate.toLocaleDateString('en-US', options) }} </v-card-title>
+            <v-card-text>การจองคลาส{{ classdate.toLocaleDateString('th-TH', options) }} </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="12" sm="12" md="12" xl="12">
+          <v-card v-if="loadingBooking" class="mx-auto">
+            <v-progress-circular
+              :size="70"
+              :width="7"
+              color="purple"
+              indeterminate
+              centered
+            ></v-progress-circular>
+            </v-card>
+            <v-card v-else class="mx-auto">
+              <v-data-table :headers="computedHeaders" :items="formattedData" class="elevation-1">
+                <template v-slot:item.checkin="{ item }">
+                    <v-icon size="large" @click="checkin(item)">mdi-check-bold</v-icon>
+                </template>
+                <template v-slot:item.delete="{ item }">
+                    <v-icon size="large" color="error" @click="deleteBookingItem(item)">mdi-delete-forever</v-icon>
+                </template>
+                <template v-slot:no-data> No booking class </template>
+            </v-data-table>
+          </v-card>
+        </v-col></v-row>
     </div>
   </template>
   
@@ -23,6 +44,13 @@ import { mapGetters } from 'vuex';
       return {
         bookingList: {},
         headers: [],
+        loadingBooking: false,
+        options: {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+        }
       }
     },
     props: {
@@ -32,8 +60,7 @@ import { mapGetters } from 'vuex';
         },
     },
     watch: {
-        classday: 'fetchBookingList',
-        classdate: 'fetchBookingList',
+        classdate: 'fetchDataBooking',
     },
     mounted() {
         // Fetch the initial booking list when the component is mounted
@@ -46,35 +73,35 @@ import { mapGetters } from 'vuex';
   computedHeaders() {  // Change the name to avoid conflicts
     // Use the keys of bookingList as headers
     return Object.keys(this.bookingList).map((key) => ({
-      text: key,
-      value: key,
+      title: key,
+      key: key,
+      align: 'center',
     }));
   },
   formattedData() {
-    // Transform the bookingList object into an array of objects
+    // Transform the bookingData object into an array of objects
     const timeSlots = Object.keys(this.bookingList);
+    console.log('formattedData', timeSlots);
+    // Create an array with an empty object for each time slot
+    const rows = Array.from({ length: Math.max(...timeSlots.map(slot => this.bookingList[slot].length)) }, () => ({}));
 
-    // Use the time slot as a property in each row
-    return timeSlots.map((timeSlot) => {
-      const row = { timeSlot };
-
-      // Populate each column with data based on the time slot
+    // Populate each column with data based on the time slot
+    timeSlots.forEach((timeSlot) => {
       this.bookingList[timeSlot].forEach((student, index) => {
-        row[`student${index + 1}`] = student;
+        rows[index][timeSlot] = student;
+        
       });
-
-      return row;
     });
+    
+    return rows;
   },
 },
 
 
     methods: {
-        test() {
-            console.log("bookinglist = "+JSON.stringify(this.bookingList))
-        },
       async fetchDataBooking() {
         // Call the API and set the bookingList object
+        this.loadingBooking = true
         const classday = this.classdate.toLocaleDateString('en-US', { weekday: 'long' });
         const classdate = this.SQLDate(this.classdate);
         console.log('fetchDataBooking ' + classday + ' ' + this.SQLDate(this.classdate))
@@ -83,9 +110,14 @@ import { mapGetters } from 'vuex';
             .then(({ success, results, message }) => {
                 console.log('fetchDataBooking result',success, results, message);
                 if(success) {
+                  if(results) {
                     this.headers = Object.keys(results).map((key) => ({ text: key, value: key }));
                     this.bookingList = results
-                    this.loadingBooking = false
+                  }else{
+                    this.bookingList = {}
+                    this.headers = []
+                  }
+                  this.loadingBooking = false
                 }else{ 
                     this.$emit('onErrorHandler', message || 'Get Reservation failed')
                     this.loadingBooking = false
@@ -101,8 +133,13 @@ import { mapGetters } from 'vuex';
             });
       },
       SQLDate(date) {
-            return moment(date).format('YYYY-MM-DD')
-        },
+          return moment(date).format('YYYY-MM-DD')
+      },
+      format_date(value){
+          if (value) {
+              return moment(String(value)).format('DD/MM/YYYY')
+          }
+      },
     },
   };
 
@@ -140,6 +177,8 @@ const BookingListAPI = {
   </script>
   
   <style scoped>
-  /* Your component-specific styles go here */
+  .v-progress-circular {
+  margin: 1rem;
+}
   </style>
   
