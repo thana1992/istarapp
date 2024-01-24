@@ -254,9 +254,6 @@ export default {
             })
             .then(response => {
                 console.dir(response);
-                if (response.data.success) {
-                    this.initialize()
-                }
             })
             .catch(error => {
                 console.error(error);
