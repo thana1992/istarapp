@@ -20,17 +20,12 @@
             ></v-progress-circular>
             </v-card>
             <v-card v-else class="mx-auto">
-              <v-data-table :headers="computedHeaders" :items="formattedData" class="elevation-1">
-                <template v-slot:item.checkin="{ item }">
-                    <v-icon size="large" @click="checkin(item)">mdi-check-bold</v-icon>
-                </template>
-                <template v-slot:item.delete="{ item }">
-                    <v-icon size="large" color="error" @click="deleteBookingItem(item)">mdi-delete-forever</v-icon>
-                </template>
+              <v-data-table :headers="bookingHeaders" :items="bookingData" class="elevation-1">
                 <template v-slot:no-data> No booking class </template>
             </v-data-table>
           </v-card>
-        </v-col></v-row>
+        </v-col>
+      </v-row>
     </div>
   </template>
   
@@ -42,65 +37,49 @@ import { mapGetters } from 'vuex';
   export default {
     data() {
       return {
-        bookingList: {},
-        headers: [],
-        loadingBooking: false,
         options: {
           weekday: 'long',
           year: 'numeric',
           month: 'long',
           day: 'numeric',
-        }
+          
+        },
       }
     },
     props: {
-        classdate: {
-          type: String,
+        classdate : {
+          type: Date,
           required: true,
         },
+        bookingHeaders: {
+          type: Array,
+          required: false,
+        },
+        bookingData: {
+          type: Array,
+          required: false,
+        },
+        loadingBooking: {
+          type: Boolean,
+          required: false,
+        }
     },
     watch: {
-        classdate: 'fetchDataBooking',
+        //classdate: 'fetchDataBooking',
     },
     mounted() {
         // Fetch the initial booking list when the component is mounted
-        this.fetchDataBooking();
+        //this.fetchDataBooking();
     },
     computed: {
-  ...mapGetters({
-    token: 'getToken',
-  }),
-  computedHeaders() {  // Change the name to avoid conflicts
-    // Use the keys of bookingList as headers
-    return Object.keys(this.bookingList).map((key) => ({
-      title: key,
-      key: key,
-      align: 'center',
-    }));
-  },
-  formattedData() {
-    // Transform the bookingData object into an array of objects
-    const timeSlots = Object.keys(this.bookingList);
-    console.log('formattedData', timeSlots);
-    // Create an array with an empty object for each time slot
-    const rows = Array.from({ length: Math.max(...timeSlots.map(slot => this.bookingList[slot].length)) }, () => ({}));
-
-    // Populate each column with data based on the time slot
-    timeSlots.forEach((timeSlot) => {
-      this.bookingList[timeSlot].forEach((student, index) => {
-        rows[index][timeSlot] = student;
-        
-      });
-    });
-    
-    return rows;
-  },
+    ...mapGetters({
+      token: 'getToken',
+    }),
 },
-
-
     methods: {
+      /*
       async fetchDataBooking() {
-        // Call the API and set the bookingList object
+        // Call the API and set the bookingData object
         this.loadingBooking = true
         const classday = this.classdate.toLocaleDateString('en-US', { weekday: 'long' });
         const classdate = this.SQLDate(this.classdate);
@@ -112,9 +91,9 @@ import { mapGetters } from 'vuex';
                 if(success) {
                   if(results) {
                     this.headers = Object.keys(results).map((key) => ({ text: key, value: key }));
-                    this.bookingList = results
+                    this.bookingData = results
                   }else{
-                    this.bookingList = {}
+                    this.bookingData = {}
                     this.headers = []
                   }
                   this.loadingBooking = false
@@ -124,14 +103,18 @@ import { mapGetters } from 'vuex';
                 }
             })
             .catch(error => {
+              if(error.response.status){
                 if(error.response.status == 401) {
                     this.$emit('onErrorHandler', error.response.data.message)
                     this.$emit('onClickChangeState', 'login')
                 }else{
                     this.$emit('onErrorHandler', error.message)
                 }
+              }else{
+                this.$emit('onErrorHandler', error.message)
+              }
             });
-      },
+      },*/
       SQLDate(date) {
           return moment(date).format('YYYY-MM-DD')
       },
@@ -174,11 +157,11 @@ const BookingListAPI = {
         });
     },
 }
-  </script>
+</script>
   
-  <style scoped>
-  .v-progress-circular {
+<style scoped>
+.v-progress-circular {
   margin: 1rem;
 }
-  </style>
+</style>
   

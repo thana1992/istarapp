@@ -5,7 +5,6 @@
       <h1>Login</h1>
       <p>Welcome to iStar Gymnastics!</p>
     </div>
-    
     <v-card class="login-form px-3 py-4">
         <v-form ref="login_form" v-model="login_form">
           <v-row justify="space-around" class="ma-1 pa-1">
@@ -52,11 +51,27 @@
         </v-row>
       </v-form>
     </v-card>
- 
-      <div class="link-footer">
-        <p><a style="color:red;" href="">Forgot Password?</a></p>
-      </div>
-    
+    <div class="link-footer">
+      <p><a style="color:red;" href="">Forgot Password?</a></p>
+    </div>
+    <v-card
+        v-if="LogginggIn"
+        color=""
+        class="Login-Loading mx-auto text-center pt-5"
+        elevation="24"
+        loading
+        height="150"
+        width="150"
+      >
+        <v-card-title><v-progress-circular
+          :size="70"
+          :width="7"
+          color="purple"
+          indeterminate
+          centered
+        ></v-progress-circular></v-card-title>
+        <v-card-text>Logging in...</v-card-text>
+      </v-card>
   </div>
 </template>
 
@@ -69,6 +84,7 @@ import { mapActions } from "vuex";
 
 export default {
     data: () => ({
+      LogginggIn: true,
       login_form: null,
       username: '',
       password: '',
@@ -86,8 +102,9 @@ export default {
       async doLogin () {
         const { valid } = await this.$refs.login_form.validate()
         if (valid) {
-        const encryptedPassword = this.encryptPassword(this.password);
-        axios
+          this.LogginggIn = true;
+          const encryptedPassword = this.encryptPassword(this.password);
+          axios
           .post(this.baseURL+'/login', {
             username: this.username,
             password: encryptedPassword,
@@ -107,9 +124,11 @@ export default {
             } else {
               this.$emit('onErrorHandler', response.data.message)
             }
+            this.LogginggIn = false;
           })
           .catch(error => {
               console.error(error);
+              this.LogginggIn = false;
               this.$emit('onErrorHandler', error.message)
           });
         }
@@ -120,6 +139,7 @@ export default {
         return encryptedPassword;
       },
       reset () {
+        this.loagingIn = false;
         this.$refs.login_form.reset()
       },
       resetValidation () {
@@ -129,5 +149,8 @@ export default {
   }
 </script>
 <style>
-
+.Login-Loading {
+  position: absolute;
+  top: -45vh;
+}
 </style>
