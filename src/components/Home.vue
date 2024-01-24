@@ -234,7 +234,39 @@ export default {
         ...mapGetters({
             token: 'getToken',
         }),
-    }
+    },
+    async created() {
+        try {
+            const token = this.$store.getters.getToken;
+            console.log('token ', token)
+            if (!token) {
+                this.errorMsg = 'Not found token, Please login...'
+                this.errorDialog = true
+                this.$emit('onClickChangeState', 'login')
+                return;
+            }
+
+            await axios
+            .post(this.baseURL+'/verifyToken', {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            })
+            .then(response => {
+                console.dir(response);
+                if (response.data.success) {
+                    this.initialize()
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                this.$emit('onErrorHandler', error.response.data.message)
+                this.$emit('onClickChangeState', 'login')
+            });
+        } catch (error) {
+            this.$emit('onErrorHandler', error.message)
+        }
+    },
 }
 </script>
 <style scoped>
