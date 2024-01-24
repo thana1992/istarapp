@@ -32,6 +32,13 @@ body {
   width: 80vw;
 }
 
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 80vw;
+}
+
 .container-header {
   margin-top: 2vh;
   margin-bottom: 3vh;
@@ -94,9 +101,12 @@ body {
     width: 90vw;
   }
   
-  .container-content {
+.container-content {
     width: 90vw;
-  
   }
-  
+
+.login-container {
+    width: 20vw;
+  }
 }
+

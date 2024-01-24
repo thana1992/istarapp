@@ -128,7 +128,12 @@ export default {
                 })
                 .catch(error => {
                     console.error(error);
-                    alert(error.message)
+                    if(error.response.status == 401) {
+                        this.$emit('onErrorHandler', error.response.data.message)
+                        this.$emit('onClickChangeState', 'login')
+                    }else{
+                        this.$emit('onErrorHandler', error.message)
+                    }
                 });
             }
         },

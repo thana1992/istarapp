@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div class="login-container">
     <img src="../assets/logo/logo-2.png" alt="iStar Logo" class="istar-logo">
     <div class="login-greeting">
       <h1>Login</h1>
@@ -84,7 +84,7 @@ import { mapActions } from "vuex";
 
 export default {
     data: () => ({
-      LogginggIn: true,
+      LogginggIn: false,
       login_form: null,
       username: '',
       password: '',

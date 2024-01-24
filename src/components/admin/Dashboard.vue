@@ -272,6 +272,8 @@ export default ({
             const token = this.$store.getters.getToken;
             console.log('refreshCardDashboard...'+new Date())
             console.log('today : ' + this.SQLDate(this.today))
+            console.log('tomorrow : ' + this.SQLDate(this.tomorrow))
+            console.log('token : ' + token)
             axios
             .post(this.baseURL+'/refreshCardDashboard', {
                 today: this.SQLDate(this.today),
