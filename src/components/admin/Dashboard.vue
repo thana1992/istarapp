@@ -228,12 +228,12 @@ export default ({
         }
     },
     mounted() {
-        console.log('mounted...'+new Date())
+        console.log('dashboard mounted...'+new Date())
         this.interval = setInterval(() =>{
-        this.refreshData() }, 300000)
+        this.refreshData() }, 60000)
     },
     unmounted() {
-        console.log('unmounted...'+new Date())
+        console.log('dashboard unmounted...'+new Date())
         clearInterval(this.interval)
     },
     methods: {
@@ -423,8 +423,8 @@ export default ({
                                 console.log('results', results)
                                 this.bookingHeaders = Object.keys(results).map((key) => ({ title: key, key: key, sortable: false }));
                                 this.bookingList = this.formattedData(results)
-                                console.log('bookingList'+ JSON.stringify(this.bookingList))
-                                console.log('bookingHeaders'+ JSON.stringify(this.bookingHeaders))
+                                //console.log('bookingList'+ JSON.stringify(this.bookingList))
+                                //console.log('bookingHeaders'+ JSON.stringify(this.bookingHeaders))
 
                             }else{
                                 this.bookingHeaders = []
@@ -489,14 +489,6 @@ export default ({
             if (value) {
                 return moment(String(value)).format('DD/MM/YYYY')
             }
-        },
-        computedHeaders() {  // Change the name to avoid conflicts
-        // Use the keys of bookingList as headers
-            return Object.keys(this.bookingList).map((key) => ({
-                title: key,
-                key: key,
-                align: 'center',
-            }));
         },
         formattedData(results) {
             // Transform the bookingData object into an array of objects
