@@ -91,12 +91,12 @@ import { mapGetters } from 'vuex';
         })
       },
       
-      approveNewStudent() {
+      async approveNewStudent() {
         console.log('approveNewStudent : ',this.newStudentList)
         console.log('confirmStudentList : ',this.confirmStudentList)
         const apprObj = this.convertToSQL(this.confirmStudentList)
         const token = this.$store.getters.getToken;
-        axios.post(this.baseURL+'/approveNewStudent', {
+        await axios.post(this.baseURL+'/approveNewStudent', {
           apprObj: apprObj
         },
         { 

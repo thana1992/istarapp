@@ -271,13 +271,13 @@ export default ({
         refreshCardDashboard() {
             const token = this.$store.getters.getToken;
             console.log('refreshCardDashboard...'+new Date())
-            console.log('today : ' + this.SQLDate(this.today))
-            console.log('tomorrow : ' + this.SQLDate(this.tomorrow))
+            console.log('today : ' + this.SQLDate(this.today()))
+            console.log('tomorrow : ' + this.SQLDate(this.tomorrow()))
             console.log('token : ' + token)
             axios
             .post(this.baseURL+'/refreshCardDashboard', {
-                today: this.SQLDate(this.today),
-                tomorrow: this.SQLDate(this.tomorrow),
+                today: this.SQLDate(this.today()),
+                tomorrow: this.SQLDate(this.tomorrow()),
             },{
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -507,6 +507,14 @@ export default ({
             
             return rows;
         },
+        tomorrow() {
+            const d = new Date()
+            d.setDate(d.getDate() +1)
+            return d 
+        },
+        today() {
+            return new Date()
+        },
     },
     watch: {
         dialogBooking (val) {
@@ -519,15 +527,7 @@ export default ({
     computed: {
         ...mapGetters({
             token: 'getToken',
-        }),
-        tomorrow() {
-            const d = new Date()
-            d.setDate(d.getDate() +1)
-            return d 
-        },
-        today() {
-            return new Date()
-        },
+        })
         
     }
 })

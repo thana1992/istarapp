@@ -123,9 +123,6 @@
         </v-card>
         </template>
     </v-dialog>
-    <!-- <vue3-autocounter ref='counter' :startAmount='0' :endAmount='3' :duration='1' prefix='$' suffix='USD' separator=',' :autoinit='true' /> -->
-    today {{ this.today }}
-    tomorrow {{ this.tomorrow }}
 </template>
 <script>
 import axios from 'axios'
@@ -179,11 +176,7 @@ export default ({
             dialogBooking: false,
             dialogBookingDelete: false,
             loadingBooking: false,
-
-            
-
             state: 'bookinglist',
-
             notNullRules: [ v => !!v || 'This field is required', ]
         }
     },
@@ -224,7 +217,7 @@ export default ({
     mounted() {
         console.log('mounted...'+new Date())
         this.interval = setInterval(() =>{
-        this.refreshData() }, 30000)
+        this.refreshData() }, 60000)
     },
     unmounted() {
         console.log('unmounted...'+new Date())
@@ -246,56 +239,17 @@ export default ({
                 }
             })
             */
-            this.refreshCardDashboard()
             this.getReservationList()
             this.getCourseLookup()
             this.getFamilyLookup()
         },
         refreshData() {
             console.log('refreshData...'+new Date())
-            this.refreshCardDashboard()
             this.getReservationList()
         },
         selectDate() {
             this.state = 'bookinglist'
             this.getReservationList()
-        },
-        refreshCardDashboard() {
-            const token = this.$store.getters.getToken;
-            console.log('refreshCardDashboard...'+new Date())
-            console.log('today : ' + this.SQLDate(this.today))
-            axios
-            .post(this.baseURL+'/refreshCardDashboard', {
-                today: this.SQLDate(this.today),
-                tomorrow: this.SQLDate(this.tomorrow),
-            },{
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            })
-            .then(response => {
-                //console.dir(response);
-                if (response.data.success) {
-                    this.totalStudents = response.data.datacard.totalStudents
-                    this.totalBookingToday = response.data.datacard.totalBookingToday
-                    this.totalBookingTomorrow = response.data.datacard.totalBookingTomorrow
-                    this.totalWaitingNewStudents = response.data.datacard.totalWaitingNewStudents
-                    if (this.totalWaitingNewStudents > 0) {
-                        this.pulse = 'pulse'
-                    }else{
-                        this.pulse = ''
-                    }
-                    this.totalWaitCancelBooking = response.data.datacard.totalWaitCancelBooking
-                }
-            })
-            .catch(error => {
-                if(error.response.status == 401) {
-                    this.$emit('onErrorHandler', error.response.data.message)
-                    this.$emit('onClickChangeState', 'login')
-                }else{
-                    this.$emit('onErrorHandler', error.message)
-                }
-            });
         },
         getApproveNewStudents() {
             axios
@@ -402,7 +356,6 @@ export default ({
                     this.$emit('onErrorHandler', response.data.message || 'Delete Reservation failed');
                 }
                 this.dialogBookingDelete = false
-                this.refreshCardDashboard()
                 this.getReservationList()
             })
             .catch(error => {

@@ -210,12 +210,6 @@ export default {
           default: null,
       },
   },
-  async created() {
-      await this.getFamilyMember()
-      if(this.student != null) {
-        this.selectChild(this.student)
-      }
-  },
   data() {
       return {
           familylist: null,
@@ -253,7 +247,11 @@ export default {
                 }
             })
             .then(response => {
-                console.dir(response);
+                //console.dir(response);
+                this.getFamilyMember()
+                if(this.student != null) {
+                    this.selectChild(this.student)
+                }
             })
             .catch(error => {
                 console.error(error);
