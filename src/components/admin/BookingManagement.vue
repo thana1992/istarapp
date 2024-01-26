@@ -494,7 +494,7 @@ export default ({
 })
 import { Promise } from 'core-js';
 const DashboardAPI = {
-    baseURL: 'https://wild-rose-pigeon-tutu.cyclic.app',
+    baseURL: 'https://istarserver.vercel.app',
     //baseURL: 'http://localhost:3000',
     fetchDataBooking ({ token, reservedate }) {
         return new Promise(resolve => {

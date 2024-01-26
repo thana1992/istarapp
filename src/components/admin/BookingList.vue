@@ -128,7 +128,7 @@ import { mapGetters } from 'vuex';
 
 import { Promise } from 'core-js';
 const BookingListAPI = {
-    baseURL: 'https://wild-rose-pigeon-tutu.cyclic.app',
+    baseURL: 'https://istarserver.vercel.app',
     //baseURL: 'http://localhost:3000',
     fetchDataBooking ({ token, classday, classdate }) {
         return new Promise(resolve => {
