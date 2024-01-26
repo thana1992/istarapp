@@ -31,7 +31,6 @@ if (token) {
   store.dispatch('setToken', token);
 }
 
-app.config.globalProperties.baseURL = 'https://istarserver.vercel.app';
 //app.config.globalProperties.baseURL = 'http://localhost:3000';
 
 app.component('font-awesome-icon', FontAwesomeIcon).component('VueDatePicker', VueDatePicker).use(vuetify).use(store).mount('#app');
