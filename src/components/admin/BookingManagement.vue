@@ -7,7 +7,7 @@
             <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
             <div class="mx-auto mt-5 px-2 py-1">
                 <v-row>
-                    <v-col cols="12" sm="12" md="5" xl="3">
+                    <v-col cols="12" sm="12" md="3" xl="2">
                         <v-card class="mx-0" height="400">
                             <v-list-item class="header-card">
                                 <div>View class booking by date</div>
@@ -22,7 +22,7 @@
                             </v-container>
                         </v-card>
                     </v-col>
-                    <v-col cols="12" sm="12" md="7" xl="9">
+                    <v-col cols="12" sm="12" md="9" xl="10">
                         <Transition name="fade" mode="out-in">
                             <v-card class="mx-0" v-if="state=='bookinglist'" min-height="400">
                                 <v-data-table

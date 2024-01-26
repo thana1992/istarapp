@@ -70,7 +70,7 @@
                     </v-col>
                 </v-row>
                 <v-row>
-                    <v-col cols="12" sm="12" md="5" xl="3">
+                    <v-col cols="12" sm="12" md="2" xl="3">
                         <v-card class="mx-0" height="400">
                             <v-list-item class="header-card">
                                 <div>View class booking by date</div>
@@ -85,7 +85,7 @@
                             </v-container>
                         </v-card>
                     </v-col>
-                    <v-col cols="12" sm="12" md="7" xl="9">
+                    <v-col cols="12" sm="12" md="9" xl="10">
                         <Transition name="fade" mode="out-in">
                             <v-card class="mx-0" v-if="state=='studentlist'">
                                 <Student
@@ -196,36 +196,36 @@ export default ({
     
     async created() {
         this.datepick = new Date();
-        try {
-            const token = this.$store.getters.getToken;
-            console.log('token ', token)
-            if (!token) {
-                this.errorMsg = 'Not found token, Please login...'
-                this.errorDialog = true
-                this.$emit('onClickChangeState', 'login')
-                return;
-            }
+        // try {
+        //     const token = this.$store.getters.getToken;
+        //     console.log('token ', token)
+        //     if (!token) {
+        //         this.errorMsg = 'Not found token, Please login...'
+        //         this.errorDialog = true
+        //         this.$emit('onClickChangeState', 'login')
+        //         return;
+        //     }
 
-            await axios
-            .post(this.baseURL+'/verifyToken', {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            })
-            .then(response => {
-                console.dir(response);
-                if (response.data.success) {
-                    this.initialize()
-                }
-            })
-            .catch(error => {
-                console.error(error);
-                this.$emit('onErrorHandler', error.response.data.message)
-                this.$emit('onClickChangeState', 'login')
-            });
-        } catch (error) {
-            this.$emit('onErrorHandler', error.message)
-        }
+        //     await axios
+        //     .post(this.baseURL+'/verifyToken', {}, {
+        //         headers: {
+        //             Authorization: `Bearer ${token}`,
+        //         }
+        //     })
+        //     .then(response => {
+        //         console.dir(response);
+        //         if (response.data.success) {
+        //             this.initialize()
+        //         }
+        //     })
+        //     .catch(error => {
+        //         console.error(error);
+        //         this.$emit('onErrorHandler', error.response.data.message)
+        //         this.$emit('onClickChangeState', 'login')
+        //     });
+        // } catch (error) {
+        //     this.$emit('onErrorHandler', error.message)
+        // }
     },
     mounted() {
         console.log('dashboard mounted...'+new Date())
