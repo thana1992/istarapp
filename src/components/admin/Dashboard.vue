@@ -70,7 +70,7 @@
                     </v-col>
                 </v-row>
                 <v-row>
-                    <v-col cols="12" sm="12" md="2" xl="3">
+                    <v-col cols="12" sm="12" md="3" xl="2">
                         <v-card class="mx-0" height="400">
                             <v-list-item class="header-card">
                                 <div>View class booking by date</div>
