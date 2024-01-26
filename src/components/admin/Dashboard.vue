@@ -196,6 +196,7 @@ export default ({
     
     async created() {
         this.datepick = new Date();
+        this.initialize()
         // try {
         //     const token = this.$store.getters.getToken;
         //     console.log('token ', token)
@@ -435,7 +436,10 @@ export default ({
                         }else{ 
                             this.$emit('onErrorHandler', message || 'Get Reservation failed')
                         }
-                        this.loadingBooking = false
+                        if(classdate == this.SQLDate(this.datepick)) {
+                            this.loadingBooking = false
+                        }
+                        
                     })
                     .catch(error => {
                         console.log('error : ', error)

@@ -36,7 +36,91 @@
                                     <template v-slot:top>
                                         <v-toolbar flat>
                                             <v-toolbar-title>All class bookings today</v-toolbar-title>
-                                                <v-dialog v-model="dialogBookingDelete" persistent width="auto">
+                                            <v-dialog v-model="dialogBooking" max-width="800px">
+                                                <template v-slot:activator="{ props }">
+                                                    <v-btn color="primary" dark v-bind="props"><span class="mdi mdi-emoticon-plus-outline"></span> New Booking</v-btn>
+                                                </template>
+                                                <v-card>
+                                                    <v-card-title>
+                                                        <span v-if="editedBookingIndex==-1" class="mdi mdi-emoticon-plus-outline"></span>
+                                                        <span v-if="editedBookingIndex!=-1" class="mdi mdi-human-edit"></span>
+                                                        <span>{{ formBookingTitle }}</span>
+                                                    </v-card-title>
+                                                    <v-card-text>
+                                                        <v-container>
+                                                            <v-form ref="newstdform">
+                                                                <v-row>
+                                                                    <v-col cols="12" sm="6" md="6">
+                                                                        <v-select
+                                                                            v-model="editedBookingItem.courseid"
+                                                                            label="Name"
+                                                                            item-title="fullname"
+                                                                            item-value="childid"
+                                                                            :items="nameLookup"
+                                                                            variant="solo-filled"
+                                                                            no-data-text="No student data"
+                                                                            :rules="notNullRules"
+                                                                            required
+                                                                        ></v-select>
+                                                                    </v-col>
+                                                                    <v-col cols="12" sm="6" md="6">
+                                                                        <v-select
+                                                                            v-model="editedBookingItem.courseid"
+                                                                            label="Course Name"
+                                                                            item-title="coursename"
+                                                                            item-value="courseid"
+                                                                            :items="courseLookup"
+                                                                            variant="solo-filled"
+                                                                            no-data-text="No course data"
+                                                                            :rules="notNullRules"
+                                                                            required
+                                                                        ></v-select>
+                                                                    </v-col>
+                                                                    <v-col cols="12" sm="6" md="3">
+                                                                        <DatePicker 
+                                                                        label="Date of Birth"
+                                                                        v-model="selectedDate"
+                                                                        variant="solo-filled"
+                                                                        ></DatePicker>
+                                                                    </v-col>
+                                                                    <v-col cols="12" sm="6" md="3">
+                                                                        <v-select
+                                                                            v-model="editedBookingItem.classtime"
+                                                                            label="Class time"
+                                                                            item-title="classtime"
+                                                                            item-value="classid"
+                                                                            :items="classtimesData"
+                                                                            variant="solo-filled"
+                                                                            :rules="notNullRules"
+                                                                            no-data-text="No class data"
+                                                                            required
+                                                                        ></v-select>
+                                                                    </v-col>
+                                                                </v-row>
+                                                            </v-form>
+                                                        </v-container>
+                                                    </v-card-text>
+                                        
+                                                    <v-card-actions>
+                                                        <v-spacer></v-spacer>
+                                                        <v-btn
+                                                        color="blue-darken-1"
+                                                        variant="text"
+                                                        @click="closeBooking"
+                                                        >
+                                                        Cancel
+                                                        </v-btn>
+                                                        <v-btn
+                                                        color="blue-darken-1"
+                                                        variant="text"
+                                                        @click="doSaveNewBooking"
+                                                        >
+                                                        Save
+                                                        </v-btn>
+                                                    </v-card-actions>
+                                                </v-card>
+                                            </v-dialog>
+                                            <v-dialog v-model="dialogBookingDelete" persistent width="auto">
                                                 <v-card>
                                                     <v-card-title></v-card-title>
                                                     <v-card-text>ต้องการลบการจองนี้ ?</v-card-text>
@@ -50,6 +134,9 @@
                                                 </v-card>
                                             </v-dialog>
                                         </v-toolbar>
+                                    </template>
+                                    <template v-slot:item.edit="{ item }">
+                                        <v-icon size="large" color="info" @click="clickEditBooking(item)">mdi-pencil</v-icon>
                                     </template>
                                     <template v-slot:item.checkin="{ item }">
                                         <v-icon size="large" @click="checkin(item)">mdi-check-bold</v-icon>
@@ -143,19 +230,15 @@ export default ({
     },
     data() {
         return {
-            fetchData: null,
             errorDialog: false,
             errorMsg: '',
             infoDialog: false,
             infoMsg: '',
             interval:null,
             date: new Date(),
-            totalStudents: 0,
-            totalBookingToday: 0,
-            totalBookingTomorrow: 0,
-            totalWaitingNewStudents: 0,
-            totalWaitCancelBooking: 0,
+            classday: '',
             pulse: '',
+            classtimesData: [],
 
             BookingList: [],
             BookingListHeaders: [
@@ -163,6 +246,7 @@ export default ({
             { title: 'Course', key: 'coursename' },
             { title: 'Class Time', key: 'classtime' },
             { title: 'Check-in', key: 'checkin', align: 'center', sortable: false },
+            { title: 'Edit', key: 'edit', align: 'center', sortable: false },
             { title: 'Delete', key: 'delete', align: 'center', sortable: false },
             ],
             editedBookingItem: {
@@ -170,8 +254,20 @@ export default ({
                 childid: null,
                 fullname: null,
                 coursename: null,
+                courseid: null,
+                classdate: null,
                 classtime: null,
             },
+            defaultBookingItem: {
+                reservationid: null,
+                childid: null,
+                fullname: null,
+                coursename: null,
+                courseid: null,
+                classdate: null,
+                classtime: null,
+            },
+            selectedDate: null,
             editedBookingIndex: -1,
             dialogBooking: false,
             dialogBookingDelete: false,
@@ -251,41 +347,32 @@ export default ({
             this.state = 'bookinglist'
             this.getReservationList()
         },
-        getApproveNewStudents() {
-            axios
-            .get(this.baseURL+'/getApproveNewStudents', {})
+        getClassTime() {
+            let req = {
+                classdate: this.SQLDate(this.date),
+                classday: new Date(this.date).toLocaleDateString('en-US', { weekday: 'long' }),
+                courseid: this.editedBookingItem.courseid
+            }
+            console.log("request", req)
+            const token = this.$store.getters.getToken;
+            axios.post(this.baseURL+'/getClassTime', req, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+            })
             .then(response => {
-                //console.dir(response);
+                console.dir(response);
                 if (response.data.success) {
-                    this.courselist = response.data.results
+                    const data = response.data.results
+                    if(data.length == 0) {
+                        this.classtimesData = []
+                    }else{
+                        this.classtimesData = data;
+                    }
+                } else {
+                    this.classtimesData = []
                 }
             })
-            .catch(error => {
-                if(error.response.status == 401) {
-                    this.$emit('onErrorHandler', error.response.data.message)
-                    this.$emit('onClickChangeState', 'login')
-                }else{
-                    this.$emit('onErrorHandler', error.message)
-                }
-            });
-        },
-        getApproveCancelBookingClass() {
-            axios
-            .get(this.baseURL+'/getApproveCancelBookingClass', {})
-            .then(response => {
-                //console.dir(response);
-                if (response.data.success) {
-                    this.courselist = response.data.results
-                }
-            })
-            .catch(error => {
-                if(error.response.status == 401) {
-                    this.$emit('onErrorHandler', error.response.data.message)
-                    this.$emit('onClickChangeState', 'login')
-                }else{
-                    this.$emit('onErrorHandler', error.message)
-                }
-            });
         },
         getCourseLookup () {
             const token = this.$store.getters.getToken;
@@ -375,31 +462,18 @@ export default ({
             this.editedBookingIndex = -1
           })
         },
+        clickEditBooking (item) {
+          this.editedBookingIndex = this.BookingList.indexOf(item)
+          this.editedBookingItem = Object.assign({}, item)
+          this.selectedDate = new Date(this.editedBookingItem.classdate)
+          this.dialogBooking = true
+        },
         clickCancelDeleteBooking () {
           this.dialogBookingDelete = false
           this.$nextTick(() => {
             this.editedBookingItem = Object.assign({}, this.defaultBookingItem)
             this.editedBookingIndex = -1
           })
-        },
-        onClickCardTotalStudent () {
-            this.state = 'studentlist'
-            this.refreshData()
-        },
-        onClickCardToday() {
-            this.date = new Date()
-            this.selectDate()
-            this.refreshData()
-        },
-        oncClickCardTomorrow() {
-            this.date = this.addOneDay(new Date())
-            console.log(this.date)
-            this.selectDate()
-            this.refreshData()
-        },
-        onClickCardNewStudent () {
-            this.state = 'approvenewstudent'
-            this.refreshData();
         },
         addOneDay(date = new Date()) {
             date.setDate(date.getDate() + 1);
@@ -414,7 +488,9 @@ export default ({
             .then(({ success, results, message }) => {
                 if(success) {
                     this.BookingList = results
-                    this.loadingBooking = false
+                    if(reservedate == this.SQLDate(this.date)) {
+                        this.loadingBooking = false
+                    }
                 }else{
                     this.$emit('onErrorHandler', message || 'Get Reservation failed')
                     this.loadingBooking = false

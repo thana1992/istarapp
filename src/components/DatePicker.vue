@@ -27,7 +27,7 @@ export default {
 </script>  
 <script setup>
   import { ref, computed, watch, defineProps, defineEmits } from "vue";
-  
+  import moment from "moment";
   const { label, color, modelValue, mindate, maxdate } = defineProps([
     "label",
     "color",
@@ -39,9 +39,8 @@ export default {
   
   const isMenuOpen = ref(false);
   const selectedDate = ref(modelValue);
-  
   const formattedDate = computed(() => {
-    return selectedDate.value ? selectedDate.value.toDateString() : "";
+    return selectedDate.value ? moment(String(selectedDate.value)).format('DD/MM/YYYY') : "";
   });
  
   watch(modelValue, (newDate) => {
