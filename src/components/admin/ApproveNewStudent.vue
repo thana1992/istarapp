@@ -75,7 +75,7 @@ import { mapGetters } from 'vuex';
     },
     methods: {
       getNewStudentList() {
-        loadingNewStudentList = true
+        this.loadingNewStudentList = true
         const token = this.$store.getters.getToken;
         axios.get(this.baseURL+'/getNewStudentList',
         { 
@@ -85,12 +85,12 @@ import { mapGetters } from 'vuex';
           console.log('getNewStudentList res : ',response)
           if(response.data.results.length == 0) {
             this.newStudentList = []
-            loadingNewStudentList = false
+            this.loadingNewStudentList = false
           }else{
             console.log('getNewStudentList res : ',response.data.results)
             const arrObj = this.convertDate(response.data.results)
             this.newStudentList = arrObj
-            loadingNewStudentList = false
+            this.loadingNewStudentList = false
           }
         })
         .catch(error => {
