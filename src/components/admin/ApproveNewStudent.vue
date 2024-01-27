@@ -5,6 +5,8 @@
       return-object
       :headers="newStudentlistHeaders"
       show-select
+      :loading="loadingNewStudentList"
+      loading-text="Loading... Please wait"
       >
       <template v-slot:top>
         <v-toolbar flat>
@@ -41,6 +43,7 @@
       <template v-slot:item.delete="{ item }">
           <v-icon size="large" color="error" @click="clickDeleteNewStudent(item)">mdi-delete-forever</v-icon>
       </template>
+      <template v-slot:loading><v-skeleton-loader type="table-row@5"></v-skeleton-loader></template>
       <template v-slot:no-data> No New Student waiting for approve </template>
     </v-data-table>
   </template>
@@ -53,6 +56,7 @@ import { mapGetters } from 'vuex';
   export default {
     data () {
       return {
+        loadingNewStudentList: false,
         confirmStudentList: [],
         newStudentList: [],
         dialogConfirmApprove: false,
@@ -71,6 +75,7 @@ import { mapGetters } from 'vuex';
     },
     methods: {
       getNewStudentList() {
+        loadingNewStudentList = true
         const token = this.$store.getters.getToken;
         axios.get(this.baseURL+'/getNewStudentList',
         { 
@@ -80,10 +85,12 @@ import { mapGetters } from 'vuex';
           console.log('getNewStudentList res : ',response)
           if(response.data.results.length == 0) {
             this.newStudentList = []
+            loadingNewStudentList = false
           }else{
             console.log('getNewStudentList res : ',response.data.results)
             const arrObj = this.convertDate(response.data.results)
             this.newStudentList = arrObj
+            loadingNewStudentList = false
           }
         })
         .catch(error => {
