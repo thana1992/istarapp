@@ -280,37 +280,38 @@ export default ({
     },
     
     async created() {
-        console.log('created...'+new Date())
-        try {
-            const token = this.$store.getters.getToken;
-            console.log('token ', token)
-            if (!token) {
-                this.errorMsg = 'Not found token, Please login...'
-                this.errorDialog = true
-                this.$emit('onClickChangeState', 'login')
-                return;
-            }
+        console.log('BookingManagement created...'+new Date())
+        this.initialize()
+        // try {
+        //     const token = this.$store.getters.getToken;
+        //     console.log('token ', token)
+        //     if (!token) {
+        //         this.errorMsg = 'Not found token, Please login...'
+        //         this.errorDialog = true
+        //         this.$emit('onClickChangeState', 'login')
+        //         return;
+        //     }
 
-            await axios
-            .post(this.baseURL+'/verifyToken', {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            })
-            .then(response => {
-                console.dir(response);
-                if (response.data.success) {
-                    this.initialize()
-                }
-            })
-            .catch(error => {
-                console.error(error);
-                this.$emit('onErrorHandler', error.response.data.message)
-                this.$emit('onClickChangeState', 'login')
-            });
-        } catch (error) {
-            this.$emit('onErrorHandler', error.message)
-        }
+        //     await axios
+        //     .post(this.baseURL+'/verifyToken', {}, {
+        //         headers: {
+        //             Authorization: `Bearer ${token}`,
+        //         }
+        //     })
+        //     .then(response => {
+        //         console.dir(response);
+        //         if (response.data.success) {
+        //             this.initialize()
+        //         }
+        //     })
+        //     .catch(error => {
+        //         console.error(error);
+        //         this.$emit('onErrorHandler', error.response.data.message)
+        //         this.$emit('onClickChangeState', 'login')
+        //     });
+        // } catch (error) {
+        //     this.$emit('onErrorHandler', error.message)
+        // }
     },
     mounted() {
         console.log('mounted...'+new Date())
@@ -340,6 +341,7 @@ export default ({
             this.getReservationList()
             this.getCourseLookup()
             this.getFamilyLookup()
+            this.getStudentLookup()
         },
         refreshData() {
             console.log('refreshData...'+new Date())
@@ -421,9 +423,9 @@ export default ({
         getStudentLookup () {
             const token = this.$store.getters.getToken;
             axios
-            .get(this.baseURL+'/studentLookup', { headers:{ Authorization: `Bearer ${token}`, } })
+            .post(this.baseURL+'/getStudentLookup', { headers:{ Authorization: `Bearer ${token}`, } })
             .then(response => {
-                //console.dir(response);
+                console.dir('getStudentLookup', response);
                 if (response.data.success) {
                     this.studentLookup = response.data.results
                 }
