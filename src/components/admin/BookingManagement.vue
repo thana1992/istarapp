@@ -29,6 +29,7 @@
                                     fixed-header
                                     height="580"
                                     :loading="loadingBooking"
+                                    loading-text="Loading... Please wait"
                                     :headers="BookingListHeaders"
                                     :items="BookingList"
                                     :sort-by="[{ key: 'classtime', order: 'asc' }]"
@@ -56,7 +57,7 @@
                                                                             label="Name"
                                                                             item-title="fullname"
                                                                             item-value="childid"
-                                                                            :items="nameLookup"
+                                                                            :items="studentLookup"
                                                                             variant="solo-filled"
                                                                             no-data-text="No student data"
                                                                             :rules="notNullRules"
@@ -78,7 +79,7 @@
                                                                     </v-col>
                                                                     <v-col cols="12" sm="6" md="3">
                                                                         <DatePicker 
-                                                                        label="Date of Birth"
+                                                                        label="Class date"
                                                                         v-model="selectedDate"
                                                                         variant="solo-filled"
                                                                         ></DatePicker>
@@ -144,7 +145,7 @@
                                     <template v-slot:item.delete="{ item }">
                                         <v-icon size="large" color="error" @click="deleteBookingItem(item)">mdi-delete-forever</v-icon>
                                     </template>
-                                    <template v-slot:loadingBooking><v-skeleton-loader type="table-row@5"></v-skeleton-loader></template>
+                                    <template v-slot:loading><v-skeleton-loader type="table-row@5"></v-skeleton-loader></template>
                                     <template v-slot:no-data> No booking class </template>
                                 </v-data-table>
                             </v-card>
@@ -273,6 +274,7 @@ export default ({
             dialogBookingDelete: false,
             loadingBooking: false,
             state: 'bookinglist',
+            
             notNullRules: [ v => !!v || 'This field is required', ]
         }
     },
@@ -416,6 +418,26 @@ export default ({
                 }
             });
         },
+        getStudentLookup () {
+            const token = this.$store.getters.getToken;
+            axios
+            .get(this.baseURL+'/studentLookup', { headers:{ Authorization: `Bearer ${token}`, } })
+            .then(response => {
+                //console.dir(response);
+                if (response.data.success) {
+                    this.studentLookup = response.data.results
+                }
+            })
+            .catch(error => {
+                if(error.response.status == 401) {
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                }else{
+                    this.$emit('onErrorHandler', error.message)
+                }
+            });
+        },
+        
         editBookingItem (item) {
           this.editedBookingIndex = this.BookingList.indexOf(item)
           this.editedBookingItem = Object.assign({}, item)
@@ -426,7 +448,6 @@ export default ({
           this.editedBookingItem = Object.assign({}, item)
           this.dialogBookingDelete = true
         },
-        
         async clickConfirmDeleteBooking() {
             const token = this.$store.getters.getToken;
             axios.post(this.baseURL+'/deleteReservationByAdmin', {
@@ -454,11 +475,11 @@ export default ({
                 }
             });
         },
-        
         closeBooking () {
           this.dialogBooking = false
           this.$nextTick(() => {
             this.editedBookingItem = Object.assign({}, this.defaultBookingItem)
+            this.selectedDate = null
             this.editedBookingIndex = -1
           })
         },
@@ -479,7 +500,6 @@ export default ({
             date.setDate(date.getDate() + 1);
             return date;
         },
-        
         getReservationList() {
             const reservedate = this.SQLDate(this.date)
             this.loadingBooking = true
@@ -508,26 +528,6 @@ export default ({
         onClickChangeState(state) {
             this.state = state
             this.$emit('onClickChangeState', state)
-        },
-        calculateAge(birthDate) {
-          if (!birthDate) return;
-
-          const currentDate = new Date();
-          if (new Date(birthDate) > currentDate) {
-              this.birthDate = null
-              this.years = null;
-              this.months = null;
-              this.days = null;
-              alert('Invalid Date of Birth')
-          }
-
-          const diffTime = currentDate - new Date(birthDate);
-          const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-          let years = Math.floor(totalDays / 365.25);
-          let months = Math.floor((totalDays % 365.25) / 30.4375);
-          let days = Math.floor((totalDays % 365.25) % 30.4375);
-          return years + ' ปี ' + months + ' เดือน '
-
         },
         onError(msg) {
             this.$emit('onErrorHandler', msg)

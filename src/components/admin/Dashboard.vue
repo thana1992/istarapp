@@ -78,6 +78,7 @@
                             <v-container>
                                 <v-row justify="space-around">
                                     <v-date-picker
+                                        class="datepick"
                                         v-model="datepick"
                                         @click="selectDate"
                                     ></v-date-picker>
@@ -594,7 +595,6 @@ button span.mdi,
 .fade-leave-to {
   opacity: 0;
 }
-
 .pulse {
   cursor: pointer;
   /*box-shadow: 0 0 0 rgba(204,169,44, 0.4);*/
