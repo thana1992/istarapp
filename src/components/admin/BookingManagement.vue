@@ -423,9 +423,9 @@ export default ({
         getStudentLookup () {
             const token = this.$store.getters.getToken;
             axios
-            .post(this.baseURL+'/getStudentLookup', { headers:{ Authorization: `Bearer ${token}`, } })
+            .post(this.baseURL+'/studentLookup', { headers:{ Authorization: `Bearer ${token}`, } })
             .then(response => {
-                console.dir('getStudentLookup', response);
+                console.dir('studentLookup', response);
                 if (response.data.success) {
                     this.studentLookup = response.data.results
                 }
