@@ -2,25 +2,13 @@
     <div class="text-center">
       <v-row>
         <v-col cols="12" sm="12" md="12" xl="12">
-          <v-card class="mx-auto">
-            <v-card-title>Booking class on {{ classdate.toLocaleDateString('en-US', options) }} </v-card-title>
-            <v-card-text>การจองคลาส{{ classdate.toLocaleDateString('th-TH', options) }} </v-card-text>
-          </v-card>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="12" sm="12" md="12" xl="12">
-          <v-card v-if="loadingBooking" class="mx-auto">
-            <v-progress-circular
-              :size="70"
-              :width="7"
-              color="purple"
-              indeterminate
-              centered
-            ></v-progress-circular>
-            </v-card>
-            <v-card v-else class="mx-auto">
-              <v-data-table :headers="bookingHeaders" :items="bookingData" class="elevation-1">
+            <v-card class="mx-auto">
+              <v-list-item class="header-card">
+                <v-card-title>Booking class on {{ classdate.toLocaleDateString('en-US', options) }} </v-card-title>
+                <v-card-text>การจองคลาส{{ classdate.toLocaleDateString('th-TH', options) }} </v-card-text>
+              </v-list-item>
+              <v-data-table :loading="loadingBooking" :headers="bookingHeaders" :items="bookingData" class="elevation-1">
+                <template v-slot:loading><v-skeleton-loader type="table-row@20"></v-skeleton-loader></template>
                 <template v-slot:no-data> No booking class </template>
             </v-data-table>
           </v-card>
@@ -162,6 +150,11 @@ const BookingListAPI = {
 <style scoped>
 .v-progress-circular {
   margin: 1rem;
+}
+
+.header-card {
+    background-color: #eeeeee;
+    color: black;
 }
 </style>
   

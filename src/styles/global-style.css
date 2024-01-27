@@ -42,12 +42,12 @@ body {
 .container-header {
   margin-top: 2vh;
   margin-bottom: 3vh;
-  width: 80vw;
+  width: 90vw;
 }
 
 .container-content {
   margin-bottom: 1em;
-  width: 80vw;
+  width: 90vw;
 
 }
 
@@ -96,6 +96,7 @@ body {
 .v-icon--clickable {
   opacity: 0.5;
 }
+
 @media only screen and (min-width: 1280px) {
   .container-header {
     width: 90vw;
@@ -109,4 +110,3 @@ body {
     width: 20vw;
   }
 }
-
