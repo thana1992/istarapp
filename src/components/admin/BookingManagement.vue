@@ -53,16 +53,17 @@
                                                                 <v-row>
                                                                     <v-col cols="12" sm="6" md="6">
                                                                         <v-select
-                                                                            v-model="editedBookingItem.courseid"
+                                                                            v-model="editedBookingItem.childid"
                                                                             label="Name"
-                                                                            item-title="fullname"
+                                                                            item-title="name"
                                                                             item-value="childid"
                                                                             :items="studentLookup"
                                                                             variant="solo-filled"
                                                                             no-data-text="No student data"
                                                                             :rules="notNullRules"
                                                                             required
-                                                                        ></v-select>
+                                                                        >
+                                                                        </v-select>
                                                                     </v-col>
                                                                     <v-col cols="12" sm="6" md="6">
                                                                         <v-select
@@ -423,7 +424,7 @@ export default ({
         getStudentLookup () {
             const token = this.$store.getters.getToken;
             axios
-            .post(this.baseURL+'/studentLookup', { headers:{ Authorization: `Bearer ${token}`, } })
+            .post(this.baseURL+'/studentLookup', {}, { headers:{ Authorization: `Bearer ${token}`, } },)
             .then(response => {
                 console.dir('studentLookup', response);
                 if (response.data.success) {

@@ -256,8 +256,6 @@ export default ({
             */
             this.refreshCardDashboard()
             this.getBookingList()
-            this.getCourseLookup()
-            this.getFamilyLookup()
         },
         refreshData() {
             console.log('refreshData...'+new Date())
@@ -334,48 +332,6 @@ export default ({
                 //console.dir(response);
                 if (response.data.success) {
                     this.courselist = response.data.results
-                }
-            })
-            .catch(error => {
-                if(error.response.status == 401) {
-                    this.$emit('onErrorHandler', error.response.data.message)
-                    this.$emit('onClickChangeState', 'login')
-                }else{
-                    this.$emit('onErrorHandler', error.message)
-                }
-            });
-        },
-        getCourseLookup () {
-            const token = this.$store.getters.getToken;
-            axios
-            .get(this.baseURL+'/courseLookup', { 
-                headers:{
-                    Authorization: `Bearer ${token}`,
-                }
-            })
-            .then(response => {
-                //console.dir(response);
-                if (response.data.success) {
-                    this.courseLookup = response.data.results
-                }
-            })
-            .catch(error => {
-                if(error.response.status == 401) {
-                    this.$emit('onErrorHandler', error.response.data.message)
-                    this.$emit('onClickChangeState', 'login')
-                }else{
-                    this.$emit('onErrorHandler', error.message)
-                }
-            });
-        },
-        getFamilyLookup () {
-            const token = this.$store.getters.getToken;
-            axios
-            .get(this.baseURL+'/familyLookup', { headers:{ Authorization: `Bearer ${token}`, } })
-            .then(response => {
-                //console.dir(response);
-                if (response.data.success) {
-                    this.familyLookup = response.data.results
                 }
             })
             .catch(error => {
