@@ -99,7 +99,6 @@
 </template>
 
 <script>
-import tokenService from '@/services/tokenService';
 import { VBottomNavigation, VBottomSheet } from 'vuetify/lib/components/index.mjs'
 import { ref, computed, onMounted, inject } from 'vue';
 import axios from 'axios';

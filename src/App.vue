@@ -168,7 +168,6 @@
 
 <script>
 import axios from 'axios'
-import tokenService from '@/services/tokenService';
 import Login from './components/Login.vue'
 import Register from './components/Register.vue'
 import Home from './components/Home.vue'
