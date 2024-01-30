@@ -75,26 +75,30 @@
                                                                             variant="solo-filled"
                                                                             no-data-text="No course data"
                                                                             :rules="notNullRules"
+                                                                            @update:modelValue="getClassTime"
                                                                             required
                                                                         ></v-select>
                                                                     </v-col>
-                                                                    <v-col cols="12" sm="6" md="3">
+                                                                    <v-col cols="12" sm="6" md="4">
                                                                         <DatePicker 
                                                                         label="Class date"
                                                                         v-model="selectedDate"
                                                                         variant="solo-filled"
+                                                                        @update:modelValue="getClassTime"
                                                                         ></DatePicker>
                                                                     </v-col>
-                                                                    <v-col cols="12" sm="6" md="3">
+                                                                    <v-col cols="12" sm="6" md="6">
                                                                         <v-select
                                                                             v-model="editedBookingItem.classtime"
                                                                             label="Class time"
-                                                                            item-title="classtime"
+                                                                            item-title="text"
                                                                             item-value="classid"
                                                                             :items="classtimesData"
                                                                             variant="solo-filled"
                                                                             :rules="notNullRules"
                                                                             no-data-text="No class data"
+                                                                            :loading="loadingClassTime"
+                                                                            return-object="true"
                                                                             required
                                                                         ></v-select>
                                                                     </v-col>
@@ -149,35 +153,6 @@
                                     <template v-slot:loading><v-skeleton-loader type="table-row@5"></v-skeleton-loader></template>
                                     <template v-slot:no-data> No booking class </template>
                                 </v-data-table>
-                            </v-card>
-
-                            <v-card class="mx-0" v-else-if="state=='studentlist'">
-                                <Student
-                                    @onErrorHandler="onError($event)"
-                                    @onInfoHandler="onShowInfoDialog($event)"
-                                    @onClickChangeState="onClickChangeState($event)"
-                                    @onUpdateDataSuccess="refreshData"
-                                    >
-                                </Student>
-                            </v-card>
-                            <v-card v-else-if="state=='approvenewstudent'">
-                                <ApproveNewStudent
-                                    @onErrorHandler="onError($event)"
-                                    @onInfoHandler="onShowInfoDialog($event)"
-                                    @onClickChangeState="onClickChangeState($event)"
-                                    @onUpdateDataSuccess="refreshData"
-                                    >
-                                </ApproveNewStudent>
-                            </v-card>
-                            <v-card v-else-if="state=='bookinglist2'">
-                                <BookingList
-                                    @onErrorHandler="onError($event)"
-                                    @onInfoHandler="onShowInfoDialog($event)"
-                                    @onClickChangeState="onClickChangeState($event)"
-                                    @onUpdateDataSuccess="refreshData"
-                                    :classdate="date"
-                                    >
-                                </BookingList>
                             </v-card>
                         </Transition>
                     </v-col>
@@ -241,7 +216,7 @@ export default ({
             classday: '',
             pulse: '',
             classtimesData: [],
-
+            loadingClassTime: false,
             BookingList: [],
             BookingListHeaders: [
             { title: 'Name', key: 'fullname' },
@@ -254,18 +229,16 @@ export default ({
             editedBookingItem: {
                 reservationid: null,
                 childid: null,
-                fullname: null,
-                coursename: null,
                 courseid: null,
+                classid: null,
                 classdate: null,
                 classtime: null,
             },
             defaultBookingItem: {
                 reservationid: null,
                 childid: null,
-                fullname: null,
-                coursename: null,
                 courseid: null,
+                classid: null,
                 classdate: null,
                 classtime: null,
             },
@@ -283,36 +256,6 @@ export default ({
     async created() {
         console.log('BookingManagement created...'+new Date())
         this.initialize()
-        // try {
-        //     const token = this.$store.getters.getToken;
-        //     console.log('token ', token)
-        //     if (!token) {
-        //         this.errorMsg = 'Not found token, Please login...'
-        //         this.errorDialog = true
-        //         this.$emit('onClickChangeState', 'login')
-        //         return;
-        //     }
-
-        //     await axios
-        //     .post(this.baseURL+'/verifyToken', {}, {
-        //         headers: {
-        //             Authorization: `Bearer ${token}`,
-        //         }
-        //     })
-        //     .then(response => {
-        //         console.dir(response);
-        //         if (response.data.success) {
-        //             this.initialize()
-        //         }
-        //     })
-        //     .catch(error => {
-        //         console.error(error);
-        //         this.$emit('onErrorHandler', error.response.data.message)
-        //         this.$emit('onClickChangeState', 'login')
-        //     });
-        // } catch (error) {
-        //     this.$emit('onErrorHandler', error.message)
-        // }
     },
     mounted() {
         console.log('mounted...'+new Date())
@@ -352,15 +295,19 @@ export default ({
             this.state = 'bookinglist'
             this.getReservationList()
         },
-        getClassTime() {
+        async getClassTime() {
+            if(this.editedBookingItem.courseid == null) return;
+            if(this.selectedDate == null) return;
+            this.loadingClassTime = true
+            this.classtimesData = []
             let req = {
                 classdate: this.SQLDate(this.date),
-                classday: new Date(this.date).toLocaleDateString('en-US', { weekday: 'long' }),
+                classday: new Date(this.selectedDate).toLocaleDateString('en-US', { weekday: 'long' }),
                 courseid: this.editedBookingItem.courseid
             }
             console.log("request", req)
             const token = this.$store.getters.getToken;
-            axios.post(this.baseURL+'/getClassTime', req, {
+            await axios.post(this.baseURL+'/getClassTime', req, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -373,11 +320,20 @@ export default ({
                         this.classtimesData = []
                     }else{
                         this.classtimesData = data;
+                        if(this.editedBookingItem.classtime != null) {
+                            if (typeof this.editedBookingItem.classtime === 'object' && this.editedBookingItem.classtime !== null) {
+                                this.editedBookingItem.classtime = this.classtimesData.find(x => x.classtime == this.editedBookingItem.classtime.classtime)
+                            }else{
+                                this.editedBookingItem.classtime = this.classtimesData.find(x => x.classtime == this.editedBookingItem.classtime)
+                            }
+                        }
                     }
                 } else {
                     this.classtimesData = []
                 }
+                this.loadingClassTime = false
             })
+            
         },
         getCourseLookup () {
             const token = this.$store.getters.getToken;
@@ -440,11 +396,65 @@ export default ({
                 }
             });
         },
-        
-        editBookingItem (item) {
-          this.editedBookingIndex = this.BookingList.indexOf(item)
-          this.editedBookingItem = Object.assign({}, item)
-          this.dialogBooking = true
+        async doSaveNewBooking () {
+            const { valid } = await this.$refs.newstdform.validate()
+            if (valid) {
+            // Make API request to register the user
+                const BookingObj = {
+                    childid: this.editedBookingItem.childid,
+                    courseid: this.editedBookingItem.courseid,
+                    classid: this.editedBookingItem.classtime.classid,
+                    classdate: this.SQLDate(this.selectedDate),
+                    classtime: this.editedBookingItem.classtime.classtime,
+                    reservationid: this.editedBookingItem.reservationid,
+                }
+                console.log(this.editedBookingIndex+ ' BookingObj : ', BookingObj)
+
+                const token = this.$store.getters.getToken;
+                if (this.editedBookingIndex > -1) {
+                    BookingObj.reservationid = this.editedBookingItem.reservationid
+                    axios
+                    .post(this.baseURL+'/updateBookingByAdmin', BookingObj, { headers:{ Authorization: `Bearer ${token}`, } })
+                    .then(response => {
+                        if (response.data.success) {
+                            this.$emit('onInfoHandler', 'แก้ไขข้อมูลสำเร็จแล้ว');
+                            this.getReservationList()
+                            this.dialogBooking = false
+                        } else {
+                            this.$emit('onErrorHandler', response.data.message || 'แก้ไขข้อมูลไม่สำเร็จ ลองใหม่อีกครั้งนะ');
+                        }
+                    })
+                    .catch(error => {
+                        if(error.response.status == 401) {
+                            this.$emit('onErrorHandler', error.response.data.message)
+                            this.$emit('onClickChangeState', 'login')
+                        }else{
+                            this.$emit('onErrorHandler', error.message)
+                        }
+                    });
+                }else{
+                    axios
+                    .post(this.baseURL+'/addBookingByAdmin', BookingObj, { headers:{ Authorization: `Bearer ${token}`, } })
+                    .then(response => {
+                        if (response.data.success) {
+                            this.$emit('onInfoHandler', 'เพิ่มการจองคลาสสำเร็จแล้ว');
+                            this.getReservationList()
+                            this.dialogBooking = false
+                        } else {
+                            this.$emit('onErrorHandler', response.data.message || 'เพิ่มการจองคลาสไม่สำเร็จ ลองใหม่อีกครั้งนะ');
+                        }
+                        this.$emit('onUpdateDataSuccess')
+                    })
+                    .catch(error => {
+                        if(error.response.status == 401) {
+                            this.$emit('onErrorHandler', error.response.data.message)
+                            this.$emit('onClickChangeState', 'login')
+                        }else{
+                            this.$emit('onErrorHandler', error.message)
+                        }
+                    });
+                }
+            }
         },
         deleteBookingItem (item) {
           this.editedBookingIndex = this.BookingList.indexOf(item)
@@ -484,12 +494,15 @@ export default ({
             this.editedBookingItem = Object.assign({}, this.defaultBookingItem)
             this.selectedDate = null
             this.editedBookingIndex = -1
+            this.classtimesData = []
           })
         },
         clickEditBooking (item) {
+          console.log('clickEditBooking', item)
           this.editedBookingIndex = this.BookingList.indexOf(item)
           this.editedBookingItem = Object.assign({}, item)
           this.selectedDate = new Date(this.editedBookingItem.classdate)
+          this.getClassTime();
           this.dialogBooking = true
         },
         clickCancelDeleteBooking () {
@@ -503,11 +516,11 @@ export default ({
             date.setDate(date.getDate() + 1);
             return date;
         },
-        getReservationList() {
+        async getReservationList() {
             const reservedate = this.SQLDate(this.date)
             this.loadingBooking = true
             const token = this.$store.getters.getToken;
-            DashboardAPI.fetchDataBooking({ token, reservedate })
+            await DashboardAPI.fetchDataBooking({ token, reservedate })
             .then(({ success, results, message }) => {
                 if(success) {
                     this.BookingList = results
@@ -567,6 +580,9 @@ export default ({
         },
         today() {
             return new Date()
+        },
+        formBookingTitle () {
+          return this.editedBookingIndex === -1 ? 'Add a new booking' : 'Edit booking information'
         },
     }
 

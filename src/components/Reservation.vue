@@ -102,7 +102,7 @@ import { mapGetters } from 'vuex';
             classTimeRules: [
                 v => !!v || 'Class time is required',
             ],
-            weekday:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+            //weekday:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
             questionDialog: false,
         }
     },
@@ -114,7 +114,7 @@ import { mapGetters } from 'vuex';
     },
     methods: {
         selectDate() {
-            console.log(this.weekday[this.date.getDay()])
+            console.log(new Date(this.date).toLocaleDateString('en-US', { weekday: 'long' }))
             this.classtimeSelect = null
             this.getClassTime()
         },
@@ -131,7 +131,8 @@ import { mapGetters } from 'vuex';
         getClassTime() {
             let req = {
                 classdate: this.SQLDate(this.date),
-                classday: this.weekday[this.date.getDay()],
+                //classday: this.weekday[this.date.getDay()],
+                classday: new Date(this.date).toLocaleDateString('en-US', { weekday: 'long' }),
                 courseid: this.student.courseid
             }
             console.log("request", req)
@@ -164,7 +165,7 @@ import { mapGetters } from 'vuex';
                 classtime: this.classtimeSelect.classtime,
                 classid: this.classtimeSelect.classid,
                 courseid: this.student.courseid,
-                classday: this.weekday[this.date.getDay()]
+                classday: new Date(this.date).toLocaleDateString('en-US', { weekday: 'long' }),
             }
             console.log('checkDuplicateReservation : ' ,reservaObj)
             const token = this.$store.getters.getToken;

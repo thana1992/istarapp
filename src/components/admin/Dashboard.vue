@@ -258,7 +258,7 @@ export default ({
             this.getBookingList()
         },
         refreshData() {
-            console.log('refreshData...'+new Date())
+            console.log('refreshData : '+new Date())
             this.refreshCardDashboard()
             if(this.state == "bookinglist") {
                 this.getBookingList()
@@ -270,10 +270,10 @@ export default ({
         },
         refreshCardDashboard() {
             const token = this.$store.getters.getToken;
-            console.log('refreshCardDashboard...'+new Date())
-            console.log('today : ' + this.SQLDate(this.today()))
-            console.log('tomorrow : ' + this.SQLDate(this.tomorrow()))
-            console.log('token : ' + token)
+            // console.log('refreshCardDashboard...'+new Date())
+            // console.log('today : ' + this.SQLDate(this.today()))
+            // console.log('tomorrow : ' + this.SQLDate(this.tomorrow()))
+            // console.log('token : ' + token)
             axios
             .post(this.baseURL+'/refreshCardDashboard', {
                 today: this.SQLDate(this.today()),
@@ -369,18 +369,17 @@ export default ({
             // Call the API and set the bookingList object
             this.loadingBooking = true
             try {
-                
                     const classdate = this.SQLDate(this.datepick);
-                    console.log("datepick : "+classdate)
+                    //console.log("datepick : "+classdate)
                     const classday = new Date(this.datepick).toLocaleDateString('en-US', { weekday: 'long' });
-                    console.log('fetchDataBooking parameters ' + classday + ' ' + this.SQLDate(this.datepick))
+                    //console.log('fetchDataBooking parameters ' + classday + ' ' + this.SQLDate(this.datepick))
                     const token = this.$store.state.token;
                     DashboardAPI.fetchDataBooking({ token, classday, classdate })
                     .then(({ success, results, message }) => {
                         //console.log('fetchDataBooking result',success, results, message);
                         if(success) {
                             if(results) {
-                                console.log('results', results)
+                                //console.log('results', results)
                                 this.bookingHeaders = Object.keys(results).map((key) => ({ title: key, key: key, sortable: false }));
                                 this.bookingList = this.formattedData(results)
                                 //console.log('bookingList'+ JSON.stringify(this.bookingList))
@@ -391,7 +390,8 @@ export default ({
                                 this.bookingList = []
                             }
                         }else{ 
-                            this.$emit('onErrorHandler', message || 'Get Reservation failed')
+                            console.log("message : "+message)
+                            this.$emit('onErrorHandler', message || 'Get Bookinglist failed')
                         }
                         if(classdate == this.SQLDate(this.datepick)) {
                             this.loadingBooking = false
@@ -510,7 +510,7 @@ const DashboardAPI = {
                 }
             })
             .then(response => {
-                console.log('fetchDataBooking result',response);
+                //console.log('fetchDataBooking result',response);
                 if (response.data.success) {
                     resolve({ success: true, results: response.data.bookinglist })
                 }else{
