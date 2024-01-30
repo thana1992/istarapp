@@ -464,7 +464,7 @@ export default ({
         },
         async clickConfirmDeleteBooking() {
             const token = this.$store.getters.getToken;
-            axios.post(this.baseURL+'/deleteReservationByAdmin', {
+            axios.post(this.baseURL+'/cancelBookingByAdmin', {
                 reservationid: this.editedBookingItem.reservationid,
                 childid: this.editedBookingItem.childid,
             },
