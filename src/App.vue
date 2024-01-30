@@ -122,6 +122,7 @@
 
           <BookingManager v-else-if="state=='bookingmanager'"
           @onErrorHandler="onError($event)"
+          @onInfoHandler="onShowInfoDialog($event)"
           @onClickChangeState="onClickChangeState($event)"
           ></BookingManager>
 

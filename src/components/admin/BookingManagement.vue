@@ -301,7 +301,7 @@ export default ({
             this.loadingClassTime = true
             this.classtimesData = []
             let req = {
-                classdate: this.SQLDate(this.date),
+                classdate: this.SQLDate(this.selectedDate),
                 classday: new Date(this.selectedDate).toLocaleDateString('en-US', { weekday: 'long' }),
                 courseid: this.editedBookingItem.courseid
             }
@@ -406,6 +406,7 @@ export default ({
                     classid: this.editedBookingItem.classtime.classid,
                     classdate: this.SQLDate(this.selectedDate),
                     classtime: this.editedBookingItem.classtime.classtime,
+                    classday: this.editedBookingItem.classtime.classday,
                     reservationid: this.editedBookingItem.reservationid,
                 }
                 console.log(this.editedBookingIndex+ ' BookingObj : ', BookingObj)
