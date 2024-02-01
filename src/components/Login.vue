@@ -55,11 +55,10 @@
       <p><a style="color:red;" href="">Forgot Password?</a></p>
     </div>
     <v-card
-        v-if="LogginggIn"
+        
         color=""
         class="Login-Loading mx-auto text-center pt-5"
         elevation="24"
-        loading
         height="150"
         width="150"
       >
@@ -70,7 +69,7 @@
           indeterminate
           centered
         ></v-progress-circular></v-card-title>
-        <v-card-text>Logging in...</v-card-text>
+        <v-card-text>Loading...</v-card-text>
       </v-card>
   </div>
 </template>
@@ -138,7 +137,7 @@ export default {
         return encryptedPassword;
       },
       reset () {
-        this.loagingIn = false;
+        this.LogginggIn = false;
         this.$refs.login_form.reset()
       },
       resetValidation () {
@@ -147,9 +146,3 @@ export default {
     },
   }
 </script>
-<style>
-.Login-Loading {
-  position: absolute;
-  top: -45vh;
-}
-</style>
