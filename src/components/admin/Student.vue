@@ -12,6 +12,7 @@
                     <template v-slot:activator="{ props }">
                         <v-btn color="primary" dark v-bind="props"><span class="mdi mdi-emoticon-plus-outline"></span> New Student</v-btn>
                     </template>
+                    
                     <v-card>
                         <v-card-title>
                             <span v-if="editedStudentIndex==-1" class="mdi mdi-emoticon-plus-outline"></span>
@@ -136,6 +137,24 @@
                             </v-btn>
                         </v-card-actions>
                     </v-card>
+                    <v-card
+                        v-if="progressLoading"
+                        class="card-loading mx-auto text-center pt-5"
+                        elevation="24"
+                        height="150"
+                        width="150"
+                        style="overflow: hidden;"
+                    >
+                        <v-card-title>
+                        <trinity-rings-spinner
+                            :animation-duration="1500"
+                            :size="66"
+                            color="#ff1d5e"
+                            class="mx-auto"
+                        />
+                        </v-card-title>
+                        <v-card-text style="color:#ff1d5e;" class="mx-auto">Loading...</v-card-text>
+                    </v-card>
                 </v-dialog>
                 <v-dialog v-model="dialogStudentDelete" persistent width="auto">
                     <v-card>
@@ -167,12 +186,16 @@ import axios from 'axios'
 import DatePicker from '@/components/DatePicker.vue'
 import moment from 'moment'
 import { mapGetters } from 'vuex';
+import { TrinityRingsSpinner } from 'epic-spinners'
+
 export default {
     components: {
-        DatePicker
+        DatePicker,
+        TrinityRingsSpinner
     },
   data () {
     return {
+        progressLoading: false,
         StudentList: [],
             StudentListHeaders: [
             { title: 'Name', key: 'fullname' },
@@ -243,6 +266,7 @@ export default {
     } catch (error) {
         this.$emit('onErrorHandler', error.message)
     }
+    
   },
   methods: {
     initialize() {
@@ -273,9 +297,11 @@ export default {
             });
         },
     async doSaveNewStudent () {
+        this.progressLoading = true
             const { valid } = await this.$refs.newstdform.validate()
             if (valid) {
-            // Make API request to register the user
+                
+                // Make API request to register the user
                 const StudentObj = {
                     firstname: this.editedStudentItem.firstname,
                     lastname: this.editedStudentItem.lastname,
@@ -290,7 +316,7 @@ export default {
                 const token = this.$store.getters.getToken;
                 if (this.editedStudentIndex > -1) {
                     StudentObj.childid = this.editedStudentItem.childid
-                    axios
+                    await axios
                     .post(this.baseURL+'/updateStudentByAdmin', StudentObj, { headers:{ Authorization: `Bearer ${token}`, } })
                     .then(response => {
                         if (response.data.success) {
@@ -310,7 +336,7 @@ export default {
                         }
                     });
                 }else{
-                    axios
+                    await axios
                     .post(this.baseURL+'/addStudentByAdmin', StudentObj, { headers:{ Authorization: `Bearer ${token}`, } })
                     .then(response => {
                         if (response.data.success) {
@@ -331,7 +357,9 @@ export default {
                         }
                     });
                 }
+                
             }
+            this.progressLoading = false
         },
         getCourseLookup () {
             const token = this.$store.getters.getToken;

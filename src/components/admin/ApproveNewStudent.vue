@@ -1,61 +1,84 @@
 <template>
-    <v-data-table
-      v-model="confirmStudentList"
-      :items="newStudentList"
-      return-object
-      :headers="newStudentlistHeaders"
-      show-select
-      :loading="loadingNewStudentList"
-      loading-text="Loading... Please wait"
-      >
-      <template v-slot:top>
-        <v-toolbar flat>
-            <v-toolbar-title>New Student Request</v-toolbar-title>
-            <v-dialog v-model="dialogConfirmApprove" persistent width="auto">
-              <template v-slot:activator="{ props }">
-                <v-btn color="primary" dark v-bind="props"><span class="mdi mdi-emoticon-plus-outline"></span> Approve</v-btn>
-                </template>
-                <v-card>
-                    <v-card-title></v-card-title>
-                    <v-card-text>ยอมรับการเพิ่มเด็กทั้งหมด {{ confirmStudentList.length }} คน ?</v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmApprove">ตกลง</v-btn>
-                  <v-btn color="#F44336" variant="tonal" @click="clickCancelApprove">ยกเลิก</v-btn>
-                  <v-spacer></v-spacer>
+  <v-data-table
+    v-model="confirmStudentList"
+    :items="newStudentList"
+    return-object
+    :headers="newStudentlistHeaders"
+    show-select
+    :loading="loadingNewStudentList"
+    loading-text="Loading... Please wait"
+    >
+    <template v-slot:top>
+      <v-toolbar flat>
+          <v-toolbar-title>New Student Request</v-toolbar-title>
+          <v-dialog v-model="dialogConfirmApprove" persistent width="auto">
+            <template v-slot:activator="{ props }">
+              <v-btn color="primary" dark v-bind="props"><span class="mdi mdi-emoticon-plus-outline"></span> Approve</v-btn>
+            </template>
+            <v-card>
+              <v-card-title></v-card-title>
+              <v-card-text>ยอมรับการเพิ่มเด็กทั้งหมด {{ confirmStudentList.length }} คน ?</v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmApprove">ตกลง</v-btn>
+                <v-btn color="#F44336" variant="tonal" @click="clickCancelApprove">ยกเลิก</v-btn>
+                <v-spacer></v-spacer>
               </v-card-actions>
-              </v-card>
+            </v-card>
+            <v-card
+              v-if="progressLoading"
+              class="card-loading mx-auto text-center pt-5"
+              elevation="24"
+              height="150"
+              width="150"
+              style="overflow: hidden;"
+            >
+              <v-card-title>
+                <trinity-rings-spinner
+                  :animation-duration="1500"
+                  :size="66"
+                  color="#ff1d5e"
+                  class="mx-auto"
+                />
+              </v-card-title>
+              <v-card-text style="color:#ff1d5e;" class="mx-auto">Loading...</v-card-text>
+            </v-card>
           </v-dialog>
           <v-dialog v-model="dialogStudentNewDelete" persistent width="auto">
-                    <v-card>
-                        <v-card-title></v-card-title>
-                        <v-card-text>ต้องการลบเด็กคนนี้ใช่มั้ย ?</v-card-text>
-                    <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteStd">ใช่! ลบเลย</v-btn>
-                        <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteStd">เดี๋ยวก่อน รอแปบ</v-btn>
-                        <v-spacer></v-spacer>
-                    </v-card-actions>
-                    </v-card>
-                </v-dialog>
-        </v-toolbar>
-      </template>
-      <template v-slot:item.delete="{ item }">
-          <v-icon size="large" color="error" @click="clickDeleteNewStudent(item)">mdi-delete-forever</v-icon>
-      </template>
-      <template v-slot:loading><v-skeleton-loader type="table-row@5"></v-skeleton-loader></template>
-      <template v-slot:no-data> No New Student waiting for approve </template>
-    </v-data-table>
-  </template>
+            <v-card>
+                <v-card-title></v-card-title>
+                <v-card-text>ต้องการลบเด็กคนนี้ใช่มั้ย ?</v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteStd">ใช่! ลบเลย</v-btn>
+                <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteStd">เดี๋ยวก่อน รอแปบ</v-btn>
+                <v-spacer></v-spacer>
+            </v-card-actions>
+            </v-card>
+          </v-dialog>
+      </v-toolbar>
+    </template>
+    <template v-slot:item.delete="{ item }">
+        <v-icon size="large" color="error" @click="clickDeleteNewStudent(item)">mdi-delete-forever</v-icon>
+    </template>
+    <template v-slot:loading><v-skeleton-loader type="table-row@5"></v-skeleton-loader></template>
+    <template v-slot:no-data> No New Student waiting for approve </template>
+  </v-data-table>
+</template>
 
 <script>
 import axios from 'axios'
 import moment from 'moment'
 import { mapGetters } from 'vuex';
+import { TrinityRingsSpinner } from 'epic-spinners'
 
   export default {
+    components: {
+        TrinityRingsSpinner,
+    },
     data () {
       return {
+        progressLoading: false,
         loadingNewStudentList: false,
         confirmStudentList: [],
         newStudentList: [],
@@ -99,6 +122,7 @@ import { mapGetters } from 'vuex';
       },
       
       async approveNewStudent() {
+        this.progressLoading = true
         console.log('approveNewStudent : ',this.newStudentList)
         console.log('confirmStudentList : ',this.confirmStudentList)
         const apprObj = this.convertToSQL(this.confirmStudentList)
@@ -111,22 +135,24 @@ import { mapGetters } from 'vuex';
         })
         .then(response => {
           console.log(response)
-          this.dialogConfirmApprove = false;
           this.getNewStudentList()
           this.$emit('onUpdateDataSuccess');
           this.$emit('onInfoHandler', response.data.message || 'Approve new student success');
         })
         .catch(error => {
-          this.dialogConfirmApprove = false;
+          
           this.$emit('onErrorHandler', error.message || 'Approve new student failed');
           console.log(error)
         })
+        this.progressLoading = false
+        this.dialogConfirmApprove = false;
         this.confirmStudentList = []
       },
-      deleteNewStudent() {
+      async deleteNewStudent() {
+        this.progressLoading = true
         console.log('deleteNewStudent : ',this.studentNewDeleteObj)
         const token = this.$store.getters.getToken;
-        axios.post(this.baseURL+'/deleteNewStudent', {
+        await axios.post(this.baseURL+'/deleteNewStudent', {
           childid: this.studentNewDeleteObj.childid
         },
         { 
@@ -145,6 +171,7 @@ import { mapGetters } from 'vuex';
           console.log(error)
         })
         this.studentNewDeleteObj = null
+        this.progressLoading = false
       },
       clickConfirmDeleteStd() {
         this.dialogStudentNewDelete = false
@@ -153,9 +180,6 @@ import { mapGetters } from 'vuex';
       clickCancelDeleteStd() {
         this.studentNewDeleteObj = null
         this.dialogStudentNewDelete = false
-      },
-      clickApprove() {
-        this.dialogConfirmApprove = true
       },
       clickConfirmApprove() {
         this.dialogConfirmApprove = false
@@ -196,6 +220,17 @@ import { mapGetters } from 'vuex';
       ...mapGetters({
           token: 'getToken',
       }),
+    },
+    watch: {
+      // dialogConfirmApprove (val) {
+      //   if(this.confirmStudentList.length == 0) {
+      //     console.log("check")
+      //     this.$emit('onErrorHandler', 'Please select student to approve');
+      //     return
+      //   }else{
+      //     this.dialogConfirmApprove = true
+      //   }
+      // }
     }
   }
 </script>

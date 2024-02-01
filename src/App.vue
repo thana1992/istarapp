@@ -182,6 +182,8 @@ import Classes from './components/admin/Classes.vue'
 import CryptoJS from 'crypto-js';
 import { ref, computed, onMounted, inject } from 'vue';
 import { mapGetters } from 'vuex';
+
+
 export default {
   data () {
     return {

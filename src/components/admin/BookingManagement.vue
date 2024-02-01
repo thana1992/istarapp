@@ -125,6 +125,24 @@
                                                         </v-btn>
                                                     </v-card-actions>
                                                 </v-card>
+                                                <v-card
+                                                    v-if="progressLoading"
+                                                    class="card-loading mx-auto text-center pt-5"
+                                                    elevation="24"
+                                                    height="150"
+                                                    width="150"
+                                                    style="overflow: hidden;"
+                                                >
+                                                    <v-card-title>
+                                                    <trinity-rings-spinner
+                                                        :animation-duration="1500"
+                                                        :size="66"
+                                                        color="#ff1d5e"
+                                                        class="mx-auto"
+                                                    />
+                                                    </v-card-title>
+                                                    <v-card-text style="color:#ff1d5e;" class="mx-auto">Loading...</v-card-text>
+                                                </v-card>
                                             </v-dialog>
                                             <v-dialog v-model="dialogBookingDelete" persistent width="auto">
                                                 <v-card>
@@ -197,8 +215,10 @@ import ApproveNewStudent from './ApproveNewStudent.vue'
 import moment from 'moment'
 import { mapGetters } from 'vuex';
 import Vue3autocounter from 'vue3-autocounter';
+import { TrinityRingsSpinner } from 'epic-spinners'
 export default ({
     components: {
+        TrinityRingsSpinner,
         DatePicker,
         Student,
         BookingList,
@@ -207,6 +227,7 @@ export default ({
     },
     data() {
         return {
+            progressLoading: false,
             errorDialog: false,
             errorMsg: '',
             infoDialog: false,
@@ -399,6 +420,7 @@ export default ({
         async doSaveNewBooking () {
             const { valid } = await this.$refs.newstdform.validate()
             if (valid) {
+                this.progressLoading = true
             // Make API request to register the user
                 const BookingObj = {
                     childid: this.editedBookingItem.childid,
@@ -414,7 +436,7 @@ export default ({
                 const token = this.$store.getters.getToken;
                 if (this.editedBookingIndex > -1) {
                     BookingObj.reservationid = this.editedBookingItem.reservationid
-                    axios
+                    await axios
                     .post(this.baseURL+'/updateBookingByAdmin', BookingObj, { headers:{ Authorization: `Bearer ${token}`, } })
                     .then(response => {
                         if (response.data.success) {
@@ -434,7 +456,7 @@ export default ({
                         }
                     });
                 }else{
-                    axios
+                    await axios
                     .post(this.baseURL+'/addBookingByAdmin', BookingObj, { headers:{ Authorization: `Bearer ${token}`, } })
                     .then(response => {
                         if (response.data.success) {
@@ -455,6 +477,7 @@ export default ({
                         }
                     });
                 }
+                this.progressLoading = false
             }
         },
         deleteBookingItem (item) {

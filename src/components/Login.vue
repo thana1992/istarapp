@@ -54,24 +54,31 @@
     <div class="link-footer">
       <p><a style="color:red;" href="">Forgot Password?</a></p>
     </div>
-    <v-card
-        v-if="LogginggIn"
-        color=""
-        class="Login-Loading mx-auto text-center pt-5"
-        elevation="24"
-        height="150"
-        width="150"
-      >
-        <v-card-title><v-progress-circular
-          :size="70"
-          :width="7"
-          color="purple"
-          indeterminate
-          centered
-        ></v-progress-circular></v-card-title>
-        <v-card-text>Loading...</v-card-text>
-      </v-card>
+    
   </div>
+  <v-card
+    v-if="LogginggIn"
+    class="card-loading mx-auto text-center pt-5"
+    elevation="24"
+    height="150"
+    width="150"
+  >
+    <v-card-title>
+      <trinity-rings-spinner
+        :animation-duration="1500"
+        :size="66"
+        color="#ff1d5e"
+        class="mx-auto"
+      />
+      <!-- <atom-spinner
+        :animation-duration="1000"
+        :size="60"
+        color="#ff1d5e"
+        class="mx-auto"
+      /> -->
+    </v-card-title>
+    <v-card-text style="color:#ff1d5e;" class="mx-auto">Loading...</v-card-text>
+  </v-card>
 </template>
 
 <script>
@@ -79,8 +86,11 @@
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
 import { mapActions } from "vuex";
-
+import { TrinityRingsSpinner } from 'epic-spinners'
 export default {
+    components: {
+      TrinityRingsSpinner
+    },
     data: () => ({
       LogginggIn: false,
       login_form: null,
