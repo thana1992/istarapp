@@ -55,7 +55,7 @@
       <p><a style="color:red;" href="">Forgot Password?</a></p>
     </div>
     <v-card
-        
+        v-if="LogginggIn"
         color=""
         class="Login-Loading mx-auto text-center pt-5"
         elevation="24"
