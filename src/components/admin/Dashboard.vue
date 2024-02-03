@@ -80,7 +80,7 @@
                                     <v-date-picker
                                         class="datepick"
                                         v-model="datepick"
-                                        @click="selectDate"
+                                        @update:model-value="selectDate"
                                     ></v-date-picker>
                                 </v-row>
                             </v-container>
