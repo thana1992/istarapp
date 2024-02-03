@@ -339,6 +339,7 @@ export default ({
                     const data = response.data.results
                     if(data.length == 0) {
                         this.classtimesData = []
+                        this.editedBookingItem.classtime = null
                     }else{
                         this.classtimesData = data;
                         if(this.editedBookingItem.classtime != null) {
