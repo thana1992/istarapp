@@ -352,6 +352,7 @@ export default ({
                     }
                 } else {
                     this.classtimesData = []
+                    this.editedBookingItem.classtime = null
                 }
                 this.loadingClassTime = false
             })
