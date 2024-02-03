@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="container-header">
-        <h1><span class="mdi mdi-gymnastics"></span> Classes Management</h1>
+        <h1><span class="mdi mdi-view-dashboard-variant-outline"></span> Classes Management</h1>
     </div>
     <div class="container-content">
     <v-data-table
