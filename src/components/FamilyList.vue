@@ -51,6 +51,23 @@
         <p>Please log in to access this page.</p>
         </div>
     </div> -->
+    <v-card
+        v-if="loading"
+        class="card-loading mx-auto text-center pt-5"
+        elevation="24"
+        height="150"
+        width="150"
+    >
+        <v-card-title>
+        <trinity-rings-spinner
+            :animation-duration="1500"
+            :size="66"
+            color="#ff1d5e"
+            class="mx-auto"
+        />
+        </v-card-title>
+        <v-card-text style="color:#ff1d5e;" class="mx-auto">Loading...</v-card-text>
+    </v-card>
 </template>
 
 <script>
@@ -58,12 +75,15 @@ import { ref, computed, onMounted, inject } from 'vue';
 import AddFamily from './AddFamily.vue'
 import axios from 'axios';
 import { mapGetters } from 'vuex';
+import { TrinityRingsSpinner } from 'epic-spinners'
 export default {
     components: {
         AddFamily,
+        TrinityRingsSpinner
     },
     data() {
         return {
+            loading: false,
             isAddFamily: false,
             family: [],
         }
@@ -83,6 +103,7 @@ export default {
             }
         },
         async getFamilyMember() {
+            this.loading = true
             const token = this.$store.getters.getToken;
             const user = JSON.parse(localStorage.getItem('userdata'))
             await axios
@@ -103,6 +124,7 @@ export default {
             .catch(error => {
                 console.error(error);
             });
+            this.loading = false
         },
         async deleteFamily(people) {
             const token = this.$store.getters.getToken;

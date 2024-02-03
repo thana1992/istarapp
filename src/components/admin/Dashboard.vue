@@ -10,7 +10,7 @@
                     <v-col cols="12" sm="6" md="2" xl="2">
                         <v-card class="mx-auto" link @click="onClickCardTotalStudent" >
                             <v-list-item class="header-card" min-height="60">
-                                <div>Total <br>Students</div>
+                                <div>Total <br>Gymnasts</div>
                             </v-list-item>
                             <v-list-item three-line class="dashboard-card">
                                 <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalStudents' :duration='2.5'  separator=',' :autoinit='true' /></p></v-list-item-title>

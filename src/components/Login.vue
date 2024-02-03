@@ -67,12 +67,6 @@
         color="#ff1d5e"
         class="mx-auto"
       />
-      <!-- <atom-spinner
-        :animation-duration="1000"
-        :size="60"
-        color="#ff1d5e"
-        class="mx-auto"
-      /> -->
     </v-card-title>
     <v-card-text style="color:#ff1d5e;" class="mx-auto">Loading...</v-card-text>
   </v-card>

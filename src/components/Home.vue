@@ -95,6 +95,23 @@
     <div v-else>
         <p>Please Add your family member</p>
     </div>
+    <v-card
+        v-if="loading"
+        class="card-loading mx-auto text-center pt-5"
+        elevation="24"
+        height="150"
+        width="150"
+    >
+        <v-card-title>
+        <trinity-rings-spinner
+            :animation-duration="1500"
+            :size="66"
+            color="#ff1d5e"
+            class="mx-auto"
+        />
+        </v-card-title>
+        <v-card-text style="color:#ff1d5e;" class="mx-auto">Loading...</v-card-text>
+    </v-card>
 </div>
 </template>
 
@@ -104,6 +121,7 @@ import { ref, computed, onMounted, inject } from 'vue';
 import axios from 'axios';
 import moment from 'moment'
 import { mapGetters } from 'vuex';
+import { TrinityRingsSpinner } from 'epic-spinners'
 export default {
   setup() {
       const isAuthenticated = computed(() => !!localStorage.getItem('token'));
@@ -114,6 +132,7 @@ export default {
   components: {
       VBottomNavigation,
       VBottomSheet,
+      TrinityRingsSpinner
   },
   methods: {
       selectChild(student) {
@@ -136,6 +155,7 @@ export default {
         this.$emit('initBack', 'home')
       },
       async getFamilyMember() {
+        this.loading = true
         const token = this.$store.getters.getToken;
         const user = JSON.parse(localStorage.getItem('userdata'))
         await axios
@@ -154,6 +174,7 @@ export default {
         .catch(error => {
             console.error(error);
         });
+        this.loading = false
       },
       async getReservationDetail(childid) {
         const token = this.$store.getters.getToken;
@@ -211,6 +232,7 @@ export default {
   },
   data() {
       return {
+          loading: false,
           familylist: null,
           userdetail: null,
           memberReservationDetail: null,
@@ -229,6 +251,7 @@ export default {
         }),
     },
     async created() {
+        this.loading = true
         try {
             const token = this.$store.getters.getToken;
             console.log('token ', token)
@@ -257,6 +280,7 @@ export default {
                 this.$emit('onErrorHandler', error.response.data.message)
                 this.$emit('onClickChangeState', 'login')
             });
+            
         } catch (error) {
             this.$emit('onErrorHandler', error.message)
         }

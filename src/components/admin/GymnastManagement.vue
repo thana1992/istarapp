@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="container-header">
-            <h1><span class="mdi mdi-gymnastics"></span> Booking Management</h1>
+            <h1><span class="mdi mdi-gymnastics"></span> Gymnast Management</h1>
         </div>
         <div class="container-content">
             <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
@@ -13,7 +13,7 @@
                 >
                 <template v-slot:top>
                     <v-toolbar flat>
-                        <v-toolbar-title>Student list</v-toolbar-title>
+                        <v-toolbar-title>Gymnasts' List</v-toolbar-title>
                         <v-dialog v-model="dialogStudent" max-width="800px">
                             <template v-slot:activator="{ props }">
                                 <v-btn color="primary" dark v-bind="props"><span class="mdi mdi-emoticon-plus-outline"></span> New Student</v-btn>

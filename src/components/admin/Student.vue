@@ -7,7 +7,7 @@
         >
         <template v-slot:top>
             <v-toolbar flat>
-                <v-toolbar-title>Student list</v-toolbar-title>
+                <v-toolbar-title>Gymnasts' List</v-toolbar-title>
                 <v-dialog v-model="dialogStudent" max-width="800px">
                     <template v-slot:activator="{ props }">
                         <v-btn color="primary" dark v-bind="props"><span class="mdi mdi-emoticon-plus-outline"></span> New Student</v-btn>
