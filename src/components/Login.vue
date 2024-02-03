@@ -3,9 +3,9 @@
     <img src="../assets/logo/logo-2.png" alt="iStar Logo" class="istar-logo">
     <div class="login-greeting">
       <h1>Login</h1>
-      <p>Welcome to iStar Gymnastics!</p>
+      <p>Welcome to the iStar membership system.</p>
     </div>
-    <v-card class="login-form px-3 py-4">
+    <v-card class="login-form px-3 py-3">
         <v-form ref="login_form" v-model="login_form">
           <v-row justify="space-around" class="ma-1 pa-1">
           <v-text-field
@@ -34,26 +34,23 @@
         <v-row justify="space-around" class="ma-2 pa-2">
           <v-btn
             color="success"
-            class="mt-4"
+            class="mt-5"
             block
             @click="doLogin"
           >
             Sign in
           </v-btn>
           <v-btn
-            color="error"
-            class="mt-4"
+            color="blue-grey"
+            class="mt-5"
             block
-            @click="reset"
+            @click="registerClick"
           >
-            Clear
+            Register
           </v-btn>
         </v-row>
       </v-form>
     </v-card>
-    <div class="link-footer">
-      <p><a style="color:red;" href="">Forgot Password?</a></p>
-    </div>
     
   </div>
   <v-card
@@ -153,6 +150,9 @@ export default {
       resetValidation () {
         this.$refs.login_form.resetValidation()
       },
+      registerClick() {
+        this.$emit('onResigterHandler', 'register')
+      }
     },
   }
 </script>

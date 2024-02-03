@@ -21,19 +21,21 @@
           </v-list-item>
           <v-list-item v-if="isLoggedIn && !adminflag" prepend-icon="mdi-account-multiple" title="FAMILY" value="familylist" @click="onClickChangeState('familylist')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-view-dashboard" title="DASHBOARD" value="dashboard" @click="onClickChangeState('dashboard')">
+          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-view-dashboard-outline" title="DASHBOARD" value="dashboard" @click="onClickChangeState('dashboard')">
+          </v-list-item>
+          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-gymnastics" title="GYMNAST MANAGEMENT" value="studentmanager" @click="onClickChangeState('gymnastmanager')">
           </v-list-item>
           <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-calendar-edit" title="BOOKING MANAGEMENT" value="bookingmanager" @click="onClickChangeState('bookingmanager')">
           </v-list-item>
           <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-star-shooting-outline" title="COURSES" value="course" @click="onClickChangeState('course')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-gymnastics" title="CLASSES" value="classes" @click="onClickChangeState('classes')">
+          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-view-dashboard-variant-outline" title="CLASSES" value="classes" @click="onClickChangeState('classes')">
           </v-list-item>
           <v-list-item v-if="isLoggedIn" prepend-icon="mdi-logout" title="Logout" value="logout" @click="onClickLogout()">
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
-      <v-app-bar :elevation="20">
+      <v-app-bar :elevation="20" v-if="isLoggedIn">
         <v-btn v-if="!black" @click.stop="drawer = !drawer"  variant="tonal"><span class="mdi mdi-menu" style="font-size: large;"></span></v-btn>
         <v-btn v-if="black" @click="onClickBack(recentState)"  variant="tonal"><span class="mdi mdi-arrow-left" style="font-size: large;" ></span></v-btn>
         <template v-slot:append v-if="isLoggedIn">
@@ -74,12 +76,14 @@
           :user_details="user_details"
           @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)"
+          @onResigterHandler="onClickChangeState($event)"
           ></Login>
         
           <Register v-else-if="state=='register'" 
           @onBacktoLogin="backToLogin"
           @onErrorHandler="onError($event)"
           @onSuccessHandler="onRegisterSuccess($event)"
+          @onCancelHandler="onClickChangeState($event)"
           ></Register>
 
           <Home v-else-if="state=='home'"
@@ -120,11 +124,17 @@
           @onClickChangeState="onClickChangeState($event)"
           ></Dashboard>
 
-          <BookingManager v-else-if="state=='bookingmanager'"
+          <BookingManagement v-else-if="state=='bookingmanager'"
           @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)"
           @onClickChangeState="onClickChangeState($event)"
-          ></BookingManager>
+          ></BookingManagement>
+
+          <GymnastManagement v-else-if="state=='gymnastmanager'"
+          @onErrorHandler="onError($event)"
+          @onInfoHandler="onShowInfoDialog($event)"
+          @onClickChangeState="onClickChangeState($event)"
+          ></GymnastManagement>
 
           <Course v-else-if="state=='course'"
           @onErrorHandler="onError($event)"
@@ -176,7 +186,8 @@ import Reservation from '@/components/Reservation.vue'
 import FamilyList from './components/FamilyList.vue'
 import AddFamily from './components/AddFamily.vue';
 import Dashboard from './components/admin/Dashboard.vue'
-import BookingManager from '@/components/admin/BookingManagement.vue';
+import GymnastManagement from '@/components/admin/GymnastManagement.vue';
+import BookingManagement from '@/components/admin/BookingManagement.vue';
 import Course from './components/admin/Courses.vue'
 import Classes from './components/admin/Classes.vue'
 import CryptoJS from 'crypto-js';
@@ -214,7 +225,8 @@ export default {
     FamilyList,
     AddFamily,
     Dashboard,
-    BookingManager,
+    GymnastManagement,
+    BookingManagement,
     Course,
     Classes,
   },

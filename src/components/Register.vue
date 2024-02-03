@@ -90,6 +90,14 @@
                 >
                     Clear
                 </v-btn>
+                <v-btn
+                    color="grey"
+                    class="mt-4"
+                    block
+                    @click="cancel"
+                >
+                    Cancel
+                </v-btn>
             </v-form>
             </div>
         </div>
@@ -174,8 +182,8 @@ export default {
       resetValidation () {
         this.$refs.form.resetValidation()
       },
-      register() {
-      
+      cancel() {
+        this.$emit('onCancelHandler', 'login');
       },
       encryptPassword(password) {
       const encryptedPassword = CryptoJS.SHA256(password).toString();

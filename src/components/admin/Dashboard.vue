@@ -13,7 +13,7 @@
                                 <div>Total <br>Students</div>
                             </v-list-item>
                             <v-list-item three-line class="dashboard-card">
-                                <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalStudents' :duration='5'  separator=',' :autoinit='true' /></p></v-list-item-title>
+                                <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalStudents' :duration='2.5'  separator=',' :autoinit='true' /></p></v-list-item-title>
                                 <v-list-item-subtitle>Students</v-list-item-subtitle>
                                 <span class="mdi mdi-face-man-shimmer"></span>
                                 <span class="mdi mdi-face-woman-shimmer"></span>
@@ -26,7 +26,7 @@
                                 <div>Today's booking</div>
                             </v-list-item>
                             <v-list-item three-line class="dashboard-card">
-                                <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalBookingToday' :duration='1.5'  separator=',' :autoinit='true' /></p></v-list-item-title>
+                                <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalBookingToday' :duration='2.5'  separator=',' :autoinit='true' /></p></v-list-item-title>
                                 <v-list-item-subtitle>Bookings</v-list-item-subtitle>
                                 <span class="mdi mdi-gymnastics"></span>
                             </v-list-item>
@@ -38,7 +38,7 @@
                                 <div>Tomorrow's booking</div>
                             </v-list-item>
                             <v-list-item three-line class="dashboard-card" >
-                                <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalBookingTomorrow' :duration='1.5'  separator=',' :autoinit='true' /></p></v-list-item-title>
+                                <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalBookingTomorrow' :duration='2.5'  separator=',' :autoinit='true' /></p></v-list-item-title>
                                 <v-list-item-subtitle>Bookings</v-list-item-subtitle>
                                 <span class="mdi mdi-gymnastics"></span>
                             </v-list-item>
@@ -50,7 +50,7 @@
                                 <div>Approve New Students <span class=""></span></div>
                             </v-list-item>
                             <v-list-item three-line class="dashboard-card">
-                                <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalWaitingNewStudents' :duration='1'  separator=',' :autoinit='true' /></p></v-list-item-title>
+                                <v-list-item-title class="headline mb-1"><p class="font-card"><vue3-autocounter ref='counter' :startAmount='0' :endAmount='totalWaitingNewStudents' :duration='2'  separator=',' :autoinit='true' /></p></v-list-item-title>
                                 <v-list-item-subtitle>Students</v-list-item-subtitle>
                                 <span class="mdi mdi-account-multiple-check"></span>
                             </v-list-item>
