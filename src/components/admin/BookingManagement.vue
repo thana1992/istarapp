@@ -49,7 +49,7 @@
                                                     </v-card-title>
                                                     <v-card-text>
                                                         <v-container>
-                                                            <v-form ref="newstdform">
+                                                            <v-form ref="bookingform">
                                                                 <v-row>
                                                                     <v-col cols="12" sm="6" md="6">
                                                                         <v-select
@@ -419,7 +419,7 @@ export default ({
             });
         },
         async doSaveNewBooking () {
-            const { valid } = await this.$refs.newstdform.validate()
+            const { valid } = await this.$refs.bookingform.validate()
             if (valid) {
                 this.progressLoading = true
             // Make API request to register the user
