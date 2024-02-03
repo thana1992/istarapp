@@ -296,7 +296,6 @@ export default ({
                     }else{
                         this.pulse = ''
                     }
-                    this.totalWaitCancelBooking = response.data.datacard.totalWaitCancelBooking
                 }
             })
             .catch(error => {
