@@ -290,6 +290,7 @@ export default ({
                     this.totalBookingToday = response.data.datacard.totalBookingToday
                     this.totalBookingTomorrow = response.data.datacard.totalBookingTomorrow
                     this.totalWaitingNewStudents = response.data.datacard.totalWaitingNewStudents
+                    this.totalWaitCancelBooking = 999
                     if (this.totalWaitingNewStudents > 0) {
                         this.pulse = 'pulse'
                     }else{
