@@ -16,7 +16,7 @@
                                 <v-row justify="space-around">
                                     <v-date-picker
                                         v-model="date"
-                                        @click="selectDate"
+                                        @update="selectDate"
                                     ></v-date-picker>
                                 </v-row>
                             </v-container>
