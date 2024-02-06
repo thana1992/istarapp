@@ -286,14 +286,10 @@ export default ({
             .then(response => {
                 //console.dir(response);
                 if (response.data.success) {
-                    // this.totalStudents = response.data.datacard.totalStudents
-                    // this.totalBookingToday = response.data.datacard.totalBookingToday
-                    // this.totalBookingTomorrow = response.data.datacard.totalBookingTomorrow
-                    // this.totalWaitingNewStudents = response.data.datacard.totalWaitingNewStudents
-                    this.totalWaitCancelBooking = 999
-                    this.totalStudents = 1234
-                    this.totalBookingTomorrow = 123
-                    this.totalWaitingNewStudents = 12
+                    this.totalStudents = response.data.datacard.totalStudents
+                    this.totalBookingToday = response.data.datacard.totalBookingToday
+                    this.totalBookingTomorrow = response.data.datacard.totalBookingTomorrow
+                    this.totalWaitingNewStudents = response.data.datacard.totalWaitingNewStudents
 
                     if (this.totalWaitingNewStudents > 0) {
                         this.pulse = 'pulse'
