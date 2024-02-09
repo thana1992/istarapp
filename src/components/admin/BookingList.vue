@@ -65,44 +65,6 @@ import { mapGetters } from 'vuex';
     }),
 },
     methods: {
-      /*
-      async fetchDataBooking() {
-        // Call the API and set the bookingData object
-        this.loadingBooking = true
-        const classday = this.classdate.toLocaleDateString('en-US', { weekday: 'long' });
-        const classdate = this.SQLDate(this.classdate);
-        console.log('fetchDataBooking ' + classday + ' ' + this.SQLDate(this.classdate))
-        const token = this.$store.state.token;
-        BookingListAPI.fetchDataBooking({ token, classday, classdate })
-            .then(({ success, results, message }) => {
-                console.log('fetchDataBooking result',success, results, message);
-                if(success) {
-                  if(results) {
-                    this.headers = Object.keys(results).map((key) => ({ text: key, value: key }));
-                    this.bookingData = results
-                  }else{
-                    this.bookingData = {}
-                    this.headers = []
-                  }
-                  this.loadingBooking = false
-                }else{ 
-                    this.$emit('onErrorHandler', message || 'Get Reservation failed')
-                    this.loadingBooking = false
-                }
-            })
-            .catch(error => {
-              if(error.response.status){
-                if(error.response.status == 401) {
-                    this.$emit('onErrorHandler', error.response.data.message)
-                    this.$emit('onClickChangeState', 'login')
-                }else{
-                    this.$emit('onErrorHandler', error.message)
-                }
-              }else{
-                this.$emit('onErrorHandler', error.message)
-              }
-            });
-      },*/
       SQLDate(date) {
           return moment(date).format('YYYY-MM-DD')
       },

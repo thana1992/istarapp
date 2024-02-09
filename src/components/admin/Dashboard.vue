@@ -382,7 +382,7 @@ export default ({
                                 //console.log('results', results)
                                 this.bookingHeaders = Object.keys(results).map((key) => ({ title: key, key: key, sortable: false, align: 'center'}));
                                 this.bookingList = this.formattedData(results)
-                                //console.log('bookingList'+ JSON.stringify(this.bookingList))
+                                console.log('bookingList'+ JSON.stringify(this.bookingList))
                                 //console.log('bookingHeaders'+ JSON.stringify(this.bookingHeaders))
 
                             }else{

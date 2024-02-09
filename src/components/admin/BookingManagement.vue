@@ -37,7 +37,7 @@
                                     <template v-slot:top>
                                         <v-toolbar flat>
                                             <v-toolbar-title>All class bookings today</v-toolbar-title>
-                                            <v-dialog v-model="dialogBooking" max-width="800px">
+                                            <v-dialog v-model="dialogBookingEdit" max-width="800px">
                                                 <template v-slot:activator="{ props }">
                                                     <v-btn color="primary" dark v-bind="props"><span class="mdi mdi-emoticon-plus-outline"></span> New Booking</v-btn>
                                                 </template>
@@ -112,7 +112,7 @@
                                                         <v-btn
                                                         color="blue-darken-1"
                                                         variant="text"
-                                                        @click="closeBooking"
+                                                        @click="clickCancelEditBooking"
                                                         >
                                                         Cancel
                                                         </v-btn>
@@ -147,7 +147,7 @@
                                             <v-dialog v-model="dialogBookingDelete" persistent width="auto">
                                                 <v-card>
                                                     <v-card-title></v-card-title>
-                                                    <v-card-text>ต้องการลบการจองนี้ ?</v-card-text>
+                                                    <v-card-text>ต้องการลบการจองของ {{ editedBookingItem.fullname }} ?</v-card-text>
                                                 <v-card-actions>
                                                     <v-spacer></v-spacer>
                                                     <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteBooking">ใช่! ลบเลย</v-btn>
@@ -157,16 +157,29 @@
                                                 </v-card-actions>
                                                 </v-card>
                                             </v-dialog>
+                                            <v-dialog v-model="dialogBookingCheckin" persistent width="auto">
+                                                <v-card>
+                                                    <v-card-title></v-card-title>
+                                                    <v-card-text>ต้องการ Check-in สำหรับ {{ editedBookingItem.fullname }} ?</v-card-text>
+                                                <v-card-actions>
+                                                    <v-spacer></v-spacer>
+                                                    <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmCheckinBooking">Yes</v-btn>
+                                                    <v-btn color="#F44336" variant="tonal" @click="clickCancelCheckinBooking">Cancel</v-btn>
+                                                    
+                                                    <v-spacer></v-spacer>
+                                                </v-card-actions>
+                                                </v-card>
+                                            </v-dialog>
                                         </v-toolbar>
                                     </template>
                                     <template v-slot:item.edit="{ item }">
-                                        <v-icon size="large" color="info" @click="clickEditBooking(item)">mdi-pencil</v-icon>
+                                        <v-icon v-if="parseInt(item.checkedin) == '0'" size="large" color="info" @click="clickEditBooking(item)">mdi-pencil</v-icon>
                                     </template>
                                     <template v-slot:item.checkin="{ item }">
-                                        <v-icon size="large" @click="checkin(item)">mdi-check-bold</v-icon>
+                                        <v-icon v-if="parseInt(item.checkedin) == '0'" size="large" @click="clickCheckinBooking(item)">mdi-check-bold</v-icon>
                                     </template>
                                     <template v-slot:item.delete="{ item }">
-                                        <v-icon size="large" color="error" @click="deleteBookingItem(item)">mdi-delete-forever</v-icon>
+                                        <v-icon v-if="parseInt(item.checkedin) == '0'" size="large" color="error" @click="deleteBookingItem(item)">mdi-delete-forever</v-icon>
                                     </template>
                                     <template v-slot:loading><v-skeleton-loader type="table-row@5"></v-skeleton-loader></template>
                                     <template v-slot:no-data> No booking class </template>
@@ -265,7 +278,8 @@ export default ({
             },
             selectedDate: null,
             editedBookingIndex: -1,
-            dialogBooking: false,
+            dialogBookingEdit: false,
+            dialogBookingCheckin: false,
             dialogBookingDelete: false,
             loadingBooking: false,
             state: 'bookinglist',
@@ -444,7 +458,7 @@ export default ({
                         if (response.data.success) {
                             this.$emit('onInfoHandler', 'แก้ไขข้อมูลสำเร็จแล้ว');
                             this.getReservationList()
-                            this.dialogBooking = false
+                            this.dialogBookingEdit = false
                         } else {
                             this.$emit('onErrorHandler', response.data.message || 'แก้ไขข้อมูลไม่สำเร็จ ลองใหม่อีกครั้งนะ');
                         }
@@ -464,7 +478,7 @@ export default ({
                         if (response.data.success) {
                             this.$emit('onInfoHandler', 'เพิ่มการจองคลาสสำเร็จแล้ว');
                             this.getReservationList()
-                            this.dialogBooking = false
+                            this.dialogBookingEdit = false
                         } else {
                             this.$emit('onErrorHandler', response.data.message || 'เพิ่มการจองคลาสไม่สำเร็จ ลองใหม่อีกครั้งนะ');
                         }
@@ -487,6 +501,34 @@ export default ({
           this.editedBookingItem = Object.assign({}, item)
           this.dialogBookingDelete = true
         },
+        async clickConfirmCheckinBooking() {
+            const token = this.$store.getters.getToken;
+            axios.post(this.baseURL+'/checkinByAdmin', {
+                reservationid: this.editedBookingItem.reservationid,
+                childid: this.editedBookingItem.childid,
+            },
+            { headers:{ Authorization: `Bearer ${token}`, } 
+            })
+            .then(response => {
+                //console.dir(response);
+                if (response.data.success) {
+                    this.$emit('onInfoHandler', 'Check-in Successful');
+                } else {
+                    this.$emit('onErrorHandler', response.data.message || 'Check-in failed');
+                }
+                this.dialogBookingCheckin = false
+                this.getReservationList()
+            })
+            .catch(error => {
+                if(error.response.status == 401) {
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                }else{
+                    this.$emit('onErrorHandler', error.message)
+                }
+            });
+        },
+        
         async clickConfirmDeleteBooking() {
             const token = this.$store.getters.getToken;
             axios.post(this.baseURL+'/cancelBookingByAdmin', {
@@ -514,29 +556,50 @@ export default ({
                 }
             });
         },
-        closeBooking () {
-          this.dialogBooking = false
-          this.$nextTick(() => {
-            this.editedBookingItem = Object.assign({}, this.defaultBookingItem)
-            this.selectedDate = null
-            this.editedBookingIndex = -1
-            this.classtimesData = []
-          })
-        },
         clickEditBooking (item) {
           console.log('clickEditBooking', item)
           this.editedBookingIndex = this.BookingList.indexOf(item)
           this.editedBookingItem = Object.assign({}, item)
           this.selectedDate = new Date(this.editedBookingItem.classdate)
           this.getClassTime();
-          this.dialogBooking = true
+          this.dialogBookingEdit = true
+        },
+        clickCheckinBooking (item) {
+          console.log('clickCheckinBooking', item)
+          this.editedBookingIndex = this.BookingList.indexOf(item)
+          this.editedBookingItem = Object.assign({}, item)
+          this.selectedDate = new Date(this.editedBookingItem.classdate)
+          this.getClassTime();
+          this.dialogBookingCheckin = true
+        },
+        clickCancelCheckinBooking () {
+            this.dialogBookingCheckin = false
+            setTimeout(() => {
+                this.$nextTick(() => {
+                    this.editedBookingItem = Object.assign({}, this.defaultBookingItem)
+                    this.editedBookingIndex = -1
+                })
+            }, 300)
+        },
+        clickCancelEditBooking () {
+          this.dialogBookingEdit = false
+          setTimeout(() => {
+            this.$nextTick(() => {
+              this.editedBookingItem = Object.assign({}, this.defaultBookingItem)
+              this.selectedDate = null
+              this.editedBookingIndex = -1
+              this.classtimesData = []
+            })
+          }, 300)
         },
         clickCancelDeleteBooking () {
           this.dialogBookingDelete = false
-          this.$nextTick(() => {
-            this.editedBookingItem = Object.assign({}, this.defaultBookingItem)
-            this.editedBookingIndex = -1
-          })
+          setTimeout(() => {
+            this.$nextTick(() => {
+              this.editedBookingItem = Object.assign({}, this.defaultBookingItem)
+              this.editedBookingIndex = -1
+            })
+          }, 300)
         },
         addOneDay(date = new Date()) {
             date.setDate(date.getDate() + 1);
@@ -588,8 +651,11 @@ export default ({
         },
     },
     watch: {
-        dialogBooking (val) {
-          val || this.closeBooking()
+        dialogBookingEdit (val) {
+            val || this.clickCancelEditBooking()
+        },
+        dialogBookingCheckin (val) {
+            val || this.clickCancelCheckinBooking()
         },
         dialogBookingDelete (val) {
             val || this.clickCancelDeleteBooking()
