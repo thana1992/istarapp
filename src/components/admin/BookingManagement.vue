@@ -681,7 +681,7 @@ export default ({
 })
 import { Promise } from 'core-js';
 const DashboardAPI = {
-    baseURL: 'https://istardb.cyclic.appl.app',
+    baseURL: 'https://istarserver.vercel.app',
     //baseURL: 'http://localhost:3000',
     fetchDataBooking ({ token, reservedate }) {
         return new Promise(resolve => {

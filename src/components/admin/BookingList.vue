@@ -78,7 +78,7 @@ import { mapGetters } from 'vuex';
 
 import { Promise } from 'core-js';
 const BookingListAPI = {
-    baseURL: 'https://istardb.cyclic.appl.app',
+    baseURL: 'https://istarserver.vercel.app',
     //baseURL: 'http://localhost:3000',
     fetchDataBooking ({ token, classday, classdate }) {
         return new Promise(resolve => {
