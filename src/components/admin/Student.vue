@@ -522,7 +522,7 @@ export default {
 
 import { Promise } from 'core-js';
 const ComponentAPI = {
-    baseURL: 'https://istarserver.vercel.app',
+    baseURL: 'https://istardb.cyclic.appl.app',
     //baseURL: 'http://localhost:3000',
     fetchDataStudent ({ token }) {
         return new Promise(resolve => {
