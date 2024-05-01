@@ -89,7 +89,7 @@ import { TrinityRingsSpinner } from 'epic-spinners'
           { title: 'Firstname', key: 'fullname', },
           { title: 'Gender', key: 'gender', align: 'center' },
           { title: 'Date of birth', key: 'dateofbirthshow', align: 'center' },
-          { title: 'Username', key: 'familyid', align: 'center' },
+          { title: 'Username', key: 'username', align: 'center' },
           { title: 'Course Name', key: 'courseid', align: 'center'},
           { title: 'Remaining', key: 'remaining', align: 'left'},
           { title: 'Delete', key: 'delete', align: 'center', sortable: false}
