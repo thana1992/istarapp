@@ -46,6 +46,7 @@
                 label="Date of Birth"
                 v-model="dateofbirth"
                 :maxdate="new Date()"
+                required
                 ></DatePicker>
 
                 <v-btn
@@ -99,6 +100,10 @@ export default {
     methods: {
         async doSave (date) {
             const { valid } = await this.$refs.form.validate()
+            if(this.dateofbirth == null){
+                this.$emit('onErrorHandler', 'กรุณาเลือกวันเกิด')
+                return
+            }
             if (valid) {
 
             const userdata = localStorage.getItem('userdata')
