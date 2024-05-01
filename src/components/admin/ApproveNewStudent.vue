@@ -135,7 +135,7 @@ import { TrinityRingsSpinner } from 'epic-spinners'
         })
         .then(response => {
           console.log(response)
-          this.getNewStudentList()
+          
           this.$emit('onUpdateDataSuccess');
           this.$emit('onInfoHandler', response.data.message || 'Approve new student success');
         })
@@ -161,7 +161,7 @@ import { TrinityRingsSpinner } from 'epic-spinners'
         .then(response => {
           console.log(response)
           this.dialogStudentNewDelete = false;
-          this.getNewStudentList()
+          
           this.$emit('onUpdateDataSuccess');
           this.$emit('onInfoHandler', response.data.message || 'Delete new student success');
         })
@@ -173,17 +173,19 @@ import { TrinityRingsSpinner } from 'epic-spinners'
         this.studentNewDeleteObj = null
         this.progressLoading = false
       },
-      clickConfirmDeleteStd() {
+      async clickConfirmDeleteStd() {
         this.dialogStudentNewDelete = false
-        this.deleteNewStudent()
+        await this.deleteNewStudent()
+        await this.getNewStudentList()
       },
       clickCancelDeleteStd() {
         this.studentNewDeleteObj = null
         this.dialogStudentNewDelete = false
       },
-      clickConfirmApprove() {
+      async clickConfirmApprove() {
         this.dialogConfirmApprove = false
-        this.approveNewStudent()
+        await this.approveNewStudent()
+        await this.getNewStudentList()
       },
       clickCancelApprove() {
         this.dialogConfirmApprove = false
