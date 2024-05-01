@@ -197,7 +197,7 @@ export default ({
     
     async created() {
         this.datepick = new Date();
-        this.initialize()
+        await this.initialize()
         // try {
         //     const token = this.$store.getters.getToken;
         //     console.log('token ', token)
@@ -239,7 +239,7 @@ export default ({
         clearInterval(this.interval)
     },
     methods: {
-        initialize() {
+        async initialize() {
             /*
             axios.get(this.baseURL+'/checkToken', {})
             .then(response => {
@@ -254,8 +254,8 @@ export default ({
                 }
             })
             */
-            this.refreshCardDashboard()
-            this.getBookingList()
+            await this.refreshCardDashboard()
+            await this.getBookingList()
         },
         refreshData() {
             console.log('refreshData : '+new Date())
@@ -268,13 +268,13 @@ export default ({
             this.state = 'bookinglist'
             this.getBookingList()
         },
-        refreshCardDashboard() {
+        async refreshCardDashboard() {
             const token = this.$store.getters.getToken;
             // console.log('refreshCardDashboard...'+new Date())
             // console.log('today : ' + this.SQLDate(this.today()))
             // console.log('tomorrow : ' + this.SQLDate(this.tomorrow()))
             // console.log('token : ' + token)
-            axios
+            await axios
             .post(this.baseURL+'/refreshCardDashboard', {
                 today: this.SQLDate(this.today()),
                 tomorrow: this.SQLDate(this.tomorrow()),
@@ -374,7 +374,7 @@ export default ({
                     const classday = new Date(this.datepick).toLocaleDateString('en-US', { weekday: 'long' });
                     //console.log('fetchDataBooking parameters ' + classday + ' ' + this.SQLDate(this.datepick))
                     const token = this.$store.state.token;
-                    DashboardAPI.fetchDataBooking({ token, classday, classdate })
+                    await DashboardAPI.fetchDataBooking({ token, classday, classdate })
                     .then(({ success, results, message }) => {
                         //console.log('fetchDataBooking result',success, results, message);
                         if(success) {
