@@ -168,7 +168,7 @@ import { mapGetters } from 'vuex';
                 classday: new Date(this.date).toLocaleDateString('en-US', { weekday: 'long' }),
                 studentname: this.student.firstname + ' ' + this.student.lastname,
                 studentnickname: this.student.nickname,
-                coursename: this.student.course_shortname,
+                coursename: this.student.coursename,
             }
             console.log('checkDuplicateReservation : ' ,reservaObj)
             const token = this.$store.getters.getToken;
