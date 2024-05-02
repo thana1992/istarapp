@@ -10,11 +10,12 @@
               <v-data-table :loading="loadingBooking" :headers="bookingHeaders" :items="bookingData" class="elevation-1">
                 <template v-slot:loading><v-skeleton-loader type="table-row@20"></v-skeleton-loader></template>
                 <template v-slot:no-data> No booking class </template>
-                <template v-for="(header, index) in bookingData" v-slot:[`item.${header.value}`]="{ item }">
-                <td :class="{ 'highlighted-cell': item[header.value] === 'Bush' }">
-                  {{ item[header.value] }}
-                </td>
-              </template>
+                <template v-for="(header, index) in bookingHeaders" v-slot:[`item.${header.key}`]="{ item }">
+                  <p :class="{ 'highlighted-cell': item[header.key]!=null && item[header.key].indexOf('(1)') > -1 }">
+                    {{ item[header.key]!=null && item[header.key].indexOf('(1)') > -1 ? item[header.key].replace("(1)","") : item[header.key]}}
+                  </p>
+                </template>
+                
             </v-data-table>
           </v-card>
         </v-col>
@@ -128,7 +129,7 @@ const BookingListAPI = {
 }
 
 .highlighted-cell {
-  background-color: yellow; /* Change this to your desired highlight color */
+  background-color: rgb(86, 219, 86);
 }
 </style>
   
