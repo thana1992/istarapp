@@ -261,6 +261,7 @@ export default ({
             { title: 'Delete', key: 'delete', align: 'center', sortable: false },
             ],
             editedBookingItem: {
+                fullname: null,
                 reservationid: null,
                 childid: null,
                 courseid: null,
@@ -269,6 +270,7 @@ export default ({
                 classtime: null,
             },
             defaultBookingItem: {
+                fullname: null,
                 reservationid: null,
                 childid: null,
                 courseid: null,
@@ -566,6 +568,8 @@ export default ({
         },
         clickCheckinBooking (item) {
           console.log('clickCheckinBooking', item)
+          this.editedBookingIndex = this.BookingList.indexOf(item)
+          this.editedBookingItem = Object.assign({}, item)
           this.dialogBookingCheckin = true
         },
         clickCancelCheckinBooking () {

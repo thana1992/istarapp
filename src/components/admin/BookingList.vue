@@ -129,7 +129,6 @@ const BookingListAPI = {
 }
 
 .highlighted-cell {
-  background-color: rgb(86, 219, 86);
-}
+  color: rgb(86, 219rgb(70, 209, 70)}
 </style>
   
