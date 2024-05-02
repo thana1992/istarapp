@@ -566,10 +566,6 @@ export default ({
         },
         clickCheckinBooking (item) {
           console.log('clickCheckinBooking', item)
-          this.editedBookingIndex = this.BookingList.indexOf(item)
-          this.editedBookingItem = Object.assign({}, item)
-          this.selectedDate = new Date(this.editedBookingItem.classdate)
-          this.getClassTime();
           this.dialogBookingCheckin = true
         },
         clickCancelCheckinBooking () {
