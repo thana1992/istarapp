@@ -462,7 +462,7 @@ export default ({
             // Populate each column with data based on the time slot
             timeClass.forEach((ts) => {
                 results[ts].forEach((student, index) => {
-                    rows[index][ts] = student;
+                    rows[index][ts] = '<p class="font-weight-black">' + student + '</p>';
                 });
             });
             
