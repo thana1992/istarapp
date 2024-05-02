@@ -10,11 +10,11 @@
               <v-data-table :loading="loadingBooking" :headers="bookingHeaders" :items="bookingData" class="elevation-1">
                 <template v-slot:loading><v-skeleton-loader type="table-row@20"></v-skeleton-loader></template>
                 <template v-slot:no-data> No booking class </template>
-                <template v-for="(header, index) in bookingHeaders" v-slot:[`item.${header.value}`]="Bush">
-                  <td :class="highlightCell(item, header)">
-                    {{ item[header.value] }}
-                  </td>
-                </template>
+                <template v-for="(header, index) in bookingHeaders" v-slot:[`item.${header.value}`]="{ item }">
+                <td :class="{ 'highlighted-cell': item[header.value] === 'Bush' }">
+                  {{ item[header.value] }}
+                </td>
+              </template>
             </v-data-table>
           </v-card>
         </v-col>
