@@ -10,6 +10,11 @@
               <v-data-table :loading="loadingBooking" :headers="bookingHeaders" :items="bookingData" class="elevation-1">
                 <template v-slot:loading><v-skeleton-loader type="table-row@20"></v-skeleton-loader></template>
                 <template v-slot:no-data> No booking class </template>
+                <template v-slot:item="{ item }">
+                <tr :class="highlightRow(item)">
+                  {{ item.value }}
+                </tr>
+              </template>
             </v-data-table>
           </v-card>
         </v-col>
@@ -73,6 +78,15 @@ import { mapGetters } from 'vuex';
               return moment(String(value)).format('DD/MM/YYYY')
           }
       },
+      highlightRow(item) {
+        // Define your conditions for highlighting
+        // For example, let's say we want to highlight rows where the 'status' property is 'confirmed'
+        if (item.status === 'confirmed') {
+          return 'highlighted-row';
+        } else {
+          return ''; // return empty string if no highlighting needed
+        }
+      }
     },
   };
 
