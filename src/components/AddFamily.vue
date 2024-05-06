@@ -111,7 +111,7 @@ export default {
             const token = this.$store.getters.getToken;
             // Make API request to register the user
             axios
-                .post(this.baseURL+'/addFamilyMember', {
+                .post(this.baseURL+'/addStudent', {
                 firstname: this.firstname,
                 lastname: this.lastname,
                 nickname: this.nickname,
