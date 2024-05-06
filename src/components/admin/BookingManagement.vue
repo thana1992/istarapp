@@ -53,10 +53,10 @@
                                                                 <v-row>
                                                                     <v-col cols="12" sm="6" md="6">
                                                                         <v-select
-                                                                            v-model="editedBookingItem.childid"
+                                                                            v-model="editedBookingItem.studentid"
                                                                             label="Name"
                                                                             item-title="name"
-                                                                            item-value="childid"
+                                                                            item-value="studentid"
                                                                             :items="studentLookup"
                                                                             variant="solo-filled"
                                                                             no-data-text="No student data"
@@ -263,7 +263,7 @@ export default ({
             editedBookingItem: {
                 fullname: null,
                 reservationid: null,
-                childid: null,
+                studentid: null,
                 courseid: null,
                 classid: null,
                 classdate: null,
@@ -272,7 +272,7 @@ export default ({
             defaultBookingItem: {
                 fullname: null,
                 reservationid: null,
-                childid: null,
+                studentid: null,
                 courseid: null,
                 classid: null,
                 classdate: null,
@@ -441,7 +441,7 @@ export default ({
                 this.progressLoading = true
             // Make API request to register the user
                 const BookingObj = {
-                    childid: this.editedBookingItem.childid,
+                    studentid: this.editedBookingItem.studentid,
                     courseid: this.editedBookingItem.courseid,
                     classid: this.editedBookingItem.classtime.classid,
                     classdate: this.SQLDate(this.selectedDate),
@@ -507,7 +507,7 @@ export default ({
             const token = this.$store.getters.getToken;
             axios.post(this.baseURL+'/checkinByAdmin', {
                 reservationid: this.editedBookingItem.reservationid,
-                childid: this.editedBookingItem.childid,
+                studentid: this.editedBookingItem.studentid,
             },
             { headers:{ Authorization: `Bearer ${token}`, } 
             })
@@ -535,7 +535,7 @@ export default ({
             const token = this.$store.getters.getToken;
             axios.post(this.baseURL+'/cancelBookingByAdmin', {
                 reservationid: this.editedBookingItem.reservationid,
-                childid: this.editedBookingItem.childid,
+                studentid: this.editedBookingItem.studentid,
             },
             { headers:{ Authorization: `Bearer ${token}`, } 
             })

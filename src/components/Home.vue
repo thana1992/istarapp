@@ -13,7 +13,7 @@
             <tbody>
             <tr
                 v-for="p in familylist"
-                :key="p.childid"
+                :key="p.studentid"
                 style="cursor: pointer;"
                 class="tr-rows"
                 @click="selectChild(p)"
@@ -39,7 +39,7 @@
             <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
             <div class="information">
                 <Transition v-for="p in familylist">
-                    <div v-if="p.childid == childid">
+                    <div v-if="p.studentid == studentid">
                         <div class="info-photo" >
                             <v-img
                                 :src="p.photo"
@@ -79,7 +79,7 @@
                         <tbody>
                             <tr
                                 v-for="item in memberReservationDetail"
-                                :key="item.childid"
+                                :key="item.studentid"
                                 class="tr-rows"
                             >
                                 <!-- <td>{{ item.no }}</td> -->
@@ -137,9 +137,9 @@ export default {
   methods: {
       selectChild(student) {
           console.log(student)
-          this.childid = student.childid
+          this.studentid = student.studentid
           this.studentSelected = student
-          this.getReservationDetail(student.childid)
+          this.getReservationDetail(student.studentid)
       },
       doReservation() {
         if(this.studentSelected == null) {
@@ -176,12 +176,12 @@ export default {
         });
         this.loading = false
       },
-      async getReservationDetail(childid) {
+      async getReservationDetail(chilstudentiddid) {
         const token = this.$store.getters.getToken;
         const user = JSON.parse(localStorage.getItem('userdata'))
         await axios
         .post(this.baseURL+'/getMemberReservationDetail', {
-        childid: childid,
+            studentid: studentid,
         },
         {
         headers:{ Authorization: `Bearer ${token}`, } 
@@ -237,7 +237,7 @@ export default {
           userdetail: null,
           memberReservationDetail: null,
           studentSelected: null,
-          childid: null,
+          studentid: null,
           clickReservation: false,
           headers: [
               { title: 'Date', align:'start', key: 'classdate' },

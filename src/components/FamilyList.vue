@@ -15,7 +15,7 @@
                     <tbody>
                     <tr
                         v-for="people in family"
-                        :key="people.childid"
+                        :key="people.studentid"
                         style="cursor: pointer;"
                         class="tr-rows"
                     >
@@ -130,7 +130,7 @@ export default {
             const token = this.$store.getters.getToken;
             axios.post(this.baseURL+'/deleteFamilyMember', {
                 familyid: people.familyid,
-                childid: people.childid,
+                studentid: people.studentid,
             },
             { 
                 headers:{ Authorization: `Bearer ${token}`, } 

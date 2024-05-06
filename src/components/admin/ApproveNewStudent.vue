@@ -153,7 +153,7 @@ import { TrinityRingsSpinner } from 'epic-spinners'
         console.log('deleteNewStudent : ',this.studentNewDeleteObj)
         const token = this.$store.getters.getToken;
         await axios.post(this.baseURL+'/deleteNewStudent', {
-          childid: this.studentNewDeleteObj.childid
+          studentid: this.studentNewDeleteObj.studentid
         },
         { 
             headers:{ Authorization: `Bearer ${token}`, } 

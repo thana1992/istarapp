@@ -3,7 +3,7 @@
         :loading="loadingStudent"
         :headers="StudentListHeaders"
         :items="StudentList"
-        :sort-by="[{ key: 'childid', order: 'asc' }]"
+        :sort-by="[{ key: 'studentid', order: 'asc' }]"
         >
         <template v-slot:top>
             <v-toolbar flat>
@@ -206,7 +206,7 @@ export default {
             { title: 'Delete', key: 'delete', align: 'center', sortable: false },
             ],
             editedStudentItem: {
-                childid: null,
+                studentid: null,
                 familyid: null,
                 firstname: null,
                 lastname: null,
@@ -218,7 +218,7 @@ export default {
                 username: null,
             },
             defaultStudentItem: {
-                childid: null,
+                studentid: null,
                 familyid: null,
                 firstname: null,
                 lastname: null,
@@ -315,7 +315,7 @@ export default {
                 //console.log(this.editedStudentIndex+ ' StudentObj : ', StudentObj)
                 const token = this.$store.getters.getToken;
                 if (this.editedStudentIndex > -1) {
-                    StudentObj.childid = this.editedStudentItem.childid
+                    StudentObj.studentid = this.editedStudentItem.studentid
                     await axios
                     .post(this.baseURL+'/updateStudentByAdmin', StudentObj, { headers:{ Authorization: `Bearer ${token}`, } })
                     .then(response => {
@@ -419,7 +419,7 @@ export default {
             const token = this.$store.getters.getToken;
             axios.post(this.baseURL+'/deleteFamilyMember', {
                 familyid: this.editedStudentItem.familyid,
-                childid: this.editedStudentItem.childid,
+                studentid: this.editedStudentItem.studentid,
             },
             { headers:{ Authorization: `Bearer ${token}`, } 
             })

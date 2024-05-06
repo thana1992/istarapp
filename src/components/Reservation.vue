@@ -160,7 +160,7 @@ import { mapGetters } from 'vuex';
             this.questionDialog = false;
             let isDuplicate = false;
             const reservaObj = {
-                childid: this.student.childid,
+                studentid: this.student.studentid,
                 classdate: this.SQLDate(this.date),
                 classtime: this.classtimeSelect.classtime,
                 classid: this.classtimeSelect.classid,
