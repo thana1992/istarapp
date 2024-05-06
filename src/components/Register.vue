@@ -78,13 +78,6 @@
 
                 <v-text-field
                 variant="solo-filled"
-                v-model="lineid"
-                label="Line id"
-                type="text"
-                ></v-text-field>
-
-                <v-text-field
-                variant="solo-filled"
                 v-model="registercode"
                 label="Register Code"
                 type="text"
@@ -136,7 +129,6 @@ export default {
       address: '',
       email: '',
       mobileno: '',
-      lineid: '',
       usernameRules: [
         v => !!v || 'Username is required',
       ],
@@ -176,8 +168,7 @@ export default {
               lastname: this.lastname,
               address: this.address,
               email: this.email,
-              mobileno: this.mobileno,
-              lineid: this.lineid
+              mobileno: this.mobileno
             })
             .then(response => {
               if (response.data.success) {
