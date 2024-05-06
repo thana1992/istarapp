@@ -234,7 +234,7 @@ export default {
     
     AffterLogin () {
       this.user_details = JSON.parse(localStorage.getItem('userdata'))
-      this.parent = this.user_details.fullname
+      this.parent = this.user_details.firstname
       this.student = null;
         if (this.user_details.usertype == 1) {
           this.adminflag = true
@@ -319,7 +319,7 @@ export default {
     this.user_details = JSON.parse(localStorage.getItem('userdata'))
     console.log("user_details", this.user_details);
     if (this.user_details) {
-      this.parent = this.user_details.fullname
+      this.parent = this.user_details.firstname
       this.student = null;
       if (this.user_details.usertype == 1) {
           this.adminflag = true

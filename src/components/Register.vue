@@ -28,8 +28,24 @@
 
                 <v-text-field
                 variant="solo-filled"
-                v-model="fullname"
-                label="Full Name"
+                v-model="firstname"
+                label="Firstname"
+                :rules="nameRules"
+                required
+                ></v-text-field>
+
+                <v-text-field
+                variant="solo-filled"
+                v-model="middlenamename"
+                label="Middlename"
+                :rules="nameRules"
+                required
+                ></v-text-field>
+
+                <v-text-field
+                variant="solo-filled"
+                v-model="lastname"
+                label="Lastname"
                 :rules="nameRules"
                 required
                 ></v-text-field>
@@ -114,7 +130,9 @@ export default {
       username: '',
       password: '',
       registercode: '',
-      fullname: '',
+      firstname: '',
+      middlename: '',
+      lastname: '',
       address: '',
       email: '',
       mobileno: '',
@@ -153,7 +171,9 @@ export default {
             .post(this.baseURL+'/register', {
               username: this.username,
               password: encryptedPassword,
-              fullname: this.fullname,
+              firstname: this.firstname,
+              middlename: this.middlename,
+              lastname: this.lastname,
               address: this.address,
               email: this.email,
               mobileno: this.mobileno,
