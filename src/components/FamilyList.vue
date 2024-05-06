@@ -98,16 +98,16 @@ export default {
             if(state == 'add') {
                 this.isAddFamily = true
             } else if(state == 'list') {
-                this.getFamilyMember()
+                this.getStudent()
                 this.isAddFamily = false
             }
         },
-        async getFamilyMember() {
+        async getStudent() {
             this.loading = true
             const token = this.$store.getters.getToken;
             const user = JSON.parse(localStorage.getItem('userdata'))
             await axios
-            .post(this.baseURL+'/getFamilyMember', {
+            .post(this.baseURL+'/getStudent', {
                 familyid: user.familyid,
             },
             { 
@@ -142,7 +142,7 @@ export default {
                 } else {
                     this.$emit('onErrorHandler', response.data.message || 'Get Family Member failed');
                 }
-                this.getFamilyMember()
+                this.getStudent()
             })
         },
         onError(message) {
@@ -153,7 +153,7 @@ export default {
         }
     },
     created() {
-        this.getFamilyMember()
+        this.getStudent()
     },
     computed: {
         ...mapGetters({

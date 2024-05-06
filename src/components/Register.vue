@@ -36,7 +36,7 @@
 
                 <v-text-field
                 variant="solo-filled"
-                v-model="middlenamename"
+                v-model="middlename"
                 label="Middlename"
                 :rules="nameRules"
                 required

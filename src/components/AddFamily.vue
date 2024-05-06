@@ -18,6 +18,15 @@
 
                 <v-text-field
                 variant="solo-filled"
+                v-model="middlename"
+                label="Middle Name"
+                type="text"
+                :rules="nameRules"
+                required
+                ></v-text-field>
+
+                <v-text-field
+                variant="solo-filled"
                 v-model="lastname"
                 label="Last Name"
                 type="text"
@@ -85,6 +94,7 @@ export default {
     data: () => ({
         date: null,
         firstname: '',
+        middlename: '',
         lastname: '',
         nickname: '',
         gender: '',
@@ -113,6 +123,7 @@ export default {
             axios
                 .post(this.baseURL+'/addStudent', {
                 firstname: this.firstname,
+                middlename: this.middlename,
                 lastname: this.lastname,
                 nickname: this.nickname,
                 gender: this.gender,
