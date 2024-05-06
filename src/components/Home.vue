@@ -3,7 +3,7 @@
     <div class="container-header">
         <h1><font-awesome-icon icon="fa-solid fa-house-user" /> Home</h1>
     </div>
-    <div v-if="familylist">
+    <div v-if="familylist!=null && familylist.length > 0">
     <div class="container-content">
         <h3 class="group-header">Family</h3>
         <v-divider class="border-opacity-100" color="info" length="35vw" thickness="3"></v-divider>
@@ -169,6 +169,7 @@ export default {
             console.dir(response);
             if (response.data.success) {
                 this.familylist = response.data.results
+                console.log('familylist ', this.familylist)
             }
         })
         .catch(error => {
