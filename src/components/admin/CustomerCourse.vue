@@ -285,10 +285,11 @@
          async initialize () {
           const token = this.$store.getters.getToken;
           await  axios
-          .post(this.baseURL+'/getCustomerCourseList',
-          { 
-              headers:{ Authorization: `Bearer ${token}`, } 
-          })
+          .post(this.baseURL+'/getCustomerCourseList', {}, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                }
+            })
           .then(response => {
               console.dir(response);
               if (response.data.success) {
