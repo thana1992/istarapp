@@ -100,15 +100,6 @@
                                                     ></v-select>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="3">
-                                                    <v-text-field
-                                                        v-model="editedStudentItem.remaining"
-                                                        label="Class Remaining"
-                                                        variant="solo-filled"
-                                                        :rules="notNullRules"
-                                                        required
-                                                    ></v-text-field>
-                                                </v-col>
-                                                <v-col cols="12" sm="6" md="3">
                                                     <v-select
                                                         v-model="editedStudentItem.familyid"
                                                         label="Parent"
@@ -319,7 +310,6 @@ export default {
                     dateofbirth: this.SQLDate(this.editedStudentItem.dateofbirth),
                     familyid: this.editedStudentItem.familyid,
                     courseid: this.editedStudentItem.courseid,
-                    remaining: this.editedStudentItem.remaining,
                 }
                 //console.log(this.editedStudentIndex+ ' StudentObj : ', StudentObj)
                 const token = this.$store.getters.getToken;

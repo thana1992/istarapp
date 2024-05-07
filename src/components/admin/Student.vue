@@ -82,25 +82,16 @@
 
                                         <v-col cols="12" sm="6" md="6">
                                             <v-select
-                                                v-model="editedStudentItem.courseid"
-                                                label="Course Name"
-                                                item-title="coursename"
-                                                item-value="courseid"
+                                                v-model="editedStudentItem.courserefer"
+                                                label="Course No."
+                                                item-title="courserefer"
+                                                item-value="courserefer"
                                                 :items="courseLookup"
                                                 variant="solo-filled"
                                                 no-data-text="No course data"
                                                 :rules="notNullRules"
                                                 required
                                             ></v-select>
-                                        </v-col>
-                                        <v-col cols="12" sm="6" md="3">
-                                            <v-text-field
-                                                v-model="editedStudentItem.remaining"
-                                                label="Class Remaining"
-                                                variant="solo-filled"
-                                                :rules="notNullRules"
-                                                required
-                                            ></v-text-field>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="3">
                                             <v-select
@@ -199,8 +190,9 @@ export default {
         StudentList: [],
             StudentListHeaders: [
             { title: 'Name', key: 'fullname' },
-            { title: 'Course', key: 'coursename' },
-            { title: 'Remaining', key: 'remaining' },
+            { title: 'Date of Birth', key: 'dateofbirth', value: 'format_date'},
+            { title: 'Gender', key: 'gender' },
+            { title: 'Course No.', key: 'courserefer' },
             { title: 'Mobile Number', key: 'mobileno', align: 'center' },
             { title: 'Edit', key: 'edit', align: 'center', sortable: false },
             { title: 'Delete', key: 'delete', align: 'center', sortable: false },
@@ -214,7 +206,7 @@ export default {
                 gender: null,
                 dateofbirth: null,
                 age: null,
-                courseid: null,
+                courserefer: null,
                 username: null,
             },
             defaultStudentItem: {
@@ -226,7 +218,7 @@ export default {
                 gender: null,
                 dateofbirth: null,
                 age: null,
-                courseid: null,
+                courserefer: null,
                 username: null,
             },
             editedStudentIndex: -1,
@@ -309,7 +301,7 @@ export default {
                     gender: this.editedStudentItem.gender,
                     dateofbirth: this.SQLDate(this.editedStudentItem.dateofbirth),
                     familyid: this.editedStudentItem.familyid,
-                    courseid: this.editedStudentItem.courseid,
+                    courserefer: this.editedStudentItem.courserefer,
                     remaining: this.editedStudentItem.remaining,
                 }
                 //console.log(this.editedStudentIndex+ ' StudentObj : ', StudentObj)
