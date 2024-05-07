@@ -282,9 +282,9 @@
       },
   
       methods: {
-         initialize () {
+         async initialize () {
           const token = this.$store.getters.getToken;
-            axios
+          await  axios
           .post(this.baseURL+'/getCustomerCourseList',
           { 
               headers:{ Authorization: `Bearer ${token}`, } 
