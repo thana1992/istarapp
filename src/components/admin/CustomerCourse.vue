@@ -362,8 +362,8 @@
                 courseid: this.editedItem.courseid,
                 coursetype: this.editedItem.coursetype,
                 remaining: this.editedItem.remaining,
-                startdate: this.editedItem.startdate,
-                expiredate: this.editedItem.expiredate,
+                startdate: this.SQLDate(this.editedItem.startdate),
+                expiredate: this.SQLDate(this.editedItem.expiredate),
             }
             axios
             .post(this.baseURL+'/updateCustomerCourse', saveObj,
@@ -385,8 +385,8 @@
               courseid: this.editedItem.courseid,
               coursetype: this.editedItem.coursetype,
               remaining: this.editedItem.remaining,
-              startdate: this.editedItem.startdate,
-              expiredate: this.editedItem.expiredate,
+              startdate: this.SQLDate(this.editedItem.startdate),
+              expiredate: this.SQLDate(this.editedItem.expiredate),
             }
             axios
             .post(this.baseURL+'/addCustomerCourse', saveObj,
@@ -451,6 +451,9 @@
                 }
             });
         },
+        SQLDate(date) {
+          return moment(date).format('YYYY-MM-DD')
+      },
       },
     }
   </script>
