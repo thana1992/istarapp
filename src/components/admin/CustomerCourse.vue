@@ -285,7 +285,7 @@
          initialize () {
           const token = this.$store.getters.getToken;
             axios
-          .get(this.baseURL+'/getCustomerCourses',
+          .get(this.baseURL+'/getCustomerCourseList',
           { 
               headers:{ Authorization: `Bearer ${token}`, } 
           })
