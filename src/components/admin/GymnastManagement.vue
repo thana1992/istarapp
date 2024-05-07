@@ -207,9 +207,9 @@ export default {
         StudentList: [],
             StudentListHeaders: [
             { title: 'Name', key: 'fullname' },
-            { title: 'Date of Birth', key: 'dateofbirth' },
+            { title: 'Date of Birth', key: 'dateofbirth', value: 'format_date'},
             { title: 'Gender', key: 'gender' },
-            { title: 'Course', key: 'courserefer' },
+            { title: 'Course No.', key: 'courserefer' },
             { title: 'Mobile Number', key: 'mobileno', align: 'center' },
             { title: 'Edit', key: 'edit', align: 'center', sortable: false },
             { title: 'Delete', key: 'delete', align: 'center', sortable: false },
@@ -286,7 +286,7 @@ export default {
     async getStudentList() {
             this.loadingStudent = true
             const token = this.$store.getters.getToken;
-            await ComponentAPI.fetchDataStudent({ token})
+            await ComponentAPI.fetchDataStudent({ token })
             .then(({ success, results, message }) => {
                 if(success) {
                     this.StudentList = results
