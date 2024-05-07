@@ -274,7 +274,7 @@ export default {
                 if(success) {
                     this.results.map((item) => ({
                         ...item,
-                        formattedDate: this.format_date(item.dateofbirth), // Add formattedDate property
+                        dateofbirth: this.format_date(item.dateofbirth), // Add formattedDate property
                     }));
                     this.StudentList = results
                     this.loadingStudent = false
