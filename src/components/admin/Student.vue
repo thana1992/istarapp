@@ -190,7 +190,7 @@ export default {
         StudentList: [],
             StudentListHeaders: [
             { title: 'Name', key: 'fullname' },
-            { title: 'Date of Birth', key: 'dateofbirth', value: 'format_date'},
+            { title: 'Date of Birth', key: 'dateofbirth' },
             { title: 'Gender', key: 'gender' },
             { title: 'Course No.', key: 'courserefer' },
             { title: 'Mobile Number', key: 'mobileno', align: 'center' },
@@ -274,7 +274,7 @@ export default {
                 if(success) {
                     this.results.map((item) => ({
                         ...item,
-                        formattedDate: this.formatDate(item.dateofbirth), // Add formattedDate property
+                        formattedDate: this.format_date(item.dateofbirth), // Add formattedDate property
                     }));
                     this.StudentList = results
                     this.loadingStudent = false
