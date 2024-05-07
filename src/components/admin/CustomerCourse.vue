@@ -44,7 +44,7 @@
                         label="Course Refer"
                         item-title="courserefer"
                         item-value="courserefer"
-                        :items="coursereferLookup"
+                        :items="customerCourseLookup"
                         variant="solo-filled"
                         no-data-text="No course"
                         :rules="notNullRules"
@@ -417,6 +417,29 @@
                 //console.dir(response);
                 if (response.data.success) {
                     this.courseLookup = response.data.results
+                }
+            })
+            .catch(error => {
+                if(error.response.status == 401) {
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                }else{
+                    this.$emit('onErrorHandler', error.message)
+                }
+            });
+        },
+        getCustomerCourseLookup () {
+            const token = this.$store.getters.getToken;
+            axios
+            .get(this.baseURL+'/customerCourseLookup', { 
+                headers:{
+                    Authorization: `Bearer ${token}`,
+                }
+            })
+            .then(response => {
+                //console.dir(response);
+                if (response.data.success) {
+                    this.customerCourseLookup = response.data.results
                 }
             })
             .catch(error => {
