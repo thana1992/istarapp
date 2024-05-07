@@ -27,6 +27,8 @@
           </v-list-item>
           <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-calendar-edit" title="BOOKING MANAGEMENT" value="bookingmanager" @click="onClickChangeState('bookingmanager')">
           </v-list-item>
+          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-book-account" title="CUSTOMER COURSES" value="customercourse" @click="onClickChangeState('customercourse')">
+          </v-list-item>
           <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-star-shooting-outline" title="COURSES" value="course" @click="onClickChangeState('course')">
           </v-list-item>
           <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-view-dashboard-variant-outline" title="CLASSES" value="classes" @click="onClickChangeState('classes')">
@@ -136,6 +138,12 @@
           @onClickChangeState="onClickChangeState($event)"
           ></GymnastManagement>
 
+          <CustomerCourse v-else-if="state=='customercourse'"
+          @onErrorHandler="onError($event)"
+          @onInfoHandler="onShowInfoDialog($event)"
+          @onClickChangeState="onClickChangeState($event)"
+          ></CustomerCourse>
+
           <Course v-else-if="state=='course'"
           @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)"
@@ -188,6 +196,7 @@ import AddFamily from './components/AddFamily.vue';
 import Dashboard from './components/admin/Dashboard.vue'
 import GymnastManagement from '@/components/admin/GymnastManagement.vue';
 import BookingManagement from '@/components/admin/BookingManagement.vue';
+import CustomerCourse from '@/components/admin/CustomerCourse.vue';
 import Course from './components/admin/Courses.vue'
 import Classes from './components/admin/Classes.vue'
 import CryptoJS from 'crypto-js';
@@ -227,6 +236,7 @@ export default {
     Dashboard,
     GymnastManagement,
     BookingManagement,
+    CustomerCourse,
     Course,
     Classes,
   },

@@ -198,7 +198,7 @@ export default {
         StudentList: [],
             StudentListHeaders: [
             { title: 'Name', key: 'fullname' },
-            { title: 'Date of Birth', key: 'dateofbirth', value: 'format_date'},
+            { title: 'Date of Birth', key: 'dateofbirthshow' },
             { title: 'Gender', key: 'gender' },
             { title: 'Course No.', key: 'courserefer' },
             { title: 'Mobile Number', key: 'mobileno', align: 'center' },
@@ -280,7 +280,7 @@ export default {
             await ComponentAPI.fetchDataStudent({ token })
             .then(({ success, results, message }) => {
                 if(success) {
-                    this.StudentList = results
+                    this.StudentList = this.convertDate(results)
                     this.loadingStudent = false
                 }else{
                     this.$emit('onErrorHandler', message || 'Get Student list failed')
@@ -491,6 +491,12 @@ export default {
             if (value) {
                 return moment(String(value)).format('DD/MM/YYYY')
             }
+        },
+        convertDate (arrObj) {
+            arrObj.forEach(obj => {
+            obj.dateofbirthshow = this.format_date(obj.dateofbirth);
+            });
+            return arrObj;
         },
     },
     watch: {
