@@ -272,10 +272,12 @@ export default {
             await ComponentAPI.fetchDataStudent({ token})
             .then(({ success, results, message }) => {
                 if(success) {
+                    console.log('results ', results)
                     this.results.map((item) => ({
                         ...item,
                         dateofbirth: this.format_date(item.dateofbirth), // Add formattedDate property
                     }));
+                    console.log('results ', results)
                     this.StudentList = results
                     this.loadingStudent = false
                 }else{
