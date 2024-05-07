@@ -88,13 +88,13 @@
 
                                                 <v-col cols="12" sm="6" md="6">
                                                     <v-select
-                                                        v-model="editedStudentItem.courseid"
-                                                        label="Course Name"
-                                                        item-title="coursename"
-                                                        item-value="courseid"
+                                                        v-model="editedStudentItem.courserefer"
+                                                        label="Course Refer"
+                                                        item-title="courserefer"
+                                                        item-value="courserefer"
                                                         :items="courseLookup"
                                                         variant="solo-filled"
-                                                        no-data-text="No course data"
+                                                        no-data-text="No course"
                                                         :rules="notNullRules"
                                                         required
                                                     ></v-select>
@@ -223,7 +223,7 @@ export default {
                 gender: null,
                 dateofbirth: null,
                 age: null,
-                courseid: null,
+                courserefer: null,
                 username: null,
             },
             defaultStudentItem: {
@@ -235,7 +235,7 @@ export default {
                 gender: null,
                 dateofbirth: null,
                 age: null,
-                courseid: null,
+                courserefer: null,
                 username: null,
             },
             editedStudentIndex: -1,
