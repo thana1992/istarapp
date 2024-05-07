@@ -207,8 +207,9 @@ export default {
         StudentList: [],
             StudentListHeaders: [
             { title: 'Name', key: 'fullname' },
-            { title: 'Course', key: 'coursename' },
-            { title: 'Remaining', key: 'remaining' },
+            { title: 'Date of Birth', key: 'dateofbirth' },
+            { title: 'Gender', key: 'gender' },
+            { title: 'Course', key: 'courserefer' },
             { title: 'Mobile Number', key: 'mobileno', align: 'center' },
             { title: 'Edit', key: 'edit', align: 'center', sortable: false },
             { title: 'Delete', key: 'delete', align: 'center', sortable: false },
