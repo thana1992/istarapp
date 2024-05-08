@@ -21,8 +21,6 @@
                 v-model="middlename"
                 label="Middle Name"
                 type="text"
-                :rules="nameRules"
-                required
                 ></v-text-field>
 
                 <v-text-field
@@ -101,11 +99,8 @@ export default {
         dateofbirth: null,
         format: 'dddd MMMM DD, YYYY',
         nameRules: [
-            v => !!v || 'Username is required',
+            v => !!v || 'field is required',
         ],
-        passwordRules: [
-            v => !!v || 'Password is required',
-        ]
     }),
     methods: {
         async doSave (date) {

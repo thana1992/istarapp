@@ -26,7 +26,7 @@
                         style="display: flex !important;"
                     ></v-img>
                 </td>
-                <td style="width: 70vw;"><p>{{ p.firstname + ' ' + p.lastname }}</p></td>
+                <td style="width: 70vw;"><p>{{ p.fullname }}</p></td>
                 <td style="width: 10vw;"><p>{{ p.course_shortname }}</p></td>
             </tr>
             </tbody>
@@ -49,10 +49,17 @@
                             ></v-img>   
                         </div>
                         <div class="info-detail">
-                            <p>{{ p.firstname + ' ' + p.lastname }} ({{ p.nickname }})</p>
+                            <p>{{ p.fullname }}</p>
                             <p>เพศ {{ p.gender }} อายุ {{ calculateAge(p.dateofbirth) }}</p>
-                            <p>Course {{ p.coursename }} </p>
-                            <p>เหลือ {{ p.remaining }} ครั้ง</p>
+                            <p>Course No. {{ p.courserefer }} </p>
+                            <p>
+                                <label>คอร์ส {{ p.coursename }}</label>
+                                <label v-if="p.coursetype=='Monthly'"> รายเดือน</label>
+                                <label v-else> คงเหลือ {{ p.remaining }} ครั้ง</label></p>
+                            <p>
+                                <label>หมดอายุ {{ new Date(p.expiredate).toLocaleDateString('th-TH', this.options) }}</label>
+                            </p>
+                            
                         </div>
                     </div>
                 </Transition>
@@ -139,6 +146,7 @@ export default {
           console.log(student)
           this.studentid = student.studentid
           this.studentSelected = student
+          //this.studentSelected.expiredate = new Date(this.studentSelected.expiredate).toLocaleDateString('th-TH', this.options)
           this.getReservationDetail(student.studentid)
       },
       doReservation() {
@@ -146,9 +154,15 @@ export default {
             this.$emit('onErrorHandler', 'Please select any one of your family')
             return
         }
-        if(this.studentSelected.remaining <= 0) {
-            this.$emit('onErrorHandler', 'ไม่สามารถจองคลาสได้ จำนวนคลาสของท่านหมดแล้ว T-T')
+        if(this.studentSelected.expiredate < new Date()) {
+            this.$emit('onErrorHandler', 'ไม่สามารถจองคลาสได้ เนื่องจากหมดอายุแล้ว T-T')
             return;
+        }
+        if(this.studentSelected.coursetype != 'Monthly') {
+            if(this.studentSelected.remaining <= 0) {
+                this.$emit('onErrorHandler', 'ไม่สามารถจองคลาสได้ จำนวนคลาสของท่านหมดแล้ว T-T')
+                return;
+            }
         }
         this.$emit('collectData', this.studentSelected)
         this.$emit('onClickChangeState', 'reservation')
@@ -177,7 +191,7 @@ export default {
         });
         this.loading = false
       },
-      async getReservationDetail(chilstudentiddid) {
+      async getReservationDetail(studentid) {
         const token = this.$store.getters.getToken;
         const user = JSON.parse(localStorage.getItem('userdata'))
         await axios
@@ -233,17 +247,24 @@ export default {
   },
   data() {
       return {
-          loading: false,
-          familylist: null,
-          userdetail: null,
-          memberReservationDetail: null,
-          studentSelected: null,
-          studentid: null,
-          clickReservation: false,
-          headers: [
-              { title: 'Date', align:'start', key: 'classdate' },
-              { title: 'Class Time', align:'start', key: 'classtime' },
-          ],
+        loading: false,
+        familylist: null,
+        userdetail: null,
+        memberReservationDetail: null,
+        studentSelected: null,
+        studentid: null,
+        clickReservation: false,
+        headers: [
+            { title: 'Date', align:'start', key: 'classdate' },
+            { title: 'Class Time', align:'start', key: 'classtime' },
+        ],
+        options: {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric',
+          
+        },
       };
   },
   computed: {

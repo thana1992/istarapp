@@ -1,21 +1,22 @@
 <template>
   <div class="container">
     <div class="container-header">
-        <h1><span class="mdi mdi-book-account"></span> Customer Courses</h1>
+        <h1><span class="mdi mdi-book-account"></span> Customer's Courses</h1>
     </div>
     <div class="container-content">
     <v-data-table
       :headers="headers"
       :items="courselist"
+      :loading="loadingCustomerCourse"
       :sort-by="[{ key: 'coursename', order: 'asc' }]"
     >
       <template v-slot:top>
         <v-toolbar
           flat
         >
-          <v-toolbar-title>Customer Courses</v-toolbar-title>
+          <v-toolbar-title>Customer's Courses</v-toolbar-title>
           <v-divider
-            class="mx-4"
+            class="mx-2"
             inset
             vertical
           ></v-divider>
@@ -108,6 +109,7 @@
                           label="Start Date"
                           variant="solo-filled"
                           v-model="editedItem.startdate"
+                          @click="onChangeStartDate"
                           :mindate="new Date()"
                           rules="notNullRules"
                           
@@ -185,11 +187,12 @@
           Reset
         </v-btn>
       </template>
+      <template v-slot:loading><v-skeleton-loader type="table-row@20"></v-skeleton-loader></template>
     </v-data-table>
     </div>
   </div>
   </template>
-  <script>
+<script>
   import axios from 'axios'
   import { mapGetters } from 'vuex';
   import DatePicker from '@/components/DatePicker.vue'
@@ -201,13 +204,14 @@
       data: () => ({
         dialog: false,
         dialogDelete: false,
+        loadingCustomerCourse: false,
         headers: [
           { title: 'Course No.', align: 'start', key: 'courserefer' },
           { title: 'Course Name', key: 'coursename' },
           { title: 'Course Type', key: 'coursetype' },
           { title: 'Remaining', key: 'remaining' },
-          { title: 'Start Date', key: 'startdate' },
-          { title: 'Expire Date', key: 'expiredate' },
+          { title: 'Start Date', key: 'startdateshow' },
+          { title: 'Expire Date', key: 'expiredateshow' },
           { title: 'Actions', key: 'actions', sortable: false },
         ],
         editedIndex: -1,
@@ -284,28 +288,16 @@
   
       methods: {
          async initialize () {
-          const token = this.$store.getters.getToken;
-          await  axios
-          .post(this.baseURL+'/getCustomerCourseList', {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            })
-          .then(response => {
-              console.dir(response);
-              if (response.data.success) {
-                  this.courselist = response.data.results
-              }
-          })
-          .catch(error => {
-              console.error(error);
-          });
-          this.getCourseLookup()
+          
+          await this.getCustomerCourseList()
+          await this.getCourseLookup()
         },
   
         editItem (item) {
           this.editedIndex = this.courselist.indexOf(item)
           this.editedItem = Object.assign({}, item)
+          this.editedItem.startdate = new Date(item.startdate)
+          this.editedItem.expiredate = new Date(item.expiredate)
           this.dialog = true
         },
   
@@ -429,32 +421,52 @@
                 }
             });
         },
-        getCustomerCourseLookup () {
-            const token = this.$store.getters.getToken;
-            axios
-            .get(this.baseURL+'/customerCourseLookup', { 
-                headers:{
+        async getCustomerCourseList() {
+          this.loadingCustomerCourse = true
+          const token = this.$store.getters.getToken;
+          await  axios
+          .post(this.baseURL+'/getCustomerCourseList', {}, {
+                headers: {
                     Authorization: `Bearer ${token}`,
                 }
             })
-            .then(response => {
-                //console.dir(response);
-                if (response.data.success) {
-                    this.customerCourseLookup = response.data.results
-                }
-            })
-            .catch(error => {
-                if(error.response.status == 401) {
-                    this.$emit('onErrorHandler', error.response.data.message)
-                    this.$emit('onClickChangeState', 'login')
-                }else{
-                    this.$emit('onErrorHandler', error.message)
-                }
-            });
+          .then(response => {
+              console.dir(response);
+              if (response.data.success) {
+                  this.courselist = this.convertDate(response.data.results)
+              }
+              this.loadingCustomerCourse = false
+          })
+          .catch(error => {
+              console.error(error);
+              this.loadingCustomerCourse = false
+              if(error.response.status == 401) {
+                  this.$emit('onErrorHandler', error.response.data.message)
+                  this.$emit('onClickChangeState', 'customercourse')
+              }else{
+                  this.$emit('onErrorHandler', error.message)
+              }
+          });
+        },
+        onChangeStartDate () {
+          console.log('onChangeStartDate')
+          this.editedItem.expiredate = null
         },
         SQLDate(date) {
           return moment(date).format('YYYY-MM-DD')
-      },
+        },
+        format_date(value){
+            if (value) {
+                return moment(String(value)).format('DD/MM/YYYY')
+            }
+        },
+        convertDate (arrObj) {
+            arrObj.forEach(obj => {
+              obj.startdateshow = this.format_date(obj.startdate);
+              obj.expiredateshow = this.format_date(obj.expiredate);
+            });
+            return arrObj;
+        },
       },
     }
   </script>

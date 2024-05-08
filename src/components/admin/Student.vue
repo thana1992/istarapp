@@ -34,6 +34,14 @@
                                         </v-col>
                                         <v-col cols="12" sm="6" md="6">
                                             <v-text-field
+                                                v-model="editedStudentItem.middlename"
+                                                label="Middlename"
+                                                variant="solo-filled"
+                                                required
+                                            ></v-text-field>
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="6">
+                                            <v-text-field
                                                 v-model="editedStudentItem.lastname"
                                                 label="Lastname"
                                                 variant="solo-filled"
@@ -86,7 +94,7 @@
                                                 label="Course No."
                                                 item-title="courserefer"
                                                 item-value="courserefer"
-                                                :items="courseLookup"
+                                                :items="customerCourseLookup"
                                                 variant="solo-filled"
                                                 no-data-text="No course data"
                                                 :rules="notNullRules"
@@ -263,7 +271,7 @@ export default {
   methods: {
     initialize() {
             this.getStudentList()
-            this.getCourseLookup()
+            this.getCustomerCourseLookup()
             this.getFamilyLookup()
         },
     async getStudentList() {
@@ -296,14 +304,16 @@ export default {
                 
                 // Make API request to register the user
                 const StudentObj = {
+                    studentid: this.editedStudentItem.studentid,
                     firstname: this.editedStudentItem.firstname,
+                    middlename: this.editedStudentIndex.middlename,
                     lastname: this.editedStudentItem.lastname,
                     nickname: this.editedStudentItem.nickname,
                     gender: this.editedStudentItem.gender,
                     dateofbirth: this.SQLDate(this.editedStudentItem.dateofbirth),
                     familyid: this.editedStudentItem.familyid,
                     courserefer: this.editedStudentItem.courserefer,
-                    remaining: this.editedStudentItem.remaining,
+                    
                 }
                 //console.log(this.editedStudentIndex+ ' StudentObj : ', StudentObj)
                 const token = this.$store.getters.getToken;
@@ -354,10 +364,10 @@ export default {
             }
             this.progressLoading = false
         },
-        getCourseLookup () {
+        getCustomerCourseLookup () {
             const token = this.$store.getters.getToken;
             axios
-            .get(this.baseURL+'/courseLookup', { 
+            .get(this.baseURL+'/getCustomerCourseLookup', { 
                 headers:{
                     Authorization: `Bearer ${token}`,
                 }
@@ -365,7 +375,7 @@ export default {
             .then(response => {
                 //console.dir(response);
                 if (response.data.success) {
-                    this.courseLookup = response.data.results
+                    this.customerCourseLookup = response.data.results
                 }
             })
             .catch(error => {

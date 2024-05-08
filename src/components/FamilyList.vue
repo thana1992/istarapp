@@ -28,8 +28,8 @@
                                 style="display: flex !important;"
                             ></v-img>
                         </td>
-                        <td style="width: 70vw;">{{ people.firstname + ' ' + people.lastname }}</td>
-                        <td style="width: 10vw;"><span class="mdi mdi-delete-forever" style="font-size: 7vw;" @click="deleteFamily(people)"></span></td>
+                        <td style="width: 70vw;">{{ people.fullname }}</td>
+                        <td style="width: 10vw;"><span class="mdi mdi-delete-forever" style="font-size: 7vw;" @click="deleteStudent(people)"></span></td>
                     </tr>
                     </tbody>
                 </v-table>
@@ -126,9 +126,9 @@ export default {
             });
             this.loading = false
         },
-        async deleteFamily(people) {
+        async deleteStudent(people) {
             const token = this.$store.getters.getToken;
-            axios.post(this.baseURL+'/deleteFamilyMember', {
+            axios.post(this.baseURL+'/deleteStudent', {
                 familyid: people.familyid,
                 studentid: people.studentid,
             },

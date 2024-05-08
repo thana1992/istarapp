@@ -40,6 +40,14 @@
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="6">
                                                     <v-text-field
+                                                        v-model="editedStudentItem.middlename"
+                                                        label="Middlename"
+                                                        variant="solo-filled"
+                                                        required
+                                                    ></v-text-field>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <v-text-field
                                                         v-model="editedStudentItem.lastname"
                                                         label="Lastname"
                                                         variant="solo-filled"
@@ -92,7 +100,7 @@
                                                         label="Course Refer"
                                                         item-title="courserefer"
                                                         item-value="courserefer"
-                                                        :items="courseLookup"
+                                                        :items="customerCourseLookup"
                                                         variant="solo-filled"
                                                         no-data-text="No course"
                                                         :rules="notNullRules"
@@ -273,6 +281,7 @@ export default {
             this.getStudentList()
             this.getCourseLookup()
             this.getFamilyLookup()
+            this.getCustomerCourseLookup()
         },
     async getStudentList() {
             this.loadingStudent = true
@@ -303,13 +312,15 @@ export default {
                 
                 // Make API request to register the user
                 const StudentObj = {
+                    studentid: this.editedStudentItem.studentid,
                     firstname: this.editedStudentItem.firstname,
+                    middlename: this.editedStudentItem.middlename,
                     lastname: this.editedStudentItem.lastname,
                     nickname: this.editedStudentItem.nickname,
                     gender: this.editedStudentItem.gender,
                     dateofbirth: this.SQLDate(this.editedStudentItem.dateofbirth),
                     familyid: this.editedStudentItem.familyid,
-                    courseid: this.editedStudentItem.courseid,
+                    courserefer: this.editedStudentItem.courserefer,
                 }
                 //console.log(this.editedStudentIndex+ ' StudentObj : ', StudentObj)
                 const token = this.$store.getters.getToken;
@@ -391,6 +402,29 @@ export default {
                 //console.dir(response);
                 if (response.data.success) {
                     this.familyLookup = response.data.results
+                }
+            })
+            .catch(error => {
+                if(error.response.status == 401) {
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                }else{
+                    this.$emit('onErrorHandler', error.message)
+                }
+            });
+        },
+        getCustomerCourseLookup () {
+            const token = this.$store.getters.getToken;
+            axios
+            .get(this.baseURL+'/getCustomerCourseLookup', { 
+                headers:{
+                    Authorization: `Bearer ${token}`,
+                }
+            })
+            .then(response => {
+                //console.dir(response);
+                if (response.data.success) {
+                    this.customerCourseLookup = response.data.results
                 }
             })
             .catch(error => {
