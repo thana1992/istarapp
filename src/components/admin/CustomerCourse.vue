@@ -366,7 +366,7 @@
             .then(response => {
                 console.dir(response);
                 if (response.data.success) {
-                    this.$emit('onInfoHandler', 'สำเร็จ แก้ไขข้อมูลคอร์สแล้ว');
+                    this.$emit('onInfoHandler', response.data.message || 'สำเร็จ แก้ไขข้อมูลคอร์สแล้ว');
                 } else {
                     this.$emit('onErrorHandler', response.data.message || 'เสียใจ แก้ไขไม่ได้ ลองใหม่อีกครั้งนะ');
                 }
@@ -389,7 +389,7 @@
             .then(response => {
                 console.dir(response);
                 if (response.data.success) {
-                    this.$emit('onInfoHandler', 'สำเร็จ สร้างคอร์สใหม่แล้ว');
+                    this.$emit('onInfoHandler', response.data.message || 'สำเร็จ สร้างคอร์สใหม่แล้ว');
                 } else {
                     this.$emit('onErrorHandler', response.data.message || 'เสียใจ สร้างคอร์สไม่ได้ ลองใหม่อีกครั้งนะ');
                 }
