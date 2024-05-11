@@ -8,6 +8,7 @@
       :headers="headers"
       :items="classlist"
       :sort-by="[{ key: 'coursename', order: 'asc' }]"
+      :loading="loadingClasses"
     >
       <template v-slot:top>
         <v-toolbar
@@ -163,6 +164,7 @@
       data: () => ({
         dialog: false,
         dialogDelete: false,
+        loadingClasses: false,
         headers: [
           {
             title: 'Course Name',
@@ -214,6 +216,7 @@
   
       methods: {
         initialize () {
+        this.loadingClasses = true
         const token = this.$store.getters.getToken;
         axios
         .get(this.baseURL+'/getAllClasses',
@@ -225,9 +228,11 @@
             if (response.data.success) {
                 this.classlist = response.data.results
             }
+            this.loadingClasses = false
         })
         .catch(error => {
-            console.error(error);
+          this.loadingClasses = false
+          console.error(error);
         });
       },
         

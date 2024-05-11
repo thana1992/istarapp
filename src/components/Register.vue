@@ -38,8 +38,6 @@
                 variant="solo-filled"
                 v-model="middlename"
                 label="Middlename"
-                :rules="nameRules"
-                required
                 ></v-text-field>
 
                 <v-text-field
@@ -62,8 +60,6 @@
                 v-model="email"
                 label="E-mail"
                 type="text"
-                :rules="emailRules"
-                required
                 ></v-text-field>
 
                 <v-text-field
