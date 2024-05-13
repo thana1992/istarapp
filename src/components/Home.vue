@@ -173,7 +173,7 @@ export default {
         const token = this.$store.getters.getToken;
         const user = JSON.parse(localStorage.getItem('userdata'))
         await axios
-        .post(this.baseURL+'/getStudentList', {
+        .post(this.baseURL+'/getFamilyMember', {
             familyid: user.familyid,
         },
         { 
