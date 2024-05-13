@@ -312,7 +312,7 @@
           const token = this.$store.getters.getToken;
           axios
             .post(this.baseURL+'/deleteCustomerCourse', {
-              courseid: this.editedItem.courseid
+              courserefer: this.editedItem.courserefer
             },
             { 
                 headers:{ Authorization: `Bearer ${token}`, } 
@@ -353,7 +353,7 @@
           if (this.editedIndex > -1) {
             let saveObj = {
                 courserefer: this.editedItem.courserefer,
-                courseid: this.editedItem.courseid,
+                course: this.editedItem.course,
                 coursetype: this.editedItem.coursetype,
                 remaining: this.editedItem.remaining,
                 startdate: this.SQLDate(this.editedItem.startdate),
@@ -376,7 +376,7 @@
           } else {
             let saveObj = {
               courserefer: this.editedItem.courserefer,
-              courseid: this.editedItem.courseid,
+              course: this.editedItem.course,
               coursetype: this.editedItem.coursetype,
               remaining: this.editedItem.remaining,
               startdate: this.SQLDate(this.editedItem.startdate),
