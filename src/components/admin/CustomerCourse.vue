@@ -60,14 +60,14 @@
                       md="5"
                     >
                       <v-select
-                          v-model="editedItem.courseid"
+                          v-model="editedItem.course"
                           label="Course Name"
                           item-title="coursename"
-                          item-value="courseid"
                           :items="courseLookup"
                           variant="solo-filled"
                           no-data-text="No course"
                           :rules="notNullRules"
+                          return-object
                           required
                       ></v-select>
                     </v-col>
@@ -217,16 +217,18 @@
         editedIndex: -1,
         editedItem: {
           courserefer: null,
-          courseid: null,
+          course: null,
           coursetype: null,
+          course_shortname: null,
           remaining: null,
           startdate: null,
           expiredate: null,
         },
         defaultItem: {
           courserefer: null,
-          courseid: null,
+          course: null,
           coursetype: null,
+          course_shortname: null,
           remaining: null,
           startdate: null,
           expiredate: null,
@@ -352,8 +354,9 @@
           if (this.editedIndex > -1) {
             let saveObj = {
                 courserefer: this.editedItem.courserefer,
-                courseid: this.editedItem.courseid,
+                course: this.editedItem.course,
                 coursetype: this.editedItem.coursetype,
+                course_shortname: this.editItem.course_shortname,
                 remaining: this.editedItem.remaining,
                 startdate: this.SQLDate(this.editedItem.startdate),
                 expiredate: this.SQLDate(this.editedItem.expiredate),
@@ -375,8 +378,9 @@
           } else {
             let saveObj = {
               courserefer: this.editedItem.courserefer,
-              courseid: this.editedItem.courseid,
+              course: this.editedItem.course,
               coursetype: this.editedItem.coursetype,
+              course_shortname: this.editItem.course_shortname,
               remaining: this.editedItem.remaining,
               startdate: this.SQLDate(this.editedItem.startdate),
               expiredate: this.SQLDate(this.editedItem.expiredate),
@@ -420,6 +424,11 @@
                     this.$emit('onErrorHandler', error.message)
                 }
             });
+        },
+        selectCourse () {
+          console.log('selectCourse')
+          let course = this.courseLookup.find(course => course.courseid == this.editedItem.courseid)
+          this.editedItem.course_shortname = course.course_shortname
         },
         async getCustomerCourseList() {
           this.loadingCustomerCourse = true

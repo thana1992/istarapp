@@ -98,6 +98,7 @@
                                                 variant="solo-filled"
                                                 no-data-text="No course data"
                                                 :rules="notNullRules"
+                                                editable
                                                 required
                                             ></v-select>
                                         </v-col>

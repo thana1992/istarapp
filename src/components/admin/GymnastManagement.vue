@@ -95,7 +95,7 @@
                                                 </v-col>
 
                                                 <v-col cols="12" sm="6" md="6">
-                                                    <v-select
+                                                    <v-autocomplete
                                                         v-model="editedStudentItem.courserefer"
                                                         label="Course Refer"
                                                         item-title="courserefer"
@@ -104,8 +104,9 @@
                                                         variant="solo-filled"
                                                         no-data-text="No course"
                                                         :rules="notNullRules"
+                                                        editable
                                                         required
-                                                    ></v-select>
+                                                    ></v-autocomplete>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="3">
                                                     <v-select

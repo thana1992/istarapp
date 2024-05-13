@@ -12,27 +12,28 @@
                     <v-divider class="border-opacity-100" color="info" length="35vw" thickness="3"></v-divider>
                     <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
                     <v-table class="family-list">
-                    <tbody>
-                    <tr
-                        v-for="people in family"
-                        :key="people.studentid"
-                        style="cursor: pointer;"
-                        class="tr-rows"
-                    >
-                        <td style="width: 20vw;">
-                            <v-img
-                                v-if="people.photo"
-                                :src="people.photo"
-                                cover
-                                class="pa-4 bg-secondary rounded-circle d-inline-block"
-                                style="display: flex !important;"
-                            ></v-img>
-                        </td>
-                        <td style="width: 70vw;">{{ people.fullname }}</td>
-                        <td style="width: 10vw;"><span class="mdi mdi-delete-forever" style="font-size: 7vw;" @click="deleteStudent(people)"></span></td>
-                    </tr>
-                    </tbody>
-                </v-table>
+                        <tbody>
+                        <tr
+                            v-for="people in family"
+                            :key="people.studentid"
+                            style="cursor: pointer;"
+                            :class="{ 'highlight-row': people.journal === '1' }"
+                            class="tr-rows"
+                        >
+                            <td style="width: 20vw;">
+                                <v-img
+                                    v-if="people.photo"
+                                    :src="people.photo"
+                                    cover
+                                    class="pa-4 bg-secondary rounded-circle d-inline-block"
+                                    style="display: flex !important;"
+                                ></v-img>
+                            </td>
+                            <td style="width: 70vw;">{{ people.fullname }}</td>
+                            <td style="width: 10vw;"><span class="mdi mdi-delete-forever" style="font-size: 7vw;" @click="deleteStudent(people)"></span></td>
+                        </tr>
+                        </tbody>
+                    </v-table>
                 </div>
             </div>
         </div>
@@ -98,16 +99,16 @@ export default {
             if(state == 'add') {
                 this.isAddFamily = true
             } else if(state == 'list') {
-                this.getStudent()
+                this.getFamilyList()
                 this.isAddFamily = false
             }
         },
-        async getStudent() {
+        async getFamilyList() {
             this.loading = true
             const token = this.$store.getters.getToken;
             const user = JSON.parse(localStorage.getItem('userdata'))
             await axios
-            .post(this.baseURL+'/getStudent', {
+            .post(this.baseURL+'/getFamilyList', {
                 familyid: user.familyid,
             },
             { 
@@ -131,6 +132,7 @@ export default {
             axios.post(this.baseURL+'/deleteStudent', {
                 familyid: people.familyid,
                 studentid: people.studentid,
+                journal: people.journal
             },
             { 
                 headers:{ Authorization: `Bearer ${token}`, } 
@@ -142,7 +144,7 @@ export default {
                 } else {
                     this.$emit('onErrorHandler', response.data.message || 'Get Family Member failed');
                 }
-                this.getStudent()
+                this.getFamilyList()
             })
         },
         onError(message) {
@@ -153,7 +155,7 @@ export default {
         }
     },
     created() {
-        this.getStudent()
+        this.getFamilyList()
     },
     computed: {
         ...mapGetters({
@@ -175,5 +177,8 @@ export default {
     margin-bottom: 2vh;
     height: 25px;
     font-size: larger;
+}
+.highlight-row {
+    color: #80808059;
 }
 </style>

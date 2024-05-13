@@ -168,12 +168,12 @@ export default {
         this.$emit('onClickChangeState', 'reservation')
         this.$emit('initBack', 'home')
       },
-      async getStudent() {
+      async getFamilyMember() {
         this.loading = true
         const token = this.$store.getters.getToken;
         const user = JSON.parse(localStorage.getItem('userdata'))
         await axios
-        .post(this.baseURL+'/getStudent', {
+        .post(this.baseURL+'/getFamilyMember', {
             familyid: user.familyid,
         },
         { 
@@ -292,7 +292,7 @@ export default {
             })
             .then(response => {
                 //console.dir(response);
-                this.getStudent()
+                this.getFamilyMember()
                 if(this.student != null) {
                     this.selectChild(this.student)
                 }
