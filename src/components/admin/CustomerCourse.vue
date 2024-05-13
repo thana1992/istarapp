@@ -60,14 +60,15 @@
                       md="5"
                     >
                       <v-select
-                          v-model="editedItem.courseid"
+                          v-model="editedItem.course"
                           label="Course Name"
                           item-title="coursename"
-                          item-value="courseid"
+                          item-value="course"
                           :items="courseLookup"
                           variant="solo-filled"
                           no-data-text="No course"
                           :rules="notNullRules"
+                          return-object
                           required
                       ></v-select>
                     </v-col>
@@ -217,7 +218,7 @@
         editedIndex: -1,
         editedItem: {
           courserefer: null,
-          courseid: null,
+          course: null,
           coursetype: null,
           remaining: null,
           startdate: null,
@@ -225,7 +226,7 @@
         },
         defaultItem: {
           courserefer: null,
-          courseid: null,
+          course: null,
           coursetype: null,
           remaining: null,
           startdate: null,
