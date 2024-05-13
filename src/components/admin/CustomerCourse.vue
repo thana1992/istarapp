@@ -61,8 +61,10 @@
                     >
                       <v-select
                           v-model="editedItem.course"
+                          v-model="editedItem.course"
                           label="Course Name"
                           item-title="coursename"
+                          item-value="course"
                           :items="courseLookup"
                           variant="solo-filled"
                           no-data-text="No course"
@@ -227,6 +229,7 @@
         defaultItem: {
           courserefer: null,
           course: null,
+          course: null,
           coursetype: null,
           course_shortname: null,
           remaining: null,
@@ -313,7 +316,7 @@
           const token = this.$store.getters.getToken;
           axios
             .post(this.baseURL+'/deleteCustomerCourse', {
-              courseid: this.editedItem.courseid
+              courserefer: this.editedItem.courserefer
             },
             { 
                 headers:{ Authorization: `Bearer ${token}`, } 
@@ -378,6 +381,7 @@
           } else {
             let saveObj = {
               courserefer: this.editedItem.courserefer,
+              course: this.editedItem.course,
               course: this.editedItem.course,
               coursetype: this.editedItem.coursetype,
               course_shortname: this.editItem.course_shortname,
