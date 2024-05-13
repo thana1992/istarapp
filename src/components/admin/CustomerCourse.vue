@@ -61,7 +61,6 @@
                     >
                       <v-select
                           v-model="editedItem.course"
-                          v-model="editedItem.course"
                           label="Course Name"
                           item-title="coursename"
                           item-value="course"
