@@ -156,8 +156,21 @@
                 <v-card-text>ต้องการลบคอร์สเรียนนี้จริงๆหรอ ?</v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">ใช่! ลบเลย</v-btn>
+                <v-btn color="#4CAF50" variant="tonal" @click="checkBeforeDelete">ใช่! ลบเลย</v-btn>
                 <v-btn color="#F44336" variant="tonal" @click="closeDelete">ไม่ลบละ เปลี่ยนใจ</v-btn>
+                
+                <v-spacer></v-spacer>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+          <v-dialog v-model="dialogDeleteNotify" persistent width="auto">
+            <v-card>
+                <v-card-title></v-card-title>
+                <v-card-text>{{ deleteNotifyMsg }}</v-card-text>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">ใช่! ลบเลย</v-btn>
+                <v-btn color="#F44336" variant="tonal" @click="closeDeleteNotify">ไม่ลบละ เปลี่ยนใจ</v-btn>
                 
                 <v-spacer></v-spacer>
               </v-card-actions>
@@ -181,6 +194,8 @@
         </v-icon>
       </template>
       <template v-slot:no-data>
+        No Customer's course list
+        <br><br>
         <v-btn
           color="primary"
           @click="initialize"
@@ -206,6 +221,8 @@
         dialog: false,
         dialogDelete: false,
         loadingCustomerCourse: false,
+        deleteNotifyMsg: '',
+        dialogDeleteNotify: false,
         headers: [
           { title: 'Course No.', align: 'start', key: 'courserefer' },
           { title: 'Course Name', key: 'coursename' },
@@ -254,6 +271,9 @@
         dialogDelete (val) {
           val || this.closeDelete()
         },
+        dialogDeleteNotify (val) {
+          val || this.closeDeleteNotify()
+        }
       },
   
       async created () {
@@ -310,10 +330,39 @@
           this.editedItem = Object.assign({}, item)
           this.dialogDelete = true
         },
-  
-        deleteItemConfirm () {
+        async checkBeforeDelete() {
           const token = this.$store.getters.getToken;
-          axios
+          await axios
+            .post(this.baseURL+'/checkBeforeDeleteCustomerCourse', {
+              courserefer: this.editedItem.courserefer
+            },
+            { 
+                headers:{ Authorization: `Bearer ${token}`, } 
+            })
+            .then(response => {
+                console.dir(response);
+                if (response.data.success) {
+                  this.deleteItemConfirm()
+                } else {
+                  let nicknameList = []
+                  response.data.results.forEach(result => {
+                      nicknameList.push(result.nickname);
+                  });
+                  console.dir(nicknameList)
+                  this.deleteNotifyMsg = 'คอร์สเรียนนี้ กำลังถูกใช้โดย ' + nicknameList.join(', ') + ' ไต้องการลบจริงๆหรอ ?'
+                  this.dialogDeleteNotify = true
+                  this.dialogDelete = false
+                  
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                return false
+            });
+        },
+        async deleteItemConfirm () {
+          const token = this.$store.getters.getToken;
+          await axios
             .post(this.baseURL+'/deleteCustomerCourse', {
               courserefer: this.editedItem.courserefer
             },
@@ -323,16 +372,19 @@
             .then(response => {
                 console.dir(response);
                 if (response.data.success) {
-                    this.$emit('onInfoHandler', 'สำเร็จ ระเบิดคอร์สนี้สมดั่งใจคุณแล้ว');
+                  this.dialogDelete = false
+                  this.dialogDeleteNotify = false
+                  this.$emit('onInfoHandler', 'สำเร็จ ลบคอร์สเรียนแล้ว');
                 } else {
-                    this.$emit('onErrorHandler', response.data.message || 'เสียใจ ลบไม่ได้ ลองใหม่อีกครั้งนะ');
+                  this.dialogDelete = false
+                  this.dialogDeleteNotify = false
+                  this.$emit('onErrorHandler', response.data.message || 'เสียใจ ลบไม่ได้ ลองใหม่อีกครั้งนะ');
                 }
                 this.initialize()
             })
             .catch(error => {
                 console.error(error);
             });
-          this.closeDelete()
         },
   
         close () {
@@ -345,6 +397,16 @@
   
         closeDelete () {
           this.dialogDelete = false
+          if(!this.dialogDeleteNotify) {
+            this.$nextTick(() => {
+              this.editedItem = Object.assign({}, this.defaultItem)
+              this.editedIndex = -1
+            })
+          }
+        },
+
+        closeDeleteNotify () {
+          this.dialogDeleteNotify = false
           this.$nextTick(() => {
             this.editedItem = Object.assign({}, this.defaultItem)
             this.editedIndex = -1
@@ -445,7 +507,9 @@
           .then(response => {
               console.dir(response);
               if (response.data.success) {
+                if(response.data.results && response.data.results.length > 0) {
                   this.courselist = this.convertDate(response.data.results)
+                }
               }
               this.loadingCustomerCourse = false
           })

@@ -105,7 +105,6 @@
                                                         no-data-text="No course"
                                                         :rules="notNullRules"
                                                         editable
-                                                        required
                                                     ></v-autocomplete>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="3">

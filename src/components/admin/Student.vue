@@ -89,7 +89,7 @@
                                         </v-col>
 
                                         <v-col cols="12" sm="6" md="6">
-                                            <v-select
+                                            <v-autocomplete
                                                 v-model="editedStudentItem.courserefer"
                                                 label="Course No."
                                                 item-title="courserefer"
@@ -99,8 +99,7 @@
                                                 no-data-text="No course data"
                                                 :rules="notNullRules"
                                                 editable
-                                                required
-                                            ></v-select>
+                                            ></v-autocomplete>
                                         </v-col>
                                         <v-col cols="12" sm="6" md="3">
                                             <v-select
@@ -113,6 +112,7 @@
                                                 :rules="notNullRules"
                                                 required
                                             ></v-select>
+                                            <input type="file" @change="handleFileUpload">
                                         </v-col>
                                     </v-row>
                                 </v-form>
@@ -217,6 +217,7 @@ export default {
                 age: null,
                 courserefer: null,
                 username: null,
+                profilepic: null,
             },
             defaultStudentItem: {
                 studentid: null,
@@ -229,6 +230,7 @@ export default {
                 age: null,
                 courserefer: null,
                 username: null,
+                profilepic: null,
             },
             editedStudentIndex: -1,
             dialogStudent: false,
@@ -324,6 +326,7 @@ export default {
                     .post(this.baseURL+'/updateStudentByAdmin', StudentObj, { headers:{ Authorization: `Bearer ${token}`, } })
                     .then(response => {
                         if (response.data.success) {
+                            this.uploadProfilePicture()
                             this.$emit('onInfoHandler', 'แก้ไขข้อมูลสำเร็จแล้ว');
                             this.getStudentList()
                             this.dialogStudent = false
@@ -344,6 +347,7 @@ export default {
                     .post(this.baseURL+'/addStudentByAdmin', StudentObj, { headers:{ Authorization: `Bearer ${token}`, } })
                     .then(response => {
                         if (response.data.success) {
+                            this.uploadProfilePicture()
                             this.$emit('onInfoHandler', 'เพิ่มสมาชิกสำเร็จแล้ว');
                             this.getStudentList()
                             this.dialogStudent = false
@@ -447,6 +451,30 @@ export default {
                     this.$emit('onErrorHandler', error.message)
                 }
             });
+        },
+        async uploadProfilePicture() {
+            const formData = new FormData();
+            const token = this.$store.getters.getToken;
+            formData.append('profilePicture', this.editedStudentItem.profilepic);
+            formData.append('studentid', this.editedStudentItem.studentid);
+            try {
+                const response = await fetch(this.baseURL+'/profileUpload', {
+                    headers:{ Authorization: `Bearer ${token}`, },
+                    method: 'POST',
+                    body: formData
+                });
+                
+                if (response.ok) {
+                    this.$emit('onInfoHandler', 'Profile picture uploaded successfully');
+                } else {
+                    this.$emit('onErrorHandler', 'Profile picture upload failed');
+                }
+            } catch (error) {
+                console.error('Error uploading profile picture:', error);
+            }
+        },
+        handleFileUpload(event) {
+            this.editedStudentItem.profilepic = event.target.files[0];
         },
         closeStudent () {
           this.dialogStudent = false
