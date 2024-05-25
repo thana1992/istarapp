@@ -532,6 +532,8 @@ export default {
         convertDate (arrObj) {
             arrObj.forEach(obj => {
             obj.dateofbirthshow = this.format_date(obj.dateofbirth);
+            obj.startdate = this.format_date(obj.startdate);
+            obj.expiredate = this.format_date(obj.expiredate);
             });
             return arrObj;
         },
