@@ -63,7 +63,7 @@
                           v-model="editedItem.course"
                           label="Course Name"
                           item-title="coursename"
-                          item-value="course"
+                          item-value="courseid"
                           :items="courseLookup"
                           variant="solo-filled"
                           no-data-text="No course"
@@ -234,6 +234,7 @@
         editedIndex: -1,
         editedItem: {
           courserefer: null,
+          courseid: null,
           coursename: null,
           coursetype: null,
           course_shortname: null,
@@ -243,6 +244,7 @@
         },
         defaultItem: {
           courserefer: null,
+          courseid: null,
           coursename: null,
           coursetype: null,
           course_shortname: null,
