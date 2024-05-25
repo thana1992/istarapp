@@ -234,7 +234,7 @@
         editedIndex: -1,
         editedItem: {
           courserefer: null,
-          course: null,
+          coursename: null,
           coursetype: null,
           course_shortname: null,
           remaining: null,
@@ -243,8 +243,7 @@
         },
         defaultItem: {
           courserefer: null,
-          course: null,
-          course: null,
+          coursename: null,
           coursetype: null,
           course_shortname: null,
           remaining: null,
