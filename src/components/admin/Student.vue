@@ -112,7 +112,33 @@
                                                 :rules="notNullRules"
                                                 required
                                             ></v-select>
-                                            <input type="file" @change="handleFileUpload">
+                                        </v-col>
+                                        <v-col cols="12" sm="6" md="6">
+                                            <v-file-input
+                                                v-model="editedStudentItem.profilepic"
+                                                label="รูปโปรไฟล์"
+                                                accept="image/*"
+                                                show-size
+                                                outlined
+                                                prepend-icon="mdi-camera"
+
+                                                @change="onFileChange"
+                                            ></v-file-input>
+                                        </v-col>
+                                        <v-col cols="12" sm="12" md="12">
+                                            <v-img
+                                                v-if="editedStudentItem.profilepic"
+                                                :src="imagePreview"
+                                                class="info-photo rounded-circle"
+                                            ></v-img>
+                                        </v-col>
+                                        <v-col cols="12" sm="12" md="12">
+                                            <v-btn
+                                                color="blue-darken-1"
+                                                @click="uploadImageProfile"
+                                            >
+                                                Upload Image
+                                            </v-btn>
                                         </v-col>
                                     </v-row>
                                 </v-form>
@@ -328,7 +354,7 @@ export default {
                     .post(this.baseURL+'/updateStudentByAdmin', StudentObj, { headers:{ Authorization: `Bearer ${token}`, } })
                     .then(response => {
                         if (response.data.success) {
-                            this.uploadProfilePicture()
+                            //this.uploadProfilePicture()
                             this.$emit('onInfoHandler', 'แก้ไขข้อมูลสำเร็จแล้ว');
                             this.getStudentList()
                             this.dialogStudent = false
@@ -349,7 +375,7 @@ export default {
                     .post(this.baseURL+'/addStudentByAdmin', StudentObj, { headers:{ Authorization: `Bearer ${token}`, } })
                     .then(response => {
                         if (response.data.success) {
-                            this.uploadProfilePicture()
+                            //this.uploadProfilePicture()
                             this.$emit('onInfoHandler', 'เพิ่มสมาชิกสำเร็จแล้ว');
                             this.getStudentList()
                             this.dialogStudent = false
@@ -475,8 +501,39 @@ export default {
                 console.error('Error uploading profile picture:', error);
             }
         },
-        handleFileUpload(event) {
-            this.editedStudentItem.profilepic = event.target.files[0];
+        onFileChange(e) {
+            const file = e.target.files[0];
+            this.editedStudentItem.profilepic = file;
+            this.imagePreview = URL.createObjectURL(file);
+        },
+        async uploadImageProfile() {
+            if (!this.editedStudentItem.profilepic) {
+                alert("Please select a file first");
+                return;
+            }
+            const formData = new FormData();
+            formData.append("profileImage", this.editedStudentItem.profilepic);
+
+            try {
+                const token = this.$store.getters.getToken;
+                StudentObj.studentid = this.editedStudentItem.studentid
+                await axios
+                .post(this.baseURL+'/upload', formData, { 
+                    headers:{ 
+                        "Authorization": `Bearer ${token}`, 
+                        "Content-Type": "multipart/form-data",
+                    },
+                });
+                alert("Image uploaded successfully");
+                // Save the image URL to the gymnast's profile
+                this.saveImageUrl(response.data.imageUrl);
+            } catch (error) {
+                console.error("Error uploading image:", error);
+            }
+        },
+        saveImageUrl(imageUrl) {
+            // Implement saving the image URL to the gymnast's profile
+            console.log("Image URL:", imageUrl);
         },
         closeStudent () {
           this.dialogStudent = false
@@ -590,4 +647,13 @@ const ComponentAPI = {
     }
 }
 </script>
+<style scoped>
+.info-photo {
+    width: 150px;
+    height: 150px;
+  border-radius: 100%;
+  display: flex;
+  justify-content: center;
+}
+</style>
 ```
