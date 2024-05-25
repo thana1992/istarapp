@@ -21,17 +21,17 @@
           </v-list-item>
           <v-list-item v-if="isLoggedIn && !adminflag" prepend-icon="mdi-account-multiple" title="FAMILY" value="familylist" @click="onClickChangeState('familylist')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-view-dashboard-outline" title="DASHBOARD" value="dashboard" @click="onClickChangeState('dashboard')">
+          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-view-dashboard-outline" title="หน้าแรก" value="dashboard" @click="onClickChangeState('dashboard')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-gymnastics" title="GYMNAST MANAGEMENT" value="studentmanager" @click="onClickChangeState('gymnastmanager')">
+          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-book-account" title="คอร์สของลูกค้า" value="customercourse" @click="onClickChangeState('customercourse')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-calendar-edit" title="BOOKING MANAGEMENT" value="bookingmanager" @click="onClickChangeState('bookingmanager')">
+          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-calendar-edit" title="การจองคลาสเรียน" value="bookingmanager" @click="onClickChangeState('bookingmanager')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-book-account" title="CUSTOMER COURSES" value="customercourse" @click="onClickChangeState('customercourse')">
+          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-gymnastics" title="รายชื่อเด็ก" value="studentmanager" @click="onClickChangeState('gymnastmanager')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-star-shooting-outline" title="COURSES" value="course" @click="onClickChangeState('course')">
+          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-star-shooting-outline" title="จัดการคอร์ส" value="course" @click="onClickChangeState('course')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-view-dashboard-variant-outline" title="CLASSES" value="classes" @click="onClickChangeState('classes')">
+          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-view-dashboard-variant-outline" title="จัดการคลาสเรียน" value="classes" @click="onClickChangeState('classes')">
           </v-list-item>
           <v-list-item v-if="isLoggedIn" prepend-icon="mdi-logout" title="Logout" value="logout" @click="onClickLogout()">
           </v-list-item>

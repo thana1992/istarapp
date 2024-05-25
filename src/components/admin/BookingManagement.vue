@@ -52,7 +52,7 @@
                                                             <v-form ref="bookingform">
                                                                 <v-row>
                                                                     <v-col cols="12" sm="12" md="12">
-                                                                        <v-label>{{ this.courseinfo }}</v-label>
+                                                                        <v-label :class="courseinfoColor">{{ editedBookingItem.courseinfo }}</v-label>
                                                                     </v-col>
                                                                     <v-col cols="12" sm="6" md="6">
                                                                         <v-select
@@ -65,6 +65,7 @@
                                                                             no-data-text="No student data"
                                                                             :rules="notNullRules"
                                                                             @update:modelValue="onStudentChange"
+                                                                            :readonly="editedBookingIndex != -1"
                                                                             required
                                                                         >
                                                                         </v-select>
@@ -257,7 +258,6 @@ export default ({
             classtimesData: [],
             loadingCourse: false,
             loadingClassTime: false,
-            courseinfo: '',
             BookingList: [],
             BookingListHeaders: [
             { title: 'Name', key: 'fullname' },
@@ -275,6 +275,7 @@ export default ({
                 classid: null,
                 classdate: null,
                 classtime: null,
+                courseinfo: null,
             },
             defaultBookingItem: {
                 fullname: null,
@@ -284,7 +285,9 @@ export default ({
                 classid: null,
                 classdate: null,
                 classtime: null,
+                courseinfo: null,
             },
+            courseinfoColor: 'courseinfoColorGreen',
             selectedDate: null,
             editedBookingIndex: -1,
             dialogBookingEdit: false,
@@ -353,18 +356,25 @@ export default ({
                 if (response.data.success) {
                     console.log('getCustomerCourseInfo', response.data.results);
                     const res = response.data.results[0];
-                    this.editedBookingItem.courseid = res.courseid
-                    if(res.coursetype == 'Monthly') {
-                        this.courseinfo = 'Course Refer: ' + res.courserefer +' Start: ' + this.format_date(res.startdate) + ' Expired: ' + this.format_date(res.expiredate) + ' Monthly'
+                    if(res) {
+                        this.courseinfoColor = 'courseinfoColorGreen'
+                        this.editedBookingItem.courseid = res.courseid
+                        if(res.coursetype == 'Monthly') {
+                            this.editedBookingItem.courseinfo = 'หมายเลขคอร์ส: ' + res.courserefer +' วันหมดอายุ: ' + this.format_date(res.expiredate) + ' รายเดือน'
+                        } else {
+                            this.editedBookingItem.courseinfo = 'หมายเลขคอร์ส: ' + res.courserefer +' วันหมดอายุ: ' + this.format_date(res.expiredate) + ' เหลือ: ' + res.remaining + ' ครั้ง'
+                        }
                     } else {
-                        this.courseinfo = 'Course Refer: ' + res.courserefer +' Start: ' + this.format_date(res.startdate) + ' Expired: ' + this.format_date(res.expiredate) + ' Remaining: ' + res.remaining
+                        this.courseinfoColor = 'courseinfoColorRed'
+                        this.editedBookingItem.courseinfo = 'นักเรียนคนนี้ยังไม่มี Course ที่สมัครเรียน'
                     }
                 } else {
-                    this.$emit('onErrorHandler', response.data.message || 'นักเรียนคนนี้ยังไม่มี Course ที่สมัครเรียน');
+                    this.$emit('onErrorHandler', 'getCustomerCourseInfo failed');
                 }
             })
             .catch(error => {
-                if(error.response.status == 401) {
+                console.log(error)
+                if(error.response && error.response.status == 401) {
                     this.$emit('onErrorHandler', error.response.data.message)
                     this.$emit('onClickChangeState', 'login')
                 }else{
@@ -601,6 +611,7 @@ export default ({
         },
         clickEditBooking (item) {
           console.log('clickEditBooking', item)
+          this.courseinfoColor = 'courseinfoColorGreen'
           this.editedBookingIndex = this.BookingList.indexOf(item)
           this.editedBookingItem = Object.assign({}, item)
           this.selectedDate = new Date(this.editedBookingItem.classdate)
@@ -754,6 +765,12 @@ const DashboardAPI = {
 }
 </script>
 <style scoped>
+.courseinfoColorRed {
+    color: red;
+}
+.courseinfoColorGreen {
+    color: green;
+}
 .font-card {
     font-size: 20px;
     font-weight: bold;
