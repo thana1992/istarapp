@@ -199,7 +199,7 @@ export default {
         StudentList: [],
             StudentListHeaders: [
             { title: 'Name', key: 'fullname' },
-            { title: 'Date of Birth', key: 'dateofbirthshow' },
+            //{ title: 'Date of Birth', key: 'dateofbirthshow' },
             { title: 'Gender', key: 'gender' },
             { title: 'Course No.', key: 'courserefer' },
             { title: 'Mobile Number', key: 'mobileno', align: 'center' },

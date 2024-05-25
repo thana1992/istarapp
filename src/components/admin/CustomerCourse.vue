@@ -111,7 +111,6 @@
                           variant="solo-filled"
                           v-model="editedItem.startdate"
                           @click="onChangeStartDate"
-                          :mindate="new Date()"
                           rules="notNullRules"
                           
                       ></DatePicker>
