@@ -40,17 +40,7 @@
                       sm="6"
                       md="5"
                     >
-                    <v-text-field
-                        v-model="editedItem.courserefer"
-                        label="Course Refer"
-                        item-title="courserefer"
-                        item-value="courserefer"
-                        :items="customerCourseLookup"
-                        variant="solo-filled"
-                        no-data-text="No course"
-                        :rules="notNullRules"
-                        readonly
-                      ></v-text-field>
+                    <v-label>Course Refer : {{ editedItem.courserefer }}</v-label>
                     </v-col>
                   </v-row>
                   <v-row>
@@ -63,10 +53,11 @@
                           v-model="editedItem.course"
                           label="Course Name"
                           item-title="coursename"
-                          item-value="courseid"
+                          item-value="course"
                           :items="courseLookup"
                           variant="solo-filled"
                           no-data-text="No course"
+                          :readonly="editedIndex > -1"
                           :rules="notNullRules"
                           return-object
                           required
@@ -226,15 +217,15 @@
           { title: 'Course No.', align: 'start', key: 'courserefer' },
           { title: 'Course Name', key: 'coursename' },
           { title: 'Course Type', key: 'coursetype' },
-          { title: 'Remaining', key: 'remaining' },
-          { title: 'Start Date', key: 'startdateshow' },
-          { title: 'Expire Date', key: 'expiredateshow' },
+          { title: 'Start Date', key: 'startdateshow', align: 'center' },
+          { title: 'Expire Date', key: 'expiredateshow', align: 'center'},
+          { title: 'Remaining', key: 'remaining', align: 'end' },
           { title: 'Actions', key: 'actions', sortable: false },
         ],
         editedIndex: -1,
         editedItem: {
           courserefer: null,
-          courseid: null,
+          course: null,
           coursename: null,
           coursetype: null,
           course_shortname: null,
@@ -244,7 +235,7 @@
         },
         defaultItem: {
           courserefer: null,
-          courseid: null,
+          course: null,
           coursename: null,
           coursetype: null,
           course_shortname: null,
@@ -322,7 +313,10 @@
           this.editedItem = Object.assign({}, item)
           this.editedItem.startdate = new Date(item.startdate)
           this.editedItem.expiredate = new Date(item.expiredate)
+          let course = this.courseLookup.find(course => course.courseid == this.editedItem.courseid)
+          this.editedItem.course = course
           this.dialog = true
+          console.log('editItem', this.editedItem)
         },
   
         deleteItem (item) {
@@ -419,6 +413,7 @@
             let saveObj = {
                 courserefer: this.editedItem.courserefer,
                 course: this.editedItem.course,
+                courseid: this.editedItem.courseid,
                 coursetype: this.editedItem.coursetype,
                 course_shortname: this.editItem.course_shortname,
                 remaining: this.editedItem.remaining,
@@ -443,7 +438,7 @@
             let saveObj = {
               courserefer: this.editedItem.courserefer,
               course: this.editedItem.course,
-              course: this.editedItem.course,
+              courseid: this.editedItem.courseid,
               coursetype: this.editedItem.coursetype,
               course_shortname: this.editItem.course_shortname,
               remaining: this.editedItem.remaining,

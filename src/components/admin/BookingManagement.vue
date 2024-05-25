@@ -51,6 +51,9 @@
                                                         <v-container>
                                                             <v-form ref="bookingform">
                                                                 <v-row>
+                                                                    <v-col cols="12" sm="12" md="12">
+                                                                        <v-label>{{ this.courseinfo }}</v-label>
+                                                                    </v-col>
                                                                     <v-col cols="12" sm="6" md="6">
                                                                         <v-select
                                                                             v-model="editedBookingItem.studentid"
@@ -61,6 +64,7 @@
                                                                             variant="solo-filled"
                                                                             no-data-text="No student data"
                                                                             :rules="notNullRules"
+                                                                            @update:modelValue="onStudentChange"
                                                                             required
                                                                         >
                                                                         </v-select>
@@ -75,6 +79,7 @@
                                                                             variant="solo-filled"
                                                                             no-data-text="No course data"
                                                                             :rules="notNullRules"
+                                                                            :loading="loadingCourse"
                                                                             @update:modelValue="getClassTime"
                                                                             required
                                                                         ></v-select>
@@ -250,7 +255,9 @@ export default ({
             classday: '',
             pulse: '',
             classtimesData: [],
+            loadingCourse: false,
             loadingClassTime: false,
+            courseinfo: '',
             BookingList: [],
             BookingListHeaders: [
             { title: 'Name', key: 'fullname' },
@@ -331,6 +338,40 @@ export default ({
         selectDate() {
             this.state = 'bookinglist'
             this.getReservationList()
+        },
+        async onStudentChange(studentid) {
+            console.log('Student selected:', studentid);
+            this.loadingCourse = true
+            const token = this.$store.getters.getToken;
+            await axios.post(this.baseURL+'/getCustomerCourseInfo', {
+                studentid: this.editedBookingItem.studentid,
+            },
+            { headers:{ Authorization: `Bearer ${token}`, } 
+            })
+            .then(response => {
+                //console.dir(response);
+                if (response.data.success) {
+                    console.log('getCustomerCourseInfo', response.data.results);
+                    const res = response.data.results[0];
+                    this.editedBookingItem.courseid = res.courseid
+                    if(res.coursetype == 'Monthly') {
+                        this.courseinfo = 'Course Refer: ' + res.courserefer +' Start: ' + this.format_date(res.startdate) + ' Expired: ' + this.format_date(res.expiredate) + ' Monthly'
+                    } else {
+                        this.courseinfo = 'Course Refer: ' + res.courserefer +' Start: ' + this.format_date(res.startdate) + ' Expired: ' + this.format_date(res.expiredate) + ' Remaining: ' + res.remaining
+                    }
+                } else {
+                    this.$emit('onErrorHandler', response.data.message || 'นักเรียนคนนี้ยังไม่มี Course ที่สมัครเรียน');
+                }
+            })
+            .catch(error => {
+                if(error.response.status == 401) {
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                }else{
+                    this.$emit('onErrorHandler', error.message)
+                }
+            });
+            this.loadingCourse = false
         },
         async getClassTime() {
             if(this.editedBookingItem.courseid == null) return;
@@ -505,7 +546,7 @@ export default ({
         },
         async clickConfirmCheckinBooking() {
             const token = this.$store.getters.getToken;
-            axios.post(this.baseURL+'/checkinByAdmin', {
+            await axios.post(this.baseURL+'/checkinByAdmin', {
                 reservationid: this.editedBookingItem.reservationid,
                 studentid: this.editedBookingItem.studentid,
             },
@@ -660,6 +701,7 @@ export default ({
         dialogBookingDelete (val) {
             val || this.clickCancelDeleteBooking()
         },
+
     },
     computed: {
         ...mapGetters({
