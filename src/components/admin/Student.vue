@@ -121,24 +121,21 @@
                                                 show-size
                                                 outlined
                                                 prepend-icon="mdi-camera"
-
+                                                :loading="uploadLoading"
                                                 @change="onFileChange"
+                                                @click:clear="onFileClear"
                                             ></v-file-input>
                                         </v-col>
-                                        <v-col cols="12" sm="12" md="12">
+                                    </v-row>
+                                    <v-row>
+                                        <v-col cols="12" sm="12" md="12" class="center">
                                             <v-img
-                                                v-if="editedStudentItem.profilepic"
+                                                v-if="editedStudentItem.profile_image"
                                                 :src="imagePreview"
                                                 class="info-photo rounded-circle"
+                                                width="150"
+                                                height="150"
                                             ></v-img>
-                                        </v-col>
-                                        <v-col cols="12" sm="12" md="12">
-                                            <v-btn
-                                                color="blue-darken-1"
-                                                @click="uploadImageProfile"
-                                            >
-                                                Upload Image
-                                            </v-btn>
                                         </v-col>
                                     </v-row>
                                 </v-form>
@@ -222,48 +219,53 @@ export default {
   data () {
     return {
         progressLoading: false,
+        uploadLoading: false,
         StudentList: [],
-            StudentListHeaders: [
-            { title: 'Name', key: 'fullname' },
-            //{ title: 'Date of Birth', key: 'dateofbirthshow' },
-            { title: 'Gender', key: 'gender' },
-            { title: 'Course Start', key: 'startdate', align: 'center'},
-            { title: 'Course Expire', key: 'expiredate', align: 'center' },
-            { title: 'Remaining' , key: 'remaining', align: 'end'},
-            { title: 'Mobile Number', key: 'mobileno', sortable: false },
-            { title: 'Edit', key: 'edit', align: 'center', sortable: false },
-            { title: 'Delete', key: 'delete', align: 'center', sortable: false },
-            ],
-            editedStudentItem: {
-                studentid: null,
-                familyid: null,
-                firstname: null,
-                lastname: null,
-                nickname: null,
-                gender: null,
-                dateofbirth: null,
-                age: null,
-                courserefer: null,
-                username: null,
-                profilepic: null,
-            },
-            defaultStudentItem: {
-                studentid: null,
-                familyid: null,
-                firstname: null,
-                lastname: null,
-                nickname: null,
-                gender: null,
-                dateofbirth: null,
-                age: null,
-                courserefer: null,
-                username: null,
-                profilepic: null,
-            },
-            editedStudentIndex: -1,
-            dialogStudent: false,
-            dialogStudentDelete: false,
-            loadingStudent: false,
+        imagePreview: null,
+        
+        StudentListHeaders: [
+        { title: 'Name', key: 'fullname' },
+        //{ title: 'Date of Birth', key: 'dateofbirthshow' },
+        { title: 'Gender', key: 'gender' },
+        { title: 'Course Start', key: 'startdate', align: 'center'},
+        { title: 'Course Expire', key: 'expiredate', align: 'center' },
+        { title: 'Remaining' , key: 'remaining', align: 'end'},
+        { title: 'Mobile Number', key: 'mobileno', sortable: false },
+        { title: 'Edit', key: 'edit', align: 'center', sortable: false },
+        { title: 'Delete', key: 'delete', align: 'center', sortable: false },
+        ],
+        editedStudentItem: {
+            studentid: null,
+            familyid: null,
+            firstname: null,
+            lastname: null,
+            nickname: null,
+            gender: null,
+            dateofbirth: null,
+            age: null,
+            courserefer: null,
+            username: null,
+            profile_image: null,
+            base64Image: null,
+        },
+        defaultStudentItem: {
+            studentid: null,
+            familyid: null,
+            firstname: null,
+            lastname: null,
+            nickname: null,
+            gender: null,
+            dateofbirth: null,
+            age: null,
+            courserefer: null,
+            username: null,
+            profile_image: null,
+            base64Image: null,
+        },
+        editedStudentIndex: -1,
+        dialogStudent: false,
+        dialogStudentDelete: false,
+        loadingStudent: false,
     }
   },
   async created () {
@@ -337,13 +339,14 @@ export default {
                 const StudentObj = {
                     studentid: this.editedStudentItem.studentid,
                     firstname: this.editedStudentItem.firstname,
-                    middlename: this.editedStudentIndex.middlename,
+                    middlename: this.editedStudentItem.middlename,
                     lastname: this.editedStudentItem.lastname,
                     nickname: this.editedStudentItem.nickname,
                     gender: this.editedStudentItem.gender,
                     dateofbirth: this.SQLDate(this.editedStudentItem.dateofbirth),
                     familyid: this.editedStudentItem.familyid,
                     courserefer: this.editedStudentItem.courserefer,
+                    profile_image: this.editedStudentItem.base64Image,
                     
                 }
                 //console.log(this.editedStudentIndex+ ' StudentObj : ', StudentObj)
@@ -354,7 +357,6 @@ export default {
                     .post(this.baseURL+'/updateStudentByAdmin', StudentObj, { headers:{ Authorization: `Bearer ${token}`, } })
                     .then(response => {
                         if (response.data.success) {
-                            //this.uploadProfilePicture()
                             this.$emit('onInfoHandler', 'แก้ไขข้อมูลสำเร็จแล้ว');
                             this.getStudentList()
                             this.dialogStudent = false
@@ -375,7 +377,6 @@ export default {
                     .post(this.baseURL+'/addStudentByAdmin', StudentObj, { headers:{ Authorization: `Bearer ${token}`, } })
                     .then(response => {
                         if (response.data.success) {
-                            //this.uploadProfilePicture()
                             this.$emit('onInfoHandler', 'เพิ่มสมาชิกสำเร็จแล้ว');
                             this.getStudentList()
                             this.dialogStudent = false
@@ -444,6 +445,7 @@ export default {
           this.editedStudentItem = Object.assign({}, item)
           this.editedStudentItem.dateofbirth = new Date(item.dateofbirth)
           this.editedStudentItem.age = this.calculateAge(item.dateofbirth)
+          this.loadProfileImage()
           this.dialogStudent = true
         },
         clickDeleteStudent (item) {
@@ -480,66 +482,68 @@ export default {
                 }
             });
         },
-        async uploadProfilePicture() {
-            const formData = new FormData();
-            const token = this.$store.getters.getToken;
-            formData.append('profilePicture', this.editedStudentItem.profilepic);
-            formData.append('studentid', this.editedStudentItem.studentid);
-            try {
-                const response = await fetch(this.baseURL+'/profileUpload', {
-                    headers:{ Authorization: `Bearer ${token}`, },
-                    method: 'POST',
-                    body: formData
-                });
-                
-                if (response.ok) {
-                    this.$emit('onInfoHandler', 'Profile picture uploaded successfully');
-                } else {
-                    this.$emit('onErrorHandler', 'Profile picture upload failed');
-                }
-            } catch (error) {
-                console.error('Error uploading profile picture:', error);
-            }
+        onFileClear() {
+            this.editedStudentItem.profile_image = null;
+            this.imagePreview = null;
         },
         onFileChange(e) {
             const file = e.target.files[0];
-            this.editedStudentItem.profilepic = file;
-            this.imagePreview = URL.createObjectURL(file);
-        },
-        async uploadImageProfile() {
-            if (!this.editedStudentItem.profilepic) {
-                alert("Please select a file first");
+            console.log('file : ', file)
+
+            const maxSize = 4 * 1024 * 1024; // ขนาดสูงสุด 4MB
+            if (file.size > maxSize) {
+                this.editedStudentItem.profile_image = null;
+                this.imagePreview = null;
+                this.$emit('onErrorHandler', 'จำกัดขนาดไฟล์ไม่เกิน 4MB');
+                
                 return;
             }
-            const formData = new FormData();
-            formData.append("profileImage", this.editedStudentItem.profilepic);
-
+            if(file) {
+                this.editedStudentItem.profile_image = file;
+                const reader = new FileReader();
+                reader.onload = () => {
+                    this.imagePreview = reader.result;
+                    this.editedStudentItem.base64Image = reader.result.split(',')[1]; // เก็บเฉพาะส่วนข้อมูล Base64
+                };
+                reader.readAsDataURL(file);
+            }
+        },
+        async uploadImageProfile() {
+            if (!this.editedStudentItem.profile_image) {
+                this.$emit('onErrorHandler', 'Please select an image to upload');
+                return;
+            }
+            this.uploadLoading = true;
             try {
-                const token = this.$store.getters.getToken;
-                await axios
-                .post(this.baseURL+'/upload', formData, { 
-                    headers:{ 
-                        "Authorization": `Bearer ${token}`, 
-                        "Content-Type": "multipart/form-data",
-                    },
-                });
-                alert("Image uploaded successfully");
-                // Save the image URL to the gymnast's profile
-                this.saveImageUrl(response.data.imageUrl);
+                await this.saveImage();
             } catch (error) {
                 console.error("Error uploading image:", error);
             }
+            this.uploadLoading = false;
         },
-        async saveImageUrl(imageUrl) {
-            // Implement saving the image URL to the gymnast's profile
-            console.log("Image URL:", imageUrl);
+        async saveImage() {
+            const image = this.editedStudentItem.base64Image;
             try {
                 // Replace 'gymnastId' with the actual ID of the gymnast
-                const gymnastId = this.editedStudentItem.studentid;
-                const response = await axios.put(this.baseURL+`/gymnasts/${gymnastId}/profile-image`, { imageUrl });
-                alert('Profile image URL saved successfully');
+                const response = await axios.put(this.baseURL+`/student/${this.editedStudentItem.studentid}/profile-image`, { image });
+                if(response.data.success) {
+                    this.$emit('onInfoHandler', 'Upload Image Successful');
+                } else {
+                    this.$emit('onErrorHandler', response.data.message || 'Upload Image failed');
+                }
             } catch (error) {
                 console.error('Error saving profile image URL:', error);
+            }
+        },
+        async loadProfileImage() {
+            try {
+                // Replace 'gymnastId' with the actual ID of the gymnast
+                const response = await axios.get(this.baseURL+`/student/${this.editedStudentItem.studentid}/profile-image`);
+                console.log('response : ', response)
+                this.editedStudentItem.profile_image = response.data.image;
+                this.imagePreview = `data:image/*;base64,${response.data.image}`;
+            } catch (error) {
+                console.error('Error loading profile image:', error);
             }
         },
         closeStudent () {
@@ -658,9 +662,14 @@ const ComponentAPI = {
 .info-photo {
     width: 150px;
     height: 150px;
-  border-radius: 100%;
-  display: flex;
-  justify-content: center;
+    border-radius: 100%;
+    display: flex;
+    justify-content: center;
+}
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 </style>
 ```
