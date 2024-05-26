@@ -516,7 +516,6 @@ export default {
 
             try {
                 const token = this.$store.getters.getToken;
-                StudentObj.studentid = this.editedStudentItem.studentid
                 await axios
                 .post(this.baseURL+'/upload', formData, { 
                     headers:{ 
@@ -531,9 +530,17 @@ export default {
                 console.error("Error uploading image:", error);
             }
         },
-        saveImageUrl(imageUrl) {
+        async saveImageUrl(imageUrl) {
             // Implement saving the image URL to the gymnast's profile
             console.log("Image URL:", imageUrl);
+            try {
+                // Replace 'gymnastId' with the actual ID of the gymnast
+                const gymnastId = this.editedStudentItem.studentid;
+                const response = await axios.put(this.baseURL+`/gymnasts/${gymnastId}/profile-image`, { imageUrl });
+                alert('Profile image URL saved successfully');
+            } catch (error) {
+                console.error('Error saving profile image URL:', error);
+            }
         },
         closeStudent () {
           this.dialogStudent = false
