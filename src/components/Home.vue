@@ -20,7 +20,15 @@
             >
                 <td style="width: 20vw;">
                     <v-img
-                        :src="p.photo"
+                        v-if="p.gender === 'หญิง'"
+                        :src="profileGirl"
+                        cover
+                        class="pa-4 bg-secondary rounded-circle d-inline-block"
+                        style="display: flex !important;"
+                    ></v-img>
+                    <v-img
+                        v-else
+                        :src="profileBoy"
                         cover
                         class="pa-4 bg-secondary rounded-circle d-inline-block"
                         style="display: flex !important;"
@@ -41,12 +49,24 @@
                 <Transition v-for="p in familylist">
                     <div v-if="p.studentid == studentid">
                         <div class="info-photo" >
-                            <v-img
-                                :src="p.photo"
+                            <v-img v-if="p.profile_image != null"
+                                :src="p.profile_image"
                                 cover
                                 class="pa-6 bg-secondary rounded-circle d-inline-block"
                                 style="display: flex !important; max-width: 25vw;"
-                            ></v-img>   
+                            ></v-img>
+                            <v-img v-else-if="p.gender === 'หญิง'"
+                                :src="profileGirl"
+                                cover
+                                class="pa-6 bg-secondary rounded-circle d-inline-block"
+                                style="display: flex !important; max-width: 25vw;"
+                            ></v-img>
+                            <v-img v-else
+                                :src="profileBoy"
+                                cover
+                                class="pa-6 bg-secondary rounded-circle d-inline-block"
+                                style="display: flex !important; max-width: 25vw;"
+                            ></v-img>
                         </div>
                         <div class="info-detail">
                             <p>{{ p.fullname }}</p>
@@ -183,6 +203,11 @@ export default {
             console.dir(response);
             if (response.data.success) {
                 this.familylist = response.data.results
+                this.familylist.forEach(obj => {
+                    if(obj.profile_image != null) {
+                        obj.profile_image = `data:image/*;base64,${obj.profile_image}`
+                    }
+                });
                 console.log('familylist ', this.familylist)
             }
         })
@@ -271,6 +296,12 @@ export default {
         ...mapGetters({
             token: 'getToken',
         }),
+        profileGirl() {
+            return require('@/assets/avatar/2.png')
+        },
+        profileBoy() {
+            return require('@/assets/avatar/4.png')
+        },
     },
     async created() {
         this.loading = true

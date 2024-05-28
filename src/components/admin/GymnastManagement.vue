@@ -5,24 +5,21 @@
         </div>
         <div class="container-content">
             <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
-            <v-data-table
-                :loading="loadingStudent"
-                :headers="StudentListHeaders"
-                :items="StudentList"
-                :sort-by="[{ key: 'studentid', order: 'asc' }]"
-                >
+            <v-data-table :loading="loadingStudent" :headers="StudentListHeaders" :items="StudentList"
+                :sort-by="[{ key: 'studentid', order: 'asc' }]">
                 <template v-slot:top>
                     <v-toolbar flat>
                         <v-toolbar-title>Gymnasts' List</v-toolbar-title>
                         <v-dialog v-model="dialogStudent" max-width="800px">
                             <template v-slot:activator="{ props }">
-                                <v-btn color="primary" dark v-bind="props"><span class="mdi mdi-emoticon-plus-outline"></span> New Student</v-btn>
+                                <v-btn color="primary" dark v-bind="props"><span
+                                        class="mdi mdi-emoticon-plus-outline"></span> New Student</v-btn>
                             </template>
-                            
+
                             <v-card>
                                 <v-card-title>
-                                    <span v-if="editedStudentIndex==-1" class="mdi mdi-emoticon-plus-outline"></span>
-                                    <span v-if="editedStudentIndex!=-1" class="mdi mdi-human-edit"></span>
+                                    <span v-if="editedStudentIndex == -1" class="mdi mdi-emoticon-plus-outline"></span>
+                                    <span v-if="editedStudentIndex != -1" class="mdi mdi-human-edit"></span>
                                     <span>{{ formStudentTitle }}</span>
                                 </v-card-title>
                                 <v-card-text>
@@ -30,133 +27,92 @@
                                         <v-form ref="newstdform">
                                             <v-row>
                                                 <v-col cols="12" sm="6" md="6">
-                                                    <v-text-field
-                                                        v-model="editedStudentItem.firstname"
-                                                        label="Firstname"
-                                                        variant="solo-filled"
-                                                        :rules="notNullRules"
-                                                        required
-                                                    ></v-text-field>
+                                                    <v-text-field v-model="editedStudentItem.firstname"
+                                                        label="Firstname" variant="solo-filled" :rules="notNullRules"
+                                                        required></v-text-field>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="6">
-                                                    <v-text-field
-                                                        v-model="editedStudentItem.middlename"
-                                                        label="Middlename"
-                                                        variant="solo-filled"
-                                                        required
-                                                    ></v-text-field>
+                                                    <v-text-field v-model="editedStudentItem.middlename"
+                                                        label="Middlename" variant="solo-filled"
+                                                        required></v-text-field>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="6">
-                                                    <v-text-field
-                                                        v-model="editedStudentItem.lastname"
-                                                        label="Lastname"
-                                                        variant="solo-filled"
-                                                        :rules="notNullRules"
-                                                        required
-                                                    ></v-text-field>
+                                                    <v-text-field v-model="editedStudentItem.lastname" label="Lastname"
+                                                        variant="solo-filled" :rules="notNullRules"
+                                                        required></v-text-field>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="3">
-                                                    <v-text-field
-                                                        v-model="editedStudentItem.nickname"
-                                                        label="Nickname"
-                                                        variant="solo-filled"
-                                                        :rules="notNullRules"
-                                                        required
-                                                    ></v-text-field>
+                                                    <v-text-field v-model="editedStudentItem.nickname" label="Nickname"
+                                                        variant="solo-filled" :rules="notNullRules"
+                                                        required></v-text-field>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="3">
-                                                    <v-select
-                                                        v-model="editedStudentItem.gender"
-                                                        label="Gender"
-                                                        :items="['ชาย', 'หญิง']"
-                                                        variant="solo-filled"
-                                                        :rules="notNullRules"
-                                                        required
-                                                    ></v-select>
+                                                    <v-select v-model="editedStudentItem.gender" label="Gender"
+                                                        :items="['ชาย', 'หญิง']" variant="solo-filled"
+                                                        :rules="notNullRules" required></v-select>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="3">
-                                                    <DatePicker 
-                                                        label="Date of Birth"
-                                                        variant="solo-filled"
-                                                        v-model="editedStudentItem.dateofbirth"
-                                                        :maxdate="new Date()"
-                                                        @click="calculateAgeNewStudent"
-                                                        rules="notNullRules"
-                                                        required
-                                                    ></DatePicker>
+                                                    <DatePicker label="Date of Birth" variant="solo-filled"
+                                                        v-model="editedStudentItem.dateofbirth" :maxdate="new Date()"
+                                                        @click="calculateAgeNewStudent" rules="notNullRules" required>
+                                                    </DatePicker>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="3">
-                                                    <v-text-field 
-                                                        label="Age"
-                                                        v-model="editedStudentItem.age"
-                                                        readonly
-                                                        variant="solo-filled"
-                                                    ></v-text-field>
+                                                    <v-text-field label="Age" v-model="editedStudentItem.age" readonly
+                                                        variant="solo-filled"></v-text-field>
                                                 </v-col>
 
                                                 <v-col cols="12" sm="6" md="6">
-                                                    <v-autocomplete
-                                                        v-model="editedStudentItem.courserefer"
-                                                        label="Course Refer"
-                                                        item-title="courserefer"
-                                                        item-value="courserefer"
-                                                        :items="customerCourseLookup"
-                                                        variant="solo-filled"
-                                                        no-data-text="No course"
-                                                        :rules="notNullRules"
-                                                        editable
-                                                    ></v-autocomplete>
+                                                    <v-autocomplete v-model="editedStudentItem.courserefer"
+                                                        label="Course Refer" item-title="courserefer"
+                                                        item-value="courserefer" :items="customerCourseLookup"
+                                                        variant="solo-filled" no-data-text="No course"
+                                                        :rules="notNullRules" editable></v-autocomplete>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="3">
-                                                    <v-select
-                                                        v-model="editedStudentItem.familyid"
-                                                        label="Parent"
-                                                        item-title="username"
-                                                        item-value="familyid"
-                                                        :items="familyLookup"
-                                                        variant="solo-filled"
-                                                        :rules="notNullRules"
-                                                        required
-                                                    ></v-select>
+                                                    <v-select v-model="editedStudentItem.familyid" label="Parent"
+                                                        item-title="username" item-value="familyid"
+                                                        :items="familyLookup" variant="solo-filled"
+                                                        :rules="notNullRules" required></v-select>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <v-file-input v-model="editedStudentItem.profilepic"
+                                                        label="รูปโปรไฟล์" accept="image/*" show-size outlined
+                                                        prepend-icon="mdi-camera" :loading="uploadLoading"
+                                                        @change="onFileChange"
+                                                        @click:clear="onFileClear"></v-file-input>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row>
+                                                <v-col cols="12" sm="12" md="12" class="center">
+                                                    <v-img
+                                                        v-if="editedStudentItem.profile_image"
+                                                        :src="imagePreview"
+                                                        class="info-photo rounded-circle"
+                                                        width="150"
+                                                        height="150"
+                                                    ></v-img>
                                                 </v-col>
                                             </v-row>
                                         </v-form>
                                     </v-container>
                                 </v-card-text>
-                    
+
                                 <v-card-actions>
                                     <v-spacer></v-spacer>
-                                    <v-btn
-                                    color="blue-darken-1"
-                                    variant="text"
-                                    @click="closeStudent"
-                                    >
-                                    Cancel
+                                    <v-btn color="blue-darken-1" variant="text" @click="closeStudent">
+                                        Cancel
                                     </v-btn>
-                                    <v-btn
-                                    color="blue-darken-1"
-                                    variant="text"
-                                    @click="doSaveNewStudent"
-                                    >
-                                    Save
+                                    <v-btn color="blue-darken-1" variant="text" @click="doSaveNewStudent">
+                                        Save
                                     </v-btn>
                                 </v-card-actions>
                             </v-card>
-                            <v-card
-                                v-if="progressLoading"
-                                class="card-loading mx-auto text-center pt-5"
-                                elevation="24"
-                                height="150"
-                                width="150"
-                                style="overflow: hidden;"
-                            >
+                            <v-card v-if="progressLoading" class="card-loading mx-auto text-center pt-5" elevation="24"
+                                height="150" width="150" style="overflow: hidden;">
                                 <v-card-title>
-                                <trinity-rings-spinner
-                                    :animation-duration="1500"
-                                    :size="66"
-                                    color="#ff1d5e"
-                                    class="mx-auto"
-                                />
+                                    <trinity-rings-spinner :animation-duration="1500" :size="66" color="#ff1d5e"
+                                        class="mx-auto" />
                                 </v-card-title>
                                 <v-card-text style="color:#ff1d5e;" class="mx-auto">Loading...</v-card-text>
                             </v-card>
@@ -165,17 +121,19 @@
                             <v-card>
                                 <v-card-title></v-card-title>
                                 <v-card-text>ต้องการลบเด็กคนนี้ใช่มั้ย ?</v-card-text>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteStd">ใช่! ลบเลย</v-btn>
-                                <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteStd">เดี๋ยวก่อน รอแปบ</v-btn>
-                                <v-spacer></v-spacer>
-                            </v-card-actions>
+                                <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteStd">ใช่!
+                                        ลบเลย</v-btn>
+                                    <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteStd">เดี๋ยวก่อน
+                                        รอแปบ</v-btn>
+                                    <v-spacer></v-spacer>
+                                </v-card-actions>
                             </v-card>
                         </v-dialog>
                     </v-toolbar>
                 </template>
-                <template v-slot:item.index="{ item }">{{ StudentList.indexOf(item)+1 }}</template>
+                <template v-slot:item.index="{ item }">{{ StudentList.indexOf(item) + 1 }}</template>
                 <template v-slot:item.edit="{ item }">
                     <v-icon size="large" color="info" @click="clickEditStudent(item)">mdi-pencil</v-icon>
                 </template>
@@ -200,20 +158,20 @@ export default {
         DatePicker,
         TrinityRingsSpinner
     },
-  data () {
-    return {
-        progressLoading: false,
-        StudentList: [],
+    data() {
+        return {
+            progressLoading: false,
+            StudentList: [],
             StudentListHeaders: [
-            { title: 'Name', key: 'fullname' },
-            //{ title: 'Date of Birth', key: 'dateofbirthshow' },
-            { title: 'Gender', key: 'gender' },
-            { title: 'Course Start', key: 'startdate', align: 'center'},
-            { title: 'Course Expire', key: 'expiredate', align: 'center' },
-            { title: 'Remaining' , key: 'remaining', align: 'end'},
-            { title: 'Mobile Number', key: 'mobileno', sortable: false },
-            { title: 'Edit', key: 'edit', align: 'center', sortable: false },
-            { title: 'Delete', key: 'delete', align: 'center', sortable: false },
+                { title: 'Name', key: 'fullname' },
+                //{ title: 'Date of Birth', key: 'dateofbirthshow' },
+                { title: 'Gender', key: 'gender' },
+                { title: 'Course Start', key: 'startdate', align: 'center' },
+                { title: 'Course Expire', key: 'expiredate', align: 'center' },
+                { title: 'Remaining', key: 'remaining', align: 'end' },
+                { title: 'Mobile Number', key: 'mobileno', sortable: false },
+                { title: 'Edit', key: 'edit', align: 'center', sortable: false },
+                { title: 'Delete', key: 'delete', align: 'center', sortable: false },
             ],
             editedStudentItem: {
                 studentid: null,
@@ -226,6 +184,8 @@ export default {
                 age: null,
                 courserefer: null,
                 username: null,
+                profile_image: null,
+                base64Image: null,
             },
             defaultStudentItem: {
                 studentid: null,
@@ -238,80 +198,84 @@ export default {
                 age: null,
                 courserefer: null,
                 username: null,
+                profile_image: null,
+                base64Image: null,
             },
             editedStudentIndex: -1,
             dialogStudent: false,
             dialogStudentDelete: false,
             loadingStudent: false,
-    }
-  },
-  async created () {
-    try {
-        const token = this.$store.getters.getToken;
-        console.log('token ', token)
-        if (!token) {
-            this.errorMsg = 'Not found token, Please login...'
-            this.errorDialog = true
-            this.$emit('onClickChangeState', 'login')
-            return;
+            imagePreview: null,
+            uploadLoading: false,
+        }
+    },
+    async created() {
+        try {
+            const token = this.$store.getters.getToken;
+            console.log('token ', token)
+            if (!token) {
+                this.errorMsg = 'Not found token, Please login...'
+                this.errorDialog = true
+                this.$emit('onClickChangeState', 'login')
+                return;
+            }
+
+            await axios
+                .post(this.baseURL + '/verifyToken', {}, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                })
+                .then(response => {
+                    console.dir(response);
+                    if (response.data.success) {
+                        this.initialize()
+                    }
+                })
+                .catch(error => {
+                    console.error(error);
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                });
+        } catch (error) {
+            this.$emit('onErrorHandler', error.message)
         }
 
-        await axios
-        .post(this.baseURL+'/verifyToken', {}, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            }
-        })
-        .then(response => {
-            console.dir(response);
-            if (response.data.success) {
-                this.initialize()
-            }
-        })
-        .catch(error => {
-            console.error(error);
-            this.$emit('onErrorHandler', error.response.data.message)
-            this.$emit('onClickChangeState', 'login')
-        });
-    } catch (error) {
-        this.$emit('onErrorHandler', error.message)
-    }
-    
-  },
-  methods: {
-    initialize() {
+    },
+    methods: {
+        initialize() {
             this.getStudentList()
             this.getCourseLookup()
             this.getFamilyLookup()
             this.getCustomerCourseLookup()
         },
-    async getStudentList() {
+        async getStudentList() {
             this.loadingStudent = true
             const token = this.$store.getters.getToken;
             await ComponentAPI.fetchDataStudent({ token })
-            .then(({ success, results, message }) => {
-                if(success) {
-                    this.StudentList = this.convertDate(results)
-                    this.loadingStudent = false
-                }else{
-                    this.$emit('onErrorHandler', message || 'Get Student list failed')
-                    this.loadingStudent = false
-                }
-            })
-            .catch(error => {
-                if(error.response.status == 401) {
-                    this.$emit('onErrorHandler', error.response.data.message)
-                    this.$emit('onClickChangeState', 'login')
-                }else{
-                    this.$emit('onErrorHandler', error.message)
-                }
-            });
+                .then(({ success, results, message }) => {
+                    if (success) {
+                        this.StudentList = this.convertDate(results)
+                        this.loadingStudent = false
+                    } else {
+                        this.$emit('onErrorHandler', message || 'Get Student list failed')
+                        this.loadingStudent = false
+                    }
+                })
+                .catch(error => {
+                    if (error.response.status == 401) {
+                        this.$emit('onErrorHandler', error.response.data.message)
+                        this.$emit('onClickChangeState', 'login')
+                    } else {
+                        this.$emit('onErrorHandler', error.message)
+                    }
+                });
         },
-    async doSaveNewStudent () {
-        this.progressLoading = true
+        async doSaveNewStudent() {
+            this.progressLoading = true
             const { valid } = await this.$refs.newstdform.validate()
             if (valid) {
-                
+
                 // Make API request to register the user
                 const StudentObj = {
                     studentid: this.editedStudentItem.studentid,
@@ -323,197 +287,264 @@ export default {
                     dateofbirth: this.SQLDate(this.editedStudentItem.dateofbirth),
                     familyid: this.editedStudentItem.familyid,
                     courserefer: this.editedStudentItem.courserefer,
+                    profile_image: this.editedStudentItem.base64Image,
                 }
                 //console.log(this.editedStudentIndex+ ' StudentObj : ', StudentObj)
                 const token = this.$store.getters.getToken;
                 if (this.editedStudentIndex > -1) {
                     StudentObj.studentid = this.editedStudentItem.studentid
                     await axios
-                    .post(this.baseURL+'/updateStudentByAdmin', StudentObj, { headers:{ Authorization: `Bearer ${token}`, } })
-                    .then(response => {
-                        if (response.data.success) {
-                            this.$emit('onInfoHandler', 'แก้ไขข้อมูลสำเร็จแล้ว');
-                            this.getStudentList()
-                            this.dialogStudent = false
-                        } else {
-                            this.$emit('onErrorHandler', response.data.message || 'แก้ไขข้อมูลไม่สำเร็จ ลองใหม่อีกครั้งนะ');
-                        }
-                    })
-                    .catch(error => {
-                        if(error.response.status == 401) {
-                            this.$emit('onErrorHandler', error.response.data.message)
-                            this.$emit('onClickChangeState', 'login')
-                        }else{
-                            this.$emit('onErrorHandler', error.message)
-                        }
-                    });
-                }else{
+                        .post(this.baseURL + '/updateStudentByAdmin', StudentObj, { headers: { Authorization: `Bearer ${token}`, } })
+                        .then(response => {
+                            if (response.data.success) {
+                                this.$emit('onInfoHandler', 'แก้ไขข้อมูลสำเร็จแล้ว');
+                                this.getStudentList()
+                                this.dialogStudent = false
+                            } else {
+                                this.$emit('onErrorHandler', response.data.message || 'แก้ไขข้อมูลไม่สำเร็จ ลองใหม่อีกครั้งนะ');
+                            }
+                        })
+                        .catch(error => {
+                            if (error.response.status == 401) {
+                                this.$emit('onErrorHandler', error.response.data.message)
+                                this.$emit('onClickChangeState', 'login')
+                            } else {
+                                this.$emit('onErrorHandler', error.message)
+                            }
+                        });
+                } else {
                     await axios
-                    .post(this.baseURL+'/addStudentByAdmin', StudentObj, { headers:{ Authorization: `Bearer ${token}`, } })
-                    .then(response => {
-                        if (response.data.success) {
-                            this.$emit('onInfoHandler', 'เพิ่มสมาชิกสำเร็จแล้ว');
-                            this.getStudentList()
-                            this.dialogStudent = false
-                        } else {
-                            this.$emit('onErrorHandler', response.data.message || 'เพิ่มสมาชิกไม่สำเร็จ ลองใหม่อีกครั้งนะ');
-                        }
-                        this.$emit('onUpdateDataSuccess')
-                    })
-                    .catch(error => {
-                        if(error.response.status == 401) {
-                            this.$emit('onErrorHandler', error.response.data.message)
-                            this.$emit('onClickChangeState', 'login')
-                        }else{
-                            this.$emit('onErrorHandler', error.message)
-                        }
-                    });
+                        .post(this.baseURL + '/addStudentByAdmin', StudentObj, { headers: { Authorization: `Bearer ${token}`, } })
+                        .then(response => {
+                            if (response.data.success) {
+                                this.$emit('onInfoHandler', 'เพิ่มสมาชิกสำเร็จแล้ว');
+                                this.getStudentList()
+                                this.dialogStudent = false
+                            } else {
+                                this.$emit('onErrorHandler', response.data.message || 'เพิ่มสมาชิกไม่สำเร็จ ลองใหม่อีกครั้งนะ');
+                            }
+                            this.$emit('onUpdateDataSuccess')
+                        })
+                        .catch(error => {
+                            if (error.response.status == 401) {
+                                this.$emit('onErrorHandler', error.response.data.message)
+                                this.$emit('onClickChangeState', 'login')
+                            } else {
+                                this.$emit('onErrorHandler', error.message)
+                            }
+                        });
                 }
-                
+
             }
             this.progressLoading = false
         },
-        getCourseLookup () {
+        getCourseLookup() {
             const token = this.$store.getters.getToken;
             axios
-            .get(this.baseURL+'/courseLookup', { 
-                headers:{
-                    Authorization: `Bearer ${token}`,
-                }
-            })
-            .then(response => {
-                //console.dir(response);
-                if (response.data.success) {
-                    this.courseLookup = response.data.results
-                }
-            })
-            .catch(error => {
-                if(error.response.status == 401) {
-                    this.$emit('onErrorHandler', error.response.data.message)
-                    this.$emit('onClickChangeState', 'login')
-                }else{
-                    this.$emit('onErrorHandler', error.message)
-                }
-            });
+                .get(this.baseURL + '/courseLookup', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                })
+                .then(response => {
+                    //console.dir(response);
+                    if (response.data.success) {
+                        this.courseLookup = response.data.results
+                    }
+                })
+                .catch(error => {
+                    if (error.response.status == 401) {
+                        this.$emit('onErrorHandler', error.response.data.message)
+                        this.$emit('onClickChangeState', 'login')
+                    } else {
+                        this.$emit('onErrorHandler', error.message)
+                    }
+                });
         },
-        getFamilyLookup () {
+        getFamilyLookup() {
             const token = this.$store.getters.getToken;
             axios
-            .get(this.baseURL+'/familyLookup', { headers:{ Authorization: `Bearer ${token}`, } })
-            .then(response => {
-                //console.dir(response);
-                if (response.data.success) {
-                    this.familyLookup = response.data.results
-                }
-            })
-            .catch(error => {
-                if(error.response.status == 401) {
-                    this.$emit('onErrorHandler', error.response.data.message)
-                    this.$emit('onClickChangeState', 'login')
-                }else{
-                    this.$emit('onErrorHandler', error.message)
-                }
-            });
+                .get(this.baseURL + '/familyLookup', { headers: { Authorization: `Bearer ${token}`, } })
+                .then(response => {
+                    //console.dir(response);
+                    if (response.data.success) {
+                        this.familyLookup = response.data.results
+                    }
+                })
+                .catch(error => {
+                    if (error.response.status == 401) {
+                        this.$emit('onErrorHandler', error.response.data.message)
+                        this.$emit('onClickChangeState', 'login')
+                    } else {
+                        this.$emit('onErrorHandler', error.message)
+                    }
+                });
         },
-        getCustomerCourseLookup () {
+        getCustomerCourseLookup() {
             const token = this.$store.getters.getToken;
             axios
-            .get(this.baseURL+'/getCustomerCourseLookup', { 
-                headers:{
-                    Authorization: `Bearer ${token}`,
-                }
-            })
-            .then(response => {
-                //console.dir(response);
-                if (response.data.success) {
-                    this.customerCourseLookup = response.data.results
-                }
-            })
-            .catch(error => {
-                if(error.response.status == 401) {
-                    this.$emit('onErrorHandler', error.response.data.message)
-                    this.$emit('onClickChangeState', 'login')
-                }else{
-                    this.$emit('onErrorHandler', error.message)
-                }
-            });
+                .get(this.baseURL + '/getCustomerCourseLookup', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                })
+                .then(response => {
+                    //console.dir(response);
+                    if (response.data.success) {
+                        this.customerCourseLookup = response.data.results
+                    }
+                })
+                .catch(error => {
+                    if (error.response.status == 401) {
+                        this.$emit('onErrorHandler', error.response.data.message)
+                        this.$emit('onClickChangeState', 'login')
+                    } else {
+                        this.$emit('onErrorHandler', error.message)
+                    }
+                });
         },
-        clickEditStudent (item) {
-          this.editedStudentIndex = this.StudentList.indexOf(item)
-          this.editedStudentItem = Object.assign({}, item)
-          this.editedStudentItem.dateofbirth = new Date(item.dateofbirth)
-          this.editedStudentItem.age = this.calculateAge(item.dateofbirth)
-          this.dialogStudent = true
+        clickEditStudent(item) {
+            this.editedStudentIndex = this.StudentList.indexOf(item)
+            this.editedStudentItem = Object.assign({}, item)
+            this.editedStudentItem.dateofbirth = new Date(item.dateofbirth)
+            this.editedStudentItem.age = this.calculateAge(item.dateofbirth)
+            this.loadProfileImage()
+            this.dialogStudent = true
         },
-        clickDeleteStudent (item) {
-          this.editedStudentIndex = this.StudentList.indexOf(item)
-          this.editedStudentItem = Object.assign({}, item)
-          this.dialogStudentDelete = true
+        clickDeleteStudent(item) {
+            this.editedStudentIndex = this.StudentList.indexOf(item)
+            this.editedStudentItem = Object.assign({}, item)
+            this.dialogStudentDelete = true
         },
         async clickConfirmDeleteStd() {
             const token = this.$store.getters.getToken;
-            axios.post(this.baseURL+'/deleteFamilyMember', {
+            axios.post(this.baseURL + '/deleteFamilyMember', {
                 familyid: this.editedStudentItem.familyid,
                 studentid: this.editedStudentItem.studentid,
             },
-            { headers:{ Authorization: `Bearer ${token}`, } 
+                {
+                    headers: { Authorization: `Bearer ${token}`, }
+                })
+                .then(response => {
+                    //console.dir(response);
+                    if (response.data.success) {
+                        this.$emit('onInfoHandler', 'Delete Student Successful');
+                        this.$emit('onUpdateDataSuccess')
+                    } else {
+                        this.$emit('onErrorHandler', response.data.message || 'Delete Student failed');
+                    }
+                    this.dialogStudentDelete = false
+                    this.initialize()
+                    this.getStudentList()
+                })
+                .catch(error => {
+                    if (error.response.status == 401) {
+                        this.$emit('onErrorHandler', error.response.data.message)
+                        this.$emit('onClickChangeState', 'login')
+                    } else {
+                        this.$emit('onErrorHandler', error.message)
+                    }
+                });
+        },
+        closeStudent() {
+            this.dialogStudent = false
+            this.$nextTick(() => {
+                this.editedStudentItem = Object.assign({}, this.defaultStudentItem)
+                this.editedStudentIndex = -1
             })
-            .then(response => {
-                //console.dir(response);
-                if (response.data.success) {
-                    this.$emit('onInfoHandler', 'Delete Student Successful');
-                    this.$emit('onUpdateDataSuccess')
+        },
+        clickCancelDeleteStd() {
+            this.dialogStudentDelete = false
+            this.$nextTick(() => {
+                this.editedStudentItem = Object.assign({}, this.defaultStudentItem)
+                this.editedStudentIndex = -1
+            })
+        },
+        onFileClear() {
+            this.editedStudentItem.profile_image = null;
+            this.imagePreview = null;
+        },
+        onFileChange(e) {
+            const file = e.target.files[0];
+            console.log('file : ', file)
+
+            const maxSize = 4 * 1024 * 1024; // ขนาดสูงสุด 4MB
+            if (file.size > maxSize) {
+                this.editedStudentItem.profile_image = null;
+                this.imagePreview = null;
+                this.$emit('onErrorHandler', 'จำกัดขนาดไฟล์ไม่เกิน 4MB');
+                
+                return;
+            }
+            if(file) {
+                this.editedStudentItem.profile_image = file;
+                const reader = new FileReader();
+                reader.onload = () => {
+                    this.imagePreview = reader.result;
+                    this.editedStudentItem.base64Image = reader.result.split(',')[1]; // เก็บเฉพาะส่วนข้อมูล Base64
+                };
+                reader.readAsDataURL(file);
+            }
+        },
+        async uploadImageProfile() {
+            if (!this.editedStudentItem.profile_image) {
+                this.$emit('onErrorHandler', 'Please select an image to upload');
+                return;
+            }
+            this.uploadLoading = true;
+            try {
+                await this.saveImage();
+            } catch (error) {
+                console.error("Error uploading image:", error);
+            }
+            this.uploadLoading = false;
+        },
+        async saveImage() {
+            const image = this.editedStudentItem.base64Image;
+            try {
+                // Replace 'gymnastId' with the actual ID of the gymnast
+                const response = await axios.put(this.baseURL+`/student/${this.editedStudentItem.studentid}/profile-image`, { image });
+                if(response.data.success) {
+                    this.$emit('onInfoHandler', 'Upload Image Successful');
                 } else {
-                    this.$emit('onErrorHandler', response.data.message || 'Delete Student failed');
+                    this.$emit('onErrorHandler', response.data.message || 'Upload Image failed');
                 }
-                this.dialogStudentDelete = false
-                this.initialize()
-                this.getStudentList()
-            })
-            .catch(error => {
-                if(error.response.status == 401) {
-                    this.$emit('onErrorHandler', error.response.data.message)
-                    this.$emit('onClickChangeState', 'login')
-                }else{
-                    this.$emit('onErrorHandler', error.message)
-                }
-            });
+            } catch (error) {
+                console.error('Error saving profile image URL:', error);
+            }
         },
-        closeStudent () {
-          this.dialogStudent = false
-          this.$nextTick(() => {
-            this.editedStudentItem = Object.assign({}, this.defaultStudentItem)
-            this.editedStudentIndex = -1
-          })
+        async loadProfileImage() {
+            try {
+                // Replace 'gymnastId' with the actual ID of the gymnast
+                const response = await axios.get(this.baseURL+`/student/${this.editedStudentItem.studentid}/profile-image`);
+                console.log('response : ', response)
+                this.editedStudentItem.profile_image = response.data.image;
+                this.imagePreview = `data:image/*;base64,${response.data.image}`;
+            } catch (error) {
+                console.error('Error loading profile image:', error);
+            }
         },
-        clickCancelDeleteStd () {
-          this.dialogStudentDelete = false
-          this.$nextTick(() => {
-            this.editedStudentItem = Object.assign({}, this.defaultStudentItem)
-            this.editedStudentIndex = -1
-          })
-        },
-        calculateAgeNewStudent () {
+        calculateAgeNewStudent() {
             this.editedStudentItem.age = this.calculateAge(new Date(this.editedStudentItem.dateofbirth))
         },
         calculateAge(birthDate) {
-          if (!birthDate) return;
+            if (!birthDate) return;
 
-          const currentDate = new Date();
-          if (new Date(birthDate) > currentDate) {
-              this.birthDate = null
-              this.years = null;
-              this.months = null;
-              this.days = null;
-              alert('Invalid Date of Birth')
-          }
+            const currentDate = new Date();
+            if (new Date(birthDate) > currentDate) {
+                this.birthDate = null
+                this.years = null;
+                this.months = null;
+                this.days = null;
+                alert('Invalid Date of Birth')
+            }
 
-          const diffTime = currentDate - new Date(birthDate);
-          const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-          let years = Math.floor(totalDays / 365.25);
-          let months = Math.floor((totalDays % 365.25) / 30.4375);
-          let days = Math.floor((totalDays % 365.25) % 30.4375);
-          return years + ' ปี ' + months + ' เดือน '
+            const diffTime = currentDate - new Date(birthDate);
+            const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            let years = Math.floor(totalDays / 365.25);
+            let months = Math.floor((totalDays % 365.25) / 30.4375);
+            let days = Math.floor((totalDays % 365.25) % 30.4375);
+            return years + ' ปี ' + months + ' เดือน '
 
         },
         onShowInfoDialog(msg) {
@@ -523,25 +554,25 @@ export default {
         SQLDate(date) {
             return moment(date).format('YYYY-MM-DD')
         },
-        format_date(value){
+        format_date(value) {
             if (value) {
                 return moment(String(value)).format('DD/MM/YYYY')
             }
         },
-        convertDate (arrObj) {
+        convertDate(arrObj) {
             arrObj.forEach(obj => {
-            obj.dateofbirthshow = this.format_date(obj.dateofbirth);
-            obj.startdate = this.format_date(obj.startdate);
-            obj.expiredate = this.format_date(obj.expiredate);
+                obj.dateofbirthshow = this.format_date(obj.dateofbirth);
+                obj.startdate = this.format_date(obj.startdate);
+                obj.expiredate = this.format_date(obj.expiredate);
             });
             return arrObj;
         },
     },
     watch: {
-        dialogStudent (val) {
-          val || this.closeStudent()
+        dialogStudent(val) {
+            val || this.closeStudent()
         },
-        dialogStudentDelete (val) {
+        dialogStudentDelete(val) {
             val || this.clickCancelDeleteStd()
         },
     },
@@ -551,14 +582,14 @@ export default {
         }),
         tomorrow() {
             const d = new Date()
-            d.setDate(d.getDate() +1)
-            return d 
+            d.setDate(d.getDate() + 1)
+            return d
         },
         today() {
             return new Date()
         },
-        formStudentTitle () {
-          return this.editedStudentIndex === -1 ? 'Add a new student' : 'Edit student information'
+        formStudentTitle() {
+            return this.editedStudentIndex === -1 ? 'Add a new student' : 'Edit student information'
         },
     }
 }
@@ -567,28 +598,42 @@ import { Promise } from 'core-js';
 const ComponentAPI = {
     baseURL: 'https://istarserver.vercel.app',
     //baseURL: 'http://localhost:3000',
-    fetchDataStudent ({ token }) {
+    fetchDataStudent({ token }) {
         return new Promise(resolve => {
             axios
-            .get(this.baseURL+'/getStudentList', {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            })
-            .then(response => {
-                //console.log('fetchDataStudent result',response);
-                if (response.data.success) {
-                    const datalist = response.data.results
-                    resolve({ success: true, results: datalist })
-                }else{
-                    resolve({ success: true, results: [] })
-                }
-            })
-            .catch(error => {
-                resolve({ success: false, error: error })
-            });
+                .get(this.baseURL + '/getStudentList', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                })
+                .then(response => {
+                    //console.log('fetchDataStudent result',response);
+                    if (response.data.success) {
+                        const datalist = response.data.results
+                        resolve({ success: true, results: datalist })
+                    } else {
+                        resolve({ success: true, results: [] })
+                    }
+                })
+                .catch(error => {
+                    resolve({ success: false, error: error })
+                });
         });
     }
 }
 </script>
+<style scoped>
+.info-photo {
+    width: 150px;
+    height: 150px;
+    border-radius: 100%;
+    display: flex;
+    justify-content: center;
+}
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+</style>
 ```

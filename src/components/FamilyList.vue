@@ -22,8 +22,15 @@
                         >
                             <td style="width: 20vw;">
                                 <v-img
-                                    v-if="people.photo"
-                                    :src="people.photo"
+                                    v-if="people.gender === 'หญิง'"
+                                    :src="profileGirl"
+                                    cover
+                                    class="pa-4 bg-secondary rounded-circle d-inline-block"
+                                    style="display: flex !important;"
+                                ></v-img>
+                                <v-img
+                                    v-else
+                                    :src="profileBoy"
                                     cover
                                     class="pa-4 bg-secondary rounded-circle d-inline-block"
                                     style="display: flex !important;"
@@ -161,6 +168,14 @@ export default {
         ...mapGetters({
             token: 'getToken',
         }),
+        
+        profileGirl() {
+            return require('@/assets/avatar/2.png')
+        },
+        profileBoy() {
+            return require('@/assets/avatar/4.png')
+        },
+        
     }
 
 }
