@@ -101,41 +101,57 @@
                                                 editable
                                             ></v-autocomplete>
                                         </v-col>
-                                        <v-col cols="12" sm="6" md="3">
-                                            <v-select
-                                                v-model="editedStudentItem.familyid"
-                                                label="Parent"
-                                                item-title="username"
-                                                item-value="familyid"
-                                                :items="familyLookup"
+                                        
+                                        <v-col cols="12" sm="6" md="12">
+                                            <v-textarea
+                                                v-model="editedStudentItem.shortnote"
+                                                label="Short Note"
                                                 variant="solo-filled"
-                                                :rules="notNullRules"
-                                                required
-                                            ></v-select>
+                                                rows="6"
+                                            ></v-textarea>
                                         </v-col>
+                                        
                                         <v-col cols="12" sm="6" md="6">
-                                            <v-file-input
-                                                v-model="editedStudentItem.profilepic"
-                                                label="รูปโปรไฟล์"
-                                                accept="image/*"
-                                                show-size
-                                                outlined
-                                                prepend-icon="mdi-camera"
-                                                :loading="uploadLoading"
-                                                @change="onFileChange"
-                                                @click:clear="onFileClear"
-                                            ></v-file-input>
-                                        </v-col>
-                                    </v-row>
-                                    <v-row>
-                                        <v-col cols="12" sm="12" md="12" class="center">
-                                            <v-img
-                                                v-if="editedStudentItem.profile_image"
-                                                :src="imagePreview"
-                                                class="info-photo rounded-circle"
-                                                width="150"
-                                                height="150"
-                                            ></v-img>
+                                            <v-row>
+                                                <v-col cols="12">
+                                                    <v-select
+                                                        v-model="editedStudentItem.familyid"
+                                                        label="Parent"
+                                                        item-title="username"
+                                                        item-value="familyid"
+                                                        :items="familyLookup"
+                                                        variant="solo-filled"
+                                                        :rules="notNullRules"
+                                                        required
+                                                    ></v-select>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row>
+                                                <v-col cols="12">
+                                                    <v-file-input
+                                                        v-model="editedStudentItem.profilepic"
+                                                        label="รูปโปรไฟล์"
+                                                        accept="image/*"
+                                                        show-size
+                                                        outlined
+                                                        prepend-icon="mdi-camera"
+                                                        :loading="uploadLoading"
+                                                        @change="onFileChange"
+                                                        @click:clear="onFileClear"
+                                                    ></v-file-input>
+                                                </v-col>
+                                            </v-row>
+                                        </v-col>  
+                                        <v-col cols="12" sm="6" md="4">
+                                            <div style="min-height: 150px;">
+                                                <v-img
+                                                    v-if="editedStudentItem.profile_image"
+                                                    :src="imagePreview"
+                                                    class="info-photo rounded-circle"
+                                                    width="150"
+                                                    height="150"
+                                                ></v-img>
+                                            </div>
                                         </v-col>
                                     </v-row>
                                 </v-form>
@@ -247,6 +263,7 @@ export default {
             username: null,
             profile_image: null,
             base64Image: null,
+            shortnote: null,
         },
         defaultStudentItem: {
             studentid: null,
@@ -261,6 +278,7 @@ export default {
             username: null,
             profile_image: null,
             base64Image: null,
+            shortnote: null,
         },
         editedStudentIndex: -1,
         dialogStudent: false,
@@ -347,7 +365,7 @@ export default {
                     familyid: this.editedStudentItem.familyid,
                     courserefer: this.editedStudentItem.courserefer,
                     profile_image: this.editedStudentItem.base64Image,
-                    
+                    shortnote: this.editedStudentItem.shortnote,
                 }
                 //console.log(this.editedStudentIndex+ ' StudentObj : ', StudentObj)
                 const token = this.$store.getters.getToken;
@@ -386,7 +404,7 @@ export default {
                         this.$emit('onUpdateDataSuccess')
                     })
                     .catch(error => {
-                        if(error.response.status == 401) {
+                        if(error.response.status && error.response.status == 401) {
                             this.$emit('onErrorHandler', error.response.data.message)
                             this.$emit('onClickChangeState', 'login')
                         }else{

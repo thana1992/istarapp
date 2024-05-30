@@ -69,30 +69,59 @@
                                                         variant="solo-filled" no-data-text="No course"
                                                         :rules="notNullRules" editable></v-autocomplete>
                                                 </v-col>
+                                                <v-col cols="12" sm="6" md="12">
+                                                    <v-textarea
+                                                        v-model="editedStudentItem.shortnote"
+                                                        label="Short Note"
+                                                        variant="solo-filled"
+                                                        rows="6"
+                                                    ></v-textarea>
+                                                </v-col>
+                                                
+                                                <v-col cols="12" sm="6" md="5">
+                                                    <v-row>
+                                                        <v-col cols="12">
+                                                            <v-select
+                                                                v-model="editedStudentItem.familyid"
+                                                                label="Parent"
+                                                                item-title="username"
+                                                                item-value="familyid"
+                                                                :items="familyLookup"
+                                                                variant="solo-filled"
+                                                                :rules="notNullRules"
+                                                                required
+                                                            ></v-select>
+                                                        </v-col>
+                                                    </v-row>
+                                                    <v-row>
+                                                        <v-col cols="12">
+                                                            <v-file-input
+                                                                v-model="editedStudentItem.profilepic"
+                                                                label="รูปโปรไฟล์"
+                                                                accept="image/*"
+                                                                show-size
+                                                                outlined
+                                                                prepend-icon="mdi-camera"
+                                                                :loading="uploadLoading"
+                                                                @change="onFileChange"
+                                                                @click:clear="onFileClear"
+                                                            ></v-file-input>
+                                                        </v-col>
+                                                    </v-row>
+                                                </v-col>
+                                                <v-col cols="12" sm="6" md="2"></v-col>
                                                 <v-col cols="12" sm="6" md="3">
-                                                    <v-select v-model="editedStudentItem.familyid" label="Parent"
-                                                        item-title="username" item-value="familyid"
-                                                        :items="familyLookup" variant="solo-filled"
-                                                        :rules="notNullRules" required></v-select>
+                                                    <div style="min-height: 150px;">
+                                                        <v-img
+                                                            v-if="editedStudentItem.profile_image"
+                                                            :src="imagePreview"
+                                                            class="info-photo rounded-circle"
+                                                            width="150"
+                                                            height="150"
+                                                        ></v-img>
+                                                    </div>
                                                 </v-col>
-                                                <v-col cols="12" sm="6" md="6">
-                                                    <v-file-input v-model="editedStudentItem.profilepic"
-                                                        label="รูปโปรไฟล์" accept="image/*" show-size outlined
-                                                        prepend-icon="mdi-camera" :loading="uploadLoading"
-                                                        @change="onFileChange"
-                                                        @click:clear="onFileClear"></v-file-input>
-                                                </v-col>
-                                            </v-row>
-                                            <v-row>
-                                                <v-col cols="12" sm="12" md="12" class="center">
-                                                    <v-img
-                                                        v-if="editedStudentItem.profile_image"
-                                                        :src="imagePreview"
-                                                        class="info-photo rounded-circle"
-                                                        width="150"
-                                                        height="150"
-                                                    ></v-img>
-                                                </v-col>
+                                                <v-col cols="12" sm="6" md="2"></v-col>
                                             </v-row>
                                         </v-form>
                                     </v-container>
