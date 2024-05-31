@@ -340,7 +340,7 @@ export default {
                 }
             })
             .catch(error => {
-                if(error.response.status == 401) {
+                if(error.response.status && error.response.status == 401) {
                     this.$emit('onErrorHandler', error.response.data.message)
                     this.$emit('onClickChangeState', 'login')
                 }else{
@@ -383,7 +383,7 @@ export default {
                         }
                     })
                     .catch(error => {
-                        if(error.response.status == 401) {
+                        if(error.response.status && error.response.status == 401) {
                             this.$emit('onErrorHandler', error.response.data.message)
                             this.$emit('onClickChangeState', 'login')
                         }else{
@@ -431,7 +431,7 @@ export default {
                 }
             })
             .catch(error => {
-                if(error.response.status == 401) {
+                if(error.response.status && error.response.status == 401) {
                     this.$emit('onErrorHandler', error.response.data.message)
                     this.$emit('onClickChangeState', 'login')
                 }else{
@@ -450,7 +450,7 @@ export default {
                 }
             })
             .catch(error => {
-                if(error.response.status == 401) {
+                if(error.response.status && error.response.status == 401) {
                     this.$emit('onErrorHandler', error.response.data.message)
                     this.$emit('onClickChangeState', 'login')
                 }else{
@@ -492,7 +492,7 @@ export default {
                 this.getStudentList()
             })
             .catch(error => {
-                if(error.response.status == 401) {
+                if(error.response.status && error.response.status == 401) {
                     this.$emit('onErrorHandler', error.response.data.message)
                     this.$emit('onClickChangeState', 'login')
                 }else{
