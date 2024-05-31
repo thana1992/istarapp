@@ -215,6 +215,7 @@ export default {
                 username: null,
                 profile_image: null,
                 base64Image: null,
+                shortnote: null,
             },
             defaultStudentItem: {
                 studentid: null,
@@ -229,6 +230,7 @@ export default {
                 username: null,
                 profile_image: null,
                 base64Image: null,
+                shortnote: null,
             },
             editedStudentIndex: -1,
             dialogStudent: false,
@@ -317,6 +319,7 @@ export default {
                     familyid: this.editedStudentItem.familyid,
                     courserefer: this.editedStudentItem.courserefer,
                     profile_image: this.editedStudentItem.base64Image,
+                    shortnote: this.editedStudentItem.shortnote,
                 }
                 //console.log(this.editedStudentIndex+ ' StudentObj : ', StudentObj)
                 const token = this.$store.getters.getToken;
@@ -547,7 +550,8 @@ export default {
                 // Replace 'gymnastId' with the actual ID of the gymnast
                 const response = await axios.get(this.baseURL+`/student/${this.editedStudentItem.studentid}/profile-image`);
                 console.log('response : ', response)
-                this.editedStudentItem.profile_image = response.data.image;
+                //this.editedStudentItem.profile_image = response.data.image;
+                this.editedStudentItem.base64Image = response.data.image;
                 this.imagePreview = `data:image/*;base64,${response.data.image}`;
             } catch (error) {
                 console.error('Error loading profile image:', error);
