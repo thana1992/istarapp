@@ -1,4 +1,5 @@
 <template>
+  <LoadingDialog :isLoading="isLoading" />
   <v-card>
     <v-layout>
       <v-navigation-drawer
@@ -79,6 +80,7 @@
           @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)"
           @onResigterHandler="onClickChangeState($event)"
+          @onLoading="onLoading($event)"
           ></Login>
         
           <Register v-else-if="state=='register'" 
@@ -86,6 +88,7 @@
           @onErrorHandler="onError($event)"
           @onSuccessHandler="onRegisterSuccess($event)"
           @onCancelHandler="onClickChangeState($event)"
+          @onLoading="onLoading($event)"
           ></Register>
 
           <Home v-else-if="state=='home'"
@@ -96,6 +99,7 @@
           @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)"
           :student="student"
+          @onLoading="onLoading($event)"
           ></Home>
 
           <Reservation v-else-if="state=='reservation'"
@@ -105,6 +109,7 @@
           @onInfoHandler="onShowInfoDialog($event)"
           @onSuccessHandler="onClickBack($event)"
           :student="student"
+          @onLoading="onLoading($event)"
           ></Reservation>
 
           <FamilyList v-else-if="state=='familylist'" 
@@ -112,6 +117,7 @@
           @onClickChangeState="onClickChangeState($event)"
           @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)"
+          @onLoading="onLoading($event)"
           ></FamilyList>
 
           <AddFamily v-else-if="state=='addfamilymember'"
@@ -119,39 +125,46 @@
           @onClickChangeState="onClickChangeState($event)"
           @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)"
+          @onLoading="onLoading($event)"
           ></AddFamily>
 
           <Dashboard v-else-if="state=='dashboard'"
           @onErrorHandler="onError($event)"
           @onClickChangeState="onClickChangeState($event)"
+          @onLoading="onLoading($event)"
           ></Dashboard>
 
           <BookingManagement v-else-if="state=='bookingmanager'"
           @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)"
           @onClickChangeState="onClickChangeState($event)"
+          @onLoading="onLoading($event)"
           ></BookingManagement>
 
           <GymnastManagement v-else-if="state=='gymnastmanager'"
           @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)"
           @onClickChangeState="onClickChangeState($event)"
+          @onLoading="onLoading($event)"
           ></GymnastManagement>
 
           <CustomerCourse v-else-if="state=='customercourse'"
           @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)"
           @onClickChangeState="onClickChangeState($event)"
+          @onLoading="onLoading($event)"
           ></CustomerCourse>
 
           <Course v-else-if="state=='course'"
           @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)"
+          @onLoading="onLoading($event)"
           ></Course>
 
           <Classes v-else-if="state=='classes'"
           @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)"
+          @onLoading="onLoading($event)"
           ></Classes>
 
       </v-main>
@@ -183,6 +196,8 @@
       </v-card>
     </template>
   </v-dialog>
+
+  
 </template>
 
 <script>
@@ -202,8 +217,7 @@ import Classes from './components/admin/Classes.vue'
 import CryptoJS from 'crypto-js';
 import { ref, computed, onMounted, inject } from 'vue';
 import { mapGetters } from 'vuex';
-
-
+import LoadingDialog from './components/LoadingDialog.vue';
 export default {
   data () {
     return {
@@ -223,6 +237,8 @@ export default {
       adminflag: false,
       interval:null,
       LogoutDialog: false,
+      loadingDialog: false,
+      isLoading: false,
     }
   },
   name: 'App',
@@ -239,6 +255,8 @@ export default {
     CustomerCourse,
     Course,
     Classes,
+    LoadingDialog
+  
   },
   methods: {
     
@@ -286,6 +304,7 @@ export default {
     onError(msg) {
       this.errorMsg = msg
       this.errorDialog = true
+      this.$emit('onLoading', false)
     },
     onShowInfoDialog(msg) {
       this.infoMsg = msg
@@ -323,7 +342,11 @@ export default {
         this.state = 'login'
         this.drawer = false
       }
-    }
+    },
+    onLoading(loading) {
+      //this.loadingDialog = loading
+      this.isLoading = loading;
+    },
   },
   created() {
     this.user_details = JSON.parse(localStorage.getItem('userdata'))
@@ -340,6 +363,7 @@ export default {
         }
     }
   },
+  
   computed: {
     ...mapGetters({
       isLoggedIn: 'isLoggedIn',

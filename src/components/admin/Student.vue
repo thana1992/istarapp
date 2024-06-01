@@ -176,24 +176,7 @@
                             </v-btn>
                         </v-card-actions>
                     </v-card>
-                    <v-card
-                        v-if="progressLoading"
-                        class="card-loading mx-auto text-center pt-5"
-                        elevation="24"
-                        height="150"
-                        width="150"
-                        style="overflow: hidden;"
-                    >
-                        <v-card-title>
-                        <trinity-rings-spinner
-                            :animation-duration="1500"
-                            :size="66"
-                            color="#ff1d5e"
-                            class="mx-auto"
-                        />
-                        </v-card-title>
-                        <v-card-text style="color:#ff1d5e;" class="mx-auto">Loading...</v-card-text>
-                    </v-card>
+                    
                 </v-dialog>
                 <v-dialog v-model="dialogStudentDelete" persistent width="auto">
                     <v-card>
@@ -234,7 +217,6 @@ export default {
     },
   data () {
     return {
-        progressLoading: false,
         uploadLoading: false,
         StudentList: [],
         imagePreview: null,
@@ -349,7 +331,7 @@ export default {
             });
         },
     async doSaveNewStudent () {
-        this.progressLoading = true
+        this.$emit('onLoading', true)
             const { valid } = await this.$refs.newstdform.validate()
             if (valid) {
                 
@@ -414,7 +396,7 @@ export default {
                 }
                 
             }
-            this.progressLoading = false
+            this.$emit('onLoading', false)
         },
         getCustomerCourseLookup () {
             const token = this.$store.getters.getToken;
@@ -472,8 +454,9 @@ export default {
           this.dialogStudentDelete = true
         },
         async clickConfirmDeleteStd() {
+            this.$emit('onLoading', true)
             const token = this.$store.getters.getToken;
-            axios.post(this.baseURL+'/deleteFamilyMember', {
+            axios.post(this.baseURL+'/deleteStudent', {
                 familyid: this.editedStudentItem.familyid,
                 studentid: this.editedStudentItem.studentid,
             },
@@ -499,6 +482,7 @@ export default {
                     this.$emit('onErrorHandler', error.message)
                 }
             });
+            this.$emit('onLoading', false)
         },
         onFileClear() {
             this.editedStudentItem.profile_image = null;

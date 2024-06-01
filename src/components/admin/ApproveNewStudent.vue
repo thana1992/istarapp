@@ -25,24 +25,6 @@
                 <v-spacer></v-spacer>
               </v-card-actions>
             </v-card>
-            <v-card
-              v-if="progressLoading"
-              class="card-loading mx-auto text-center pt-5"
-              elevation="24"
-              height="150"
-              width="150"
-              style="overflow: hidden;"
-            >
-              <v-card-title>
-                <trinity-rings-spinner
-                  :animation-duration="1500"
-                  :size="66"
-                  color="#ff1d5e"
-                  class="mx-auto"
-                />
-              </v-card-title>
-              <v-card-text style="color:#ff1d5e;" class="mx-auto">Loading...</v-card-text>
-            </v-card>
           </v-dialog>
           <v-dialog v-model="dialogStudentNewDelete" persistent width="auto">
             <v-card>
@@ -78,7 +60,6 @@ import { TrinityRingsSpinner } from 'epic-spinners'
     },
     data () {
       return {
-        progressLoading: false,
         loadingNewStudentList: false,
         confirmStudentList: [],
         newStudentList: [],
@@ -97,10 +78,10 @@ import { TrinityRingsSpinner } from 'epic-spinners'
       }
     },
     methods: {
-      getNewStudentList() {
+      async getNewStudentList() {
         this.loadingNewStudentList = true
         const token = this.$store.getters.getToken;
-        axios.get(this.baseURL+'/getNewStudentList',
+        await axios.get(this.baseURL+'/getNewStudentList',
         { 
             headers:{ Authorization: `Bearer ${token}`, } 
         })
@@ -122,7 +103,7 @@ import { TrinityRingsSpinner } from 'epic-spinners'
       },
       
       async approveNewStudent() {
-        this.progressLoading = true
+        this.$emit('onLoading', true)
         console.log('approveNewStudent : ',this.newStudentList)
         console.log('confirmStudentList : ',this.confirmStudentList)
         const apprObj = this.convertToSQL(this.confirmStudentList)
@@ -144,12 +125,13 @@ import { TrinityRingsSpinner } from 'epic-spinners'
           this.$emit('onErrorHandler', error.message || 'Approve new student failed');
           console.log(error)
         })
-        this.progressLoading = false
+        
         this.dialogConfirmApprove = false;
         this.confirmStudentList = []
+        this.$emit('onLoading', false)
       },
       async deleteNewStudent() {
-        this.progressLoading = true
+        this.$emit('onLoading', true)
         console.log('deleteNewStudent : ',this.studentNewDeleteObj)
         const token = this.$store.getters.getToken;
         await axios.post(this.baseURL+'/deleteNewStudent', {
@@ -171,7 +153,7 @@ import { TrinityRingsSpinner } from 'epic-spinners'
           console.log(error)
         })
         this.studentNewDeleteObj = null
-        this.progressLoading = false
+        this.$emit('onLoading', false)
       },
       async clickConfirmDeleteStd() {
         this.dialogStudentNewDelete = false
@@ -215,8 +197,10 @@ import { TrinityRingsSpinner } from 'epic-spinners'
           }
       },
     },
-    created() {
-      this.getNewStudentList()
+    async created() {
+      this.$emit('onLoading', true)
+      await this.getNewStudentList()
+      this.$emit('onLoading', false)
     },
     computed: {
       ...mapGetters({

@@ -10,7 +10,7 @@
                 <template v-slot:top>
                     <v-toolbar flat>
                         <v-toolbar-title>Gymnasts' List</v-toolbar-title>
-                        <v-dialog v-model="dialogStudent" max-width="800px">
+                        <v-dialog v-model="dialogStudent" max-width="800px" style="z-index: 999;">
                             <template v-slot:activator="{ props }">
                                 <v-btn color="primary" dark v-bind="props"><span
                                         class="mdi mdi-emoticon-plus-outline"></span> New Student</v-btn>
@@ -70,55 +70,36 @@
                                                         :rules="notNullRules" editable></v-autocomplete>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="12">
-                                                    <v-textarea
-                                                        v-model="editedStudentItem.shortnote"
-                                                        label="Short Note"
-                                                        variant="solo-filled"
-                                                        rows="6"
-                                                    ></v-textarea>
+                                                    <v-textarea v-model="editedStudentItem.shortnote" label="Short Note"
+                                                        variant="solo-filled" rows="6"></v-textarea>
                                                 </v-col>
-                                                
+
                                                 <v-col cols="12" sm="6" md="5">
                                                     <v-row>
                                                         <v-col cols="12">
-                                                            <v-select
-                                                                v-model="editedStudentItem.familyid"
-                                                                label="Parent"
-                                                                item-title="username"
-                                                                item-value="familyid"
-                                                                :items="familyLookup"
-                                                                variant="solo-filled"
-                                                                :rules="notNullRules"
-                                                                required
-                                                            ></v-select>
+                                                            <v-select v-model="editedStudentItem.familyid"
+                                                                label="Parent" item-title="username"
+                                                                item-value="familyid" :items="familyLookup"
+                                                                variant="solo-filled" :rules="notNullRules"
+                                                                required></v-select>
                                                         </v-col>
                                                     </v-row>
                                                     <v-row>
                                                         <v-col cols="12">
-                                                            <v-file-input
-                                                                v-model="editedStudentItem.profilepic"
-                                                                label="รูปโปรไฟล์"
-                                                                accept="image/*"
-                                                                show-size
-                                                                outlined
-                                                                prepend-icon="mdi-camera"
-                                                                :loading="uploadLoading"
+                                                            <v-file-input v-model="editedStudentItem.profilepic"
+                                                                label="รูปโปรไฟล์" accept="image/*" show-size outlined
+                                                                prepend-icon="mdi-camera" :loading="uploadLoading"
                                                                 @change="onFileChange"
-                                                                @click:clear="onFileClear"
-                                                            ></v-file-input>
+                                                                @click:clear="onFileClear"></v-file-input>
                                                         </v-col>
                                                     </v-row>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="2"></v-col>
                                                 <v-col cols="12" sm="6" md="3">
                                                     <div style="min-height: 150px;">
-                                                        <v-img
-                                                            v-if="editedStudentItem.profile_image"
-                                                            :src="imagePreview"
-                                                            class="info-photo rounded-circle"
-                                                            width="150"
-                                                            height="150"
-                                                        ></v-img>
+                                                        <v-img v-if="editedStudentItem.profile_image"
+                                                            :src="imagePreview" class="info-photo rounded-circle"
+                                                            width="150" height="150"></v-img>
                                                     </div>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="2"></v-col>
@@ -136,14 +117,6 @@
                                         Save
                                     </v-btn>
                                 </v-card-actions>
-                            </v-card>
-                            <v-card v-if="progressLoading" class="card-loading mx-auto text-center pt-5" elevation="24"
-                                height="150" width="150" style="overflow: hidden;">
-                                <v-card-title>
-                                    <trinity-rings-spinner :animation-duration="1500" :size="66" color="#ff1d5e"
-                                        class="mx-auto" />
-                                </v-card-title>
-                                <v-card-text style="color:#ff1d5e;" class="mx-auto">Loading...</v-card-text>
                             </v-card>
                         </v-dialog>
                         <v-dialog v-model="dialogStudentDelete" persistent width="auto">
@@ -180,16 +153,13 @@ import axios from 'axios'
 import DatePicker from '@/components/DatePicker.vue'
 import moment from 'moment'
 import { mapGetters } from 'vuex';
-import { TrinityRingsSpinner } from 'epic-spinners'
 
 export default {
     components: {
         DatePicker,
-        TrinityRingsSpinner
     },
     data() {
         return {
-            progressLoading: false,
             StudentList: [],
             StudentListHeaders: [
                 { title: 'Name', key: 'fullname' },
@@ -272,11 +242,13 @@ export default {
 
     },
     methods: {
-        initialize() {
-            this.getStudentList()
-            this.getCourseLookup()
-            this.getFamilyLookup()
-            this.getCustomerCourseLookup()
+        async initialize() {
+            this.$emit('onLoading', true)
+            await this.getStudentList()
+            await this.getCourseLookup()
+            await this.getFamilyLookup()
+            await this.getCustomerCourseLookup()
+            this.$emit('onLoading', false)
         },
         async getStudentList() {
             this.loadingStudent = true
@@ -292,6 +264,7 @@ export default {
                     }
                 })
                 .catch(error => {
+                    console.error('error : ', error)
                     if (error.response.status == 401) {
                         this.$emit('onErrorHandler', error.response.data.message)
                         this.$emit('onClickChangeState', 'login')
@@ -301,7 +274,7 @@ export default {
                 });
         },
         async doSaveNewStudent() {
-            this.progressLoading = true
+            this.$emit('onLoading', true)
             const { valid } = await this.$refs.newstdform.validate()
             if (valid) {
 
@@ -334,6 +307,7 @@ export default {
                             }
                         })
                         .catch(error => {
+                            console.log('error : ', error)
                             if (error.response.status == 401) {
                                 this.$emit('onErrorHandler', error.response.data.message)
                                 this.$emit('onClickChangeState', 'login')
@@ -355,6 +329,7 @@ export default {
                             this.$emit('onUpdateDataSuccess')
                         })
                         .catch(error => {
+                            console.log('error : ', error)
                             if (error.response.status == 401) {
                                 this.$emit('onErrorHandler', error.response.data.message)
                                 this.$emit('onClickChangeState', 'login')
@@ -365,11 +340,11 @@ export default {
                 }
 
             }
-            this.progressLoading = false
+            this.$emit('onLoading', false)
         },
-        getCourseLookup() {
+        async getCourseLookup() {
             const token = this.$store.getters.getToken;
-            axios
+            await axios
                 .get(this.baseURL + '/courseLookup', {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -390,9 +365,9 @@ export default {
                     }
                 });
         },
-        getFamilyLookup() {
+        async getFamilyLookup() {
             const token = this.$store.getters.getToken;
-            axios
+            await axios
                 .get(this.baseURL + '/familyLookup', { headers: { Authorization: `Bearer ${token}`, } })
                 .then(response => {
                     //console.dir(response);
@@ -409,9 +384,9 @@ export default {
                     }
                 });
         },
-        getCustomerCourseLookup() {
+        async getCustomerCourseLookup() {
             const token = this.$store.getters.getToken;
-            axios
+            await axios
                 .get(this.baseURL + '/getCustomerCourseLookup', {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -446,8 +421,9 @@ export default {
             this.dialogStudentDelete = true
         },
         async clickConfirmDeleteStd() {
+            this.$emit('onLoading', true)
             const token = this.$store.getters.getToken;
-            axios.post(this.baseURL + '/deleteFamilyMember', {
+            await axios.post(this.baseURL + '/deleteStudent', {
                 familyid: this.editedStudentItem.familyid,
                 studentid: this.editedStudentItem.studentid,
             },
@@ -474,6 +450,7 @@ export default {
                         this.$emit('onErrorHandler', error.message)
                     }
                 });
+                this.$emit('onLoading', false)
         },
         closeStudent() {
             this.dialogStudent = false
@@ -502,10 +479,10 @@ export default {
                 this.editedStudentItem.profile_image = null;
                 this.imagePreview = null;
                 this.$emit('onErrorHandler', 'จำกัดขนาดไฟล์ไม่เกิน 4MB');
-                
+
                 return;
             }
-            if(file) {
+            if (file) {
                 this.editedStudentItem.profile_image = file;
                 const reader = new FileReader();
                 reader.onload = () => {
@@ -532,8 +509,8 @@ export default {
             const image = this.editedStudentItem.base64Image;
             try {
                 // Replace 'gymnastId' with the actual ID of the gymnast
-                const response = await axios.put(this.baseURL+`/student/${this.editedStudentItem.studentid}/profile-image`, { image });
-                if(response.data.success) {
+                const response = await axios.put(this.baseURL + `/student/${this.editedStudentItem.studentid}/profile-image`, { image });
+                if (response.data.success) {
                     this.$emit('onInfoHandler', 'Upload Image Successful');
                 } else {
                     this.$emit('onErrorHandler', response.data.message || 'Upload Image failed');
@@ -545,7 +522,7 @@ export default {
         async loadProfileImage() {
             try {
                 // Replace 'gymnastId' with the actual ID of the gymnast
-                const response = await axios.get(this.baseURL+`/student/${this.editedStudentItem.studentid}/profile-image`);
+                const response = await axios.get(this.baseURL + `/student/${this.editedStudentItem.studentid}/profile-image`);
                 console.log('response : ', response)
                 this.editedStudentItem.profile_image = response.data.image;
                 this.imagePreview = `data:image/*;base64,${response.data.image}`;
@@ -627,9 +604,9 @@ import { Promise } from 'core-js';
 const ComponentAPI = {
     baseURL: 'https://istarserver.vercel.app',
     //baseURL: 'http://localhost:3000',
-    fetchDataStudent({ token }) {
-        return new Promise(resolve => {
-            axios
+    async fetchDataStudent({ token }) {
+        return new Promise(async resolve => {
+            await axios
                 .get(this.baseURL + '/getStudentList', {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -659,6 +636,7 @@ const ComponentAPI = {
     display: flex;
     justify-content: center;
 }
+
 .center {
     display: flex;
     justify-content: center;

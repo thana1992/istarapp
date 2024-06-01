@@ -131,24 +131,6 @@
                                                         </v-btn>
                                                     </v-card-actions>
                                                 </v-card>
-                                                <v-card
-                                                    v-if="progressLoading"
-                                                    class="card-loading mx-auto text-center pt-5"
-                                                    elevation="24"
-                                                    height="150"
-                                                    width="150"
-                                                    style="overflow: hidden;"
-                                                >
-                                                    <v-card-title>
-                                                    <trinity-rings-spinner
-                                                        :animation-duration="1500"
-                                                        :size="66"
-                                                        color="#ff1d5e"
-                                                        class="mx-auto"
-                                                    />
-                                                    </v-card-title>
-                                                    <v-card-text style="color:#ff1d5e;" class="mx-auto">Loading...</v-card-text>
-                                                </v-card>
                                             </v-dialog>
                                             <v-dialog v-model="dialogBookingDelete" persistent width="auto">
                                                 <v-card>
@@ -246,7 +228,6 @@ export default ({
     },
     data() {
         return {
-            progressLoading: false,
             errorDialog: false,
             errorMsg: '',
             infoDialog: false,
@@ -302,7 +283,9 @@ export default ({
     
     async created() {
         console.log('BookingManagement created...'+new Date())
-        this.initialize()
+        this.$emit('onLoading', true)
+        await this.initialize()
+        this.$emit('onLoading', false)
     },
     mounted() {
         console.log('mounted...'+new Date())
@@ -314,33 +297,19 @@ export default ({
         clearInterval(this.interval)
     },
     methods: {
-        initialize() {
-            /*
-            axios.get(this.baseURL+'/checkToken', {})
-            .then(response => {
-                console.dir(response);
-                if (response.data) {
-                    const activeSessions = response.data.activeSessions
-                    activeSessions.forEach(item => {
-                        let iat = new Date(item.iat * 1000)
-                        let exp = new Date(item.exp * 1000)
-                        console.log(item.username + " : " + iat.toLocaleString() + " : " + exp.toLocaleString())
-                    });
-                }
-            })
-            */
-            this.getReservationList()
-            this.getCourseLookup()
-            this.getFamilyLookup()
-            this.getStudentLookup()
+        async initialize() {
+            await this.getReservationList()
+            await this.getCourseLookup()
+            await this.getFamilyLookup()
+            await this.getStudentLookup()
         },
-        refreshData() {
+        async refreshData() {
             console.log('refreshData...'+new Date())
-            this.getReservationList()
+            await this.getReservationList()
         },
-        selectDate() {
+        async selectDate() {
             this.state = 'bookinglist'
-            this.getReservationList()
+            await this.getReservationList()
         },
         async onStudentChange(studentid) {
             console.log('Student selected:', studentid);
@@ -425,9 +394,9 @@ export default ({
             })
             
         },
-        getCourseLookup () {
+        async getCourseLookup () {
             const token = this.$store.getters.getToken;
-            axios
+            await axios
             .get(this.baseURL+'/courseLookup', { 
                 headers:{
                     Authorization: `Bearer ${token}`,
@@ -448,9 +417,9 @@ export default ({
                 }
             });
         },
-        getFamilyLookup () {
+        async getFamilyLookup () {
             const token = this.$store.getters.getToken;
-            axios
+            await axios
             .get(this.baseURL+'/familyLookup', { headers:{ Authorization: `Bearer ${token}`, } })
             .then(response => {
                 //console.dir(response);
@@ -467,9 +436,9 @@ export default ({
                 }
             });
         },
-        getStudentLookup () {
+        async getStudentLookup () {
             const token = this.$store.getters.getToken;
-            axios
+            await axios
             .post(this.baseURL+'/studentLookup', {}, { headers:{ Authorization: `Bearer ${token}`, } },)
             .then(response => {
                 console.dir('studentLookup', response);
@@ -487,10 +456,11 @@ export default ({
             });
         },
         async doSaveNewBooking () {
+            this.$emit('onLoading', true)
             const { valid } = await this.$refs.bookingform.validate()
             if (valid) {
-                this.progressLoading = true
-            // Make API request to register the user
+                this.$emit('onLoading', true)
+                // Make API request to register the user
                 const BookingObj = {
                     studentid: this.editedBookingItem.studentid,
                     courseid: this.editedBookingItem.courseid,
@@ -546,8 +516,9 @@ export default ({
                         }
                     });
                 }
-                this.progressLoading = false
+                this.$emit('onLoading', false)
             }
+            
         },
         deleteBookingItem (item) {
           this.editedBookingIndex = this.BookingList.indexOf(item)
@@ -555,6 +526,7 @@ export default ({
           this.dialogBookingDelete = true
         },
         async clickConfirmCheckinBooking() {
+            this.$emit('onLoading', true)
             const token = this.$store.getters.getToken;
             await axios.post(this.baseURL+'/checkinByAdmin', {
                 reservationid: this.editedBookingItem.reservationid,
@@ -580,11 +552,13 @@ export default ({
                     this.$emit('onErrorHandler', error.message)
                 }
             });
+            this.$emit('onLoading', false)
         },
         
         async clickConfirmDeleteBooking() {
+            this.$emit('onLoading', true)
             const token = this.$store.getters.getToken;
-            axios.post(this.baseURL+'/cancelBookingByAdmin', {
+            await axios.post(this.baseURL+'/cancelBookingByAdmin', {
                 reservationid: this.editedBookingItem.reservationid,
                 studentid: this.editedBookingItem.studentid,
             },
@@ -608,6 +582,7 @@ export default ({
                     this.$emit('onErrorHandler', error.message)
                 }
             });
+            this.$emit('onLoading', false)
         },
         clickEditBooking (item) {
           console.log('clickEditBooking', item)

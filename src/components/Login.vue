@@ -53,23 +53,6 @@
     </v-card>
     
   </div>
-  <v-card
-    v-if="LogginggIn"
-    class="card-loading mx-auto text-center pt-5"
-    elevation="24"
-    height="150"
-    width="150"
-  >
-    <v-card-title>
-      <trinity-rings-spinner
-        :animation-duration="1500"
-        :size="66"
-        color="#ff1d5e"
-        class="mx-auto"
-      />
-    </v-card-title>
-    <v-card-text style="color:#ff1d5e;" class="mx-auto">Loading...</v-card-text>
-  </v-card>
 </template>
 
 <script>
@@ -77,11 +60,7 @@
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
 import { mapActions } from "vuex";
-import { TrinityRingsSpinner } from 'epic-spinners'
 export default {
-    components: {
-      TrinityRingsSpinner
-    },
     data: () => ({
       LogginggIn: false,
       login_form: null,
@@ -101,7 +80,7 @@ export default {
       async doLogin () {
         const { valid } = await this.$refs.login_form.validate()
         if (valid) {
-          this.LogginggIn = true;
+          this.$emit('onLoading', true)
           const encryptedPassword = this.encryptPassword(this.password);
           axios
           .post(this.baseURL+'/login', {
@@ -123,11 +102,11 @@ export default {
             } else {
               this.$emit('onErrorHandler', response.data.message)
             }
-            this.LogginggIn = false;
+            this.$emit('onLoading', false)
           })
           .catch(error => {
               console.error(error);
-              this.LogginggIn = false;
+              this.$emit('onLoading', false)
               this.$emit('onErrorHandler', error.message)
           });
         }

@@ -177,10 +177,11 @@
       },
   
       methods: {
-         initialize () {
+        async initialize () {
+          this.$emit('onLoading', true)
           this.loadingCourses = true;
           const token = this.$store.getters.getToken;
-            axios
+          await axios
           .get(this.baseURL+'/getAllCourses',
           { 
               headers:{ Authorization: `Bearer ${token}`, } 
@@ -196,6 +197,7 @@
               console.error(error);
               this.loadingCourses = false
           });
+          this.$emit('onLoading', false)
         },
   
         editItem (item) {
@@ -210,9 +212,10 @@
           this.dialogDelete = true
         },
   
-        deleteItemConfirm () {
+        async deleteItemConfirm () {
           const token = this.$store.getters.getToken;
-          axios
+          this.$emit('onLoading', true)
+          await axios
             .post(this.baseURL+'/deleteCourse', {
               courseid: this.editedItem.courseid
             },
@@ -232,6 +235,7 @@
                 console.error(error);
             });
           this.closeDelete()
+          this.$emit('onLoading', false)
         },
   
         close () {
@@ -250,15 +254,16 @@
           })
         },
   
-        save () {
+        async save () {
           const token = this.$store.getters.getToken;
+          this.$emit('onLoading', true)
           if (this.editedIndex > -1) {
             let saveObj = {
                 courseid: this.editedItem.courseid,
                 coursename: this.editedItem.coursename,
                 course_shortname: this.editedItem.course_shortname,
             }
-            axios
+            await axios
             .post(this.baseURL+'/updateCourse', saveObj,
             { 
                 headers:{ Authorization: `Bearer ${token}`, } 
@@ -277,7 +282,7 @@
                 coursename: this.editedItem.coursename,
                 course_shortname: this.editedItem.course_shortname,
             }
-            axios
+            await axios
             .post(this.baseURL+'/addCourse', saveObj,
             { 
                 headers:{ Authorization: `Bearer ${token}`, } 
@@ -293,6 +298,7 @@
             })
           }
           this.close()
+          this.$emit('onLoading', false)
         },
       },
     }

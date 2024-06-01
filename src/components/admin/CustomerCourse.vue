@@ -298,14 +298,14 @@
         } catch (error) {
             this.$emit('onErrorHandler', error.message)
         }
-        
       },
   
       methods: {
          async initialize () {
-          
+          this.$emit('onLoading', true)
           await this.getCustomerCourseList()
           await this.getCourseLookup()
+          this.$emit('onLoading', false)
         },
   
         editItem (item) {
@@ -325,6 +325,7 @@
           this.dialogDelete = true
         },
         async checkBeforeDelete() {
+          this.$emit('onLoading', true)
           const token = this.$store.getters.getToken;
           await axios
             .post(this.baseURL+'/checkBeforeDeleteCustomerCourse', {
@@ -346,15 +347,18 @@
                   this.deleteNotifyMsg = 'คอร์สเรียนนี้ กำลังถูกใช้โดย ' + nicknameList.join(', ') + ' ไต้องการลบจริงๆหรอ ?'
                   this.dialogDeleteNotify = true
                   this.dialogDelete = false
-                  
+                  this.$emit('onLoading', false)
                 }
             })
             .catch(error => {
                 console.error(error);
+                this.$emit('onLoading', false)
                 return false
             });
+            
         },
         async deleteItemConfirm () {
+          this.$emit('onLoading', true)
           const token = this.$store.getters.getToken;
           await axios
             .post(this.baseURL+'/deleteCustomerCourse', {
@@ -379,6 +383,7 @@
             .catch(error => {
                 console.error(error);
             });
+            this.$emit('onLoading', false)
         },
   
         close () {
@@ -407,7 +412,8 @@
           })
         },
   
-        save () {
+        async save () {
+          this.$emit('onLoading', true)
           const token = this.$store.getters.getToken;
           if (this.editedIndex > -1) {
             let saveObj = {
@@ -420,7 +426,7 @@
                 startdate: this.SQLDate(this.editedItem.startdate),
                 expiredate: this.SQLDate(this.editedItem.expiredate),
             }
-            axios
+            await axios
             .post(this.baseURL+'/updateCustomerCourse', saveObj,
             { 
                 headers:{ Authorization: `Bearer ${token}`, } 
@@ -445,7 +451,7 @@
               startdate: this.SQLDate(this.editedItem.startdate),
               expiredate: this.SQLDate(this.editedItem.expiredate),
             }
-            axios
+            await axios
             .post(this.baseURL+'/addCustomerCourse', saveObj,
             { 
                 headers:{ Authorization: `Bearer ${token}`, } 
@@ -461,10 +467,11 @@
             })
           }
           this.close()
+          this.$emit('onLoading', false)
         },
-        getCourseLookup () {
+        async getCourseLookup () {
             const token = this.$store.getters.getToken;
-            axios
+           await axios
             .get(this.baseURL+'/courseLookup', { 
                 headers:{
                     Authorization: `Bearer ${token}`,
@@ -493,7 +500,7 @@
         async getCustomerCourseList() {
           this.loadingCustomerCourse = true
           const token = this.$store.getters.getToken;
-          await  axios
+          await axios
           .post(this.baseURL+'/getCustomerCourseList', {}, {
                 headers: {
                     Authorization: `Bearer ${token}`,

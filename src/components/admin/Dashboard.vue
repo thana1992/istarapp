@@ -94,6 +94,7 @@
                                     @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)"
                                     @onUpdateDataSuccess="refreshData"
+                                    @onLoading="onLoading($event)"
                                     >
                                 </Student>
                             </v-card>
@@ -103,6 +104,7 @@
                                     @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)"
                                     @onUpdateDataSuccess="refreshData"
+                                    @onLoading="onLoading($event)"
                                     >
                                 </ApproveNewStudent>
                             </v-card>
@@ -112,6 +114,7 @@
                                     @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)"
                                     @onUpdateDataSuccess="refreshData"
+                                    @onLoading="onLoading($event)"
                                     :bookingHeaders="bookingHeaders"
                                     :bookingData="bookingList"
                                     :classdate="datepick"
@@ -197,7 +200,9 @@ export default ({
     
     async created() {
         this.datepick = new Date();
+        this.$emit('onLoading', true)
         await this.initialize()
+        this.$emit('onLoading', false)
         // try {
         //     const token = this.$store.getters.getToken;
         //     console.log('token ', token)
@@ -444,6 +449,9 @@ export default ({
         onShowInfoDialog(msg) {
             this.infoMsg = msg
             this.infoDialog = true
+        },
+        onLoading(isLoading) {
+            this.$emit('onLoading', isLoading)
         },
         SQLDate(date) {
             return moment(date).format('YYYY-MM-DD')
