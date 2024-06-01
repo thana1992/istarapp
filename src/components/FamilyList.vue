@@ -37,7 +37,7 @@
                                 ></v-img>
                             </td>
                             <td style="width: 70vw;">{{ people.fullname }}</td>
-                            <td style="width: 10vw;"><span class="mdi mdi-delete-forever" style="font-size: 7vw;" @click="deleteStudent(people)"></span></td>
+                            <td style="width: 10vw;"><span class="mdi mdi-delete-forever" style="font-size: 7vw;" @click="onClickDelete(people)"></span></td>
                         </tr>
                         </tbody>
                     </v-table>
@@ -50,32 +50,23 @@
             @onBlackToFamilylist="ChangeStateFamily('list')"
             @onErrorHandler="onError($event)"
             @onInfoHandler="onShowInfoDialog($event)"
+            @onLoading="onLoading($event)"
             ></AddFamily>
         </div>
     </div>
-    <!-- <div v-else>
-    <div class="container">
-        <img src="../assets/logo/logo-2.png" alt="iStar Logo" class="istar-logo">
-        <p>Please log in to access this page.</p>
-        </div>
-    </div> -->
-    <v-card
-        v-if="loading"
-        class="card-loading mx-auto text-center pt-5"
-        elevation="24"
-        height="150"
-        width="150"
-    >
-        <v-card-title>
-        <trinity-rings-spinner
-            :animation-duration="1500"
-            :size="66"
-            color="#ff1d5e"
-            class="mx-auto"
-        />
-        </v-card-title>
-        <v-card-text style="color:#ff1d5e;" class="mx-auto">Loading...</v-card-text>
+    <v-dialog v-model="dialogDeleteNotify" persistent width="auto">
+    <v-card>
+        <v-card-title></v-card-title>
+        <v-card-text>{{ deleteNotifyMsg }}</v-card-text>
+        <v-card-actions>
+        <v-spacer></v-spacer>
+        <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">ใช่! ลบเลย</v-btn>
+        <v-btn color="#F44336" variant="tonal" @click="closeDeleteNotify">ไม่ลบละ เปลี่ยนใจ</v-btn>
+        
+        <v-spacer></v-spacer>
+        </v-card-actions>
     </v-card>
+    </v-dialog>
 </template>
 
 <script>
@@ -87,13 +78,13 @@ import { TrinityRingsSpinner } from 'epic-spinners'
 export default {
     components: {
         AddFamily,
-        TrinityRingsSpinner
     },
     data() {
         return {
-            loading: false,
             isAddFamily: false,
             family: [],
+            dialogDeleteNotify: false,
+            people: {},
         }
     },
     methods: {
@@ -111,7 +102,7 @@ export default {
             }
         },
         async getFamilyList() {
-            this.loading = true
+            this.$emit('onLoading', true)
             const token = this.$store.getters.getToken;
             const user = JSON.parse(localStorage.getItem('userdata'))
             await axios
@@ -132,14 +123,15 @@ export default {
             .catch(error => {
                 console.error(error);
             });
-            this.loading = false
+            this.$emit('onLoading', false)
         },
-        async deleteStudent(people) {
+        async deleteStudent() {
+            this.$emit('onLoading', true)
             const token = this.$store.getters.getToken;
-            axios.post(this.baseURL+'/deleteStudent', {
-                familyid: people.familyid,
-                studentid: people.studentid,
-                journal: people.journal
+            await axios.post(this.baseURL+'/deleteStudent', {
+                familyid: this.people.familyid,
+                studentid: this.people.studentid,
+                journal: this.people.journal
             },
             { 
                 headers:{ Authorization: `Bearer ${token}`, } 
@@ -153,6 +145,19 @@ export default {
                 }
                 this.getFamilyList()
             })
+            this.$emit('onLoading', false)
+        },
+        onClickDelete(people) {
+            this.deleteNotifyMsg = `คุณต้องการลบ ${people.fullname} ออกจากครอบครัวใช่หรือไม่?`
+            this.dialogDeleteNotify = true
+            this.people = people
+        },
+        async deleteItemConfirm() {
+            this.dialogDeleteNotify = false
+            await this.deleteStudent()
+        },
+        closeDeleteNotify() {
+            this.dialogDeleteNotify = false
         },
         onError(message) {
             this.$emit('onErrorHandler', message)

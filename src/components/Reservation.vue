@@ -187,6 +187,7 @@ import { mapGetters } from 'vuex';
             })
         },
         async submitReservation () {
+            this.$emit('onLoading', true)
             this.questionDialog = false;
             let isDuplicate = false;
             const reservaObj = {
@@ -237,6 +238,7 @@ import { mapGetters } from 'vuex';
                 });
             }
             this.$emit('onClickChangeState', this.student)
+            this.$emit('onLoading', false)
         },
         SQLDate(value){
             if (value) {

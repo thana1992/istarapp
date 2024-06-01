@@ -103,7 +103,8 @@ export default {
         ],
     }),
     methods: {
-        async doSave (date) {
+        async doSave () {
+            this.$emit('onLoading', true)
             const { valid } = await this.$refs.form.validate()
             if(this.dateofbirth == null){
                 this.$emit('onErrorHandler', 'กรุณาเลือกวันเกิด')
@@ -115,7 +116,7 @@ export default {
             const user = JSON.parse(userdata)
             const token = this.$store.getters.getToken;
             // Make API request to register the user
-            axios
+            await axios
                 .post(this.baseURL+'/addStudent', {
                 firstname: this.firstname,
                 middlename: this.middlename,
@@ -131,6 +132,7 @@ export default {
                 .then(response => {
                     console.log(response)
                     if (response.data.success) {
+                        this.$emit('onLoading', false)
                         this.$emit('onInfoHandler', response.data.message || 'เพิ่มสมาชิกครอบครัวสำเร็จแล้ว');
                         this.$emit('onClickChangeState', 'familylist')
                     } else {
@@ -147,6 +149,8 @@ export default {
                     }
                 });
             }
+            
+            this.$emit('onLoading', false)
         },
         async validate () {
             const { valid } = await this.$refs.form.validate()

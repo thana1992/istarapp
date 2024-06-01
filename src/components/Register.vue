@@ -144,6 +144,7 @@ export default {
     }),
     methods: {
       async doRegister () {
+        this.$emit('onLoading', true)
         const { valid } = await this.$refs.form.validate()
 
         if (valid) {
@@ -178,6 +179,7 @@ export default {
               alert(error.message)
             });
         }
+        this.$emit('onLoading', false)
       },
       acceptNumber() {
         var x = this.mobileno.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
