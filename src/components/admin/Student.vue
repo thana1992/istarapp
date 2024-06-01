@@ -322,7 +322,7 @@ export default {
                 }
             })
             .catch(error => {
-                if(error.response.status == 401) {
+                if(error.response.status && error.response.status == 401) {
                     this.$emit('onErrorHandler', error.response.data.message)
                     this.$emit('onClickChangeState', 'login')
                 }else{
@@ -365,7 +365,8 @@ export default {
                         }
                     })
                     .catch(error => {
-                        if(error.response.status == 401) {
+                        console.log(error)
+                        if(error.response.status && error.response.status == 401) {
                             this.$emit('onErrorHandler', error.response.data.message)
                             this.$emit('onClickChangeState', 'login')
                         }else{
@@ -413,7 +414,7 @@ export default {
                 }
             })
             .catch(error => {
-                if(error.response.status == 401) {
+                if(error.response.status && error.response.status == 401) {
                     this.$emit('onErrorHandler', error.response.data.message)
                     this.$emit('onClickChangeState', 'login')
                 }else{
@@ -432,7 +433,7 @@ export default {
                 }
             })
             .catch(error => {
-                if(error.response.status == 401) {
+                if(error.response.status && error.response.status == 401) {
                     this.$emit('onErrorHandler', error.response.data.message)
                     this.$emit('onClickChangeState', 'login')
                 }else{
@@ -475,7 +476,7 @@ export default {
                 this.getStudentList()
             })
             .catch(error => {
-                if(error.response.status == 401) {
+                if(error.response.status && error.response.status == 401) {
                     this.$emit('onErrorHandler', error.response.data.message)
                     this.$emit('onClickChangeState', 'login')
                 }else{
@@ -542,7 +543,8 @@ export default {
                 // Replace 'gymnastId' with the actual ID of the gymnast
                 const response = await axios.get(this.baseURL+`/student/${this.editedStudentItem.studentid}/profile-image`);
                 console.log('response : ', response)
-                this.editedStudentItem.profile_image = response.data.image;
+                //this.editedStudentItem.profile_image = response.data.image;
+                this.editedStudentItem.base64Image = response.data.image;
                 this.imagePreview = `data:image/*;base64,${response.data.image}`;
             } catch (error) {
                 console.error('Error loading profile image:', error);
