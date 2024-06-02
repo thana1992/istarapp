@@ -290,7 +290,6 @@ export default {
                     dateofbirth: this.SQLDate(this.editedStudentItem.dateofbirth),
                     familyid: this.editedStudentItem.familyid,
                     courserefer: this.editedStudentItem.courserefer,
-                    profile_image: this.editedStudentItem.base64Image,
                     shortnote: this.editedStudentItem.shortnote,
                 }
                 //console.log(this.editedStudentIndex+ ' StudentObj : ', StudentObj)
@@ -301,6 +300,7 @@ export default {
                         .post(this.baseURL + '/updateStudentByAdmin', StudentObj, { headers: { Authorization: `Bearer ${token}`, } })
                         .then(response => {
                             if (response.data.success) {
+                                this.uploadImageProfile()
                                 this.$emit('onInfoHandler', 'แก้ไขข้อมูลสำเร็จแล้ว');
                                 this.getStudentList()
                                 this.dialogStudent = false
@@ -321,6 +321,7 @@ export default {
                         .post(this.baseURL + '/addStudentByAdmin', StudentObj, { headers: { Authorization: `Bearer ${token}`, } })
                         .then(response => {
                             if (response.data.success) {
+                                this.uploadImageProfile()
                                 this.$emit('onInfoHandler', 'เพิ่มสมาชิกสำเร็จแล้ว');
                                 this.getStudentList()
                                 this.dialogStudent = false
@@ -450,7 +451,7 @@ export default {
                         this.$emit('onErrorHandler', error.message)
                     }
                 });
-                this.$emit('onLoading', false)
+            this.$emit('onLoading', false)
         },
         closeStudent() {
             this.dialogStudent = false
@@ -509,7 +510,12 @@ export default {
             const image = this.editedStudentItem.base64Image;
             try {
                 // Replace 'gymnastId' with the actual ID of the gymnast
-                const response = await axios.put(this.baseURL + `/student/${this.editedStudentItem.studentid}/profile-image`, { image });
+                const token = this.$store.getters.getToken;
+                const response = await axios.put(this.baseURL + `/student/${this.editedStudentItem.studentid}/profile-image`, { image }, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                });
                 if (response.data.success) {
                     this.$emit('onInfoHandler', 'Upload Image Successful');
                 } else {
@@ -522,7 +528,8 @@ export default {
         async loadProfileImage() {
             try {
                 // Replace 'gymnastId' with the actual ID of the gymnast
-                const response = await axios.get(this.baseURL + `/student/${this.editedStudentItem.studentid}/profile-image`);
+                const response = await axios.get(this.baseURL + `/student/${this.editedStudentItem.studentid}/profile-image`,
+                    { headers: { Authorization: `Bearer ${this.token}` } });
                 console.log('response : ', response)
                 //this.editedStudentItem.profile_image = response.data.image;
                 this.editedStudentItem.base64Image = response.data.image;

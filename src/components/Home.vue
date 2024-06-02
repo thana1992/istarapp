@@ -49,23 +49,24 @@
                 <Transition v-for="p in familylist">
                     <div v-if="p.studentid == studentid">
                         <div class="info-photo" >
-                            <v-img v-if="p.profile_image != null"
-                                :src="p.profile_image"
+                            <v-img v-if="imagePreview != null"
+                                :src="imagePreview"
                                 cover
                                 class="pa-6 bg-secondary rounded-circle d-inline-block"
-                                style="display: flex !important; max-width: 25vw;"
+                                style="display: flex !important; 
+                                width: 25vw;"
                             ></v-img>
                             <v-img v-else-if="p.gender === 'หญิง'"
                                 :src="profileGirl"
                                 cover
                                 class="pa-6 bg-secondary rounded-circle d-inline-block"
-                                style="display: flex !important; max-width: 25vw;"
+                                style="display: flex !important; width: 25vw;"
                             ></v-img>
                             <v-img v-else
                                 :src="profileBoy"
                                 cover
                                 class="pa-6 bg-secondary rounded-circle d-inline-block"
-                                style="display: flex !important; max-width: 25vw;"
+                                style="display: flex !important;  width: 25vw;"
                             ></v-img>
                         </div>
                         <div class="info-detail">
@@ -150,7 +151,7 @@ export default {
           console.log(student)
           this.studentid = student.studentid
           this.studentSelected = student
-          //this.studentSelected.expiredate = new Date(this.studentSelected.expiredate).toLocaleDateString('th-TH', this.options)
+          this.loadProfileImage()
           this.getReservationDetail(student.studentid)
       },
       doReservation() {
@@ -187,11 +188,6 @@ export default {
             console.dir(response);
             if (response.data.success) {
                 this.familylist = response.data.results
-                this.familylist.forEach(obj => {
-                    if(obj.profile_image != null) {
-                        obj.profile_image = `data:image/*;base64,${obj.profile_image}`
-                    }
-                });
                 console.log('familylist ', this.familylist)
             }
         })
@@ -200,6 +196,19 @@ export default {
         });
         this.$emit('onLoading', false)
       },
+      async loadProfileImage() {
+            try {
+                // Replace 'gymnastId' with the actual ID of the gymnast
+                const response = await axios.get(this.baseURL+`/student/${this.studentSelected.studentid}/profile-image`, 
+                { headers: { Authorization: `Bearer ${this.token}` } });
+                console.log('response : ', response)
+                //this.editedStudentItem.profile_image = response.data.image;
+                this.studentSelected.base64Image = response.data.image;
+                this.imagePreview = `data:image/*;base64,${response.data.image}`;
+            } catch (error) {
+                console.error('Error loading profile image:', error);
+            }
+        },
       async getReservationDetail(studentid) {
         const token = this.$store.getters.getToken;
         const user = JSON.parse(localStorage.getItem('userdata'))
@@ -256,6 +265,7 @@ export default {
   },
   data() {
       return {
+        imagePreview: null,
         familylist: null,
         userdetail: null,
         memberReservationDetail: null,
