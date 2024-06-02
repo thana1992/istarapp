@@ -5,6 +5,8 @@ module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
     allowedHosts: 'all',
+    hot: false, // ปิดการใช้งาน HMR
+    liveReload: false, // ปิดการใช้งานการโหลดสด
   },
   configureWebpack: {
     plugins: [

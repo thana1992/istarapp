@@ -87,8 +87,7 @@ import { mapGetters } from 'vuex';
 
 import { Promise } from 'core-js';
 const BookingListAPI = {
-    baseURL: 'https://istarserver.vercel.app',
-    //baseURL: 'http://localhost:3000',
+    baseURL: process.env.SERVER_URL,
     fetchDataBooking ({ token, classday, classdate }) {
         return new Promise(resolve => {
             console.log('DashboardAPI : ' + this.baseURL+'/getBookingList' + ' classday : ' + classday + ' classdate : ' + classdate)

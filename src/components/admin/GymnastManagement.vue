@@ -603,8 +603,7 @@ export default {
 
 import { Promise } from 'core-js';
 const ComponentAPI = {
-    baseURL: 'https://istarserver.vercel.app',
-    //baseURL: 'http://localhost:3000',
+    baseURL: process.env.SERVER_URL,
     async fetchDataStudent({ token }) {
         return new Promise(async resolve => {
             await axios

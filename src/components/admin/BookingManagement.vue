@@ -709,8 +709,7 @@ export default ({
 })
 import { Promise } from 'core-js';
 const DashboardAPI = {
-    baseURL: 'https://istarserver.vercel.app',
-    //baseURL: 'http://localhost:3000',
+    baseURL: process.env.SERVER_URL,
     fetchDataBooking ({ token, reservedate }) {
         return new Promise(resolve => {
             //console.log('DashboardAPI : ' + this.baseURL+'/getReservationList')
