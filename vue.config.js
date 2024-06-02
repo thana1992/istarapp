@@ -7,6 +7,9 @@ module.exports = defineConfig({
     allowedHosts: 'all',
     hot: false,
     liveReload: false,
+    client: {
+      webSocketURL: 'ws://localhost:8080/ws',
+    },
     webSocketServer: false,
   },
   configureWebpack: {
