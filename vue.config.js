@@ -5,11 +5,8 @@ module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
     allowedHosts: 'all',
-    hot: false, // ปิดการใช้งาน HMR
-    liveReload: false, // ปิดการใช้งานการโหลดสด
-    client: {
-      webSocketURL: 'ws://localhost:8080/ws',
-    },
+    hot: false,
+    liveReload: false,
     webSocketServer: false,
   },
   configureWebpack: {
