@@ -7,6 +7,7 @@ module.exports = defineConfig({
     allowedHosts: 'all',
     hot: false,
     liveReload: false,
+    webSocketServer: false,
   },
   configureWebpack: {
     plugins: [
