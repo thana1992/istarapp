@@ -51,7 +51,6 @@
         </v-row>
       </v-form>
     </v-card>
-    
   </div>
 </template>
 

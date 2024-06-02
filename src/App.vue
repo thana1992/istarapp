@@ -350,6 +350,7 @@ export default {
   created() {
     this.user_details = JSON.parse(localStorage.getItem('userdata'))
     console.log("user_details", this.user_details);
+    console.log("env ", process.env.SERVER_URL)
     if (this.user_details) {
       this.parent = this.user_details.firstname
       this.student = null;
