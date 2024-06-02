@@ -98,6 +98,7 @@
                                                 variant="solo-filled"
                                                 no-data-text="No course data"
                                                 :rules="notNullRules"
+                                                @update:modelValue="onCourseChange"
                                                 editable
                                             ></v-autocomplete>
                                         </v-col>
@@ -556,6 +557,38 @@ export default {
             } catch (error) {
                 console.error('Error loading profile image:', error);
             }
+        },
+        async onCourseChange(studentid) {
+            console.log('Student selected:', studentid);
+            this.loadingCourse = true
+            const token = this.$store.getters.getToken;
+            await axios.get(this.baseURL+'/getStudentUseCourse', {
+                studentid: this.editedBookingItem.studentid,
+            },
+            { headers:{ Authorization: `Bearer ${token}`, } 
+            })
+            .then(response => {
+                //console.dir(response);
+                if (response.data.success) {
+                    console.log('getStudentUseCourse', response.data.results);
+                    const res = response.data.results[0];
+                    if(res) {
+                    } else {
+                    }
+                } else {
+                    this.$emit('onErrorHandler', 'getCustomerCourseInfo failed');
+                }
+            })
+            .catch(error => {
+                console.log(error)
+                if(error.response && error.response.status == 401) {
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                }else{
+                    this.$emit('onErrorHandler', error.message)
+                }
+            });
+            this.loadingCourse = false
         },
         closeStudent () {
           this.dialogStudent = false

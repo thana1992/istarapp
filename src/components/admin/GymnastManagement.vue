@@ -67,7 +67,8 @@
                                                         label="Course Refer" item-title="courserefer"
                                                         item-value="courserefer" :items="customerCourseLookup"
                                                         variant="solo-filled" no-data-text="No course"
-                                                        :rules="notNullRules" editable></v-autocomplete>
+                                                        :rules="notNullRules" editable
+                                                        @update:modelValue="onCourseChange"></v-autocomplete>
                                                 </v-col>
                                                 <v-col cols="12" sm="6" md="12">
                                                     <v-textarea v-model="editedStudentItem.shortnote" label="Short Note"
@@ -537,6 +538,39 @@ export default {
             } catch (error) {
                 console.error('Error loading profile image:', error);
             }
+        },
+        async onCourseChange(studentid) {
+            console.log('Student selected:', studentid);
+            this.loadingCourse = true
+            const token = this.$store.getters.getToken;
+            await axios.get(this.baseURL+'/getStudentUseCourse', {
+                studentid: studentid
+            },
+            { headers:{ Authorization: `Bearer ${token}`, } 
+            })
+            .then(response => {
+                //console.dir(response);
+                if (response.data.success) {
+                    console.log('getStudentUseCourse', response.data.results);
+                    const res = response.data.results[0];
+                    if(res) {
+                    
+                    } else {
+                    }
+                } else {
+                    this.$emit('onErrorHandler', 'getCustomerCourseInfo failed');
+                }
+            })
+            .catch(error => {
+                console.log(error)
+                if(error.response && error.response.status == 401) {
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                }else{
+                    this.$emit('onErrorHandler', error.message)
+                }
+            });
+            this.loadingCourse = false
         },
         calculateAgeNewStudent() {
             this.editedStudentItem.age = this.calculateAge(new Date(this.editedStudentItem.dateofbirth))
