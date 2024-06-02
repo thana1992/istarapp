@@ -16,8 +16,6 @@
           </v-list-item>
           <v-list-item v-if="!isLoggedIn" prepend-icon="mdi-account-plus" title="REGISTER" value="register" @click="onClickChangeState('register')">
           </v-list-item>
-          <!-- <v-list-item v-if="!isLoggedIn" prepend-icon="mdi-account-plus" title="FAMILY TEST" value="family" @click="onClickChangeState('family')">
-          </v-list-item> -->
           <v-list-item v-if="isLoggedIn && !adminflag" prepend-icon="mdi-home-account" title="HOME" value="home" @click="onClickChangeState('home')">
           </v-list-item>
           <v-list-item v-if="isLoggedIn && !adminflag" prepend-icon="mdi-account-multiple" title="FAMILY" value="familylist" @click="onClickChangeState('familylist')">
