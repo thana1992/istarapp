@@ -56,6 +56,13 @@
                 required
                 ></DatePicker>
 
+                <v-text-field
+                variant="solo-filled"
+                v-model="school"
+                label="School"
+                type="text"
+                ></v-text-field>
+
                 <v-btn
                     color="success"
                     class="mt-4"
@@ -97,6 +104,7 @@ export default {
         nickname: '',
         gender: '',
         dateofbirth: null,
+        school: '',
         format: 'dddd MMMM DD, YYYY',
         nameRules: [
             v => !!v || 'field is required',
@@ -124,6 +132,7 @@ export default {
                 nickname: this.nickname,
                 gender: this.gender,
                 dateofbirth: this.format_date(this.dateofbirth),
+                school: this.school,
                 familyid: user.familyid,
                 },
                 { 

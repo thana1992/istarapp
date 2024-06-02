@@ -282,6 +282,7 @@ export default {
       if(state == 'login') {
         this.$store.dispatch('logout');
         localStorage.removeItem('userdata');
+        this.onLoading(false)
       }
       this.drawer= false
       this.black = false
