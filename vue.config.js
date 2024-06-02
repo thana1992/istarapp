@@ -7,6 +7,10 @@ module.exports = defineConfig({
     allowedHosts: 'all',
     hot: false, // ปิดการใช้งาน HMR
     liveReload: false, // ปิดการใช้งานการโหลดสด
+    client: {
+      webSocketURL: 'ws://localhost:8080/ws',
+    },
+    webSocketServer: false,
   },
   configureWebpack: {
     plugins: [
