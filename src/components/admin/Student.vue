@@ -21,7 +21,7 @@
                                         <v-form ref="newstdform">
                                             <v-row>
                                                 <v-col cols="12" sm="12" md="12">
-                                                    <div style="min-height: 150px; display: ruby-text;">
+                                                    <div style="min-height: 150px; display: ruby-text; cursor: pointer;">
                                                         <v-img
                                                             :src="imagePreview" 
                                                             class="info-photo rounded-circle"
