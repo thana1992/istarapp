@@ -5,9 +5,9 @@ module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
     allowedHosts: 'all',
-    // hot: false,
+    hot: false,
     liveReload: false,
-    // webSocketServer: false,
+    webSocketServer: false,
   },
   configureWebpack: {
     plugins: [
