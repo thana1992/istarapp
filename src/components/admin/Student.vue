@@ -23,8 +23,13 @@
                                                 <v-col cols="12" sm="12" md="12">
                                                     <div style="min-height: 150px; display: ruby-text;">
                                                         <v-img
-                                                            :src="imagePreview" class="info-photo rounded-circle"
-                                                            width="150" height="150"></v-img>
+                                                            :src="imagePreview" 
+                                                            class="info-photo rounded-circle"
+                                                            width="150" 
+                                                            height="150"
+                                                            @click="triggerFileInput"
+                                                            >
+                                                        </v-img>
                                                     </div>
                                                 </v-col>
                                             </v-row>
@@ -101,7 +106,10 @@
                                                         label="รูปโปรไฟล์" accept="image/*" show-size outlined
                                                         prepend-icon="mdi-camera" :loading="uploadLoading"
                                                         @change="onFileChange"
-                                                        @click:clear="onFileClear">
+                                                        @click:clear="onFileClear"
+                                                        style="display: none;"
+                                                        ref="fileInput"
+                                                        >
                                                     </v-file-input>
                                                 </v-col>
                                             </v-row>
@@ -161,7 +169,7 @@ export default {
     return {
         uploadLoading: false,
         StudentList: [],
-        imagePreview: null,
+        imagePreview: require('@/assets/avatar/2.png'),
         StudentListHeaders: [
         { title: 'Name', key: 'fullname' },
         //{ title: 'Date of Birth', key: 'dateofbirthshow' },
@@ -437,7 +445,7 @@ export default {
           this.$nextTick(() => {
             this.editedStudentItem = Object.assign({}, this.defaultStudentItem)
             this.editedStudentIndex = -1
-            this.imagePreview = null
+            this.imagePreview = this.profileAvatar
           })
         },
         clickCancelDeleteStd () {
@@ -445,12 +453,12 @@ export default {
           this.$nextTick(() => {
             this.editedStudentItem = Object.assign({}, this.defaultStudentItem)
             this.editedStudentIndex = -1
-            this.imagePreview = null
+            this.imagePreview = this.profileAvatar
           })
         },
         onFileClear() {
             this.editedStudentItem.profile_image = null;
-            this.imagePreview = null;
+            this.imagePreview = this.profileAvatar;
         },
         onFileChange(e) {
             const file = e.target.files[0];
@@ -459,7 +467,7 @@ export default {
             const maxSize = 4 * 1024 * 1024; // ขนาดสูงสุด 4MB
             if (file.size > maxSize) {
                 this.editedStudentItem.profile_image = null;
-                this.imagePreview = null;
+                this.imagePreview = this.profileAvatar;
                 this.$emit('onErrorHandler', 'จำกัดขนาดไฟล์ไม่เกิน 4MB');
                 
                 return;
@@ -522,6 +530,9 @@ export default {
             } catch (error) {
                 console.error('Error loading profile image:', error);
             }
+        },
+        triggerFileInput() {
+            this.$refs.fileInput.click();
         },
         async onCourseChange() {
             this.loadingCourse = true

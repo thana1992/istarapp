@@ -26,6 +26,20 @@
                                     <v-container>
                                         <v-form ref="newstdform">
                                             <v-row>
+                                                <v-col cols="12" sm="12" md="12">
+                                                    <div style="min-height: 150px; display: ruby-text;">
+                                                        <v-img
+                                                            :src="imagePreview" 
+                                                            class="info-photo rounded-circle"
+                                                            width="150" 
+                                                            height="150"
+                                                            @click="triggerFileInput"
+                                                            >
+                                                        </v-img>
+                                                    </div>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row>
                                                 <v-col cols="12" sm="6" md="4">
                                                     <v-text-field v-model="editedStudentItem.firstname"
                                                         label="Firstname" variant="solo-filled" :rules="notNullRules"
@@ -80,39 +94,30 @@
                                             <v-row>
                                                 <v-col cols="12" sm="6" md="12">
                                                     <v-textarea v-model="editedStudentItem.shortnote" label="Short Note"
-                                                        variant="solo-filled" rows="6"></v-textarea>
+                                                        variant="solo-filled" rows="4">
+                                                    </v-textarea>
                                                 </v-col>
                                             </v-row>
                                             <v-row>
                                                 <v-col cols="12" sm="6" md="5">
-                                                    <v-row>
-                                                        <v-col cols="12">
-                                                            <v-select v-model="editedStudentItem.familyid"
-                                                                label="Parent" item-title="username"
-                                                                item-value="familyid" :items="familyLookup"
-                                                                variant="solo-filled" :rules="notNullRules"
-                                                                required></v-select>
-                                                        </v-col>
-                                                    </v-row>
-                                                    <v-row>
-                                                        <v-col cols="12">
-                                                            <v-file-input v-model="editedStudentItem.profilepic"
-                                                                label="รูปโปรไฟล์" accept="image/*" show-size outlined
-                                                                prepend-icon="mdi-camera" :loading="uploadLoading"
-                                                                @change="onFileChange"
-                                                                @click:clear="onFileClear"></v-file-input>
-                                                        </v-col>
-                                                    </v-row>
+                                                    <v-select v-model="editedStudentItem.familyid"
+                                                        label="Parent" item-title="username"
+                                                        item-value="familyid" :items="familyLookup"
+                                                        variant="solo-filled" :rules="notNullRules"
+                                                        required>
+                                                    </v-select>
                                                 </v-col>
-                                                <v-col cols="12" sm="6" md="2"></v-col>
-                                                <v-col cols="12" sm="6" md="3">
-                                                    <div style="min-height: 150px;">
-                                                        <v-img
-                                                            :src="imagePreview" class="info-photo rounded-circle"
-                                                            width="150" height="150"></v-img>
-                                                    </div>
+                                                <v-col cols="12" sm="6" md="7">
+                                                    <v-file-input v-model="editedStudentItem.profilepic"
+                                                        label="รูปโปรไฟล์" accept="image/*" show-size outlined
+                                                        prepend-icon="mdi-camera" :loading="uploadLoading"
+                                                        @change="onFileChange"
+                                                        @click:clear="onFileClear"
+                                                        style="display: none;"
+                                                        ref="fileInput"
+                                                        >
+                                                    </v-file-input>
                                                 </v-col>
-                                                <v-col cols="12" sm="6" md="2"></v-col>
                                             </v-row>
                                         </v-form>
                                     </v-container>
@@ -217,7 +222,7 @@ export default {
             dialogStudent: false,
             dialogStudentDelete: false,
             loadingStudent: false,
-            imagePreview: null,
+            imagePreview: require('@/assets/avatar/2.png'),
             uploadLoading: false,
             notNullRules: [
                 v => !!v || 'field is required',
@@ -474,7 +479,7 @@ export default {
             this.$nextTick(() => {
                 this.editedStudentItem = Object.assign({}, this.defaultStudentItem)
                 this.editedStudentIndex = -1
-                this.imagePreview = null
+                this.imagePreview = this.profileAvatar
             })
         },
         clickCancelDeleteStd() {
@@ -482,12 +487,12 @@ export default {
             this.$nextTick(() => {
                 this.editedStudentItem = Object.assign({}, this.defaultStudentItem)
                 this.editedStudentIndex = -1
-                this.imagePreview = null
+                this.imagePreview = this.profileAvatar
             })
         },
         onFileClear() {
             this.editedStudentItem.profile_image = null;
-            this.imagePreview = null;
+            this.imagePreview = this.profileAvatar;
         },
         onFileChange(e) {
             const file = e.target.files[0];
@@ -496,7 +501,7 @@ export default {
             const maxSize = 4 * 1024 * 1024; // ขนาดสูงสุด 4MB
             if (file.size > maxSize) {
                 this.editedStudentItem.profile_image = null;
-                this.imagePreview = null;
+                this.imagePreview = this.profileAvatar;
                 this.$emit('onErrorHandler', 'จำกัดขนาดไฟล์ไม่เกิน 4MB');
 
                 return;
@@ -551,10 +556,17 @@ export default {
                 console.log('response : ', response)
                 //this.editedStudentItem.profile_image = response.data.image;
                 this.base64Image = response.data.image;
-                this.imagePreview = `data:image/*;base64,${response.data.image}`;
+                if(response.data.image !== null) {
+                    this.imagePreview = `data:image/*;base64,${response.data.image}`;
+                } else {
+                    this.imagePreview = this.profileAvatar;
+                }
             } catch (error) {
                 console.error('Error loading profile image:', error);
             }
+        },
+        triggerFileInput() {
+            this.$refs.fileInput.click();
         },
         async onCourseChange() {
             this.loadingCourse = true
@@ -658,6 +670,9 @@ export default {
         },
         formStudentTitle() {
             return this.editedStudentIndex === -1 ? 'Add a new student' : 'Edit student information'
+        },
+        profileAvatar() {
+            return require('@/assets/avatar/2.png')
         },
     }
 }
