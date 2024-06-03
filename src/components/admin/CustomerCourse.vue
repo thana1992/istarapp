@@ -38,9 +38,16 @@
                     <v-col
                       cols="12"
                       sm="6"
-                      md="5"
+                      md="6"
                     >
                     <v-label>Course Refer : {{ editedItem.courserefer }}</v-label>
+                    </v-col>
+                    <v-col
+                      cols="12"
+                      sm="6"
+                      md="6"
+                    >
+                    <v-label>{{ editedItem.course_user }}</v-label>
                     </v-col>
                   </v-row>
                   <v-row>
@@ -232,6 +239,7 @@
           remaining: null,
           startdate: null,
           expiredate: null,
+          course_user: null,
         },
         defaultItem: {
           courserefer: null,
@@ -242,6 +250,7 @@
           remaining: null,
           startdate: null,
           expiredate: null,
+          course_user: null,
         },
         courselist: [],
       }),
@@ -315,6 +324,7 @@
           this.editedItem.expiredate = new Date(item.expiredate)
           let course = this.courseLookup.find(course => course.courseid == this.editedItem.courseid)
           this.editedItem.course = course
+          this.checkCourseUser()
           this.dialog = true
           console.log('editItem', this.editedItem)
         },
@@ -385,7 +395,42 @@
             });
             this.$emit('onLoading', false)
         },
-  
+        async checkCourseUser() {
+            this.loadingCourse = true
+            await axios.get(this.baseURL+"/getStudentUseCourse/"+this.editedItem.courserefer,  { 
+                headers:{ Authorization: `Bearer ${this.token}` } 
+            },)
+            .then(response => {
+                //console.dir(response);
+                if (response.data.success) {
+                    console.log('getStudentUseCourse', response.data);
+                    const res = response.data.results;
+                    if(res) {
+                        const data = response.data.results[0];
+                        console.log('data', data.user);
+                        if(data.user > 0) {
+                            this.editedItem.course_user = 'มีผู้กำลังใช้คอร์สนี้ '+data.user+' คน '+data.userlist;
+                        } else {
+                            this.editedItem.course_user = null;
+                        }
+                    } else {
+                        this.editedItem.course_user = null;
+                    }
+                } else {
+                    this.$emit('onErrorHandler', 'getCustomerCourseInfo failed');
+                }
+            })
+            .catch(error => {
+                console.log(error)
+                if(error.response && error.response.status == 401) {
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                }else{
+                    this.$emit('onErrorHandler', error.message)
+                }
+            });
+            this.loadingCourse = false
+        },
         close () {
           this.dialog = false
           this.$nextTick(() => {

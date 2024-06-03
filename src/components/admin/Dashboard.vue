@@ -502,7 +502,7 @@ export default ({
 })
 import { Promise } from 'core-js';
 const DashboardAPI = {
-    baseURL: process.env.SERVER_URL,
+    baseURL: env.SERVER_URL,
     fetchDataBooking ({ token, classday, classdate }) {
         return new Promise(resolve => {
             console.log('DashboardAPI : ' + this.baseURL+'/getBookingList' + ' classday : ' + classday + ' classdate : ' + classdate)

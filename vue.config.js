@@ -5,14 +5,14 @@ module.exports = defineConfig({
   transpileDependencies: true,
   devServer: {
     allowedHosts: 'all',
-    hot: false,
+    // hot: false,
     liveReload: false,
-    webSocketServer: false,
+    // webSocketServer: false,
   },
   configureWebpack: {
     plugins: [
       new webpack.DefinePlugin({
-        'process.env': {
+        'env': {
           SERVER_URL: JSON.stringify(process.env.SERVER_URL)
         }
       })

@@ -26,21 +26,23 @@
                                     <v-container>
                                         <v-form ref="newstdform">
                                             <v-row>
-                                                <v-col cols="12" sm="6" md="6">
+                                                <v-col cols="12" sm="6" md="4">
                                                     <v-text-field v-model="editedStudentItem.firstname"
                                                         label="Firstname" variant="solo-filled" :rules="notNullRules"
                                                         required></v-text-field>
                                                 </v-col>
-                                                <v-col cols="12" sm="6" md="6">
+                                                <v-col cols="12" sm="6" md="4">
                                                     <v-text-field v-model="editedStudentItem.middlename"
                                                         label="Middlename" variant="solo-filled"
                                                         required></v-text-field>
                                                 </v-col>
-                                                <v-col cols="12" sm="6" md="6">
+                                                <v-col cols="12" sm="6" md="4">
                                                     <v-text-field v-model="editedStudentItem.lastname" label="Lastname"
                                                         variant="solo-filled" :rules="notNullRules"
                                                         required></v-text-field>
                                                 </v-col>
+                                            </v-row>
+                                            <v-row>
                                                 <v-col cols="12" sm="6" md="3">
                                                     <v-text-field v-model="editedStudentItem.nickname" label="Nickname"
                                                         variant="solo-filled" :rules="notNullRules"
@@ -61,7 +63,8 @@
                                                     <v-text-field label="Age" v-model="editedStudentItem.age" readonly
                                                         variant="solo-filled"></v-text-field>
                                                 </v-col>
-
+                                            </v-row>
+                                            <v-row>
                                                 <v-col cols="12" sm="6" md="6">
                                                     <v-autocomplete v-model="editedStudentItem.courserefer"
                                                         label="Course Refer" item-title="courserefer"
@@ -70,11 +73,17 @@
                                                         :rules="notNullRules" editable
                                                         @update:modelValue="onCourseChange"></v-autocomplete>
                                                 </v-col>
+                                                <v-col cols="12" sm="6" md="6">
+                                                    <v-label style="white-space: break-spaces;" >{{ editedStudentItem.current_course_detail }}</v-label>
+                                                </v-col>
+                                            </v-row>
+                                            <v-row>
                                                 <v-col cols="12" sm="6" md="12">
                                                     <v-textarea v-model="editedStudentItem.shortnote" label="Short Note"
                                                         variant="solo-filled" rows="6"></v-textarea>
                                                 </v-col>
-
+                                            </v-row>
+                                            <v-row>
                                                 <v-col cols="12" sm="6" md="5">
                                                     <v-row>
                                                         <v-col cols="12">
@@ -98,7 +107,7 @@
                                                 <v-col cols="12" sm="6" md="2"></v-col>
                                                 <v-col cols="12" sm="6" md="3">
                                                     <div style="min-height: 150px;">
-                                                        <v-img v-if="editedStudentItem.profile_image"
+                                                        <v-img
                                                             :src="imagePreview" class="info-photo rounded-circle"
                                                             width="150" height="150"></v-img>
                                                     </div>
@@ -183,9 +192,9 @@ export default {
                 dateofbirth: null,
                 age: null,
                 courserefer: null,
+                current_course_detail: null,
                 username: null,
                 profile_image: null,
-                base64Image: null,
                 shortnote: null,
             },
             defaultStudentItem: {
@@ -198,17 +207,21 @@ export default {
                 dateofbirth: null,
                 age: null,
                 courserefer: null,
+                current_course_detail: null,
                 username: null,
                 profile_image: null,
-                base64Image: null,
                 shortnote: null,
             },
+            base64Image: null,
             editedStudentIndex: -1,
             dialogStudent: false,
             dialogStudentDelete: false,
             loadingStudent: false,
             imagePreview: null,
             uploadLoading: false,
+            notNullRules: [
+                v => !!v || 'field is required',
+            ],
         }
     },
     async created() {
@@ -301,7 +314,7 @@ export default {
                         .post(this.baseURL + '/updateStudentByAdmin', StudentObj, { headers: { Authorization: `Bearer ${token}`, } })
                         .then(response => {
                             if (response.data.success) {
-                                this.uploadImageProfile()
+                                this.uploadImageProfile(this.editedStudentItem.studentid)
                                 this.$emit('onInfoHandler', 'แก้ไขข้อมูลสำเร็จแล้ว');
                                 this.getStudentList()
                                 this.dialogStudent = false
@@ -322,7 +335,8 @@ export default {
                         .post(this.baseURL + '/addStudentByAdmin', StudentObj, { headers: { Authorization: `Bearer ${token}`, } })
                         .then(response => {
                             if (response.data.success) {
-                                this.uploadImageProfile()
+                                console.log('response.data.studentid', response.data.studentid)
+                                this.uploadImageProfile(response.data.studentid)
                                 this.$emit('onInfoHandler', 'เพิ่มสมาชิกสำเร็จแล้ว');
                                 this.getStudentList()
                                 this.dialogStudent = false
@@ -414,6 +428,7 @@ export default {
             this.editedStudentItem = Object.assign({}, item)
             this.editedStudentItem.dateofbirth = new Date(item.dateofbirth)
             this.editedStudentItem.age = this.calculateAge(item.dateofbirth)
+            this.onCourseChange()
             this.loadProfileImage()
             this.dialogStudent = true
         },
@@ -459,6 +474,7 @@ export default {
             this.$nextTick(() => {
                 this.editedStudentItem = Object.assign({}, this.defaultStudentItem)
                 this.editedStudentIndex = -1
+                this.imagePreview = null
             })
         },
         clickCancelDeleteStd() {
@@ -466,6 +482,7 @@ export default {
             this.$nextTick(() => {
                 this.editedStudentItem = Object.assign({}, this.defaultStudentItem)
                 this.editedStudentIndex = -1
+                this.imagePreview = null
             })
         },
         onFileClear() {
@@ -489,30 +506,30 @@ export default {
                 const reader = new FileReader();
                 reader.onload = () => {
                     this.imagePreview = reader.result;
-                    this.editedStudentItem.base64Image = reader.result.split(',')[1]; // เก็บเฉพาะส่วนข้อมูล Base64
+                    this.base64Image = reader.result.split(',')[1]; // เก็บเฉพาะส่วนข้อมูล Base64
                 };
                 reader.readAsDataURL(file);
             }
         },
-        async uploadImageProfile() {
+        async uploadImageProfile(sid) {
             if (!this.editedStudentItem.profile_image) {
                 this.$emit('onErrorHandler', 'Please select an image to upload');
                 return;
             }
             this.uploadLoading = true;
             try {
-                await this.saveImage();
+                await this.saveImage(sid);
             } catch (error) {
                 console.error("Error uploading image:", error);
             }
             this.uploadLoading = false;
         },
-        async saveImage() {
-            const image = this.editedStudentItem.base64Image;
+        async saveImage(sid) {
+            const image = this.base64Image;
             try {
                 // Replace 'gymnastId' with the actual ID of the gymnast
                 const token = this.$store.getters.getToken;
-                const response = await axios.put(this.baseURL + `/student/${this.editedStudentItem.studentid}/profile-image`, { image }, {
+                const response = await axios.put(this.baseURL + `/student/${sid}/profile-image`, { image }, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     }
@@ -533,29 +550,32 @@ export default {
                     { headers: { Authorization: `Bearer ${this.token}` } });
                 console.log('response : ', response)
                 //this.editedStudentItem.profile_image = response.data.image;
-                this.editedStudentItem.base64Image = response.data.image;
+                this.base64Image = response.data.image;
                 this.imagePreview = `data:image/*;base64,${response.data.image}`;
             } catch (error) {
                 console.error('Error loading profile image:', error);
             }
         },
-        async onCourseChange(studentid) {
-            console.log('Student selected:', studentid);
+        async onCourseChange() {
             this.loadingCourse = true
-            const token = this.$store.getters.getToken;
-            await axios.get(this.baseURL+'/getStudentUseCourse', {
-                studentid: studentid
-            },
-            { headers:{ Authorization: `Bearer ${token}`, } 
-            })
+            await axios.get(this.baseURL+"/getStudentUseCourse/"+this.editedStudentItem.courserefer,  { 
+                headers:{ Authorization: `Bearer ${this.token}` } 
+            },)
             .then(response => {
                 //console.dir(response);
                 if (response.data.success) {
-                    console.log('getStudentUseCourse', response.data.results);
-                    const res = response.data.results[0];
+                    console.log('getStudentUseCourse', response.data);
+                    const res = response.data.results;
                     if(res) {
-                    
+                        const data = response.data.results[0];
+                        console.log('data', data.user);
+                        if(data.user > 0) {
+                            this.editedStudentItem.current_course_detail = 'มีผู้กำลังใช้คอร์สนี้ '+data.user+' คน '+data.userlist;
+                        } else {
+                            this.editedStudentItem.current_course_detail = null;
+                        }
                     } else {
+                        this.editedStudentItem.current_course_detail = null;
                     }
                 } else {
                     this.$emit('onErrorHandler', 'getCustomerCourseInfo failed');
@@ -644,7 +664,7 @@ export default {
 
 import { Promise } from 'core-js';
 const ComponentAPI = {
-    baseURL: process.env.SERVER_URL,
+    baseURL: env.SERVER_URL,
     async fetchDataStudent({ token }) {
         return new Promise(async resolve => {
             await axios

@@ -31,7 +31,7 @@ if (token) {
   store.dispatch('setToken', token);
 }
 
-console.log("process.env.SERVER_URL ", process.env.SERVER_URL);
-app.config.globalProperties.baseURL = process.env.SERVER_URL;
+console.log("env.SERVER_URL ", env.SERVER_URL);
+app.config.globalProperties.baseURL = env.SERVER_URL;
 
 app.component('font-awesome-icon', FontAwesomeIcon).component('VueDatePicker', VueDatePicker).use(vuetify).use(store).mount('#app');
