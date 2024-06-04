@@ -165,7 +165,8 @@ export default {
               lastname: this.lastname,
               address: this.address,
               email: this.email,
-              mobileno: this.mobileno
+              mobileno: this.mobileno,
+              registercode: this.registercode
             })
             .then(response => {
               if (response.data.success) {

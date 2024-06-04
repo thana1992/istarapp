@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="container-header">
-            <h1><span class="mdi mdi-view-dashboard"></span> View Classes</h1>
+            <h1><span class="mdi mdi-table-eye"></span> View Classes</h1>
         </div>
         <div class="container-content">
             <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
@@ -103,8 +103,8 @@ export default ({
                                 //console.log('results', results)
                                 this.bookingHeaders = Object.keys(results).map((key) => ({ title: key, key: key, sortable: false, align: 'center'}));
                                 this.bookingList = this.formattedData(results)
-                                console.log('bookingList'+ JSON.stringify(this.bookingList))
-                                console.log('bookingHeaders'+ JSON.stringify(this.bookingHeaders))
+                                //console.log('bookingList'+ JSON.stringify(this.bookingList))
+                                //console.log('bookingHeaders'+ JSON.stringify(this.bookingHeaders))
 
                             }else{
                                 this.bookingHeaders = []

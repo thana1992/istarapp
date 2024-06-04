@@ -5,7 +5,7 @@
         </div>
         <div class="container-content">
             <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
-            <v-data-table :loading="loadingStudent" :headers="StudentListHeaders" :items="StudentList"
+            <!-- <v-data-table :loading="loadingStudent" :headers="StudentListHeaders" :items="StudentList"
                 :sort-by="[{ key: 'studentid', order: 'asc' }]">
                 <template v-slot:top>
                     <v-toolbar flat>
@@ -159,74 +159,27 @@
                 </template>
                 <template v-slot:loadingStudent><v-skeleton-loader type="table-row@5"></v-skeleton-loader></template>
                 <template v-slot:no-data> No Student list </template>
-            </v-data-table>
+            </v-data-table> -->
+            <Student
+                @onErrorHandler="onErrorHandler"
+                @onInfoHandler="onShowInfoDialog"
+                ></Student>
         </div>
     </div>
 </template>
 <script>
 import axios from 'axios'
 import DatePicker from '@/components/DatePicker.vue'
-import moment from 'moment'
+import Student from '../center/Student.vue';
 import { mapGetters } from 'vuex';
 
 export default {
     components: {
         DatePicker,
+        Student,
     },
     data() {
         return {
-            StudentList: [],
-            StudentListHeaders: [
-                { title: 'Name', key: 'fullname' },
-                //{ title: 'Date of Birth', key: 'dateofbirthshow' },
-                { title: 'Gender', key: 'gender' },
-                { title: 'Course Start', key: 'startdate', align: 'center' },
-                { title: 'Course Expire', key: 'expiredate', align: 'center' },
-                { title: 'Remaining', key: 'remaining', align: 'end' },
-                { title: 'Mobile Number', key: 'mobileno', sortable: false },
-                { title: 'Edit', key: 'edit', align: 'center', sortable: false },
-                { title: 'Delete', key: 'delete', align: 'center', sortable: false },
-            ],
-            editedStudentItem: {
-                studentid: null,
-                familyid: null,
-                firstname: null,
-                lastname: null,
-                nickname: null,
-                gender: null,
-                dateofbirth: null,
-                age: null,
-                courserefer: null,
-                current_course_detail: null,
-                username: null,
-                profile_image: null,
-                shortnote: null,
-            },
-            defaultStudentItem: {
-                studentid: null,
-                familyid: null,
-                firstname: null,
-                lastname: null,
-                nickname: null,
-                gender: null,
-                dateofbirth: null,
-                age: null,
-                courserefer: null,
-                current_course_detail: null,
-                username: null,
-                profile_image: null,
-                shortnote: null,
-            },
-            base64Image: null,
-            editedStudentIndex: -1,
-            dialogStudent: false,
-            dialogStudentDelete: false,
-            loadingStudent: false,
-            imagePreview: require('@/assets/avatar/2.png'),
-            uploadLoading: false,
-            notNullRules: [
-                v => !!v || 'field is required',
-            ],
         }
     },
     async created() {
@@ -249,7 +202,7 @@ export default {
                 .then(response => {
                     console.dir(response);
                     if (response.data.success) {
-                        this.initialize()
+                        //this.initialize()
                     }
                 })
                 .catch(error => {
@@ -263,446 +216,20 @@ export default {
 
     },
     methods: {
-        async initialize() {
-            this.$emit('onLoading', true)
-            await this.getStudentList()
-            await this.getCourseLookup()
-            await this.getFamilyLookup()
-            await this.getCustomerCourseLookup()
-            this.$emit('onLoading', false)
-        },
-        async getStudentList() {
-            this.loadingStudent = true
-            const token = this.$store.getters.getToken;
-            await ComponentAPI.fetchDataStudent({ token })
-                .then(({ success, results, message }) => {
-                    if (success) {
-                        this.StudentList = this.convertDate(results)
-                        this.loadingStudent = false
-                    } else {
-                        this.$emit('onErrorHandler', message || 'Get Student list failed')
-                        this.loadingStudent = false
-                    }
-                })
-                .catch(error => {
-                    if (error.response.status && error.response.status == 401) {
-                        this.$emit('onErrorHandler', error.response.data.message)
-                        this.$emit('onClickChangeState', 'login')
-                    } else {
-                        this.$emit('onErrorHandler', error.message)
-                    }
-                });
-        },
-        async doSaveNewStudent() {
-            this.$emit('onLoading', true)
-            const { valid } = await this.$refs.newstdform.validate()
-            if (valid) {
-
-                // Make API request to register the user
-                const StudentObj = {
-                    studentid: this.editedStudentItem.studentid,
-                    firstname: this.editedStudentItem.firstname,
-                    middlename: this.editedStudentItem.middlename,
-                    lastname: this.editedStudentItem.lastname,
-                    nickname: this.editedStudentItem.nickname,
-                    gender: this.editedStudentItem.gender,
-                    dateofbirth: this.SQLDate(this.editedStudentItem.dateofbirth),
-                    familyid: this.editedStudentItem.familyid,
-                    courserefer: this.editedStudentItem.courserefer,
-                    shortnote: this.editedStudentItem.shortnote,
-                }
-                //console.log(this.editedStudentIndex+ ' StudentObj : ', StudentObj)
-                const token = this.$store.getters.getToken;
-                if (this.editedStudentIndex > -1) {
-                    StudentObj.studentid = this.editedStudentItem.studentid
-                    await axios
-                        .post(this.baseURL + '/updateStudentByAdmin', StudentObj, { headers: { Authorization: `Bearer ${token}`, } })
-                        .then(response => {
-                            if (response.data.success) {
-                                this.uploadImageProfile(this.editedStudentItem.studentid)
-                                this.$emit('onInfoHandler', 'แก้ไขข้อมูลสำเร็จแล้ว');
-                                this.getStudentList()
-                                this.dialogStudent = false
-                            } else {
-                                this.$emit('onErrorHandler', response.data.message || 'แก้ไขข้อมูลไม่สำเร็จ ลองใหม่อีกครั้งนะ');
-                            }
-                        })
-                        .catch(error => {
-                            if (error.response.status && error.response.status == 401) {
-                                this.$emit('onErrorHandler', error.response.data.message)
-                                this.$emit('onClickChangeState', 'login')
-                            } else {
-                                this.$emit('onErrorHandler', error.message)
-                            }
-                        });
-                } else {
-                    await axios
-                        .post(this.baseURL + '/addStudentByAdmin', StudentObj, { headers: { Authorization: `Bearer ${token}`, } })
-                        .then(response => {
-                            if (response.data.success) {
-                                console.log('response.data.studentid', response.data.studentid)
-                                this.uploadImageProfile(response.data.studentid)
-                                this.$emit('onInfoHandler', 'เพิ่มสมาชิกสำเร็จแล้ว');
-                                this.getStudentList()
-                                this.dialogStudent = false
-                            } else {
-                                this.$emit('onErrorHandler', response.data.message || 'เพิ่มสมาชิกไม่สำเร็จ ลองใหม่อีกครั้งนะ');
-                            }
-                            this.$emit('onUpdateDataSuccess')
-                        })
-                        .catch(error => {
-                            if (error.response.status && error.response.status == 401) {
-                                this.$emit('onErrorHandler', error.response.data.message)
-                                this.$emit('onClickChangeState', 'login')
-                            } else {
-                                this.$emit('onErrorHandler', error.message)
-                            }
-                        });
-                }
-
-            }
-            this.$emit('onLoading', false)
-        },
-        async getCourseLookup() {
-            const token = this.$store.getters.getToken;
-            await axios
-                .get(this.baseURL + '/courseLookup', {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                })
-                .then(response => {
-                    //console.dir(response);
-                    if (response.data.success) {
-                        this.courseLookup = response.data.results
-                    }
-                })
-                .catch(error => {
-                    if (error.response.status && error.response.status == 401) {
-                        this.$emit('onErrorHandler', error.response.data.message)
-                        this.$emit('onClickChangeState', 'login')
-                    } else {
-                        this.$emit('onErrorHandler', error.message)
-                    }
-                });
-        },
-        async getFamilyLookup() {
-            const token = this.$store.getters.getToken;
-            await axios
-                .get(this.baseURL + '/familyLookup', { headers: { Authorization: `Bearer ${token}`, } })
-                .then(response => {
-                    //console.dir(response);
-                    if (response.data.success) {
-                        this.familyLookup = response.data.results
-                    }
-                })
-                .catch(error => {
-                    if (error.response.status && error.response.status == 401) {
-                        this.$emit('onErrorHandler', error.response.data.message)
-                        this.$emit('onClickChangeState', 'login')
-                    } else {
-                        this.$emit('onErrorHandler', error.message)
-                    }
-                });
-        },
-        async getCustomerCourseLookup() {
-            const token = this.$store.getters.getToken;
-            await axios
-                .get(this.baseURL + '/getCustomerCourseLookup', {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                })
-                .then(response => {
-                    //console.dir(response);
-                    if (response.data.success) {
-                        this.customerCourseLookup = response.data.results
-                    }
-                })
-                .catch(error => {
-                    if (error.response.status && error.response.status == 401) {
-                        this.$emit('onErrorHandler', error.response.data.message)
-                        this.$emit('onClickChangeState', 'login')
-                    } else {
-                        this.$emit('onErrorHandler', error.message)
-                    }
-                });
-        },
-        clickEditStudent(item) {
-            this.editedStudentIndex = this.StudentList.indexOf(item)
-            this.editedStudentItem = Object.assign({}, item)
-            this.editedStudentItem.dateofbirth = new Date(item.dateofbirth)
-            this.editedStudentItem.age = this.calculateAge(item.dateofbirth)
-            this.onCourseChange()
-            this.loadProfileImage()
-            this.dialogStudent = true
-        },
-        clickDeleteStudent(item) {
-            this.editedStudentIndex = this.StudentList.indexOf(item)
-            this.editedStudentItem = Object.assign({}, item)
-            this.dialogStudentDelete = true
-        },
-        async clickConfirmDeleteStd() {
-            this.$emit('onLoading', true)
-            const token = this.$store.getters.getToken;
-            await axios.post(this.baseURL + '/deleteStudent', {
-                familyid: this.editedStudentItem.familyid,
-                studentid: this.editedStudentItem.studentid,
-            },
-                {
-                    headers: { Authorization: `Bearer ${token}`, }
-                })
-                .then(response => {
-                    //console.dir(response);
-                    if (response.data.success) {
-                        this.$emit('onInfoHandler', 'Delete Student Successful');
-                        this.$emit('onUpdateDataSuccess')
-                    } else {
-                        this.$emit('onErrorHandler', response.data.message || 'Delete Student failed');
-                    }
-                    this.dialogStudentDelete = false
-                    this.initialize()
-                    this.getStudentList()
-                })
-                .catch(error => {
-                    if (error.response.status && error.response.status == 401) {
-                        this.$emit('onErrorHandler', error.response.data.message)
-                        this.$emit('onClickChangeState', 'login')
-                    } else {
-                        this.$emit('onErrorHandler', error.message)
-                    }
-                });
-            this.$emit('onLoading', false)
-        },
-        closeStudent() {
-            this.dialogStudent = false
-            this.$nextTick(() => {
-                this.editedStudentItem = Object.assign({}, this.defaultStudentItem)
-                this.editedStudentIndex = -1
-                this.imagePreview = this.profileAvatar
-            })
-        },
-        clickCancelDeleteStd() {
-            this.dialogStudentDelete = false
-            this.$nextTick(() => {
-                this.editedStudentItem = Object.assign({}, this.defaultStudentItem)
-                this.editedStudentIndex = -1
-                this.imagePreview = this.profileAvatar
-            })
-        },
-        onFileClear() {
-            this.editedStudentItem.profile_image = null;
-            this.imagePreview = this.profileAvatar;
-        },
-        onFileChange(e) {
-            const file = e.target.files[0];
-            console.log('file : ', file)
-
-            const maxSize = 4 * 1024 * 1024; // ขนาดสูงสุด 4MB
-            if (file.size > maxSize) {
-                this.editedStudentItem.profile_image = null;
-                this.imagePreview = this.profileAvatar;
-                this.$emit('onErrorHandler', 'จำกัดขนาดไฟล์ไม่เกิน 4MB');
-
-                return;
-            }
-            if (file) {
-                this.editedStudentItem.profile_image = file;
-                const reader = new FileReader();
-                reader.onload = () => {
-                    this.imagePreview = reader.result;
-                    this.base64Image = reader.result.split(',')[1]; // เก็บเฉพาะส่วนข้อมูล Base64
-                };
-                reader.readAsDataURL(file);
-            }
-        },
-        async uploadImageProfile(sid) {
-            if (!this.editedStudentItem.profile_image) {
-                this.$emit('onErrorHandler', 'Please select an image to upload');
-                return;
-            }
-            this.uploadLoading = true;
-            try {
-                await this.saveImage(sid);
-            } catch (error) {
-                console.error("Error uploading image:", error);
-            }
-            this.uploadLoading = false;
-        },
-        async saveImage(sid) {
-            const image = this.base64Image;
-            try {
-                // Replace 'gymnastId' with the actual ID of the gymnast
-                const token = this.$store.getters.getToken;
-                const response = await axios.put(this.baseURL + `/student/${sid}/profile-image`, { image }, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                });
-                if (response.data.success) {
-                    this.$emit('onInfoHandler', 'Upload Image Successful');
-                } else {
-                    this.$emit('onErrorHandler', response.data.message || 'Upload Image failed');
-                }
-            } catch (error) {
-                console.error('Error saving profile image URL:', error);
-            }
-        },
-        async loadProfileImage() {
-            try {
-                // Replace 'gymnastId' with the actual ID of the gymnast
-                const response = await axios.get(this.baseURL + `/student/${this.editedStudentItem.studentid}/profile-image`,
-                    { headers: { Authorization: `Bearer ${this.token}` } });
-                console.log('response : ', response)
-                //this.editedStudentItem.profile_image = response.data.image;
-                this.base64Image = response.data.image;
-                if(response.data.image !== null) {
-                    this.imagePreview = `data:image/*;base64,${response.data.image}`;
-                } else {
-                    this.imagePreview = this.profileAvatar;
-                }
-            } catch (error) {
-                console.error('Error loading profile image:', error);
-            }
-        },
-        triggerFileInput() {
-            this.$refs.fileInput.click();
-        },
-        async onCourseChange() {
-            this.loadingCourse = true
-            await axios.get(this.baseURL+"/getStudentUseCourse/"+this.editedStudentItem.courserefer,  { 
-                headers:{ Authorization: `Bearer ${this.token}` } 
-            },)
-            .then(response => {
-                //console.dir(response);
-                if (response.data.success) {
-                    console.log('getStudentUseCourse', response.data);
-                    const res = response.data.results;
-                    if(res) {
-                        const data = response.data.results[0];
-                        console.log('data', data.user);
-                        if(data.user > 0) {
-                            this.editedStudentItem.current_course_detail = 'มีผู้กำลังใช้คอร์สนี้ '+data.user+' คน '+data.userlist;
-                        } else {
-                            this.editedStudentItem.current_course_detail = null;
-                        }
-                    } else {
-                        this.editedStudentItem.current_course_detail = null;
-                    }
-                } else {
-                    this.$emit('onErrorHandler', 'getCustomerCourseInfo failed');
-                }
-            })
-            .catch(error => {
-                console.log(error)
-                if(error.response && error.response.status == 401) {
-                    this.$emit('onErrorHandler', error.response.data.message)
-                    this.$emit('onClickChangeState', 'login')
-                }else{
-                    this.$emit('onErrorHandler', error.message)
-                }
-            });
-            this.loadingCourse = false
-        },
-        calculateAgeNewStudent() {
-            this.editedStudentItem.age = this.calculateAge(new Date(this.editedStudentItem.dateofbirth))
-        },
-        calculateAge(birthDate) {
-            if (!birthDate) return;
-
-            const currentDate = new Date();
-            if (new Date(birthDate) > currentDate) {
-                this.birthDate = null
-                this.years = null;
-                this.months = null;
-                this.days = null;
-                alert('Invalid Date of Birth')
-            }
-
-            const diffTime = currentDate - new Date(birthDate);
-            const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            let years = Math.floor(totalDays / 365.25);
-            let months = Math.floor((totalDays % 365.25) / 30.4375);
-            let days = Math.floor((totalDays % 365.25) % 30.4375);
-            return years + ' ปี ' + months + ' เดือน '
-
-        },
         onShowInfoDialog(msg) {
-            this.infoMsg = msg
-            this.infoDialog = true
+            this.$emit('onInfoHandler', msg)
         },
-        SQLDate(date) {
-            return moment(date).format('YYYY-MM-DD')
-        },
-        format_date(value) {
-            if (value) {
-                return moment(String(value)).format('DD/MM/YYYY')
-            }
-        },
-        convertDate(arrObj) {
-            arrObj.forEach(obj => {
-                obj.dateofbirthshow = this.format_date(obj.dateofbirth);
-                obj.startdate = this.format_date(obj.startdate);
-                obj.expiredate = this.format_date(obj.expiredate);
-            });
-            return arrObj;
-        },
-    },
-    watch: {
-        dialogStudent(val) {
-            val || this.closeStudent()
-        },
-        dialogStudentDelete(val) {
-            val || this.clickCancelDeleteStd()
+        onErrorHandler(msg) {
+            this.$emit('onErrorHandler', msg)
         },
     },
     computed: {
         ...mapGetters({
             token: 'getToken',
         }),
-        tomorrow() {
-            const d = new Date()
-            d.setDate(d.getDate() + 1)
-            return d
-        },
-        today() {
-            return new Date()
-        },
-        formStudentTitle() {
-            return this.editedStudentIndex === -1 ? 'Add a new student' : 'Edit student information'
-        },
-        profileAvatar() {
-            return require('@/assets/avatar/2.png')
-        },
     }
 }
 
-import { Promise } from 'core-js';
-const ComponentAPI = {
-    baseURL: env.SERVER_URL,
-    async fetchDataStudent({ token }) {
-        return new Promise(async resolve => {
-            await axios
-                .get(this.baseURL + '/getStudentList', {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                })
-                .then(response => {
-                    //console.log('fetchDataStudent result',response);
-                    if (response.data.success) {
-                        const datalist = response.data.results
-                        resolve({ success: true, results: datalist })
-                    } else {
-                        resolve({ success: true, results: [] })
-                    }
-                })
-                .catch(error => {
-                    resolve({ success: false, error: error })
-                });
-        });
-    }
-}
 </script>
 <style scoped>
 .info-photo {

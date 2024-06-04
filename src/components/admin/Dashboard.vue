@@ -159,7 +159,7 @@
 <script>
 import axios from 'axios'
 import DatePicker from '@/components/DatePicker.vue'
-import Student from './Student.vue'
+import Student from '../center/Student.vue'
 import BookingList from '../center/BookingList.vue'
 import ApproveNewStudent from './ApproveNewStudent.vue'
 import moment from 'moment'
@@ -387,8 +387,8 @@ export default ({
                                 //console.log('results', results)
                                 this.bookingHeaders = Object.keys(results).map((key) => ({ title: key, key: key, sortable: false, align: 'center'}));
                                 this.bookingList = this.formattedData(results)
-                                console.log('bookingList'+ JSON.stringify(this.bookingList))
-                                console.log('bookingHeaders'+ JSON.stringify(this.bookingHeaders))
+                                //console.log('bookingList'+ JSON.stringify(this.bookingList))
+                                //console.log('bookingHeaders'+ JSON.stringify(this.bookingHeaders))
 
                             }else{
                                 this.bookingHeaders = []

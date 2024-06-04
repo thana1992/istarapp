@@ -210,7 +210,7 @@
 <script>
 import axios from 'axios'
 import DatePicker from '@/components/DatePicker.vue'
-import Student from './Student.vue'
+import Student from '../center/Student.vue'
 import BookingList from '../center/BookingList.vue'
 import ApproveNewStudent from './ApproveNewStudent.vue'
 import moment from 'moment'

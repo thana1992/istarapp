@@ -87,7 +87,7 @@ export default {
             password: encryptedPassword,
           })
           .then(response => {
-            console.dir('login ',response);
+            console.log('login ',response);
             if (response.data.success) {
               //tokenService.setToken(response.data.token);
               // Redirect or perform other actions on successful login
