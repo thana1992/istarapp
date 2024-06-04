@@ -10,7 +10,7 @@
                 <v-text-field
                 variant="solo-filled"
                 v-model="firstname"
-                label="First Name"
+                label="Firstname / ชื่อ"
                 type="text"
                 :rules="nameRules"
                 required
@@ -19,14 +19,14 @@
                 <v-text-field
                 variant="solo-filled"
                 v-model="middlename"
-                label="Middle Name"
+                label="Middlename / ชื่อกลาง"
                 type="text"
                 ></v-text-field>
 
                 <v-text-field
                 variant="solo-filled"
                 v-model="lastname"
-                label="Last Name"
+                label="Lastname / นามสกุล"
                 type="text"
                 :rules="nameRules"
                 required
@@ -35,41 +35,41 @@
                 <v-text-field
                 variant="solo-filled"
                 v-model="nickname"
-                label="Nick Name"
+                label="Nick Name / ชื่อเล่น "
                 type="text"
                 :rules="nameRules"
                 required
                 ></v-text-field>
 
+                <v-text-field
+                variant="solo-filled"
+                v-model="school"
+                label="School / โรงเรียน"
+                type="text"
+                ></v-text-field>
+
                 <v-select
                 v-model="gender"
-                label="Gender"
+                label="Gender / เพศ"
                 :items="['ชาย', 'หญิง']"
                 variant="solo-filled"
                 required
                 ></v-select>
 
                 <DatePicker 
-                label="Date of Birth"
+                label="Date of Birth / วันเกิด"
                 v-model="dateofbirth"
                 :maxdate="new Date()"
                 required
                 ></DatePicker>
 
-                <v-text-field
-                variant="solo-filled"
-                v-model="school"
-                label="School"
-                type="text"
-                ></v-text-field>
-
                 <v-btn
-                    color="success"
+                    color="blue"
                     class="mt-4"
                     block
                     @click="doSave"
                 >
-                    Add
+                    Submit
                 </v-btn>
                 <v-btn
                     color="error"

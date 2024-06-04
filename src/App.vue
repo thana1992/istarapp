@@ -11,26 +11,38 @@
           :title="parent"
         ></v-list-item>
         <v-divider></v-divider>
-        <v-list density="compact" nav>
-          <v-list-item v-if="managerflag || customerflag" prepend-icon="mdi-home-account" title="HOME" value="home" @click="onClickChangeState('home')">
+        <v-list v-if="managerflag || customerflag" density="compact" nav>
+          <v-label>Parent Menu</v-label>
+          <v-list-item prepend-icon="mdi-home-account" title="HOME" value="home" @click="onClickChangeState('home')">
           </v-list-item>
-          <v-list-item v-if="managerflag || customerflag" prepend-icon="mdi-account-multiple" title="FAMILY" value="familylist" @click="onClickChangeState('familylist')">
+          <v-list-item prepend-icon="mdi-account-multiple" title="FAMILY" value="familylist" @click="onClickChangeState('familylist')">
           </v-list-item>
-          <v-list-item v-if="managerflag || customerflag" prepend-icon="mdi-table-eye" title="CHECK CLASS" value="bookinglist" @click="onClickChangeState('bookinglist')">
+        </v-list>
+        <v-list v-if="managerflag || customerflag || coach" density="compact" nav>
+          <v-label>Coach Menu</v-label>
+          <v-list-item prepend-icon="mdi-table-eye" title="VIEW CLASSES" value="viewclasses" @click="onClickChangeState('viewclasses')">
           </v-list-item>
-          <v-list-item v-if="managerflag || adminflag || choachflag" prepend-icon="mdi-view-dashboard-outline" title="หน้าแรก" value="dashboard" @click="onClickChangeState('dashboard')">
+        </v-list>
+        <v-list v-if="managerflag || adminflag" density="compact" nav>
+          <v-label>Admin Menu</v-label>
+          <v-list-item prepend-icon="mdi-view-dashboard-outline" title="หน้าแรก" value="dashboard" @click="onClickChangeState('dashboard')">
           </v-list-item>
-          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-book-account" title="คอร์สของลูกค้า" value="customercourse" @click="onClickChangeState('customercourse')">
+          <v-list-item prepend-icon="mdi-book-account" title="คอร์สของลูกค้า" value="customercourse" @click="onClickChangeState('customercourse')">
           </v-list-item>
-          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-calendar-edit" title="การจองคลาสเรียน" value="bookingmanager" @click="onClickChangeState('bookingmanager')">
+          <v-list-item prepend-icon="mdi-calendar-edit" title="การจองคลาสเรียน" value="bookingmanager" @click="onClickChangeState('bookingmanager')">
           </v-list-item>
-          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-gymnastics" title="รายชื่อเด็ก" value="studentmanager" @click="onClickChangeState('gymnastmanager')">
+          <v-list-item prepend-icon="mdi-gymnastics" title="รายชื่อเด็ก" value="studentmanager" @click="onClickChangeState('gymnastmanager')">
           </v-list-item>
+        </v-list>
+        <v-list v-if="managerflag" density="compact" nav>
+          <v-label>Menager Menu</v-label>
           <v-list-item v-if="managerflag" prepend-icon="mdi-star-shooting-outline" title="จัดการคอร์ส" value="course" @click="onClickChangeState('course')">
           </v-list-item>
           <v-list-item v-if="managerflag" prepend-icon="mdi-view-dashboard-variant-outline" title="จัดการคลาสเรียน" value="classes" @click="onClickChangeState('classes')">
           </v-list-item>
-          <v-list-item prepend-icon="mdi-logout" title="Logout" value="logout" @click="onClickLogout()">
+        </v-list>
+        <v-list density="compact" nav>
+          <v-list-item v-if="isLoggedIn" prepend-icon="mdi-logout" title="LOGOUT" @click="onClickLogout()">
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
@@ -98,7 +110,7 @@
           @onLoading="onLoading($event)"
           ></Home>
 
-          <BookingList v-else-if="state=='bookinglist'"
+          <ViewClasses v-else-if="state=='viewclasses'"
           @collectData="collectData($event)"
           @initBack="initBlackButton($event)"
           @onInvalidToken="invalidToken($event)"
@@ -106,7 +118,7 @@
           @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)"
           @onLoading="onLoading($event)"
-          ></BookingList>
+          ></ViewClasses>
 
           <Reservation v-else-if="state=='reservation'"
           @initBack="initBlackButton($event)"
@@ -211,7 +223,7 @@ import axios from 'axios'
 import Login from './components/Login.vue'
 import Register from './components/Register.vue'
 import Home from './components/Home.vue'
-import BookingList from '@/components/admin/BookingList.vue'
+import ViewClasses from '@/components/ViewClasses.vue'
 import Reservation from '@/components/Reservation.vue'
 import FamilyList from './components/FamilyList.vue'
 import AddFamily from './components/AddFamily.vue';
@@ -243,7 +255,7 @@ export default {
       student: null,
       managerflag: false,
       adminflag: false,
-      choachflag: false,
+      coachflag: false,
       customerflag: false,
       interval:null,
       ConfirmLogoutDialog: false,
@@ -257,7 +269,7 @@ export default {
     Register,
     Reservation,
     Home,
-    BookingList,
+    ViewClasses,
     FamilyList,
     AddFamily,
     Dashboard,
@@ -280,8 +292,8 @@ export default {
         } else if (this.user_details.usertype == 1) { // admin
           this.adminflag = true
           this.state = 'dashboard'
-        } else if (this.user_details.usertype == 2) { // choach
-          this.choachflag = true
+        } else if (this.user_details.usertype == 2) { // coach
+          this.coachflag = true
           this.state = 'dashboard'
         } else { // customer
           this.customerflag = true
@@ -361,7 +373,7 @@ export default {
       }
       this.adminflag = false
       this.managerflag = false
-      this.choachflag = false
+      this.coachflag = false
       this.customerflag = false
     },
     onLoading(loading) {

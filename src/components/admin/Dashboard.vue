@@ -160,7 +160,7 @@
 import axios from 'axios'
 import DatePicker from '@/components/DatePicker.vue'
 import Student from './Student.vue'
-import BookingList from './BookingList.vue'
+import BookingList from '../center/BookingList.vue'
 import ApproveNewStudent from './ApproveNewStudent.vue'
 import moment from 'moment'
 import { mapGetters } from 'vuex';
