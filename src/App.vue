@@ -12,27 +12,25 @@
         ></v-list-item>
         <v-divider></v-divider>
         <v-list density="compact" nav>
-          <v-list-item v-if="!isLoggedIn" prepend-icon="mdi-login" title="LOGIN" value="login" @click="onClickChangeState('login')">
+          <v-list-item v-if="managerflag || customerflag" prepend-icon="mdi-home-account" title="HOME" value="home" @click="onClickChangeState('home')">
           </v-list-item>
-          <v-list-item v-if="!isLoggedIn" prepend-icon="mdi-account-plus" title="REGISTER" value="register" @click="onClickChangeState('register')">
+          <v-list-item v-if="managerflag || customerflag" prepend-icon="mdi-account-multiple" title="FAMILY" value="familylist" @click="onClickChangeState('familylist')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn && !adminflag" prepend-icon="mdi-home-account" title="HOME" value="home" @click="onClickChangeState('home')">
+          <v-list-item v-if="managerflag || customerflag" prepend-icon="mdi-table-eye" title="CHECK CLASS" value="bookinglist" @click="onClickChangeState('bookinglist')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn && !adminflag" prepend-icon="mdi-account-multiple" title="FAMILY" value="familylist" @click="onClickChangeState('familylist')">
+          <v-list-item v-if="managerflag || adminflag || choachflag" prepend-icon="mdi-view-dashboard-outline" title="หน้าแรก" value="dashboard" @click="onClickChangeState('dashboard')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-view-dashboard-outline" title="หน้าแรก" value="dashboard" @click="onClickChangeState('dashboard')">
+          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-book-account" title="คอร์สของลูกค้า" value="customercourse" @click="onClickChangeState('customercourse')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-book-account" title="คอร์สของลูกค้า" value="customercourse" @click="onClickChangeState('customercourse')">
+          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-calendar-edit" title="การจองคลาสเรียน" value="bookingmanager" @click="onClickChangeState('bookingmanager')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-calendar-edit" title="การจองคลาสเรียน" value="bookingmanager" @click="onClickChangeState('bookingmanager')">
+          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-gymnastics" title="รายชื่อเด็ก" value="studentmanager" @click="onClickChangeState('gymnastmanager')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-gymnastics" title="รายชื่อเด็ก" value="studentmanager" @click="onClickChangeState('gymnastmanager')">
+          <v-list-item v-if="managerflag" prepend-icon="mdi-star-shooting-outline" title="จัดการคอร์ส" value="course" @click="onClickChangeState('course')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-star-shooting-outline" title="จัดการคอร์ส" value="course" @click="onClickChangeState('course')">
+          <v-list-item v-if="managerflag" prepend-icon="mdi-view-dashboard-variant-outline" title="จัดการคลาสเรียน" value="classes" @click="onClickChangeState('classes')">
           </v-list-item>
-          <v-list-item v-if="isLoggedIn && adminflag" prepend-icon="mdi-view-dashboard-variant-outline" title="จัดการคลาสเรียน" value="classes" @click="onClickChangeState('classes')">
-          </v-list-item>
-          <v-list-item v-if="isLoggedIn" prepend-icon="mdi-logout" title="Logout" value="logout" @click="onClickLogout()">
+          <v-list-item prepend-icon="mdi-logout" title="Logout" value="logout" @click="onClickLogout()">
           </v-list-item>
         </v-list>
       </v-navigation-drawer>
@@ -41,7 +39,7 @@
         <v-btn v-if="black" @click="onClickBack(recentState)"  variant="tonal"><span class="mdi mdi-arrow-left" style="font-size: large;" ></span></v-btn>
         <template v-slot:append v-if="isLoggedIn">
           <v-dialog
-            v-model="LogoutDialog"
+            v-model="ConfirmLogoutDialog"
             persistent
             width="auto"
           >
@@ -62,7 +60,7 @@
                 <v-btn
                   color="green-darken-1"
                   variant="text"
-                  @click="LogoutDialog = false"
+                  @click="ConfirmLogoutDialog = false"
                 >
                   No
                 </v-btn>
@@ -99,6 +97,16 @@
           :student="student"
           @onLoading="onLoading($event)"
           ></Home>
+
+          <BookingList v-else-if="state=='bookinglist'"
+          @collectData="collectData($event)"
+          @initBack="initBlackButton($event)"
+          @onInvalidToken="invalidToken($event)"
+          @onClickChangeState="onClickChangeState($event)"
+          @onErrorHandler="onError($event)"
+          @onInfoHandler="onShowInfoDialog($event)"
+          @onLoading="onLoading($event)"
+          ></BookingList>
 
           <Reservation v-else-if="state=='reservation'"
           @initBack="initBlackButton($event)"
@@ -203,6 +211,7 @@ import axios from 'axios'
 import Login from './components/Login.vue'
 import Register from './components/Register.vue'
 import Home from './components/Home.vue'
+import BookingList from '@/components/admin/BookingList.vue'
 import Reservation from '@/components/Reservation.vue'
 import FamilyList from './components/FamilyList.vue'
 import AddFamily from './components/AddFamily.vue';
@@ -232,9 +241,12 @@ export default {
       inforMsg: '',
       user_details: {},
       student: null,
+      managerflag: false,
       adminflag: false,
+      choachflag: false,
+      customerflag: false,
       interval:null,
-      LogoutDialog: false,
+      ConfirmLogoutDialog: false,
       loadingDialog: false,
       isLoading: false,
     }
@@ -245,6 +257,7 @@ export default {
     Register,
     Reservation,
     Home,
+    BookingList,
     FamilyList,
     AddFamily,
     Dashboard,
@@ -254,7 +267,6 @@ export default {
     Course,
     Classes,
     LoadingDialog
-  
   },
   methods: {
     
@@ -262,11 +274,17 @@ export default {
       this.user_details = JSON.parse(localStorage.getItem('userdata'))
       this.parent = this.user_details.firstname
       this.student = null;
-        if (this.user_details.usertype == 1) {
+        if (this.user_details.usertype == 0) { // head
+          this.managerflag = true
+          this.state = 'dashboard'
+        } else if (this.user_details.usertype == 1) { // admin
           this.adminflag = true
           this.state = 'dashboard'
-        } else {
-          this.adminflag = false
+        } else if (this.user_details.usertype == 2) { // choach
+          this.choachflag = true
+          this.state = 'dashboard'
+        } else { // customer
+          this.customerflag = true
           this.state = 'home'
         }
     },
@@ -315,10 +333,10 @@ export default {
       this.state = 'login'
     },
     onClickLogout () {
-      this.LogoutDialog = true
+      this.ConfirmLogoutDialog = true
     },
     async logout() {
-      this.LogoutDialog = false;
+      this.ConfirmLogoutDialog = false;
       try {
         const token = this.$store.getters.getToken;
 
@@ -341,6 +359,10 @@ export default {
         this.state = 'login'
         this.drawer = false
       }
+      this.adminflag = false
+      this.managerflag = false
+      this.choachflag = false
+      this.customerflag = false
     },
     onLoading(loading) {
       //this.loadingDialog = loading
@@ -348,20 +370,20 @@ export default {
     },
   },
   created() {
-    this.user_details = JSON.parse(localStorage.getItem('userdata'))
-    console.log("user_details", this.user_details);
-    console.log("env ", env.SERVER_URL)
-    if (this.user_details) {
-      this.parent = this.user_details.firstname
-      this.student = null;
-      if (this.user_details.usertype == 1) {
-          this.adminflag = true
-          this.state = 'dashboard'
-        } else {
-          this.adminflag = false
-          this.state = 'home'
-        }
-    }
+    // this.user_details = JSON.parse(localStorage.getItem('userdata'))
+    // console.log("user_details", this.user_details);
+    // console.log("env ", env.SERVER_URL)
+    // if (this.user_details) {
+    //   this.parent = this.user_details.firstname
+    //   this.student = null;
+    //   if (this.user_details.usertype == 1) {
+    //       this.adminflag = true
+    //       this.state = 'dashboard'
+    //     } else {
+    //       this.adminflag = false
+    //       this.state = 'home'
+    //     }
+    // }
   },
   
   computed: {
