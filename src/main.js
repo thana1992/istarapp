@@ -7,12 +7,7 @@ import 'vuetify/styles';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
-
-import { library } from '@fortawesome/fontawesome-svg-core';
-import { faCamera, faRightToBracket, faUser, faHouse, faHouseUser, faPeopleRoof, faCalendarPlus } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import Vue3Autocounter from 'vue3-autocounter';
-library.add(faCamera, faRightToBracket, faUser, faHouse, faHouseUser, faPeopleRoof, faCalendarPlus);
 
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
@@ -34,4 +29,4 @@ if (token) {
 console.log("env.SERVER_URL ", env.SERVER_URL);
 app.config.globalProperties.baseURL = env.SERVER_URL;
 
-app.component('font-awesome-icon', FontAwesomeIcon).component('VueDatePicker', VueDatePicker).use(vuetify).use(store).mount('#app');
+app.component('VueDatePicker', VueDatePicker).use(vuetify).use(store).mount('#app');

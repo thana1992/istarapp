@@ -21,11 +21,11 @@
           <v-list-item v-if="managerflag || customerflag || coach" prepend-icon="mdi-table-eye" title="VIEW CLASSES" value="viewclasses" @click="onClickChangeState('viewclasses')">
           </v-list-item>
           <v-label v-if="managerflag || adminflag" >Admin menu</v-label>
-          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-view-dashboard-outline" title="หน้าแรก" value="dashboard" @click="onClickChangeState('dashboard')">
-          </v-list-item>
-          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-book-account" title="คอร์สของลูกค้า" value="customercourse" @click="onClickChangeState('customercourse')">
+          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-view-dashboard" title="หน้าแรก" value="dashboard" @click="onClickChangeState('dashboard')">
           </v-list-item>
           <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-calendar-edit" title="การจองคลาสเรียน" value="bookingmanager" @click="onClickChangeState('bookingmanager')">
+          </v-list-item>
+          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-book-account" title="คอร์สของลูกค้า" value="customercourse" @click="onClickChangeState('customercourse')">
           </v-list-item>
           <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-gymnastics" title="รายชื่อเด็ก" value="studentmanager" @click="onClickChangeState('gymnastmanager')">
           </v-list-item>
@@ -231,6 +231,7 @@ import CryptoJS from 'crypto-js';
 import { ref, computed, onMounted, inject } from 'vue';
 import { mapGetters } from 'vuex';
 import LoadingDialog from './components/LoadingDialog.vue';
+
 export default {
   data () {
     return {

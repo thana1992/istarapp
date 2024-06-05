@@ -95,7 +95,7 @@
                                             <v-row>
                                                 <v-col cols="12" sm="6" md="5">
                                                     <v-select v-model="editedStudentItem.familyid"
-                                                        label="Parent" item-title="username"
+                                                        label="Parent's Username" item-title="username"
                                                         item-value="familyid" :items="familyLookup"
                                                         variant="solo-filled" :rules="notNullRules"
                                                         required>

@@ -3,7 +3,8 @@
     <img src="../assets/logo/logo-2.png" alt="iStar Logo" class="istar-logo">
     <div class="login-greeting">
       <h1>Login</h1>
-      <p>Welcome to the iStar membership system.</p>
+      <p>Welcome to the iStar Gymnastics,</p>
+      <p>Have a wonderful day :D</p>
     </div>
     <v-card class="login-form px-3 py-3">
         <v-form ref="login_form" v-model="login_form">

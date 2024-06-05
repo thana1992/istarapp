@@ -80,7 +80,7 @@
                 ></v-text-field>
 
                 <v-btn
-                    color="success"
+                    color="blue"
                     class="mt-1"
                     block
                     @click="doRegister"
