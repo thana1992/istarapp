@@ -18,7 +18,7 @@
           <v-list-item v-if="managerflag || customerflag" prepend-icon="mdi-account-multiple" title="FAMILY" value="familylist" @click="onClickChangeState('familylist')">
           </v-list-item>
           <v-label v-if="managerflag || customerflag || coach" >Checking menu</v-label>
-          <v-list-item v-if="managerflag || customerflag || coach" prepend-icon="mdi-table-eye" title="VIEW CLASSES" value="viewclasses" @click="onClickChangeState('viewclasses')">
+          <v-list-item v-if="managerflag || customerflag || coachflag" prepend-icon="mdi-table-eye" title="VIEW CLASSES" value="viewclasses" @click="onClickChangeState('viewclasses')">
           </v-list-item>
           <v-label v-if="managerflag || adminflag" >Admin menu</v-label>
           <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-view-dashboard" title="หน้าแรก" value="dashboard" @click="onClickChangeState('dashboard')">
@@ -290,7 +290,7 @@ export default {
           this.state = 'dashboard'
         } else if (this.user_details.usertype == 2) { // coach
           this.coachflag = true
-          this.state = 'dashboard'
+          this.state = 'viewclasses'
         } else { // customer
           this.customerflag = true
           this.state = 'home'
