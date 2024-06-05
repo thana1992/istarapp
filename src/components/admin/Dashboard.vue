@@ -71,7 +71,7 @@
                 </v-row>
                 <v-row>
                     <v-col cols="12" sm="12" md="3" xl="3">
-                        <v-card class="mx-0" height="400">
+                        <v-card class="mx-0" height="450">
                             <v-list-item class="header-card">
                                 <div>View class booking by date</div>
                             </v-list-item>
@@ -532,22 +532,23 @@ const DashboardAPI = {
 }
 </script>
 <style scoped>
+
 .font-card {
-    font-size: 20px;
-    font-weight: bold;
+  font-size: 20px;
+  font-weight: bold;
 }
 button span.mdi,
 .dashboard-card span.mdi {
-    font-size: 22px;
-    margin-right: 5px;
+  font-size: 22px;
+  margin-right: 5px;
 }
 .dashboard-card:hover {
-    background-color: rgba(187, 187, 187, 0.342);
-    cursor: pointer;
+  background-color: rgba(187, 187, 187, 0.342);
+  cursor: pointer;
 }
 .header-card {
-    background-color: #eeeeee;
-    color: black;
+  background-color: #eeeeee;
+  color: black;
 }
 .fade-enter-active,
 .fade-leave-active {
@@ -564,7 +565,7 @@ button span.mdi,
   box-shadow:  0px 2px 1px -1px var(--v-shadow-key-umbra-opacity, rgba(0, 0, 0, 0.2)), 0px 1px 1px 0px var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.14)), 0px 1px 3px 0px var(--v-shadow-key-penumbra-opacity, rgba(0, 0, 0, 0.12));
   animation: pulse 2s infinite;
 }
-.pulse:hover {
+  .pulse:hover {
   animation: none;
 }
 

@@ -8,7 +8,7 @@
             <div class="mx-auto mt-5 px-2 py-1">
                 <v-row>
                     <v-col cols="12" sm="12" md="3" xl="3">
-                        <v-card class="mx-0" height="400">
+                        <v-card class="mx-0" height="450">
                             <v-list-item class="header-card">
                                 <div>View class booking by date</div>
                             </v-list-item>
@@ -202,3 +202,22 @@ const DashboardAPI = {
     },
 }
 </script>
+<style scoped>
+.font-card {
+  font-size: 20px;
+  font-weight: bold;
+}
+button span.mdi,
+.dashboard-card span.mdi {
+  font-size: 22px;
+  margin-right: 5px;
+}
+.dashboard-card:hover {
+  background-color: rgba(187, 187, 187, 0.342);
+  cursor: pointer;
+}
+.header-card {
+  background-color: #eeeeee;
+  color: black;
+}
+</style>
