@@ -11,37 +11,31 @@
           :title="parent"
         ></v-list-item>
         <v-divider></v-divider>
-        <v-list v-if="managerflag || customerflag" density="compact" nav>
-          <v-label>Parent Menu</v-label>
-          <v-list-item prepend-icon="mdi-home-account" title="HOME" value="home" @click="onClickChangeState('home')">
+        <v-list density="compact" nav>
+          <v-label v-if="managerflag || customerflag" >Main menu</v-label>
+          <v-list-item v-if="managerflag || customerflag" prepend-icon="mdi-home-account" title="HOME" value="home" @click="onClickChangeState('home')">
           </v-list-item>
-          <v-list-item prepend-icon="mdi-account-multiple" title="FAMILY" value="familylist" @click="onClickChangeState('familylist')">
+          <v-list-item v-if="managerflag || customerflag" prepend-icon="mdi-account-multiple" title="FAMILY" value="familylist" @click="onClickChangeState('familylist')">
           </v-list-item>
-        </v-list>
-        <v-list v-if="managerflag || customerflag || coach" density="compact" nav>
-          <v-label>Coach Menu</v-label>
-          <v-list-item prepend-icon="mdi-table-eye" title="VIEW CLASSES" value="viewclasses" @click="onClickChangeState('viewclasses')">
+          <v-label v-if="managerflag || customerflag || coach" >Checking menu</v-label>
+          <v-list-item v-if="managerflag || customerflag || coach" prepend-icon="mdi-table-eye" title="VIEW CLASSES" value="viewclasses" @click="onClickChangeState('viewclasses')">
           </v-list-item>
-        </v-list>
-        <v-list v-if="managerflag || adminflag" density="compact" nav>
-          <v-label>Admin Menu</v-label>
-          <v-list-item prepend-icon="mdi-view-dashboard-outline" title="หน้าแรก" value="dashboard" @click="onClickChangeState('dashboard')">
+          <v-label v-if="managerflag || adminflag" >Admin menu</v-label>
+          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-view-dashboard-outline" title="หน้าแรก" value="dashboard" @click="onClickChangeState('dashboard')">
           </v-list-item>
-          <v-list-item prepend-icon="mdi-book-account" title="คอร์สของลูกค้า" value="customercourse" @click="onClickChangeState('customercourse')">
+          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-book-account" title="คอร์สของลูกค้า" value="customercourse" @click="onClickChangeState('customercourse')">
           </v-list-item>
-          <v-list-item prepend-icon="mdi-calendar-edit" title="การจองคลาสเรียน" value="bookingmanager" @click="onClickChangeState('bookingmanager')">
+          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-calendar-edit" title="การจองคลาสเรียน" value="bookingmanager" @click="onClickChangeState('bookingmanager')">
           </v-list-item>
-          <v-list-item prepend-icon="mdi-gymnastics" title="รายชื่อเด็ก" value="studentmanager" @click="onClickChangeState('gymnastmanager')">
+          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-gymnastics" title="รายชื่อเด็ก" value="studentmanager" @click="onClickChangeState('gymnastmanager')">
           </v-list-item>
-        </v-list>
-        <v-list v-if="managerflag" density="compact" nav>
-          <v-label>Menager Menu</v-label>
+          <v-label v-if="managerflag" >Management menu</v-label>
           <v-list-item v-if="managerflag" prepend-icon="mdi-star-shooting-outline" title="จัดการคอร์ส" value="course" @click="onClickChangeState('course')">
           </v-list-item>
           <v-list-item v-if="managerflag" prepend-icon="mdi-view-dashboard-variant-outline" title="จัดการคลาสเรียน" value="classes" @click="onClickChangeState('classes')">
           </v-list-item>
-        </v-list>
-        <v-list density="compact" nav>
+          <br>
+          <hr>
           <v-list-item v-if="isLoggedIn" prepend-icon="mdi-logout" title="LOGOUT" @click="onClickLogout()">
           </v-list-item>
         </v-list>
