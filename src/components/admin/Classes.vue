@@ -146,7 +146,7 @@ export default {
   async created() {
     this.$emit('onLoading', true)
     await this.initialize()
-    
+
     this.$emit('onLoading', false)
   },
 

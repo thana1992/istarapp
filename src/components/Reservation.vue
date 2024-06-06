@@ -1,82 +1,51 @@
 <template>
-  <div class="container">
+    <div class="container">
         <div class="container-header">
             <h1><span class="mdi mdi-account-plus"></span> Reservation</h1>
         </div>
         <div class="container-content">
-            <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
-            
+            <v-divider color="#fffff" thickness="3"></v-divider>
+
             <div class="d-flex justify-center mb-3">
-            <v-form ref="reserveForm">
-                <v-row justify="space-around" class="ma-2 pa-2">
-                    <p>การจองคลาสของ {{ student.firstname + ' ' + student.lastname }}</p>
-                </v-row>
-                <v-row justify="space-around" class="ma-2 pa-2">
-                        <v-date-picker
-                            v-model="date"
-                            :min="tomorrow"
-                            @click="selectDate"
-                        ></v-date-picker>
-                </v-row>
-                <v-row justify="space-around" class="ma-2 pa-2">
-                    <v-select
-                    v-model="classtimeSelect"
-                    label="Class time"
-                    class="ma-2 pa-2"
-                    item-title="text"
-                    item-value="classid"
-                    :items="classtimesData"
-                    variant="outlined"
-                    :rules="classTimeRules"
-                    no-data-text="No class time available"
-                    return-object
-                    required
-                    ></v-select>
-                </v-row>
-                
-                <v-row justify="space-around" class="ma-2 pa-2">
-                    <v-btn
-                        color="success"
-                        class="mt-4"
-                        block
-                        @click="validate"
-                        required
-                    >
-                    Book a class
-                    </v-btn>
-                </v-row>
-            </v-form>
+                <v-form ref="reserveForm">
+                    <v-row justify="space-around" class="ma-2 pa-2">
+                        <p>การจองคลาสของ {{ student.firstname + ' ' + student.lastname }}</p>
+                    </v-row>
+                    <v-row justify="space-around" class="ma-2 pa-2">
+                        <v-date-picker v-model="date" :min="tomorrow" @click="selectDate"></v-date-picker>
+                    </v-row>
+                    <v-row justify="space-around" class="ma-2 pa-2">
+                        <v-select v-model="classtimeSelect" label="Class time" class="ma-2 pa-2" item-title="text"
+                            item-value="classid" :items="classtimesData" variant="outlined" :rules="classTimeRules"
+                            no-data-text="No class time available" return-object required></v-select>
+                    </v-row>
+
+                    <v-row justify="space-around" class="ma-2 pa-2">
+                        <v-btn color="success" class="mt-4" block @click="validate" required>
+                            Book a class
+                        </v-btn>
+                    </v-row>
+                </v-form>
             </div>
         </div>
     </div>
 
-    <v-dialog
-      v-model="questionDialog"
-      persistent
-      width="auto"
-    >
-      <v-card>
-        <v-card-title class="text-h5">
-        </v-card-title>
-        <v-card-text>ต้องการจองคลาสสำหรับ {{ student.nickname }} <br> วันที่ {{ format_date(date) }} เวลา {{ classtimeSelect.classtime }}</v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn
-            color="#4CAF50"
-            variant="tonal"
-            @click="submitReservation"
-          >
-            แน่นอน จองเลย!
-          </v-btn>
-          <v-btn
-            color="#F44336"
-            variant="tonal"
-            @click="questionDialog = false"
-          >
-            เดี๋ยว! ขอคิดก่อน
-          </v-btn>
-        </v-card-actions>
-      </v-card>
+    <v-dialog v-model="questionDialog" persistent width="auto">
+        <v-card>
+            <v-card-title class="text-h5">
+            </v-card-title>
+            <v-card-text>ต้องการจองคลาสสำหรับ {{ student.nickname }} <br> วันที่ {{ format_date(date) }} เวลา {{
+                            classtimeSelect.classtime }}</v-card-text>
+            <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="#4CAF50" variant="tonal" @click="submitReservation">
+                    แน่นอน จองเลย!
+                </v-btn>
+                <v-btn color="#F44336" variant="tonal" @click="questionDialog = false">
+                    เดี๋ยว! ขอคิดก่อน
+                </v-btn>
+            </v-card-actions>
+        </v-card>
     </v-dialog>
 
 </template>
@@ -85,7 +54,7 @@
 import axios from 'axios'
 import moment from 'moment'
 import { mapGetters } from 'vuex';
-  export default {
+export default {
     props: {
         student: {
             type: Object,
@@ -106,7 +75,7 @@ import { mapGetters } from 'vuex';
             questionDialog: false,
         }
     },
-    async created () {
+    async created() {
         try {
             const token = this.$store.getters.getToken;
             console.log('token ', token)
@@ -118,27 +87,27 @@ import { mapGetters } from 'vuex';
             }
 
             await axios
-            .post(this.baseURL+'/verifyToken', {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            })
-            .then(response => {
-                console.dir(response);
-            })
-            .catch(error => {
-                console.error(error);
-                this.$emit('onErrorHandler', error.response.data.message)
-                this.$emit('onClickChangeState', 'login')
-            });
+                .post(this.baseURL + '/verifyToken', {}, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                })
+                .then(response => {
+                    console.dir(response);
+                })
+                .catch(error => {
+                    console.error(error);
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                });
         } catch (error) {
             this.$emit('onErrorHandler', error.message)
         }
-        
+
     },
     mounted() {
         const tomorrow = new Date()
-        tomorrow.setDate(new Date().getDate()+1)
+        tomorrow.setDate(new Date().getDate() + 1)
         this.date = tomorrow
         this.getClassTime()
     },
@@ -150,8 +119,8 @@ import { mapGetters } from 'vuex';
         },
         async validate() {
             let { valid } = await this.$refs.reserveForm.validate()
-            if(!valid) return;
-            if(this.people.remaining <= 0) {
+            if (!valid) return;
+            if (this.people.remaining <= 0) {
                 this.$emit('onErrorHandler', 'ไม่สามารถจองคลาสได้ จำนวนคลาสของท่านหมดแล้ว T-T')
                 return;
             }
@@ -167,26 +136,26 @@ import { mapGetters } from 'vuex';
             }
             console.log("request", req)
             const token = this.$store.getters.getToken;
-            axios.post(this.baseURL+'/getClassTime', req, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
+            axios.post(this.baseURL + '/getClassTime', req, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
             })
-            .then(response => {
-                console.dir(response);
-                if (response.data.success) {
-                    const data = response.data.results
-                    if(data.length == 0) {
+                .then(response => {
+                    console.dir(response);
+                    if (response.data.success) {
+                        const data = response.data.results
+                        if (data.length == 0) {
+                            this.classtimesData = []
+                        } else {
+                            this.classtimesData = data;
+                        }
+                    } else {
                         this.classtimesData = []
-                    }else{
-                        this.classtimesData = data;
                     }
-                } else {
-                    this.classtimesData = []
-                }
-            })
+                })
         },
-        async submitReservation () {
+        async submitReservation() {
             this.$emit('onLoading', true)
             this.questionDialog = false;
             let isDuplicate = false;
@@ -201,51 +170,51 @@ import { mapGetters } from 'vuex';
                 studentnickname: this.student.nickname,
                 coursename: this.student.coursename,
             }
-            console.log('checkDuplicateReservation : ' ,reservaObj)
+            console.log('checkDuplicateReservation : ', reservaObj)
             const token = this.$store.getters.getToken;
-            await axios.post(this.baseURL+'/checkDuplicateReservation', reservaObj, {
-            headers: {
-                Authorization: `Bearer ${token}`,
-            },
-            })
-            .then(response => {
-                console.dir(response);
-                if (!response.data.success) {
-                    this.$emit('onErrorHandler', 'คุณได้จองคลาสในวันที่ '+this.format_date(this.date)+' ไปแล้ว กรุณาเลือกวันอื่น')
-                    isDuplicate = true;
-                }
-            });
-
-            if(!isDuplicate) {
-                const token = this.$store.getters.getToken;
-                await axios.post(this.baseURL+'/createReservation', reservaObj, {
+            await axios.post(this.baseURL + '/checkDuplicateReservation', reservaObj, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
-                })
+            })
                 .then(response => {
                     console.dir(response);
-                    if (response.data.success) {
-                        this.$emit('onInfoHandler', 'จองคลาสสำเร็จ แล้วพบกัน :)')
-                        this.$emit('onSuccessHandler', 'home')
-                    } else {
-                        this.$emit('onErrorHandler', response.data.message || 'Reservation failed')
+                    if (!response.data.success) {
+                        this.$emit('onErrorHandler', 'คุณได้จองคลาสในวันที่ ' + this.format_date(this.date) + ' ไปแล้ว กรุณาเลือกวันอื่น')
+                        isDuplicate = true;
                     }
-                })
-                .catch(error => {
-                    console.error(error);
-                    this.$emit('onErrorHandler', error.message || 'Reservation failed')
                 });
+
+            if (!isDuplicate) {
+                const token = this.$store.getters.getToken;
+                await axios.post(this.baseURL + '/createReservation', reservaObj, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                    .then(response => {
+                        console.dir(response);
+                        if (response.data.success) {
+                            this.$emit('onInfoHandler', 'จองคลาสสำเร็จ แล้วพบกัน :)')
+                            this.$emit('onSuccessHandler', 'home')
+                        } else {
+                            this.$emit('onErrorHandler', response.data.message || 'Reservation failed')
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        this.$emit('onErrorHandler', error.message || 'Reservation failed')
+                    });
             }
             this.$emit('onClickChangeState', this.student)
             this.$emit('onLoading', false)
         },
-        SQLDate(value){
+        SQLDate(value) {
             if (value) {
                 return moment(String(value)).format('YYYYMMDD')
             }
         },
-        format_date(value){
+        format_date(value) {
             if (value) {
                 return moment(String(value)).format('DD/MM/YYYY')
             }
@@ -257,7 +226,7 @@ import { mapGetters } from 'vuex';
         }),
     }
 
-  }
+}
 </script>
 
 <style>
@@ -265,6 +234,7 @@ import { mapGetters } from 'vuex';
 .v-date-picker-header__content {
     display: none;
 }
+
 .v-date-picker-month__day {
     height: auto !important;
 }
