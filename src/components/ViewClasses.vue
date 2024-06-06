@@ -7,7 +7,7 @@
             <v-divider color="#fffff" thickness="3"></v-divider>
             <div class="mx-auto mt-5 px-2 py-1">
                 <v-row>
-                    <v-col cols="12" sm="12" md="3" xl="3">
+                    <v-col cols="12" sm="12" md="4" xl="3">
                         <v-card class="mx-0" height="450">
                             <v-list-item class="header-card">
                                 <div>View class booking by date</div>
@@ -20,7 +20,7 @@
                             </v-container>
                         </v-card>
                     </v-col>
-                    <v-col cols="12" sm="12" md="9" xl="9">
+                    <v-col cols="12" sm="12" md="8" xl="9">
                         <BookingList @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
                             @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
                             @onLoading="onLoading($event)" :bookingHeaders="bookingHeaders" :bookingData="bookingList"
