@@ -1,7 +1,7 @@
 <template>
 <div class="container">
     <div class="container-header">
-        <h1>Home</h1>
+        <h1><span class="mdi mdi-home-account"></span> Home</h1>
     </div>
     <div v-if="familylist!=null && familylist.length > 0">
     <div class="container-content">

@@ -53,6 +53,7 @@
                 v-model="address"
                 label="Address"
                 type="text"
+                required
                 ></v-text-field>
 
                 <v-text-field
@@ -60,6 +61,7 @@
                 v-model="email"
                 label="E-mail"
                 type="text"
+                required
                 ></v-text-field>
 
                 <v-text-field
@@ -77,6 +79,7 @@
                 v-model="registercode"
                 label="Register Code"
                 type="text"
+                required
                 ></v-text-field>
 
                 <v-btn
