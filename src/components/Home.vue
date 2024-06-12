@@ -32,7 +32,7 @@
                     </v-table>
                 </div>
             </div>
-            <div class="container-content">
+            <div class="container-content" v-if="studentSelected">
                 <h3 class="group-header">Information</h3>
                 <v-divider class="border-opacity-100" color="info" length="35vw" thickness="3"></v-divider>
                 <v-divider color="#fffff" thickness="3"></v-divider>
@@ -69,11 +69,9 @@
                     </Transition>
                 </div>
             </div>
-            <Transition>
-                <div class="container-content">
-                    <h3 class="group-header">Reservation
-                        <span class="mdi mdi-calendar-plus btn-reserve" @click="doReservation"></span>
-                    </h3>
+            <Transition v-if="studentSelected">
+                <div class="container-content" >
+                    <h3 class="group-header">Reservation</h3>
                     <v-divider class="border-opacity-100" color="info" length="35vw" thickness="3"></v-divider>
                     <v-divider color="#fffff" thickness="3"></v-divider>
 
@@ -96,11 +94,19 @@
                             </tbody>
                         </v-table>
                     </Transition>
+                        <div style="text-align: center; padding-top: 8vh;">
+                            <v-btn color="green" @click="doReservation"> + Book a class</v-btn>
+                        </div>
+                </div>
+            </Transition>
+            <Transition v-else>
+                <div class="container-content" style="text-align: center; padding-top: 5vh;">
+                    <p>Choose you member for see information</p>
                 </div>
             </Transition>
         </div>
         <div v-else>
-            <p>Please Add your family member</p>
+            <p>Please Add your family member in <u>FAMILY</u> Menu</p>
         </div>
 
     </div>

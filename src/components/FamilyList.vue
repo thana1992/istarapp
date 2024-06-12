@@ -6,14 +6,12 @@
                     <h1><span class="mdi mdi-account-multiple"></span> Family</h1>
                 </div>
                 <div class="container-content">
-                    <h3 class="group-header">Family member
-                        <span class="mdi mdi-account-multiple-plus btn-add" @click="doAddFamilyMember"></span>
-                    </h3>
+                    <h3 class="group-header">Family member</h3>
                     <v-divider class="border-opacity-100" color="info" length="35vw" thickness="3"></v-divider>
                     <v-divider color="#fffff" thickness="3"></v-divider>
                     <v-table class="family-list">
                         <tbody>
-                            <tr v-for="people in family" :key="people.studentid" style="cursor: pointer;"
+                            <tr v-for="people in family" :key="people.studentid" style="cursor: pointer; "
                                 :class="{ 'highlight-row': people.journal === '1' }" class="tr-rows">
                                 <td style="width: 20vw;">
                                     <v-img v-if="people.gender === 'หญิง'" :src="profileGirl" cover
@@ -26,6 +24,11 @@
                                 <td style="width: 70vw;">{{ people.fullname }}</td>
                                 <td style="width: 10vw;"><span class="mdi mdi-delete-forever" style="font-size: 7vw;"
                                         @click="onClickDelete(people)"></span></td>
+                            </tr>
+                            <tr>
+                                <td colspan="3" style="text-align: center; padding-top: 5vh;">
+                                    <v-btn color="green" @click="doAddFamilyMember"> + Add Member</v-btn>
+                                </td>
                             </tr>
                         </tbody>
                     </v-table>
