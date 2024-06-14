@@ -188,7 +188,7 @@ export default {
                 { title: "Age", key: "dateofbirth", align: "center"},
                 //{ title: "Course Start", key: "startdate", align: "center" },
                 
-                { title: "Remaining", key: "remaining", align: "end" },
+                { title: "Remaining", key: "remaining", align: "center" },
                 { title: "Course Expire", key: "expiredate", align: "left"},
                 { title: "Mobile Number", key: "mobileno", align: "center", sortable: false },
                 { title: "Edit", key: "edit", align: "center", sortable: false },
