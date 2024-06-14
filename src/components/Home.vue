@@ -53,16 +53,18 @@
                             <div class="info-detail">
                                 <p>{{ p.fullname }}</p>
                                 <p>เพศ {{ p.gender }} อายุ {{ calculateAge(p.dateofbirth) }}</p>
-                                <p>Course No. {{ p.courserefer }} </p>
-                                <p>
-                                    <label>คอร์ส {{ p.coursename }}</label>
-                                    <label v-if="p.coursetype == 'Monthly'"> รายเดือน</label>
-                                    <label v-else> คงเหลือ {{ p.remaining }} ครั้ง</label>
-                                </p>
-                                <p>
-                                    <label>หมดอายุ {{ new Date(p.expiredate).toLocaleDateString('th-TH', this.options)
-                                        }}</label>
-                                </p>
+                                <div v-if="p.courserefer">
+                                    <p>Course No. {{ p.courserefer }} </p>
+                                    <p>
+                                        <label>คอร์ส {{ p.coursename }}</label>
+                                        <label v-if="p.coursetype == 'Monthly'"> รายเดือน</label>
+                                        <label v-else> คงเหลือ {{ p.remaining }} ครั้ง</label>
+                                    </p>
+                                    <p>
+                                        <label>หมดอายุ {{ new Date(p.expiredate).toLocaleDateString('th-TH', this.options)
+                                            }}</label>
+                                    </p>
+                                </div>
 
                             </div>
                         </div>
@@ -95,7 +97,10 @@
                         </v-table>
                     </Transition>
                         <div style="text-align: center; padding-top: 8vh;">
-                            <v-btn color="green" @click="doReservation"> + Book a class</v-btn>
+                            <v-btn color="green" rounded class="ma-2 pulse-button" @click="doReservation">
+                                <v-icon left>mdi-emoticon-plus</v-icon>
+                                &nbsp;Book a class
+                            </v-btn>
                         </div>
                 </div>
             </Transition>
@@ -144,13 +149,17 @@ export default {
                 this.$emit('onErrorHandler', 'Please select any one of your family')
                 return
             }
+            if(this.studentSelected.courserefer == null){
+                this.$emit('onErrorHandler', 'ไม่สามารถจองคลาสได้ เนื่องจากยังไม่มีข้อมูลคอร์สเรียน กรุณาติดต่อ Admin')
+                return;
+            }
             if (this.studentSelected.expiredate < new Date()) {
-                this.$emit('onErrorHandler', 'ไม่สามารถจองคลาสได้ เนื่องจากหมดอายุแล้ว T-T')
+                this.$emit('onErrorHandler', 'ไม่สามารถจองคลาสได้ เนื่องจากหมดอายุแล้ว')
                 return;
             }
             if (this.studentSelected.coursetype != 'Monthly') {
                 if (this.studentSelected.remaining <= 0) {
-                    this.$emit('onErrorHandler', 'ไม่สามารถจองคลาสได้ จำนวนคลาสของท่านหมดแล้ว T-T')
+                    this.$emit('onErrorHandler', 'ไม่สามารถจองคลาสได้ จำนวนคลาสของท่านหมดแล้ว')
                     return;
                 }
             }
@@ -189,7 +198,11 @@ export default {
                 console.log('response : ', response)
                 //this.editedStudentItem.profile_image = response.data.image;
                 this.studentSelected.base64Image = response.data.image;
-                this.imagePreview = `data:image/*;base64,${response.data.image}`;
+                if (response.data.image !== null) {
+                    this.imagePreview = `data:image/*;base64,${response.data.image}`;
+                } else {
+                    this.imagePreview = this.profileAvatar;
+                }
             } catch (error) {
                 console.error('Error loading profile image:', error);
             }

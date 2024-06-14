@@ -5,6 +5,7 @@
         </div>
         <div class="container-content">
             <v-divider color="#fffff" thickness="3"></v-divider>
+            <br>
             <div class="mx-auto px-2 py-1">
                 <v-form ref="form">
                     <v-text-field variant="solo-filled" v-model="firstname" label="Firstname / ชื่อ" type="text"
@@ -27,11 +28,13 @@
 
                     <DatePicker label="Date of Birth / วันเกิด" v-model="dateofbirth" :maxdate="new Date()" required>
                     </DatePicker>
-
-                    <v-btn color="blue" class="mt-4" block @click="doSave">
+                    <br>
+                    <v-divider color="#fffff" thickness="3"></v-divider>
+                    
+                    <v-btn color="success" class="mt-4" block @click="doSave">
                         Submit
                     </v-btn>
-                    <v-btn color="error" class="mt-4" block @click="reset">
+                    <v-btn color="pink" class="mt-4" block @click="reset">
                         Clear
                     </v-btn>
                 </v-form>

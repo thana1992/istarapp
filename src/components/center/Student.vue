@@ -84,7 +84,7 @@
                                                 <v-autocomplete v-model="editedStudentItem.courserefer"
                                                     label="Course Refer" item-title="courserefer"
                                                     item-value="courserefer" :items="customerCourseLookup"
-                                                    variant="solo-filled" no-data-text="No course" :rules="notNullRules"
+                                                    variant="solo-filled" no-data-text="No course"
                                                     editable @update:modelValue="onCourseChange"></v-autocomplete>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="6">
@@ -148,6 +148,12 @@
             <template v-slot:item.index="{ item }">{{
                 StudentList.indexOf(item) + 1
             }}</template>
+            <template v-slot:item.dateofbirth="{ item }">
+                {{ calculateAge(item.dateofbirth).int }}
+            </template>
+            <template v-slot:item.expiredate="{ item }">
+                {{ expireDateLeft(item.expiredate) }}
+            </template>
             <template v-slot:item.edit="{ item }">
                 <v-icon size="large" color="info" @click="clickEditStudent(item)">mdi-pencil</v-icon>
             </template>
@@ -164,7 +170,7 @@ import axios from "axios";
 import DatePicker from "@/components/DatePicker.vue";
 import moment from "moment";
 import { mapGetters } from "vuex";
-
+import { ref, computed } from 'vue';
 export default {
     components: {
         DatePicker,
@@ -178,11 +184,13 @@ export default {
             StudentListHeaders: [
                 { title: "Name", key: "fullname" },
                 //{ title: 'Date of Birth', key: 'dateofbirthshow' },
-                { title: "Gender", key: "gender" },
-                { title: "Course Start", key: "startdate", align: "center" },
-                { title: "Course Expire", key: "expiredate", align: "center" },
+                { title: "Gender", key: "gender", align: "left" },
+                { title: "Age", key: "dateofbirth", align: "center"},
+                //{ title: "Course Start", key: "startdate", align: "center" },
+                
                 { title: "Remaining", key: "remaining", align: "end" },
-                { title: "Mobile Number", key: "mobileno", sortable: false },
+                { title: "Course Expire", key: "expiredate", align: "left"},
+                { title: "Mobile Number", key: "mobileno", align: "center", sortable: false },
                 { title: "Edit", key: "edit", align: "center", sortable: false },
                 { title: "Delete", key: "delete", align: "center", sortable: false },
             ],
@@ -275,7 +283,7 @@ export default {
             await ComponentAPI.fetchDataStudent({ token })
                 .then(({ success, results, message }) => {
                     if (success) {
-                        this.StudentList = this.convertDate(results);
+                        this.StudentList = results;
                         console.log("StudentList : ", this.StudentList);
                         this.loadingStudent = false;
                     } else {
@@ -420,7 +428,7 @@ export default {
             this.editedStudentIndex = this.StudentList.indexOf(item);
             this.editedStudentItem = Object.assign({}, item);
             this.editedStudentItem.dateofbirth = new Date(item.dateofbirth);
-            this.editedStudentItem.age = this.calculateAge(item.dateofbirth);
+            this.editedStudentItem.age = this.calculateAge(item.dateofbirth).text;
             this.onCourseChange();
             this.loadProfileImage();
             this.dialogStudent = true;
@@ -617,9 +625,7 @@ export default {
             this.loadingCourse = false;
         },
         calculateAgeNewStudent() {
-            this.editedStudentItem.age = this.calculateAge(
-                new Date(this.editedStudentItem.dateofbirth)
-            );
+            this.editedStudentItem.age = this.calculateAge(new Date(this.editedStudentItem.dateofbirth)).text;
         },
         calculateAge(birthDate) {
             if (!birthDate) return;
@@ -638,7 +644,10 @@ export default {
             let years = Math.floor(totalDays / 365.25);
             let months = Math.floor((totalDays % 365.25) / 30.4375);
             let days = Math.floor((totalDays % 365.25) % 30.4375);
-            return years + " ปี " + months + " เดือน ";
+            return {
+                text : years + " ปี " + months + " เดือน ",
+                int : years+'.'+months
+            }
         },
         onShowInfoDialog(msg) {
             this.infoMsg = msg;
@@ -649,16 +658,52 @@ export default {
         },
         format_date(value) {
             if (value) {
-                return moment(String(value)).format("DD/MM/YYYY");
+                return moment(value).format("DD/MM/YYYY");
             }
         },
-        convertDate(arrObj) {
-            arrObj.forEach((obj) => {
-                obj.dateofbirthshow = this.format_date(obj.dateofbirth);
-                obj.startdate = this.format_date(obj.startdate);
-                obj.expiredate = this.format_date(obj.expiredate);
-            });
-            return arrObj;
+        expireDateLeft(value) {
+            let result = "";
+            if (value) {
+                let remainingText = this.calExpireText(value);
+                result = this.format_date(value) + " (" + remainingText + ")";
+            }
+            return result;
+        },
+        calExpireText(expdate) {
+            if(!expdate) return '';
+            const today = new Date();
+            const expirationDate = new Date(expdate);
+            console.log('today', today);
+            console.log('expirationDate', expirationDate);
+
+            let months = expirationDate.getMonth() - today.getMonth();
+            let days = expirationDate.getDate() - today.getDate();
+            let years = expirationDate.getFullYear() - today.getFullYear();
+
+            if (days < 0) {
+                months -= 1;
+                days += new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate(); // จำนวนวันในเดือนปัจจุบัน
+            }
+
+            if (months < 0) {
+                years -= 1;
+                months += 12;
+            }
+
+            if (years > 0) {
+                months += years * 12;
+            }
+            
+            let returnText = ''
+            if (months > 0) {
+                returnText += `${months} เดือน `;
+            }
+            if (days > 0) {
+                returnText += `${days} วัน`;
+            }
+            console.log('returnText', returnText);
+            return returnText;
+            
         },
     },
     watch: {

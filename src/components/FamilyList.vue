@@ -27,7 +27,11 @@
                             </tr>
                             <tr>
                                 <td colspan="3" style="text-align: center; padding-top: 5vh;">
-                                    <v-btn color="green" @click="doAddFamilyMember"> + Add Member</v-btn>
+                                    <!-- ปุ่มที่มีไอคอนด้านซ้าย พร้อมด้วยสีสัน รูปร่าง และเอฟเฟค pulse -->
+                                    <v-btn color="success" elevation="2" rounded class="ma-2 pulse-button" @click="doAddFamilyMember">
+                                    <v-icon left>mdi-account-multiple-plus</v-icon>
+                                    &nbsp;Add Family Member
+                                    </v-btn>
                                 </td>
                             </tr>
                         </tbody>
@@ -189,5 +193,30 @@ export default {
 
 .highlight-row {
     color: #80808059;
+}
+
+/* สไตล์เพิ่มเติมสำหรับปุ่ม */
+.v-btn {
+  font-weight: bold;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+/* คีย์เฟรมสำหรับเอฟเฟค pulse */
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* คลาสสำหรับปุ่มที่มีเอฟเฟค pulse */
+.pulse-button {
+  animation: pulse 1.5s infinite;
 }
 </style>
