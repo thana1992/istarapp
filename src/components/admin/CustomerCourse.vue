@@ -407,6 +407,16 @@ export default {
     async save() {
       this.$emit("onLoading", true);
       const token = this.$store.getters.getToken;
+      console.log("save", this.editedItem);
+
+      let startdate = null;
+      let expiredate = null;
+      if (this.editedItem.startdate !==null && this.editedItem.startdate !=="") {
+        startdate = this.SQLDate(this.editedItem.startdate);
+      }
+      if (this.editedItem.expiredate !==null && this.editedItem.expiredate !=="") {
+        expiredate = this.SQLDate(this.editedItem.expiredate);
+      }
       if (this.editedIndex > -1) {
         let saveObj = {
           courserefer: this.editedItem.courserefer,
@@ -415,8 +425,8 @@ export default {
           coursetype: this.editedItem.coursetype,
           course_shortname: this.editItem.course_shortname,
           remaining: this.editedItem.remaining,
-          startdate: this.SQLDate(this.editedItem.startdate),
-          expiredate: this.SQLDate(this.editedItem.expiredate),
+          startdate: startdate,
+          expiredate: expiredate,
         };
         await axios
           .post(this.baseURL + "/updateCustomerCourse", saveObj, {
@@ -441,12 +451,11 @@ export default {
         let saveObj = {
           courserefer: this.editedItem.courserefer,
           course: this.editedItem.course,
-          courseid: this.editedItem.courseid,
           coursetype: this.editedItem.coursetype,
           course_shortname: this.editItem.course_shortname,
           remaining: this.editedItem.remaining,
-          startdate: this.SQLDate(this.editedItem.startdate),
-          expiredate: this.SQLDate(this.editedItem.expiredate),
+          startdate: startdate,
+          expiredate: expiredate,
         };
         await axios
           .post(this.baseURL + "/addCustomerCourse", saveObj, {
