@@ -82,9 +82,20 @@ body {
 }
 
 .istar-logo {
-  width: 200px;
+  width: 300px;
   padding-top: 5vh;
+  animation: shadowPulse 6s infinite; /* นำแอนิเมชั่นมาใช้ */
 }
+
+@keyframes shadowPulse {
+  0%, 100% {
+    filter: drop-shadow(4px 4px 12px rgba(0, 0, 0, 0.5));
+  }
+  50% {
+    filter: drop-shadow(4px 4px 12px rgb(255, 0, 0, 1));
+  }
+}
+
 
 .link-footer {
   display: flex;

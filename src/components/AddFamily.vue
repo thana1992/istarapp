@@ -4,75 +4,40 @@
             <h1><span class="mdi mdi-face-man-shimmer"></span> Add Member</h1>
         </div>
         <div class="container-content">
-            <v-divider color="#fffff" length="100vw" thickness="3"></v-divider>
+            <v-divider color="#fffff" thickness="3"></v-divider>
+            <br>
             <div class="mx-auto px-2 py-1">
-            <v-form ref="form">
-                <v-text-field
-                variant="solo-filled"
-                v-model="firstname"
-                label="First Name"
-                type="text"
-                :rules="nameRules"
-                required
-                ></v-text-field>
+                <v-form ref="form">
+                    <v-text-field variant="solo-filled" v-model="firstname" label="Firstname / ชื่อ" type="text"
+                        :rules="nameRules" required></v-text-field>
 
-                <v-text-field
-                variant="solo-filled"
-                v-model="middlename"
-                label="Middle Name"
-                type="text"
-                ></v-text-field>
+                    <v-text-field variant="solo-filled" v-model="middlename" label="Middlename / ชื่อกลาง"
+                        type="text"></v-text-field>
 
-                <v-text-field
-                variant="solo-filled"
-                v-model="lastname"
-                label="Last Name"
-                type="text"
-                :rules="nameRules"
-                required
-                ></v-text-field>
+                    <v-text-field variant="solo-filled" v-model="lastname" label="Lastname / นามสกุล" type="text"
+                        :rules="nameRules" required></v-text-field>
 
-                <v-text-field
-                variant="solo-filled"
-                v-model="nickname"
-                label="Nick Name"
-                type="text"
-                :rules="nameRules"
-                required
-                ></v-text-field>
+                    <v-text-field variant="solo-filled" v-model="nickname" label="Nick Name / ชื่อเล่น " type="text"
+                        :rules="nameRules" required></v-text-field>
 
-                <v-select
-                v-model="gender"
-                label="Gender"
-                :items="['ชาย', 'หญิง']"
-                variant="solo-filled"
-                required
-                ></v-select>
+                    <v-text-field variant="solo-filled" v-model="school" label="School / โรงเรียน"
+                        type="text"></v-text-field>
 
-                <DatePicker 
-                label="Date of Birth"
-                v-model="dateofbirth"
-                :maxdate="new Date()"
-                required
-                ></DatePicker>
+                    <v-select v-model="gender" label="Gender / เพศ" :items="['ชาย', 'หญิง']" variant="solo-filled"
+                        required></v-select>
 
-                <v-btn
-                    color="success"
-                    class="mt-4"
-                    block
-                    @click="doSave"
-                >
-                    Add
-                </v-btn>
-                <v-btn
-                    color="error"
-                    class="mt-4"
-                    block
-                    @click="reset"
-                >
-                    Clear
-                </v-btn>
-            </v-form>
+                    <DatePicker label="Date of Birth / วันเกิด" v-model="dateofbirth" :maxdate="new Date()" required>
+                    </DatePicker>
+                    <br>
+                    <v-divider color="#fffff" thickness="3"></v-divider>
+                    
+                    <v-btn color="success" class="mt-4" block @click="doSave">
+                        Submit
+                    </v-btn>
+                    <v-btn color="pink" class="mt-4" block @click="reset">
+                        Clear
+                    </v-btn>
+                </v-form>
             </div>
         </div>
     </div>
@@ -97,71 +62,77 @@ export default {
         nickname: '',
         gender: '',
         dateofbirth: null,
+        school: '',
         format: 'dddd MMMM DD, YYYY',
         nameRules: [
             v => !!v || 'field is required',
         ],
     }),
     methods: {
-        async doSave (date) {
+        async doSave() {
+            this.$emit('onLoading', true)
             const { valid } = await this.$refs.form.validate()
-            if(this.dateofbirth == null){
+            if (this.dateofbirth == null) {
                 this.$emit('onErrorHandler', 'กรุณาเลือกวันเกิด')
                 return
             }
             if (valid) {
 
-            const userdata = localStorage.getItem('userdata')
-            const user = JSON.parse(userdata)
-            const token = this.$store.getters.getToken;
-            // Make API request to register the user
-            axios
-                .post(this.baseURL+'/addStudent', {
-                firstname: this.firstname,
-                middlename: this.middlename,
-                lastname: this.lastname,
-                nickname: this.nickname,
-                gender: this.gender,
-                dateofbirth: this.format_date(this.dateofbirth),
-                familyid: user.familyid,
-                },
-                { 
-                    headers:{ Authorization: `Bearer ${token}`, } 
-                })
-                .then(response => {
-                    console.log(response)
-                    if (response.data.success) {
-                        this.$emit('onInfoHandler', response.data.message || 'เพิ่มสมาชิกครอบครัวสำเร็จแล้ว');
-                        this.$emit('onClickChangeState', 'familylist')
-                    } else {
-                        this.$emit('onErrorHandler', response.data.message || 'เพิ่มสมาชิกครอบครัวไม่สำเร็จ');
-                    }
-                })
-                .catch(error => {
-                    console.error(error);
-                    if(error.response.status == 401) {
-                        this.$emit('onErrorHandler', error.response.data.message)
-                        this.$emit('onClickChangeState', 'login')
-                    }else{
-                        this.$emit('onErrorHandler', error.message)
-                    }
-                });
+                const userdata = localStorage.getItem('userdata')
+                const user = JSON.parse(userdata)
+                const token = this.$store.getters.getToken;
+                // Make API request to register the user
+                await axios
+                    .post(this.baseURL + '/addStudent', {
+                        firstname: this.firstname,
+                        middlename: this.middlename,
+                        lastname: this.lastname,
+                        nickname: this.nickname,
+                        gender: this.gender,
+                        dateofbirth: this.format_date(this.dateofbirth),
+                        school: this.school,
+                        familyid: user.familyid,
+                    },
+                        {
+                            headers: { Authorization: `Bearer ${token}`, }
+                        })
+                    .then(response => {
+                        console.log(response)
+                        if (response.data.success) {
+                            this.$emit('onLoading', false)
+                            this.$emit('onInfoHandler', response.data.message || 'เพิ่มสมาชิกครอบครัวสำเร็จแล้ว');
+                            this.$emit('onClickChangeState', 'familylist')
+                        } else {
+                            this.$emit('onErrorHandler', response.data.message || 'เพิ่มสมาชิกครอบครัวไม่สำเร็จ');
+                        }
+                    })
+                    .catch(error => {
+                        console.error(error);
+                        if (error.response.status == 401) {
+                            this.$emit('onErrorHandler', error.response.data.message)
+                            this.$emit('onClickChangeState', 'login')
+                        } else {
+                            this.$emit('onErrorHandler', error.message)
+                        }
+                    });
             }
+
+            this.$emit('onLoading', false)
         },
-        async validate () {
+        async validate() {
             const { valid } = await this.$refs.form.validate()
             this.$emit('onClickChangeState', 'list')
         },
-        reset () {
+        reset() {
             this.$refs.form.reset()
         },
-        resetValidation () {
+        resetValidation() {
             this.$refs.form.resetValidation()
         },
-        format_date(value){
-         if (value) {
-           return moment(String(value)).format('YYYYMMDD')
-          }
+        format_date(value) {
+            if (value) {
+                return moment(String(value)).format('YYYYMMDD')
+            }
         },
     },
     computed: {
@@ -181,25 +152,23 @@ export default {
             }
 
             await axios
-            .post(this.baseURL+'/verifyToken', {}, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                }
-            })
-            .then(response => {
-                console.dir(response);
-            })
-            .catch(error => {
-                console.error(error);
-                this.$emit('onErrorHandler', error.response.data.message)
-                this.$emit('onClickChangeState', 'login')
-            });
+                .post(this.baseURL + '/verifyToken', {}, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                })
+                .then(response => {
+                    console.dir(response);
+                })
+                .catch(error => {
+                    console.error(error);
+                    this.$emit('onErrorHandler', error.response.data.message)
+                    this.$emit('onClickChangeState', 'login')
+                });
         } catch (error) {
             this.$emit('onErrorHandler', error.message)
         }
     },
 }
 </script>
-<style scoped>
-
-</style>
+<style scoped></style>
