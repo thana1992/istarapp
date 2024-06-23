@@ -300,8 +300,12 @@
         editItem (item) {
           this.editedIndex = this.courselist.indexOf(item)
           this.editedItem = Object.assign({}, item)
-          this.editedItem.startdate = new Date(item.startdate)
-          this.editedItem.expiredate = new Date(item.expiredate)
+          if(this.editedItem.startdate && this.editedItem.startdate != null) {
+            this.editedItem.startdate = new Date(item.startdate)
+          }
+          if(this.editedItem.expiredate && this.editedItem.expiredate != null) {
+            this.editedItem.expiredate = new Date(item.expiredate)
+          }
           this.dialog = true
         },
   
