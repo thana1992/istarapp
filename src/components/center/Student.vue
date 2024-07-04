@@ -676,6 +676,10 @@ export default {
             console.log('today', today);
             console.log('expirationDate', expirationDate);
 
+            if (expirationDate < today) {
+                return 'หมดอายุ';
+            }
+
             let months = expirationDate.getMonth() - today.getMonth();
             let days = expirationDate.getDate() - today.getDate();
             let years = expirationDate.getFullYear() - today.getFullYear();
