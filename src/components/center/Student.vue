@@ -152,7 +152,9 @@
                 {{ calculateAge(item.dateofbirth).int }}
             </template>
             <template v-slot:item.expiredate="{ item }">
-                {{ expireDateLeft(item.expiredate) }}
+                <p :class="{ 'highlighted-red': item.expiredate != null && expireDateLeft(item.expiredate).indexOf('หมดอายุ') > -1 }">
+                    {{ expireDateLeft(item.expiredate) }}
+                </p>
             </template>
             <template v-slot:item.edit="{ item }">
                 <v-icon size="large" color="info" @click="clickEditStudent(item)">mdi-pencil</v-icon>
@@ -235,7 +237,7 @@ export default {
     async created() {
         try {
             const token = this.$store.getters.getToken;
-            console.log("token ", token);
+            //console.log("token ", token);
             if (!token) {
                 this.errorMsg = "Not found token, Please login...";
                 this.errorDialog = true;
@@ -284,7 +286,7 @@ export default {
                 .then(({ success, results, message }) => {
                     if (success) {
                         this.StudentList = results;
-                        console.log("StudentList : ", this.StudentList);
+                        //console.log("StudentList : ", this.StudentList);
                         this.loadingStudent = false;
                     } else {
                         this.$emit("onErrorHandler", message || "Get Student list failed");
@@ -340,7 +342,7 @@ export default {
                             }
                         })
                         .catch((error) => {
-                            console.log(error);
+                            //console.log(error);
                             if (error.response.status && error.response.status == 401) {
                                 this.$emit("onErrorHandler", error.response.data.message);
                                 this.$emit("onClickChangeState", "login");
@@ -499,7 +501,7 @@ export default {
         },
         onFileChange(e) {
             const file = e.target.files[0];
-            console.log("file : ", file);
+            //console.log("file : ", file);
 
             const maxSize = 4 * 1024 * 1024; // ขนาดสูงสุด 4MB
             if (file.size > maxSize) {
@@ -521,7 +523,7 @@ export default {
         },
         async uploadImageProfile(sid) {
             if (!this.editedStudentItem.profile_image) {
-                this.$emit("onErrorHandler", "Please select an image to upload");
+                //this.$emit("onErrorHandler", "Please select an image to upload");
                 return;
             }
             this.uploadLoading = true;
@@ -566,7 +568,7 @@ export default {
                     `/student/${this.editedStudentItem.studentid}/profile-image`,
                     { headers: { Authorization: `Bearer ${this.token}` } }
                 );
-                console.log("response : ", response);
+                //console.log("response : ", response);
                 //this.editedStudentItem.profile_image = response.data.image;
                 this.base64Image = response.data.image;
                 if (response.data.image !== null) {
@@ -595,7 +597,7 @@ export default {
                 .then((response) => {
                     //console.dir(response);
                     if (response.data.success) {
-                        console.log("getStudentUseCourse", response.data);
+                        //console.log("getStudentUseCourse", response.data);
                         const res = response.data.results;
                         if (res) {
                             const data = response.data.results[0];
@@ -614,7 +616,7 @@ export default {
                     }
                 })
                 .catch((error) => {
-                    console.log(error);
+                    //console.log(error);
                     if (error.response && error.response.status == 401) {
                         this.$emit("onErrorHandler", error.response.data.message);
                         this.$emit("onClickChangeState", "login");
@@ -673,8 +675,8 @@ export default {
             if(!expdate) return '';
             const today = new Date();
             const expirationDate = new Date(expdate);
-            console.log('today', today);
-            console.log('expirationDate', expirationDate);
+            //console.log('today', this.format_date(today, 'YYYY-MM-DD'));
+            //console.log('expirationDate', this.format_date(expirationDate, 'YYYY-MM-DD'));
 
             if (expirationDate < today) {
                 return 'หมดอายุ';
@@ -705,7 +707,7 @@ export default {
             if (days > 0) {
                 returnText += `${days} วัน`;
             }
-            console.log('returnText', returnText);
+            //console.log('returnText', returnText);
             return returnText;
             
         },
@@ -781,6 +783,10 @@ const ComponentAPI = {
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.highlighted-red {
+  color: red;
 }
 </style>
 ```
