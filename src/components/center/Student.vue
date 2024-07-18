@@ -434,8 +434,10 @@ export default {
         clickEditStudent(item) {
             this.editedStudentIndex = this.StudentList.indexOf(item);
             this.editedStudentItem = Object.assign({}, item);
-            this.editedStudentItem.dateofbirth = new Date(item.dateofbirth);
-            this.editedStudentItem.age = this.calculateAge(item.dateofbirth).text;
+            if(this.editedStudentItem.dateofbirth) {
+                this.editedStudentItem.dateofbirth = new Date(item.dateofbirth);
+                this.editedStudentItem.age = this.calculateAge(item.dateofbirth).text;
+            }
             this.onCourseChange();
             this.loadProfileImage();
             this.dialogStudent = true;
@@ -635,7 +637,7 @@ export default {
             this.editedStudentItem.age = this.calculateAge(new Date(this.editedStudentItem.dateofbirth)).text;
         },
         calculateAge(birthDate) {
-            if (!birthDate) return;
+            if (!birthDate) return { text: "", int: 0 };
 
             const currentDate = new Date();
             if (new Date(birthDate) > currentDate) {
