@@ -1,5 +1,5 @@
 <template>
-  <div class="login-container">
+  <v-div class="login-container">
     <img src="../assets/logo/logo-2.png" alt="iStar Logo" class="istar-logo">
     <div class="login-greeting">
       <h1>Login</h1>
@@ -19,7 +19,7 @@
 
         <v-row justify="space-around" class="ma-2 pa-2">
           <v-btn color="success" class="mt-5" block @click="doLogin">
-            Sign in
+            Login
           </v-btn>
           <v-btn color="blue-grey" class="mt-5" block @click="registerClick">
             Register
@@ -27,7 +27,8 @@
         </v-row>
       </v-form>
     </v-card>
-  </div>
+    <label class="text-forgot" @click="forgotpassword">Forgot Password?</label>
+  </v-div>
 </template>
 
 <script>
@@ -105,6 +106,9 @@ export default {
     },
     registerClick() {
       this.$emit('onResigterHandler', 'register')
+    },
+    forgotpassword() {
+      this.$emit('onResigterHandler', 'forgotpassword')
     }
   },
 }

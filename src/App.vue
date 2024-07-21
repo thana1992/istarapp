@@ -73,6 +73,9 @@
           @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
           @onResigterHandler="onClickChangeState($event)" @onLoading="onLoading($event)"></Login>
 
+        <ForgotPassword v-else-if="state == 'forgotpassword'" @onErrorHandler="onError($event)" 
+        @onInfoHandler="onShowInfoDialog($event)" @onForgotHandler="onClickChangeState($event)"></ForgotPassword>
+
         <Register v-else-if="state == 'register'" @onBacktoLogin="backToLogin" @onErrorHandler="onError($event)"
           @onSuccessHandler="onRegisterSuccess($event)" @onCancelHandler="onClickChangeState($event)"
           @onLoading="onLoading($event)"></Register>
@@ -158,6 +161,7 @@
 <script>
 import axios from 'axios'
 import Login from './components/Login.vue'
+import ForgotPassword from './components/ForgotPassword.vue'
 import Register from './components/Register.vue'
 import Home from './components/Home.vue'
 import ViewClasses from '@/components/ViewClasses.vue'
@@ -204,6 +208,7 @@ export default {
   name: 'App',
   components: {
     Login,
+    ForgotPassword,
     Register,
     Reservation,
     Home,
