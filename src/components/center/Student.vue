@@ -309,6 +309,10 @@ export default {
             const { valid } = await this.$refs.newstdform.validate();
             if (valid) {
                 // Make API request to register the user
+                let dob = null;
+                if(this.editedStudentItem.dateofbirth){
+                    dob = this.SQLDate(this.editedStudentItem.dateofbirth);
+                }
                 const StudentObj = {
                     studentid: this.editedStudentItem.studentid,
                     firstname: this.editedStudentItem.firstname,
@@ -316,11 +320,12 @@ export default {
                     lastname: this.editedStudentItem.lastname,
                     nickname: this.editedStudentItem.nickname,
                     gender: this.editedStudentItem.gender,
-                    dateofbirth: this.SQLDate(this.editedStudentItem.dateofbirth),
+                    dateofbirth: dob,
                     familyid: this.editedStudentItem.familyid,
                     courserefer: this.editedStudentItem.courserefer,
                     shortnote: this.editedStudentItem.shortnote,
                 };
+
                 //console.log(this.editedStudentIndex+ ' StudentObj : ', StudentObj)
                 const token = this.$store.getters.getToken;
                 if (this.editedStudentIndex > -1) {
@@ -431,8 +436,10 @@ export default {
         clickEditStudent(item) {
             this.editedStudentIndex = this.StudentList.indexOf(item);
             this.editedStudentItem = Object.assign({}, item);
-            this.editedStudentItem.dateofbirth = new Date(item.dateofbirth);
-            this.editedStudentItem.age = this.calculateAge(item.dateofbirth).text;
+            if(this.editedStudentItem.dateofbirth) {
+                this.editedStudentItem.dateofbirth = new Date(item.dateofbirth);
+                this.editedStudentItem.age = this.calculateAge(item.dateofbirth).text;
+            }
             this.onCourseChange();
             this.loadProfileImage();
             this.dialogStudent = true;
@@ -632,7 +639,7 @@ export default {
             this.editedStudentItem.age = this.calculateAge(new Date(this.editedStudentItem.dateofbirth)).text;
         },
         calculateAge(birthDate) {
-            if (!birthDate) return;
+            if (!birthDate) return { text: "", int: 0 };
 
             const currentDate = new Date();
             if (new Date(birthDate) > currentDate) {
