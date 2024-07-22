@@ -1,12 +1,12 @@
 <template>
-  <v-div class="login-container">
+  <v-div class="main-container">
     <img src="../assets/logo/logo-2.png" alt="iStar Logo" class="istar-logo">
-    <div class="login-greeting">
+    <div class="main-greeting">
       <h1>Login</h1>
       <p>Welcome to the iStar Gymnastics,</p>
       <p>Have a wonderful day :D</p>
     </div>
-    <v-card class="login-form px-3 py-3">
+    <v-card class="main-form px-3 py-3">
       <v-form ref="login_form" v-model="login_form">
         <v-row justify="space-around" class="ma-1 pa-1">
           <v-text-field variant="solo-filled" v-model="username" :counter="10" label="Username" :rules="nameRules"

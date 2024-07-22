@@ -74,7 +74,8 @@
           @onResigterHandler="onClickChangeState($event)" @onLoading="onLoading($event)"></Login>
 
         <ForgotPassword v-else-if="state == 'forgotpassword'" @onErrorHandler="onError($event)" 
-        @onInfoHandler="onShowInfoDialog($event)" @onForgotHandler="onClickChangeState($event)"></ForgotPassword>
+          @onInfoHandler="onShowInfoDialog($event)" @onForgotHandler="onClickChangeState($event)"
+          @onLoading="onLoading($event)"></ForgotPassword>
 
         <Register v-else-if="state == 'register'" @onBacktoLogin="backToLogin" @onErrorHandler="onError($event)"
           @onSuccessHandler="onRegisterSuccess($event)" @onCancelHandler="onClickChangeState($event)"
