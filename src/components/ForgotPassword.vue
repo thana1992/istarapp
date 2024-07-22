@@ -45,12 +45,12 @@
       </v-form>
       <v-form ref="changepassword_form" v-model="changepassword_form" v-else>
         <v-row justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="newPassword" ref="newPassword" type="password" :counter="10" @input="onInputNewPassword" label="New Password" 
-          :rules="newPassRules" :append-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" :type="show1 ? 'text' : 'password'" required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="newPassword" ref="newPassword" :type="show1 ? 'text' : 'password'" :counter="10" @input="onInputNewPassword" label="New Password" 
+          :rules="newPassRules" :append-inner-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="show1 = !show1" required></v-text-field>
         </v-row>
         <v-row justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="confirmNewPassword" :counter="10" type="password" @input="onInputCNewPassword" label="Confirm New Password" 
-            :rules="newPassRules" required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="confirmNewPassword" :type="show2 ? 'text' : 'password'" :counter="10" @input="onInputCNewPassword" label="Confirm New Password" 
+            :rules="newPassRules" :append-inner-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="show2 = !show2" required></v-text-field>
         </v-row>
 
         <v-row justify="space-around" class="ma-3 pa-3">
@@ -84,6 +84,7 @@ export default {
       newPassword: '',
       confirmNewPassword: '',
       show1: false,
+      show2: false,
       isPhoneMatched: false,
       phoneMatchError: '', // For storing phone match error message
       newPassRules: [
@@ -194,6 +195,7 @@ export default {
           this.$emit('onLoading', false);
           console.log("doChangePassword", response);
           if (response.data.success) {
+            this.$emit('onSuccessHandler', 'Password changed successfully');
             this.$emit('onForgotHandler', 'login');
           } else {
             this.$emit('onErrorHandler', response.data.message);

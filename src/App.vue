@@ -74,11 +74,11 @@
           @onResigterHandler="onClickChangeState($event)" @onLoading="onLoading($event)"></Login>
 
         <ForgotPassword v-else-if="state == 'forgotpassword'" @onErrorHandler="onError($event)" 
-          @onInfoHandler="onShowInfoDialog($event)" @onForgotHandler="onClickChangeState($event)"
+          @onSuccessHandler="onSuccess($event)" @onForgotHandler="onClickChangeState($event)"
           @onLoading="onLoading($event)"></ForgotPassword>
 
         <Register v-else-if="state == 'register'" @onBacktoLogin="backToLogin" @onErrorHandler="onError($event)"
-          @onSuccessHandler="onRegisterSuccess($event)" @onCancelHandler="onClickChangeState($event)"
+          @onSuccessHandler="onSuccess($event)" @onCancelHandler="onClickChangeState($event)"
           @onLoading="onLoading($event)"></Register>
 
         <Home v-else-if="state == 'home'" @collectData="collectData($event)" @initBack="initBlackButton($event)"
@@ -143,14 +143,14 @@
     </template>
   </v-dialog>
 
-  <v-dialog width="500" v-model="infoDialog">
+  <v-dialog width="500" v-model="successDialog">
     <template v-slot:default="{ isActive }">
       <v-card title="สำเร็จ!!" color="#98FB98">
         <v-card-text>
           {{ infoMsg }}
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" variant="tonal" block @click="infoDialog = false">โอเค</v-btn>
+          <v-btn color="primary" variant="tonal" block @click="successDialog = false">โอเค</v-btn>
         </v-card-actions>
       </v-card>
     </template>
@@ -192,7 +192,7 @@ export default {
       homestate: 'family',
       errorDialog: false,
       errorMsg: '',
-      infoDialog: false,
+      successDialog: false,
       inforMsg: '',
       user_details: {},
       student: null,
@@ -282,11 +282,11 @@ export default {
     },
     onShowInfoDialog(msg) {
       this.infoMsg = msg
-      this.infoDialog = true
+      this.successDialog = true
     },
-    onRegisterSuccess(msg) {
+    onSuccess(msg) {
       this.infoMsg = msg
-      this.infoDialog = true
+      this.successDialog = true
       this.state = 'login'
     },
     onClickLogout() {
