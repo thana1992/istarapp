@@ -33,7 +33,7 @@
 
           <v-checkbox v-model="acceptPrivatePolicy">
             <template v-slot:label>
-              <div>
+              <div style="font-size: 12px;">
                 I acknowledge that I have read and agree to iStar Gymnastics’s
                 <v-tooltip location="bottom">
                   <template v-slot:activator="{ props }">
@@ -49,24 +49,6 @@
                   View Our's Privacy Policy
                 </v-tooltip>
               </div>
-              <div>&nbsp;</div>
-              <div>
-                / ฉันได้อ่านและยอมรับ
-                <v-tooltip location="bottom">
-                  <template v-slot:activator="{ props }">
-                    <a
-                      href="https://pdpa.pro/policies/view/en/UPCCiojcXUZQNYALpC1phePL"
-                      target="_blank"
-                      v-bind="props"
-                      @click.stop
-                    >
-                    นโยบายความเป็นส่วนตัว
-                    </a>
-                  </template>
-                  อ่านนโยบายความเป็นส่วนตัวของเรา
-                </v-tooltip>
-              </div>
-              <div>&nbsp;ของ iStar Gymnastics แล้ว</div>
             </template>
           </v-checkbox>
 
