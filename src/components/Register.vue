@@ -31,7 +31,46 @@
           <v-text-field variant="solo-filled" v-model="registercode" label="Register Code" type="text"
             required></v-text-field>
 
-          <v-btn color="blue" class="mt-1" block @click="doRegister">
+          <v-checkbox v-model="acceptPrivatePolicy">
+            <template v-slot:label>
+              <div>
+                I acknowledge that I have read and agree to iStar Gymnastics’s
+                <v-tooltip location="bottom">
+                  <template v-slot:activator="{ props }">
+                    <a
+                      href="https://pdpa.pro/policies/view/en/UPCCiojcXUZQNYALpC1phePL"
+                      target="_blank"
+                      v-bind="props"
+                      @click.stop
+                    >
+                      Privacy Policy
+                    </a>
+                  </template>
+                  View Our's Privacy Policy
+                </v-tooltip>
+              </div>
+              <div>&nbsp;</div>
+              <div>
+                / ฉันได้อ่านและยอมรับ
+                <v-tooltip location="bottom">
+                  <template v-slot:activator="{ props }">
+                    <a
+                      href="https://pdpa.pro/policies/view/en/UPCCiojcXUZQNYALpC1phePL"
+                      target="_blank"
+                      v-bind="props"
+                      @click.stop
+                    >
+                    นโยบายความเป็นส่วนตัว
+                    </a>
+                  </template>
+                  อ่านนโยบายความเป็นส่วนตัวของเรา
+                </v-tooltip>
+              </div>
+              <div>&nbsp;ของ iStar Gymnastics แล้ว</div>
+            </template>
+          </v-checkbox>
+
+          <v-btn color="blue" class="mt-1" :disabled="!acceptPrivatePolicy" block @click="doRegister">
             Submit
           </v-btn>
           <v-btn color="error" class="mt-4" block @click="reset">
@@ -62,6 +101,7 @@ export default {
     address: '',
     email: '',
     mobileno: '',
+    acceptPrivatePolicy: false,
     usernameRules: [
       v => !!v || 'Username is required',
     ],
@@ -103,7 +143,8 @@ export default {
             address: this.address,
             email: this.email,
             mobileno: this.mobileno,
-            registercode: this.registercode
+            registercode: this.registercode,
+            acceptPrivatePolicy: this.acceptPrivatePolicy
           })
           .then(response => {
             if (response.data.success) {
