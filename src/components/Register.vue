@@ -31,7 +31,7 @@
           <v-text-field variant="solo-filled" v-model="registercode" label="Register Code" type="text"
             required></v-text-field>
 
-          <v-checkbox v-model="acceptPrivatePolicy">
+          <v-checkbox v-model="acceptPrivacyPolicy">
             <template v-slot:label>
               <div style="font-size: 12px;">
                 I acknowledge that I have read and agree to iStar Gymnastics’s
