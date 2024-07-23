@@ -263,9 +263,9 @@ export default {
       this.black = false
       this.state = state
     },
-    onClickBack(recentState) {
+    onClickBack(state) {
       this.black = false
-      this.state = recentState
+      this.state = state
     },
     initBlackButton(state) {
       this.black = true

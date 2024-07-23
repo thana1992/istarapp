@@ -28,25 +28,25 @@
                 </v-form>
             </div>
         </div>
+    
+        <v-dialog v-model="questionDialog" persistent width="auto">
+            <v-card>
+                <v-card-title class="text-h5">
+                </v-card-title>
+                <v-card-text>ต้องการจองคลาสสำหรับ {{ student.nickname }} <br> วันที่ {{ format_date(date) }} เวลา {{
+                                classtimeSelect.classtime }}</v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="#4CAF50" variant="tonal" @click="submitReservation">
+                        แน่นอน จองเลย!
+                    </v-btn>
+                    <v-btn color="#F44336" variant="tonal" @click="questionDialog = false">
+                        เดี๋ยว! ขอคิดก่อน
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
-
-    <v-dialog v-model="questionDialog" persistent width="auto">
-        <v-card>
-            <v-card-title class="text-h5">
-            </v-card-title>
-            <v-card-text>ต้องการจองคลาสสำหรับ {{ student.nickname }} <br> วันที่ {{ format_date(date) }} เวลา {{
-                            classtimeSelect.classtime }}</v-card-text>
-            <v-card-actions>
-                <v-spacer></v-spacer>
-                <v-btn color="#4CAF50" variant="tonal" @click="submitReservation">
-                    แน่นอน จองเลย!
-                </v-btn>
-                <v-btn color="#F44336" variant="tonal" @click="questionDialog = false">
-                    เดี๋ยว! ขอคิดก่อน
-                </v-btn>
-            </v-card-actions>
-        </v-card>
-    </v-dialog>
 
 </template>
 

@@ -153,7 +153,7 @@ export default {
                 this.$emit('onErrorHandler', 'ไม่สามารถจองคลาสได้ เนื่องจากยังไม่มีข้อมูลคอร์สเรียน กรุณาติดต่อ Admin')
                 return;
             }
-            if (this.studentSelected.expiredate < new Date()) {
+            if (new Date(this.studentSelected.expiredate) < new Date()) {
                 this.$emit('onErrorHandler', 'ไม่สามารถจองคลาสได้ เนื่องจากหมดอายุแล้ว')
                 return;
             }
@@ -213,6 +213,7 @@ export default {
             await axios
                 .post(this.baseURL + '/getMemberReservationDetail', {
                     studentid: studentid,
+                    courserefer: this.studentSelected.courserefer
                 },
                     {
                         headers: { Authorization: `Bearer ${token}`, }
