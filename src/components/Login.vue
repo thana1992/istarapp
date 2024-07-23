@@ -1,5 +1,5 @@
 <template>
-  <v-div class="main-container">
+  <div class="main-container">
     <img src="../assets/logo/logo-2.png" alt="iStar Logo" class="istar-logo">
     <div class="main-greeting">
       <h1>Login</h1>
@@ -9,12 +9,12 @@
     <v-card class="main-form px-3 py-3">
       <v-form ref="login_form" v-model="login_form">
         <v-row justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="username" :counter="10" label="Username" :rules="nameRules"
+          <v-text-field variant="solo-filled" v-model="username" label="Username" :rules="nameRules"
             placeholder="Enter your username" required></v-text-field>
         </v-row>
         <v-row justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="password" :counter="10" label="Password" type="password"
-            :rules="passwordRules" placeholder="Enter your password" required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="password" label="Password" :type="showpassword ? 'text' : 'password'"
+            :rules="passwordRules" placeholder="Enter your password" :append-inner-icon="showpassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="showpassword = !showpassword" required></v-text-field>
         </v-row>
 
         <v-row justify="space-around" class="ma-2 pa-2">
@@ -28,7 +28,7 @@
       </v-form>
     </v-card>
     <label class="text-forgot" @click="forgotpassword">Forgot Password?</label>
-  </v-div>
+  </div>
 </template>
 
 <script>
@@ -42,6 +42,7 @@ export default {
     login_form: null,
     username: '',
     password: '',
+    showpassword: false,
     nameRules: [
       v => !!v || 'Username is required',
     ],

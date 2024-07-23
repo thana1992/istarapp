@@ -1,4 +1,5 @@
 <template>
+  <v-div>
   <v-data-table v-model="confirmStudentList" :items="newStudentList" return-object :headers="newStudentlistHeaders"
     show-select :loading="loadingNewStudentList" loading-text="Loading... Please wait">
     <template v-slot:top>
@@ -40,6 +41,7 @@
     <template v-slot:loading><v-skeleton-loader type="table-row@5"></v-skeleton-loader></template>
     <template v-slot:no-data> No New Student waiting for approve </template>
   </v-data-table>
+</v-div>
 </template>
 
 <script>

@@ -69,6 +69,7 @@
         </template>
       </v-app-bar>
       <v-main class="root-container">
+        <Transition name="fade" mode="out-in">
         <Login v-if="state == 'login'" @onAffterLogin="AffterLogin($event)" :user_details="user_details"
           @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
           @onResigterHandler="onClickChangeState($event)" @onLoading="onLoading($event)"></Login>
@@ -80,8 +81,9 @@
         <Register v-else-if="state == 'register'" @onBacktoLogin="backToLogin" @onErrorHandler="onError($event)"
           @onSuccessHandler="onSuccess($event)" @onCancelHandler="onClickChangeState($event)"
           @onLoading="onLoading($event)"></Register>
-
-        <Home v-else-if="state == 'home'" @collectData="collectData($event)" @initBack="initBlackButton($event)"
+        </Transition>
+        <Transition name="fade" mode="out-in">
+        <Home v-if="state == 'home'" @collectData="collectData($event)" @initBack="initBlackButton($event)"
           @onInvalidToken="invalidToken($event)" @onClickChangeState="onClickChangeState($event)"
           @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)" :student="student"
           @onLoading="onLoading($event)"></Home>
@@ -125,7 +127,7 @@
 
         <Classes v-else-if="state == 'classes'" @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)" @onLoading="onLoading($event)"></Classes>
-
+        </Transition>
       </v-main>
     </v-layout>
   </v-card>
@@ -356,4 +358,30 @@ export default {
 }
 </script>
 <style src="./styles/global-style.css"></style>
-<style scoped></style>
+<style scoped>
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.5s ease-out;
+}
+
+.slide-up-enter-from {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+</style>

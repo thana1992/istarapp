@@ -44,7 +44,7 @@
                 @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
                 @onLoading="onLoading($event)"></AddFamily>
         </div>
-    </div>
+    
     <v-dialog v-model="dialogDeleteNotify" persistent width="auto">
         <v-card>
             <v-card-title></v-card-title>
@@ -58,6 +58,7 @@
             </v-card-actions>
         </v-card>
     </v-dialog>
+</div>
 </template>
 
 <script>

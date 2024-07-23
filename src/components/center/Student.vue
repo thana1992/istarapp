@@ -1,4 +1,5 @@
 <template>
+    <div>
     <v-card flat>
         <v-card-title class="d-flex align-center pe-2">
             <v-icon icon="mdi-magnify"></v-icon> &nbsp; Find a Gymnast
@@ -166,6 +167,7 @@
             <template v-slot:no-data> No Student list </template>
         </v-data-table>
     </v-card>
+</div>
 </template>
 <script>
 import axios from "axios";

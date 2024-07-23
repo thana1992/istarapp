@@ -130,7 +130,7 @@
                 </v-row>
             </div>
         </div>
-    </div>
+    
     <v-dialog width="500" v-model="errorDialog">
         <template v-slot:default="{ isActive }">
             <v-card title="ผิดพลาด!!" color="#F44336">
@@ -157,7 +157,7 @@
         </template>
     </v-dialog>
     <!-- <vue3-autocounter ref='counter' :startAmount='0' :endAmount='3' :duration='1' prefix='$' suffix='USD' separator=',' :autoinit='true' /> -->
-
+</div>
 </template>
 <script>
 import axios from 'axios'

@@ -176,7 +176,6 @@
                 </v-row>
             </div>
         </div>
-    </div>
     <v-dialog width="500" v-model="errorDialog">
         <template v-slot:default="{ isActive }">
             <v-card title="ผิดพลาด!!" color="#F44336">
@@ -202,6 +201,7 @@
             </v-card>
         </template>
     </v-dialog>
+    </div>
 </template>
 <script>
 import axios from 'axios'

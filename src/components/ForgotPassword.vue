@@ -45,11 +45,11 @@
       </v-form>
       <v-form ref="changepassword_form" v-model="changepassword_form" v-else>
         <v-row justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="newPassword" ref="newPassword" :type="show1 ? 'text' : 'password'" :counter="10" @input="onInputNewPassword" label="New Password" 
+          <v-text-field variant="solo-filled" v-model="newPassword" ref="newPassword" :type="show1 ? 'text' : 'password'" label="New Password" 
           :rules="newPassRules" :append-inner-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="show1 = !show1" required></v-text-field>
         </v-row>
         <v-row justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="confirmNewPassword" :type="show2 ? 'text' : 'password'" :counter="10" @input="onInputCNewPassword" label="Confirm New Password" 
+          <v-text-field variant="solo-filled" v-model="confirmNewPassword" :type="show2 ? 'text' : 'password'" label="Confirm New Password" 
             :rules="newPassRules" :append-inner-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="show2 = !show2" required></v-text-field>
         </v-row>
 
@@ -69,7 +69,7 @@
 <script>
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
-import debounce from 'lodash/debounce';
+import { mapGetters } from 'vuex';
 
 export default {
   data() {
@@ -163,7 +163,10 @@ export default {
         this.$emit('onLoading', false);
         console.log("doVerify", response);
         if (response.data.success) {
+          localStorage.setItem('token', response.data.token);
+          this.$store.dispatch('setToken', { token: response.data.token });
           this.firstProcess = false;
+          
           this.$nextTick(() => {
             this.$refs.newPassword.focus();
           });
@@ -186,11 +189,14 @@ export default {
     async doChangePassword() {
       if (this.checkNewPassword()) {
         this.$emit('onLoading', true);
+        const token = this.$store.getters.getToken;
         const encryptedPassword = this.encryptPassword(this.newPassword);
         try {
           const response = await axios.post(this.baseURL + '/change-password', {
             username: this.username,
             password: encryptedPassword,
+          },{
+              headers: { Authorization: `Bearer ${token}`, }
           });
           this.$emit('onLoading', false);
           console.log("doChangePassword", response);
@@ -225,6 +231,11 @@ export default {
       return CryptoJS.SHA256(password).toString();
     },
   },
+  computed: {
+        ...mapGetters({
+            token: 'getToken',
+        }),
+    },
 };
 </script>
 

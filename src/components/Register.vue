@@ -7,10 +7,10 @@
       <v-divider color="#fffff" thickness="3"></v-divider>
       <div class="mx-auto px-2 py-1">
         <v-form ref="form">
-          <v-text-field variant="solo-filled" v-model="username" :counter="10" label="Username" :rules="usernameRules"
+          <v-text-field variant="solo-filled" v-model="username" label="Username" :rules="usernameRules"
             required></v-text-field>
 
-          <v-text-field variant="solo-filled" v-model="password" :counter="10" label="Password" type="password"
+          <v-text-field variant="solo-filled" v-model="password" label="Password" type="password"
             :rules="passwordRules" required></v-text-field>
 
           <v-text-field variant="solo-filled" v-model="firstname" label="Firstname" :rules="nameRules"
@@ -52,7 +52,7 @@
             </template>
           </v-checkbox>
 
-          <v-btn color="blue" class="mt-1" :disabled="!acceptPrivatePolicy" block @click="doRegister">
+          <v-btn color="blue" class="mt-1" :disabled="!acceptPrivacyPolicy" block @click="doRegister">
             Submit
           </v-btn>
           <v-btn color="error" class="mt-4" block @click="reset">
@@ -83,7 +83,7 @@ export default {
     address: '',
     email: '',
     mobileno: '',
-    acceptPrivatePolicy: false,
+    acceptPrivacyPolicy: false,
     usernameRules: [
       v => !!v || 'Username is required',
     ],
@@ -126,7 +126,7 @@ export default {
             email: this.email,
             mobileno: this.mobileno,
             registercode: this.registercode,
-            acceptPrivatePolicy: this.acceptPrivatePolicy
+            acceptPrivacyPolicy: this.acceptPrivacyPolicy
           })
           .then(response => {
             if (response.data.success) {
