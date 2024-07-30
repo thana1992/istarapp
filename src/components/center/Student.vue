@@ -81,34 +81,12 @@
                                             </v-col>
                                         </v-row>
                                         <v-row>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-autocomplete v-model="editedStudentItem.courserefer"
-                                                    label="Course Refer" item-title="courserefer"
-                                                    item-value="courserefer" :items="customerCourseLookup"
-                                                    variant="solo-filled" no-data-text="No course"
-                                                    editable @update:modelValue="onCourseChange"></v-autocomplete>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="6">
-                                                <v-label style="white-space: break-spaces">{{
-                editedStudentItem.current_course_detail
-            }}</v-label>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row>
                                             <v-col cols="12" sm="6" md="12">
                                                 <v-textarea v-model="editedStudentItem.shortnote" label="Short Note"
                                                     variant="solo-filled" rows="4">
                                                 </v-textarea>
                                             </v-col>
                                         </v-row>
-                                        <v-row>
-                                            <v-col cols="12" sm="6" md="12">
-                                                    <v-data-table :headers="CourseUsingHeaders" :items="CourseUsingtList"
-                                                        :sort-by="[{ key: 'classdate', order: 'asc' }]" :search="search">
-                                                        
-                                                </v-data-table>
-                                            </v-col>
-                                            </v-row>
                                         <v-row>
                                             <v-col cols="12" sm="6" md="5">
                                                 <v-select v-model="editedStudentItem.familyid" label="Parent's Username"
@@ -124,6 +102,36 @@
                                                 </v-file-input>
                                             </v-col>
                                         </v-row>
+                                        <v-row>
+                                            <v-col cols="12" sm="6" md="6">
+                                                <v-autocomplete v-model="editedStudentItem.courserefer"
+                                                    label="Course Refer" item-title="courserefer"
+                                                    item-value="courserefer" :items="customerCourseLookup"
+                                                    variant="solo-filled" no-data-text="No course"
+                                                    editable @update:modelValue="onCourseChange"></v-autocomplete>
+                                            </v-col>
+                                            <v-col cols="12" sm="6" md="6">
+                                                <v-label style="white-space: break-spaces">{{
+                                                    editedStudentItem.current_course_detail
+                                                }}</v-label>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
+                                            <v-col cols="12" sm="6" md="12">
+                                                    <v-data-table :headers="CourseUsingHeaders" :items="CourseUsingtList" density="compact"
+                                                    :items-per-page="100" >
+                                                    <template v-slot:item.index="{ item }">
+                                                        {{ CourseUsingtList.indexOf(item) + 1 }}
+                                                    </template>
+                                                    <template v-slot:item.classdate="{ item }">
+                                                        <p>{{ format_date(item.classdate) }} </p>
+                                                    </template>
+                                                    <template #bottom></template>
+                                                    
+                                                </v-data-table>
+                                            </v-col>
+                                        </v-row>
+                                        
                                     </v-form>
                                 </v-container>
                             </v-card-text>
@@ -194,6 +202,7 @@ export default {
             StudentList: [],
             imagePreview: require("@/assets/avatar/2.png"),
             StudentListHeaders: [
+                //{ title: "No.", key: "index", align: "center" },
                 { title: "Name", key: "fullname" },
                 //{ title: 'Date of Birth', key: 'dateofbirthshow' },
                 { title: "Gender", key: "gender", align: "left" },
@@ -239,9 +248,10 @@ export default {
                 shortnote: null,
             },
             CourseUsingHeaders: [
-                { text: 'Name', value: 'fullname' },
-                { text: 'Class Date', value: 'classdate' },
-                { text: 'Classtime', value: 'classtime' },
+                { text: 'No.', value: 'index' },
+                { title: 'Name', value: 'fullname' },
+                { title: 'Class Date', value: 'classdate' },
+                { title : 'Classtime', value: 'classtime'},
             ],
             CourseUsingtList: [],
             base64Image: null,
@@ -633,8 +643,8 @@ export default {
                             } else {
                                 this.editedStudentItem.current_course_detail = null;
                             }
-                            this.CourseUsingtList = this.convertDate(response.data.courseDetail);
-                            console.log("CourseUsingtList", this.CourseUsingtList);
+                            this.CourseUsingtList = response.data.courseDetail;
+                            
                         } else {
                             this.editedStudentItem.current_course_detail = null;
                         }
@@ -692,7 +702,7 @@ export default {
         },
         convertDate(arrObj) {
             arrObj.forEach((obj) => {
-                obj.clasdate = this.format_date(obj.classdate);
+                obj.classdate = this.format_date(obj.classdate);
             });
             return arrObj;
             },
