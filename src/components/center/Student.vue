@@ -127,7 +127,6 @@
                                                         <p>{{ format_date(item.classdate) }} </p>
                                                     </template>
                                                     <template #bottom></template>
-                                                    
                                                 </v-data-table>
                                             </v-col>
                                         </v-row>
