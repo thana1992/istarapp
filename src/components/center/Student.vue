@@ -102,6 +102,14 @@
                                             </v-col>
                                         </v-row>
                                         <v-row>
+                                            <v-col cols="12" sm="6" md="12">
+                                                    <v-data-table :headers="CourseUsingHeaders" :items="CourseUsingtList"
+                                                        :sort-by="[{ key: 'classdate', order: 'asc' }]" :search="search">
+                                                        
+                                                </v-data-table>
+                                            </v-col>
+                                            </v-row>
+                                        <v-row>
                                             <v-col cols="12" sm="6" md="5">
                                                 <v-select v-model="editedStudentItem.familyid" label="Parent's Username"
                                                     item-title="username" item-value="familyid" :items="familyLookup"
@@ -230,6 +238,12 @@ export default {
                 profile_image: null,
                 shortnote: null,
             },
+            CourseUsingHeaders: [
+                { text: 'Name', value: 'fullname' },
+                { text: 'Class Date', value: 'classdate' },
+                { text: 'Classtime', value: 'classtime' },
+            ],
+            CourseUsingtList: [],
             base64Image: null,
             editedStudentIndex: -1,
             dialogStudent: false,
@@ -599,7 +613,7 @@ export default {
             await axios
                 .get(
                     this.baseURL +
-                    "/getStudentUseCourse/" +
+                    "/getStudentCourseDetail/" +
                     this.editedStudentItem.courserefer,
                     {
                         headers: { Authorization: `Bearer ${this.token}` },
@@ -608,7 +622,7 @@ export default {
                 .then((response) => {
                     //console.dir(response);
                     if (response.data.success) {
-                        //console.log("getStudentUseCourse", response.data);
+                        console.log("getStudentUseCourse", response.data);
                         const res = response.data.results;
                         if (res) {
                             const data = response.data.results[0];
@@ -619,6 +633,8 @@ export default {
                             } else {
                                 this.editedStudentItem.current_course_detail = null;
                             }
+                            this.CourseUsingtList = this.convertDate(response.data.courseDetail);
+                            console.log("CourseUsingtList", this.CourseUsingtList);
                         } else {
                             this.editedStudentItem.current_course_detail = null;
                         }
@@ -674,6 +690,12 @@ export default {
                 return moment(value).format("DD/MM/YYYY");
             }
         },
+        convertDate(arrObj) {
+            arrObj.forEach((obj) => {
+                obj.clasdate = this.format_date(obj.classdate);
+            });
+            return arrObj;
+            },
         expireDateLeft(value) {
             let result = "";
             if (value) {
