@@ -191,7 +191,7 @@ export default {
                 { title: "Gender", key: "gender", align: "left" },
                 { title: "Age", key: "dateofbirth", align: "center"},
                 //{ title: "Course Start", key: "startdate", align: "center" },
-                
+                { title: 'Course', key: 'coursename', align: 'center' },
                 { title: "Remaining", key: "remaining", align: "center" },
                 { title: "Course Expire", key: "expiredate", align: "left"},
                 { title: "Mobile Number", key: "mobileno", align: "center", sortable: false },

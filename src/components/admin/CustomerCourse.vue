@@ -291,7 +291,7 @@ export default {
             this.deleteNotifyMsg =
               "คอร์สเรียนนี้ กำลังถูกใช้โดย " +
               nicknameList.join(", ") +
-              " ไต้องการลบจริงๆหรอ ?";
+              " ต้องการลบใช่ไหม ?";
             this.dialogDeleteNotify = true;
             this.dialogDelete = false;
             this.$emit("onLoading", false);
