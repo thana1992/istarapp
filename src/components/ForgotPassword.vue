@@ -3,8 +3,11 @@
     <img src="../assets/logo/logo-2.png" alt="iStar Logo" class="istar-logo">
     <div class="main-greeting">
       <h1>Forgot Password</h1>
-      <p>Kindly enter your registered</p>
-      <p>phone number and username.</p>
+      <p>Enter your registered username</p>
+      <p>and phone number</p>
+
+      <p>กรอก username และเบอร์โทรศัพท์</p>
+      <p>ที่ท่านเคยลงทะเบียนไว้</p>
     </div>
     <v-card class="main-form px-3 py-3">
       <v-form ref="forgotpassword_form" v-model="forgotpassword_form" v-if="firstProcess">
@@ -114,7 +117,7 @@ export default {
         console.log("phoneMatch", response);
         valid = response.data.success;
         this.isPhoneMatched = valid;
-        this.phoneMatchError = valid ? '' : 'The Phone no. and username you entered don\'t match';
+        this.phoneMatchError = valid ? '' : 'The username and phone number you entered don\'t match / username และเบอร์โทรศัพท์ไม่ถูกต้อง';
       } catch (error) {
         this.$emit('onErrorHandler', error.message);
       }
