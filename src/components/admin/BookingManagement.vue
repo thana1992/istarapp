@@ -238,12 +238,12 @@ export default ({
             loadingClassTime: false,
             BookingList: [],
             BookingListHeaders: [
-                { title: 'Name', key: 'fullname' },
-                { title: 'Course', key: 'coursename' },
-                { title: 'Class Time', key: 'classtime' },
-                { title: 'Check-in', key: 'checkin', align: 'center', sortable: false },
-                { title: 'Edit', key: 'edit', align: 'center', sortable: false },
-                { title: 'Delete', key: 'delete', align: 'center', sortable: false },
+                { title: 'ชื่อ', key: 'fullname' },
+                { title: 'ชื่อคอร์ส', key: 'coursename' },
+                { title: 'เวลา', key: 'classtime' },
+                { title: 'เช็คชื่อ', key: 'checkin', align: 'center', sortable: false },
+                { title: 'แก้ไข', key: 'edit', align: 'center', sortable: false },
+                { title: 'ลบ', key: 'delete', align: 'center', sortable: false },
             ],
             editedBookingItem: {
                 fullname: null,

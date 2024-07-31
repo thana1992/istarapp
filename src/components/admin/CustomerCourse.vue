@@ -168,13 +168,14 @@ export default {
     deleteNotifyMsg: "",
     dialogDeleteNotify: false,
     headers: [
-      { title: "Course No.", align: "start", key: "courserefer" },
-      { title: "Course Name", key: "coursename" },
-      { title: "Course Type", key: "coursetype" },
-      { title: "Start Date", key: "startdate", align: "center" },
-      { title: "Expire Date", key: "expiredate", align: "left" },
-      { title: "Remaining", key: "remaining", align: "end" },
-      { title: "Actions", key: "actions", sortable: false },
+      { title: "หมายเลขคอร์ส", align: "start", key: "courserefer" },
+      { title: "ชื่อคอร์ส", key: "coursename" },
+      { title: "ประเภท", key: "coursetype" },
+      { title: "วันเริ่มต้น", key: "startdate", align: "center" },
+      { title: "วันหมดอายุ", key: "expiredate", align: "left" },
+      { title: "คงเหลือ", key: "remaining", align: "end" },
+      { title: "ผู้ใช้คอร์ส", key: "userlist", align: "left" },
+      { title: "", key: "actions", sortable: false },
     ],
     editedIndex: -1,
     editedItem: {
@@ -273,6 +274,19 @@ export default {
       await this.getCustomerCourseList();
       await this.getCourseLookup();
       this.$emit("onLoading", false);
+    },
+    copyToClipboard(newcourse) {
+      if (newcourse) {
+        navigator.clipboard.writeText(newcourse)
+          .then(() => {
+            //consol.log('คัดลอกคอร์สใหม่เรียบร้อยแล้ว');
+          })
+          .catch(err => {
+            console.error('ไม่สามารถคัดลอกได้: ', err);
+          });
+      } else {
+        this.$emit("onErrorHandler", "ไม่มีคอร์สใหม่ที่จะคัดลอก");
+      }
     },
 
     editItem(item) {
@@ -503,6 +517,7 @@ export default {
                 "onInfoHandler",
                 response.data.message || "สำเร็จ สร้างคอร์สใหม่แล้ว"
               );
+              this.copyToClipboard(response.data.courserefer);
             } else {
               this.$emit(
                 "onErrorHandler",
@@ -603,41 +618,41 @@ export default {
         if(!expdate) return '';
         const today = new Date();
         const expirationDate = new Date(expdate);
-        //console.log('today', this.format_date(today, 'YYYY-MM-DD'));
-        //console.log('expirationDate', this.format_date(expirationDate, 'YYYY-MM-DD'));
-
-        if (expirationDate < today) {
-            return 'หมดอายุ';
-        }
-
-        let months = expirationDate.getMonth() - today.getMonth();
-        let days = expirationDate.getDate() - today.getDate();
-        let years = expirationDate.getFullYear() - today.getFullYear();
-
-        if (days < 0) {
-            months -= 1;
-            days += new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate(); // จำนวนวันในเดือนปัจจุบัน
-        }
-
-        if (months < 0) {
-            years -= 1;
-            months += 12;
-        }
-
-        if (years > 0) {
-            months += years * 12;
-        }
-        
         let returnText = ''
-        if (months > 0) {
-            returnText += `${months} เดือน `;
+        if (expirationDate < today) {
+          returnText = 'หมดอายุ';
+        } else {
+
+          let months = expirationDate.getMonth() - today.getMonth();
+          let days = expirationDate.getDate() - today.getDate();
+          let years = expirationDate.getFullYear() - today.getFullYear();
+
+          if (days < 0) {
+              months -= 1;
+              days += new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate(); // จำนวนวันในเดือนปัจจุบัน
+          }
+
+          if (months < 0) {
+              years -= 1;
+              months += 12;
+          }
+
+          if (years > 0) {
+              months += years * 12;
+          }
+          
+          if (months > 0) {
+              returnText += `${months} เดือน `;
+          }
+          if (days > 0) {
+              returnText += `${days} วัน`;
+          }
         }
-        if (days > 0) {
-            returnText += `${days} วัน`;
-        }
-        //console.log('returnText', returnText);
+
+        console.log('today', this.format_date(today, 'YYYY-MM-DD'));
+        console.log('expirationDate', this.format_date(expirationDate, 'YYYY-MM-DD'));
+        console.log('returnText', returnText);
         return returnText;
-        
     },
   },
 };

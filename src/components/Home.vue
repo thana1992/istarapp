@@ -63,6 +63,7 @@
                                     <p>
                                         <label>หมดอายุ {{ new Date(p.expiredate).toLocaleDateString('th-TH', this.options)
                                             }}</label>
+                                        <label v-if="isExpire(p.expiredate)" style="color: red;"> (หมดอายุแล้ว)</label>
                                     </p>
                                 </div>
 
@@ -96,12 +97,6 @@
                             </tbody>
                         </v-table>
                     </Transition>
-                        <div style="text-align: center; padding-top: 8vh;">
-                            <v-btn color="green" rounded class="ma-2 pulse-button" @click="doReservation">
-                                <v-icon left>mdi-emoticon-plus</v-icon>
-                                &nbsp;Book a class
-                            </v-btn>
-                        </div>
                 </div>
             </Transition>
             <Transition v-else>
@@ -112,6 +107,20 @@
         </div>
         <div v-else>
             <p>Please Add your family member in <u>FAMILY</u> Menu</p>
+        </div>
+        <div v-if="studentSelected">
+            <div v-if="!isExpire(studentSelected.expiredate)" style="text-align: center; padding-top: 8vh;">
+                <v-btn color="green" rounded class="ma-2 pulse-button" @click="doReservation">
+                    <v-icon left>mdi-emoticon-plus</v-icon>
+                    &nbsp;Book a class
+                </v-btn>
+            </div>
+            <div v-if="isExpire(studentSelected.expiredate)" style="text-align: center; padding-top: 8vh;">
+                <v-btn color="red" rounded class="ma-2 pulse-button">
+                    <v-icon left>mdi-close-thick</v-icon>
+                    &nbsp;Course Expired!!
+                </v-btn>
+            </div>
         </div>
 
     </div>
@@ -254,7 +263,22 @@ export default {
             let days = Math.floor((totalDays % 365.25) % 30.4375);
             return years + ' ปี ' + months + ' เดือน ' + days + ' วัน'
 
-        }
+        },
+        isExpire(expdate) {
+            console.log('expdate', expdate)
+            if(!expdate) return true;
+            console.log('=====================')
+            const today = new Date();
+            const expirationDate = new Date(expdate);
+            //console.log('today', this.format_date(today, 'YYYY-MM-DD'));
+            //console.log('expirationDate', this.format_date(expirationDate, 'YYYY-MM-DD'));
+
+            if (expirationDate < today) {
+                return true;
+            } else {
+                return false;
+            }
+        },
     },
     props: {
         student: {

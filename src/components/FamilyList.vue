@@ -22,7 +22,7 @@
                                         style="display: flex !important;"></v-img>
                                 </td>
                                 <td style="width: 70vw;">{{ people.fullname }}</td>
-                                <td style="width: 10vw;"><span class="mdi mdi-delete-forever" style="font-size: 7vw;"
+                                <td v-if="people.journal === '1' " style="width: 10vw;"><span class="mdi mdi-delete-forever" style="font-size: 7vw; color: red;"
                                         @click="onClickDelete(people)"></span></td>
                             </tr>
                             <tr>
@@ -51,8 +51,8 @@
             <v-card-text>{{ deleteNotifyMsg }}</v-card-text>
             <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">ใช่! ลบเลย</v-btn>
-                <v-btn color="#F44336" variant="tonal" @click="closeDeleteNotify">ไม่ลบละ เปลี่ยนใจ</v-btn>
+                <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">ตกลง</v-btn>
+                <v-btn color="#F44336" variant="tonal" @click="closeDeleteNotify">ยกเลิก</v-btn>
 
                 <v-spacer></v-spacer>
             </v-card-actions>
