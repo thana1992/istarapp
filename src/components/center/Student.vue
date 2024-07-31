@@ -642,8 +642,12 @@ export default {
                             } else {
                                 this.editedStudentItem.current_course_detail = null;
                             }
-                            this.CourseUsingtList = response.data.courseDetail;
-                            
+                            const data2 = response.data.courseDetail;
+                            if (data2) {
+                                this.CourseUsingtList = data2;
+                            } else {
+                                this.CourseUsingtList = null;
+                            }
                         } else {
                             this.editedStudentItem.current_course_detail = null;
                         }
