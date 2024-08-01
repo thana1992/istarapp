@@ -291,7 +291,7 @@ export default ({
         }, 60000)
     },
     unmounted() {
-        console.log('unmounted...' + new Date())
+        //console.log('unmounted...' + new Date())
         clearInterval(this.interval)
     },
     methods: {
@@ -302,7 +302,7 @@ export default ({
             await this.getStudentLookup()
         },
         async refreshData() {
-            console.log('refreshData...' + new Date())
+            //console.log('refreshData...' + new Date())
             await this.getReservationList()
         },
         async selectDate() {
