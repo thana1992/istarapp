@@ -196,7 +196,7 @@ export default {
       errorMsg: '',
       successDialog: false,
       inforMsg: '',
-      user_details: {},
+      userdata: {},
       student: null,
       managerflag: false,
       adminflag: false,
@@ -229,17 +229,17 @@ export default {
   methods: {
 
     AffterLogin() {
-      this.user_details = JSON.parse(localStorage.getItem('userdata'))
-      console.log("user_details", this.user_details);
-      this.parent = this.user_details.firstname
+      this.userdata = JSON.parse(localStorage.getItem('userdata'))
+      console.log("userdata", this.userdata);
+      this.parent = this.userdata.firstname
       this.student = null;
-      if (this.user_details.usertype == 0) { // head
+      if (this.userdata.usertype == 0) { // head
         this.managerflag = true
         this.state = 'dashboard'
-      } else if (this.user_details.usertype == 1) { // admin
+      } else if (this.userdata.usertype == 1) { // admin
         this.adminflag = true
         this.state = 'dashboard'
-      } else if (this.user_details.usertype == 2) { // coach
+      } else if (this.userdata.usertype == 2) { // coach
         this.coachflag = true
         this.state = 'viewclasses'
       } else { // customer
