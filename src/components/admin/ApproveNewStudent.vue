@@ -35,6 +35,9 @@
         </v-dialog>
       </v-toolbar>
     </template>
+    <template v-slot:item.dateofbirth="{ item }">
+                {{ calculateAge(item.dateofbirth).text }}
+            </template>
     <template v-slot:item.delete="{ item }">
       <v-icon size="large" color="error" @click="clickDeleteNewStudent(item)">mdi-delete-forever</v-icon>
     </template>
@@ -65,10 +68,9 @@ export default {
       newStudentlistHeaders: [
         { title: 'ชื่อ', key: 'fullname', },
         { title: 'เพศ', key: 'gender', align: 'left' },
-        { title: 'วันเกิด', key: 'dateofbirthshow', align: 'left' },
+        { title: 'อายุ', key: 'dateofbirth', align: 'left' },
         { title: 'โรงเรียน', key: 'school', align: 'left' },
-
-        { title: 'Username', key: 'username', align: 'center' },
+        { title: 'Username ผปค.', key: 'username', align: 'center' },
         { title: 'ลบ', key: 'delete', align: 'center', sortable: false }
       ]
     }
@@ -88,8 +90,7 @@ export default {
             this.loadingNewStudentList = false
           } else {
             console.log('getNewStudentList res : ', response.data.results)
-            const arrObj = this.convertDate(response.data.results)
-            this.newStudentList = arrObj
+            this.newStudentList = response.data.results
             this.loadingNewStudentList = false
           }
         })
@@ -174,12 +175,6 @@ export default {
       this.dialogStudentNewDelete = true
       this.studentNewDeleteObj = item
     },
-    convertDate(arrObj) {
-      arrObj.forEach(obj => {
-        obj.dateofbirthshow = this.format_date(obj.dateofbirth);
-      });
-      return arrObj;
-    },
     convertToSQL(arrObj) {
       arrObj.forEach(obj => {
         obj.dateofbirth = this.SQLDate(obj.dateofbirth);
@@ -194,6 +189,28 @@ export default {
         return moment(String(value)).format('DD/MM/YYYY')
       }
     },
+    calculateAge(birthDate) {
+            if (!birthDate) return { text: "", int: 0 };
+
+            const currentDate = new Date();
+            if (new Date(birthDate) > currentDate) {
+                this.birthDate = null;
+                this.years = null;
+                this.months = null;
+                this.days = null;
+                alert("Invalid Date of Birth");
+            }
+
+            const diffTime = currentDate - new Date(birthDate);
+            const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+            let years = Math.floor(totalDays / 365.25);
+            let months = Math.floor((totalDays % 365.25) / 30.4375);
+            let days = Math.floor((totalDays % 365.25) % 30.4375);
+            return {
+                text : years + " ปี " + months + " เดือน ",
+                int : years+'.'+months
+            }
+        },
   },
   async created() {
     this.$emit('onLoading', true)
