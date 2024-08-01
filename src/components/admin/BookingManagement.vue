@@ -645,8 +645,10 @@ export default ({
                             this.loadingBooking = false
                         }
                     } else {
-                        this.$emit('onErrorHandler', message || 'Get Reservation failed')
+                        console.log("message : " + message)
+                        console.log("results : " + results)
                         this.loadingBooking = false
+                        this.$emit('onErrorHandler', message || 'Get Reservation failed')
                     }
                 })
                 .catch(error => {

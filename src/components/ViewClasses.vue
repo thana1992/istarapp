@@ -101,6 +101,7 @@ export default ({
                                 this.bookingList = []
                             }
                         } else {
+                            this.loadingBooking = false
                             console.log("message : " + message)
                             console.log("results : " + results)
                             this.$emit('onErrorHandler', message || 'Get Bookinglist failed')
