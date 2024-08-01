@@ -323,7 +323,7 @@ export default {
         this.$emit('onLoading', true)
         try {
             const token = this.$store.getters.getToken;
-            console.log('token ', token)
+            console.log('check token '+ token)
             if (!token) {
                 this.errorMsg = 'Not found token, Please login...'
                 this.errorDialog = true
@@ -338,6 +338,7 @@ export default {
                     }
                 })
                 .then(response => {
+                    
                     //console.dir(response);
                     this.getFamilyMember()
                     if (this.student != null) {

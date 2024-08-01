@@ -1,5 +1,5 @@
 <template>
-  <div class="main-container">
+  <div v-if="showLogin" class="main-container">
     <img src="../assets/logo/logo-2.png" alt="iStar Logo" class="istar-logo">
     <div class="main-greeting">
       <h1>Login</h1>
@@ -30,6 +30,8 @@
     </v-card>
     <label class="text-forgot" @click="forgotpassword">Forgot Password?</label>
   </div>
+  <div v-else>
+  </div>
 </template>
 
 <script>
@@ -37,6 +39,7 @@
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
 import { mapActions } from "vuex";
+import { mapGetters } from "vuex";
 export default {
   data: () => ({
     LogginggIn: false,
@@ -49,7 +52,8 @@ export default {
     ],
     passwordRules: [
       v => !!v || 'Password is required',
-    ]
+    ],
+    showLogin: false,
   }),
   setup() {
 
@@ -76,8 +80,9 @@ export default {
                 this.setToken(response.data.token);
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem("userdata", JSON.stringify(response.data.userdata));
+                console.log("USER DATA " + localStorage.getItem("userdata"));
                 // Example usage in Login.vue
-                this.$store.dispatch('setToken', { token: response.data.token, user: response.data.userdata });
+                this.$store.dispatch('setToken', { token: response.data.token, userdata: response.data.userdata });
 
                 this.$emit('onAffterLogin')
               } else {
@@ -87,6 +92,7 @@ export default {
               this.$emit('onLoading', false)
             })
             .catch(error => {
+              console.log('error '+ error);
               console.error(error);
               this.$emit('onLoading', false)
               this.$emit('onErrorHandler', error.message)
@@ -113,5 +119,49 @@ export default {
       this.$emit('onResigterHandler', 'forgotpassword')
     }
   },
+  async created() {
+        this.$emit('onLoading', true)
+        try {
+            const token = localStorage.getItem('token');
+            console.log('check token '+ token)
+            const userdata = JSON.parse(localStorage.getItem('userdata'));
+            console.log ('check userdata '+ userdata)
+            if (!token) {
+
+                this.showLogin = true;
+                this.$emit('onLoading', false)
+                return;
+            } else {
+
+            await axios
+                .post(this.baseURL + '/verifyToken', {}, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                })
+                .then(response => {
+                    //alert('verifyToken ' + token);
+                    console.dir(response);
+                    this.$store.dispatch('setToken', { token: token, userdata: localStorage.getItem("userdata") });
+                    this.$emit('onAffterLogin');
+                })
+                .catch(error => {
+                    console.error(error);
+                    this.showLogin = true;
+                    this.$emit('onLoading', false)
+                });
+              }
+        } catch (error) {
+            this.$emit('onErrorHandler', error.message)
+            this.showLogin = true;
+            this.$emit('onLoading', false)
+        }
+      
+    },
+    computed: {
+      ...mapGetters({
+          token: 'getToken',
+      })
+    },
 }
 </script>
