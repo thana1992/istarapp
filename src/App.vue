@@ -308,6 +308,7 @@ export default {
             console.log(response)
             this.$store.dispatch('logout');
             localStorage.removeItem('userdata');
+            localStorage.removeItem('token');
             this.state = 'login'
             this.drawer = false
           })
@@ -315,6 +316,7 @@ export default {
         // Handle errors
         console.error('Error during logout:', error);
         localStorage.removeItem('userdata');
+        localStorage.removeItem('token');
         this.state = 'login'
         this.drawer = false
       }
