@@ -7,18 +7,19 @@
       <p>Have a wonderful day :D</p>
     </div>
     <v-card class="main-form px-3 py-3">
-      <v-form ref="login_form" v-model="login_form">
+      <v-form ref="login_form" v-model="login_form" @submit.prevent="doLogin">
         <v-row justify="space-around" class="ma-1 pa-1">
           <v-text-field variant="solo-filled" v-model="username" label="Username" :rules="nameRules"
-            placeholder="Enter your username" required></v-text-field>
+            placeholder="Enter your username" name="username" autocomplete="username" required></v-text-field>
         </v-row>
         <v-row justify="space-around" class="ma-1 pa-1">
           <v-text-field variant="solo-filled" v-model="password" label="Password" :type="showpassword ? 'text' : 'password'"
-            :rules="passwordRules" placeholder="Enter your password" :append-inner-icon="showpassword ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="showpassword = !showpassword" required></v-text-field>
+            :rules="passwordRules" placeholder="Enter your password" :append-inner-icon="showpassword ? 'mdi-eye' : 'mdi-eye-off'" 
+            @click:append-inner="showpassword = !showpassword" name="password" autocomplete="current-password" required></v-text-field>
         </v-row>
 
         <v-row justify="space-around" class="ma-2 pa-2">
-          <v-btn color="success" class="mt-5" block @click="doLogin">
+          <v-btn color="success" class="mt-5" block type="submit">
             Login
           </v-btn>
           <v-btn color="blue-grey" class="mt-5" block @click="registerClick">
