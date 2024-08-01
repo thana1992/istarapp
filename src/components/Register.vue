@@ -23,7 +23,7 @@
 
           <v-text-field variant="solo-filled" v-model="address" label="Address" type="text" required></v-text-field>
 
-          <v-text-field variant="solo-filled" v-model="email" label="E-mail" type="text" required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="email" label="E-mail" type="text" :rules="emailRules" required></v-text-field>
 
           <v-text-field variant="solo-filled" v-model="mobileno" label="Mobile Number" @input="acceptNumber" type="text"
             :rules="mobileRules" required></v-text-field>
@@ -86,6 +86,7 @@ export default {
     acceptPrivacyPolicy: false,
     usernameRules: [
       v => !!v || 'Username is required',
+      v => /^[a-zA-Z0-9]*$/.test(v) || 'Username must not contain special characters or spaces. / Username ต้องเป็นภาษาอังกฤษหรือตัวเลข และต้องไม่มีอักขระพิเศษหรือเว้นวรรค',
     ],
     passwordRules: [
       v => !!v || 'Password is required',
@@ -125,7 +126,7 @@ export default {
             address: this.address,
             email: this.email,
             mobileno: this.mobileno,
-            registercode: this.registercode,
+            registercode: this.registercode.trim(),
             acceptPrivacyPolicy: this.acceptPrivacyPolicy
           })
           .then(response => {
