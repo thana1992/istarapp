@@ -7,29 +7,23 @@
       <v-divider color="#fffff" thickness="3"></v-divider>
       <div class="mx-auto px-2 py-1">
         <v-form ref="form">
-          <v-text-field variant="solo-filled" v-model="username" label="Username" :rules="usernameRules"
-            required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="username" label="Username" :rules="usernameRules" @input="removeSpaces('username')" required></v-text-field>
 
-          <v-text-field variant="solo-filled" v-model="password" label="Password" type="password"
-            :rules="passwordRules" required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="password" label="Password" type="password" :rules="passwordRules" required></v-text-field>
 
-          <v-text-field variant="solo-filled" v-model="firstname" label="Firstname" :rules="nameRules"
-            required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="firstname" label="Firstname" :rules="nameRules" required></v-text-field>
 
           <v-text-field variant="solo-filled" v-model="middlename" label="Middlename"></v-text-field>
 
-          <v-text-field variant="solo-filled" v-model="lastname" label="Lastname" :rules="nameRules"
-            required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="lastname" label="Lastname" :rules="nameRules" required></v-text-field>
 
           <v-text-field variant="solo-filled" v-model="address" label="Address" type="text" required></v-text-field>
 
-          <v-text-field variant="solo-filled" v-model="email" label="E-mail" type="text" required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="email" label="E-mail" type="text" :rules="emailRules" @input="removeSpaces('email')" required></v-text-field>
 
-          <v-text-field variant="solo-filled" v-model="mobileno" label="Mobile Number" @input="acceptNumber" type="text"
-            :rules="mobileRules" required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="mobileno" label="Mobile Number" @input="acceptNumber" type="text" :rules="mobileRules" required></v-text-field>
 
-          <v-text-field variant="solo-filled" v-model="registercode" label="Register Code" type="text"
-            required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="registercode" label="Register Code" type="text" @input="removeSpaces('registercode')" required></v-text-field>
 
           <v-checkbox v-model="acceptPrivacyPolicy">
             <template v-slot:label>
@@ -86,6 +80,7 @@ export default {
     acceptPrivacyPolicy: false,
     usernameRules: [
       v => !!v || 'Username is required',
+      v => /^[a-zA-Z0-9]*$/.test(v) || 'Username must not contain special characters or spaces. / Username ต้องเป็นภาษาอังกฤษหรือตัวเลข และต้องไม่มีอักขระพิเศษหรือเว้นวรรค',
     ],
     passwordRules: [
       v => !!v || 'Password is required',
@@ -125,7 +120,7 @@ export default {
             address: this.address,
             email: this.email,
             mobileno: this.mobileno,
-            registercode: this.registercode,
+            registercode: this.registercode.trim(),
             acceptPrivacyPolicy: this.acceptPrivacyPolicy
           })
           .then(response => {
@@ -159,6 +154,9 @@ export default {
       const encryptedPassword = CryptoJS.SHA256(password).toString();
       return encryptedPassword;
     },
+    removeSpaces(field) {
+      this[field] = this[field].replace(/\s+/g, '');
+    }
   },
 }
 </script>

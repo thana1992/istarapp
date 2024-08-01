@@ -238,12 +238,12 @@ export default ({
             loadingClassTime: false,
             BookingList: [],
             BookingListHeaders: [
-                { title: 'Name', key: 'fullname' },
-                { title: 'Course', key: 'coursename' },
-                { title: 'Class Time', key: 'classtime' },
-                { title: 'Check-in', key: 'checkin', align: 'center', sortable: false },
-                { title: 'Edit', key: 'edit', align: 'center', sortable: false },
-                { title: 'Delete', key: 'delete', align: 'center', sortable: false },
+                { title: 'ชื่อ', key: 'fullname' },
+                { title: 'ชื่อคอร์ส', key: 'coursename' },
+                { title: 'เวลา', key: 'classtime' },
+                { title: 'เช็คชื่อ', key: 'checkin', align: 'center', sortable: false },
+                { title: 'แก้ไข', key: 'edit', align: 'center', sortable: false },
+                { title: 'ลบ', key: 'delete', align: 'center', sortable: false },
             ],
             editedBookingItem: {
                 fullname: null,
@@ -291,7 +291,7 @@ export default ({
         }, 60000)
     },
     unmounted() {
-        console.log('unmounted...' + new Date())
+        //console.log('unmounted...' + new Date())
         clearInterval(this.interval)
     },
     methods: {
@@ -302,7 +302,7 @@ export default ({
             await this.getStudentLookup()
         },
         async refreshData() {
-            console.log('refreshData...' + new Date())
+            //console.log('refreshData...' + new Date())
             await this.getReservationList()
         },
         async selectDate() {
@@ -645,8 +645,10 @@ export default ({
                             this.loadingBooking = false
                         }
                     } else {
-                        this.$emit('onErrorHandler', message || 'Get Reservation failed')
+                        console.log("message : " + message)
+                        console.log("results : " + results)
                         this.loadingBooking = false
+                        this.$emit('onErrorHandler', message || 'Get Reservation failed')
                     }
                 })
                 .catch(error => {

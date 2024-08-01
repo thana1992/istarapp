@@ -28,7 +28,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteStd">ใช่! ลบเลย</v-btn>
-              <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteStd">เดี๋ยวก่อน รอแปบ</v-btn>
+              <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteStd">ยกเลิก</v-btn>
               <v-spacer></v-spacer>
             </v-card-actions>
           </v-card>
@@ -63,13 +63,13 @@ export default {
       dialogStudentNewDelete: false,
       studentNewDeleteObj: null,
       newStudentlistHeaders: [
-        { title: 'Firstname', key: 'fullname', },
-        { title: 'Gender', key: 'gender', align: 'center' },
-        { title: 'Date of birth', key: 'dateofbirthshow', align: 'center' },
+        { title: 'ชื่อ', key: 'fullname', },
+        { title: 'เพศ', key: 'gender', align: 'left' },
+        { title: 'วันเกิด', key: 'dateofbirthshow', align: 'left' },
+        { title: 'โรงเรียน', key: 'school', align: 'left' },
+
         { title: 'Username', key: 'username', align: 'center' },
-        { title: 'Course Name', key: 'courseid', align: 'center' },
-        { title: 'Remaining', key: 'remaining', align: 'left' },
-        { title: 'Delete', key: 'delete', align: 'center', sortable: false }
+        { title: 'ลบ', key: 'delete', align: 'center', sortable: false }
       ]
     }
   },
@@ -130,8 +130,10 @@ export default {
       this.$emit('onLoading', true)
       console.log('deleteNewStudent : ', this.studentNewDeleteObj)
       const token = this.$store.getters.getToken;
-      await axios.post(this.baseURL + '/deleteNewStudent', {
-        studentid: this.studentNewDeleteObj.studentid
+      await axios.post(this.baseURL + '/deleteStudent', {
+        familyid: this.studentNewDeleteObj.familyid,
+        studentid: this.studentNewDeleteObj.studentid,
+        journal: "1"
       },
         {
           headers: { Authorization: `Bearer ${token}`, }

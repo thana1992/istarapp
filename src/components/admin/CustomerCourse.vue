@@ -70,6 +70,20 @@
                             :mindate="editedItem.startdate" rules="notNullRules"></DatePicker>
                         </v-col>
                       </v-row>
+                      <v-row>
+                        <v-col cols="12" sm="6" md="12">
+                                <v-data-table :headers="CourseUsingHeaders" :items="CourseUsingtList" density="compact"
+                                :items-per-page="1000" >
+                                <template v-slot:item.index="{ item }">
+                                    {{ CourseUsingtList.indexOf(item) + 1 }}
+                                </template>
+                                <template v-slot:item.classdate="{ item }">
+                                    <p>{{ format_date(item.classdate) }} </p>
+                                </template>
+                                <template #bottom></template>
+                            </v-data-table>
+                        </v-col>
+                    </v-row>
                     </v-container>
                   </v-card-text>
 
@@ -112,6 +126,14 @@
               </v-dialog>
             </v-toolbar>
           </template>
+          <template v-slot:item.startdate="{ item }">
+              <p>{{ format_date(item.startdate) }}</p>
+          </template>
+          <template v-slot:item.expiredate="{ item }">
+                <p :class="{ 'highlighted-red': item.expiredate != null && expireDateLeft(item.expiredate).indexOf('หมดอายุ') > -1 }">
+                    {{ expireDateLeft(item.expiredate) }}
+                </p>
+            </template>
           <template v-slot:item.actions="{ item }">
             <v-icon size="small" class="me-2" @click="editItem(item)">
               mdi-pencil
@@ -146,13 +168,14 @@ export default {
     deleteNotifyMsg: "",
     dialogDeleteNotify: false,
     headers: [
-      { title: "Course No.", align: "start", key: "courserefer" },
-      { title: "Course Name", key: "coursename" },
-      { title: "Course Type", key: "coursetype" },
-      { title: "Start Date", key: "startdateshow", align: "center" },
-      { title: "Expire Date", key: "expiredateshow", align: "center" },
-      { title: "Remaining", key: "remaining", align: "end" },
-      { title: "Actions", key: "actions", sortable: false },
+      { title: "หมายเลขคอร์ส", align: "start", key: "courserefer" },
+      { title: "ชื่อคอร์ส", key: "coursename" },
+      { title: "ประเภท", key: "coursetype" },
+      { title: "วันเริ่มต้น", key: "startdate", align: "center" },
+      { title: "วันหมดอายุ", key: "expiredate", align: "left" },
+      { title: "คงเหลือ", key: "remaining", align: "end" },
+      { title: "ผู้ใช้คอร์ส", key: "userlist", align: "left" },
+      { title: "", key: "actions", sortable: false },
     ],
     editedIndex: -1,
     editedItem: {
@@ -177,6 +200,13 @@ export default {
       expiredate: null,
       course_user: null,
     },
+    CourseUsingHeaders: [
+        { text: 'No.', value: 'index' },
+        { title: 'Name', value: 'fullname' },
+        { title: 'Class Date', value: 'classdate' },
+        { title : 'Classtime', value: 'classtime'},
+    ],
+    CourseUsingtList: [],
     courselist: [],
   }),
 
@@ -244,6 +274,19 @@ export default {
       await this.getCustomerCourseList();
       await this.getCourseLookup();
       this.$emit("onLoading", false);
+    },
+    copyToClipboard(newcourse) {
+      if (newcourse) {
+        navigator.clipboard.writeText(newcourse)
+          .then(() => {
+            //consol.log('คัดลอกคอร์สใหม่เรียบร้อยแล้ว');
+          })
+          .catch(err => {
+            console.error('ไม่สามารถคัดลอกได้: ', err);
+          });
+      } else {
+        this.$emit("onErrorHandler", "ไม่มีคอร์สใหม่ที่จะคัดลอก");
+      }
     },
 
     editItem(item) {
@@ -341,7 +384,7 @@ export default {
       this.loadingCourse = true;
       await axios
         .get(
-          this.baseURL + "/getStudentUseCourse/" + this.editedItem.courserefer,
+          this.baseURL + "/getStudentCourseDetail/" + this.editedItem.courserefer,
           {
             headers: { Authorization: `Bearer ${this.token}` },
           }
@@ -349,7 +392,7 @@ export default {
         .then((response) => {
           //console.dir(response);
           if (response.data.success) {
-            console.log("getStudentUseCourse", response.data);
+            console.log("getStudentCourseDetail", response.data);
             const res = response.data.results;
             if (res) {
               const data = response.data.results[0];
@@ -359,6 +402,12 @@ export default {
                   "มีผู้กำลังใช้คอร์สนี้ " + data.user + " คน " + data.userlist;
               } else {
                 this.editedItem.course_user = null;
+              }
+              const data2 = response.data.courseDetail;
+              if (data2) {
+                  this.CourseUsingtList = data2;
+              } else {
+                  this.CourseUsingtList = null;
               }
             } else {
               this.editedItem.course_user = null;
@@ -468,6 +517,7 @@ export default {
                 "onInfoHandler",
                 response.data.message || "สำเร็จ สร้างคอร์สใหม่แล้ว"
               );
+              this.copyToClipboard(response.data.courserefer);
             } else {
               this.$emit(
                 "onErrorHandler",
@@ -528,7 +578,7 @@ export default {
           console.dir(response);
           if (response.data.success) {
             if (response.data.results && response.data.results.length > 0) {
-              this.courselist = this.convertDate(response.data.results);
+              this.courselist = response.data.results;
             }
           }
           this.loadingCustomerCourse = false;
@@ -556,13 +606,59 @@ export default {
         return moment(String(value)).format("DD/MM/YYYY");
       }
     },
-    convertDate(arrObj) {
-      arrObj.forEach((obj) => {
-        obj.startdateshow = this.format_date(obj.startdate);
-        obj.expiredateshow = this.format_date(obj.expiredate);
-      });
-      return arrObj;
+    expireDateLeft(value) {
+        let result = "";
+        if (value) {
+            let remainingText = this.calExpireText(value);
+            result = this.format_date(value) + " (" + remainingText + ")";
+        }
+        return result;
+    },
+    calExpireText(expdate) {
+        if(!expdate) return '';
+        const today = new Date();
+        const expirationDate = new Date(expdate);
+        let returnText = ''
+        if (expirationDate < today) {
+          returnText = 'หมดอายุ';
+        } else {
+
+          let months = expirationDate.getMonth() - today.getMonth();
+          let days = expirationDate.getDate() - today.getDate();
+          let years = expirationDate.getFullYear() - today.getFullYear();
+
+          if (days < 0) {
+              months -= 1;
+              days += new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate(); // จำนวนวันในเดือนปัจจุบัน
+          }
+
+          if (months < 0) {
+              years -= 1;
+              months += 12;
+          }
+
+          if (years > 0) {
+              months += years * 12;
+          }
+          
+          if (months > 0) {
+              returnText += `${months} เดือน `;
+          }
+          if (days > 0) {
+              returnText += `${days} วัน`;
+          }
+        }
+
+        console.log('today', this.format_date(today, 'YYYY-MM-DD'));
+        console.log('expirationDate', this.format_date(expirationDate, 'YYYY-MM-DD'));
+        console.log('returnText', returnText);
+        return returnText;
     },
   },
 };
 </script>
+<style scoped>
+.highlighted-red {
+  color: red;
+}
+</style>

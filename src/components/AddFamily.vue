@@ -72,10 +72,6 @@ export default {
         async doSave() {
             this.$emit('onLoading', true)
             const { valid } = await this.$refs.form.validate()
-            if (this.dateofbirth == null) {
-                this.$emit('onErrorHandler', 'กรุณาเลือกวันเกิด')
-                return
-            }
             if (valid) {
 
                 const userdata = localStorage.getItem('userdata')
