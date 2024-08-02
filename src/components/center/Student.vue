@@ -631,7 +631,7 @@ export default {
                 .then((response) => {
                     //console.dir(response);
                     if (response.data.success) {
-                        console.log("getStudentUseCourse", response.data);
+                        console.log("getStudentCourseDetail", response.data);
                         const res = response.data.results;
                         if (res) {
                             const data = response.data.results[0];
