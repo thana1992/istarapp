@@ -2,10 +2,10 @@
   <v-menu v-model="isMenuOpen" :close-on-content-click="false">
     <template v-slot:activator="{ props }">
       <v-text-field :label="label" :model-value="formattedDate" readonly v-bind="props" variant="solo-filled"
-        hide-details required></v-text-field>
+        hide-details :required="required" :rules="[v => !!v || 'Required']"></v-text-field>
     </template>
     <v-date-picker ref="picker" v-model="selectedDate" hide-actions title="" :color="color" :max="maxdate"
-      :min="mindate">
+      :min="mindate" :required="required">
       <template v-slot:header></template>
     </v-date-picker>
   </v-menu>
@@ -28,6 +28,7 @@ const { label, color, modelValue, mindate, maxdate } = defineProps([
   "modelValue",
   "mindate",
   "maxdate",
+  "required"
 ]);
 const emit = defineEmits("update:modelValue");
 

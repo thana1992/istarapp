@@ -9,24 +9,24 @@
             <div class="mx-auto px-2 py-1">
                 <v-form ref="form">
                     <v-text-field variant="solo-filled" v-model="firstname" label="Firstname / ชื่อ" type="text"
-                        :rules="nameRules" required></v-text-field>
+                        :rules="requireRules" required></v-text-field>
 
                     <v-text-field variant="solo-filled" v-model="middlename" label="Middlename / ชื่อกลาง"
                         type="text"></v-text-field>
 
                     <v-text-field variant="solo-filled" v-model="lastname" label="Lastname / นามสกุล" type="text"
-                        :rules="nameRules" required></v-text-field>
+                        :rules="requireRules" required></v-text-field>
 
                     <v-text-field variant="solo-filled" v-model="nickname" label="Nick Name / ชื่อเล่น " type="text"
-                        :rules="nameRules" required></v-text-field>
+                        :rules="requireRules" required></v-text-field>
 
                     <v-text-field variant="solo-filled" v-model="school" label="School / โรงเรียน"
                         type="text"></v-text-field>
 
                     <v-select v-model="gender" label="Gender / เพศ" :items="['ชาย', 'หญิง']" variant="solo-filled"
-                        required></v-select>
+                    :rules="requireRules" required></v-select>
 
-                    <DatePicker label="Date of Birth / วันเกิด" v-model="dateofbirth" :maxdate="new Date()" required>
+                    <DatePicker label="Date of Birth / วันเกิด" v-model="dateofbirth" :maxdate="new Date()" :rules="requireRules" >
                     </DatePicker>
                     <br>
                     <v-divider color="#fffff" thickness="3"></v-divider>
@@ -64,7 +64,7 @@ export default {
         dateofbirth: null,
         school: '',
         format: 'dddd MMMM DD, YYYY',
-        nameRules: [
+        requireRules: [
             v => !!v || 'field is required',
         ],
     }),
@@ -72,6 +72,11 @@ export default {
         async doSave() {
             this.$emit('onLoading', true)
             const { valid } = await this.$refs.form.validate()
+            if(!valid) {
+                this.$emit('onErrorHandler', 'กรุณากรอกข้อมูลให้ครบถ้วน')
+                this.$emit('onLoading', false)
+                return
+            }
             if (valid) {
 
                 const userdata = localStorage.getItem('userdata')
