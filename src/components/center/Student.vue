@@ -458,15 +458,15 @@ export default {
                     }
                 });
         },
-        clickEditStudent(item) {
+        async clickEditStudent(item) {
             this.editedStudentIndex = this.StudentList.indexOf(item);
             this.editedStudentItem = Object.assign({}, item);
             if(this.editedStudentItem.dateofbirth) {
                 this.editedStudentItem.dateofbirth = new Date(item.dateofbirth);
                 this.editedStudentItem.age = this.calculateAge(item.dateofbirth).text;
             }
-            this.onCourseChange();
-            this.loadProfileImage();
+            await this.onCourseChange();
+            await this.loadProfileImage();
             this.dialogStudent = true;
         },
         clickDeleteStudent(item) {
