@@ -103,7 +103,7 @@ export default {
       this.$emit('onLoading', true)
       console.log('approveNewStudent : ', this.newStudentList)
       console.log('confirmStudentList : ', this.confirmStudentList)
-      const apprObj = this.convertToSQL(this.confirmStudentList)
+      const apprObj = this.confirmStudentList
       const token = this.$store.getters.getToken;
       await axios.post(this.baseURL + '/approveNewStudent', {
         apprObj: apprObj
