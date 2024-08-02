@@ -97,7 +97,7 @@ export default {
               this.$emit('onLoading', false)
               this.$emit('onErrorHandler', error.message)
             });
-        }, 2500);
+        }, 1500);
       }
     },
     encryptPassword(password) {

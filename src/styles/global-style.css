@@ -136,3 +136,8 @@ body {
   font: 14px bold 'Kodchasan', sans-serif;
   color: red;
 }
+
+.v-table__wrapper > table > thead > tr > th {
+  background-color: #cacaca;
+  font: bold 14px 'Kodchasan', sans-serif;
+}
