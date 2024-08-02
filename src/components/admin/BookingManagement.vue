@@ -638,14 +638,14 @@ export default ({
             this.loadingBooking = true
             const token = this.$store.getters.getToken;
             await DashboardAPI.fetchDataBooking({ token, reservedate })
-                .then(({ success, results, message }) => {
+                .then(({ success, results, message, error }) => {
                     if (success) {
                         this.BookingList = results
                         if (reservedate == this.SQLDate(this.date)) {
                             this.loadingBooking = false
                         }
                     } else {
-                        console.log("message : " + message)
+                        console.dir("error : " , error)
                         console.log("results : " + results)
                         this.loadingBooking = false
                         this.$emit('onErrorHandler', message || 'Get Reservation failed')
