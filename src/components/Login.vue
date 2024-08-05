@@ -6,7 +6,7 @@
       <p>Welcome to the iStar Gymnastics,</p>
       <p>Have a wonderful day :D</p>
     </div>
-    <v-card class="main-form px-3 py-3">
+    <v-card class="main-form px-3 py-3 mb-12">
       <v-form ref="login_form" v-model="login_form" @submit.prevent="doLogin">
         <v-row justify="space-around" class="ma-1 pa-1">
           <v-text-field variant="solo-filled" v-model="username" label="Username" :rules="nameRules"
@@ -19,16 +19,18 @@
         </v-row>
 
         <v-row justify="space-around" class="ma-2 pa-2">
-          <v-btn color="success" class="mt-5" block type="submit">
+          <v-btn color="success" class="" block type="submit">
             Login
           </v-btn>
-          <v-btn color="blue-grey" class="mt-5" block @click="registerClick">
+          <v-btn color="blue" class="mt-8" block @click="registerClick">
             Register
+          </v-btn>
+          <v-btn color="error" class="mt-4" block @click="forgotpassword">
+            Forgot Password ?
           </v-btn>
         </v-row>
       </v-form>
     </v-card>
-    <label class="text-forgot" @click="forgotpassword">Forgot Password?</label>
   </div>
   <div v-else>
   </div>

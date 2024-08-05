@@ -63,7 +63,7 @@
                                         editedBookingItem.courseinfo }}</v-label>
                                                                     </v-col>
                                                                     <v-col cols="12" sm="6" md="6">
-                                                                        <v-select v-model="editedBookingItem.studentid"
+                                                                        <v-autocomplete v-model="editedBookingItem.studentid"
                                                                             label="Name" item-title="name"
                                                                             item-value="studentid"
                                                                             :items="studentLookup" variant="solo-filled"
@@ -71,8 +71,9 @@
                                                                             :rules="notNullRules"
                                                                             @update:modelValue="onStudentChange"
                                                                             :readonly="editedBookingIndex != -1"
+                                                                            filterable
                                                                             required>
-                                                                        </v-select>
+                                                                        </v-autocomplete>
                                                                     </v-col>
                                                                     <v-col cols="12" sm="6" md="6">
                                                                         <v-select v-model="editedBookingItem.courseid"

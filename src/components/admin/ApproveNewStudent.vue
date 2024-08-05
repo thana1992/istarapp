@@ -71,6 +71,7 @@ export default {
         { title: 'อายุ', key: 'dateofbirth', align: 'left' },
         { title: 'โรงเรียน', key: 'school', align: 'left' },
         { title: 'Username ผปค.', key: 'username', align: 'center' },
+        { title: 'เบอร์โทร', key: 'mobileno', align: 'center' },
         { title: 'ลบ', key: 'delete', align: 'center', sortable: false }
       ]
     }

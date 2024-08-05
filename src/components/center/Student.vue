@@ -89,10 +89,10 @@
                                         </v-row>
                                         <v-row>
                                             <v-col cols="12" sm="6" md="5">
-                                                <v-select v-model="editedStudentItem.familyid" label="Parent's Username"
+                                                <v-autocomplete v-model="editedStudentItem.familyid" label="Parent's Username"
                                                     item-title="username" item-value="familyid" :items="familyLookup"
-                                                    variant="solo-filled" :rules="notNullRules" required>
-                                                </v-select>
+                                                    variant="solo-filled" :rules="notNullRules" required filterable>
+                                                </v-autocomplete>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="7">
                                                 <v-file-input v-model="editedStudentItem.profilepic" label="รูปโปรไฟล์"
@@ -108,7 +108,8 @@
                                                     label="Course Refer" item-title="courserefer"
                                                     item-value="courserefer" :items="customerCourseLookup"
                                                     variant="solo-filled" no-data-text="No course"
-                                                    editable @update:modelValue="onCourseChange"></v-autocomplete>
+                                                    editable @update:modelValue="onCourseChange"
+                                                    filterable></v-autocomplete>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="6">
                                                 <v-label style="white-space: break-spaces">{{

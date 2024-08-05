@@ -9,7 +9,7 @@
       <p>กรอก username และเบอร์โทรศัพท์</p>
       <p>ที่ท่านเคยลงทะเบียนไว้</p>
     </div>
-    <v-card class="main-form px-3 py-3">
+    <v-card class="main-form px-3 py-3 mb-12">
       <v-form ref="forgotpassword_form" v-model="forgotpassword_form" v-if="firstProcess">
         <v-row justify="space-around" class="ma-1 pa-1">
           <v-text-field variant="solo-filled" v-model="username" label="Username" 
