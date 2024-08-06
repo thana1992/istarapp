@@ -61,9 +61,8 @@
                                         <label v-else> คงเหลือ {{ p.remaining }} ครั้ง</label>
                                     </p>
                                     <p>
-                                        <label>หมดอายุ {{ new Date(p.expiredate).toLocaleDateString('th-TH', this.options)
-                                            }}</label>
-                                        <label v-if="isExpire(p.expiredate)" style="color: red;"> (หมดอายุแล้ว)</label>
+                                        <label v-if="p.expiredate">หมดอายุ {{ new Date(p.expiredate).toLocaleDateString('th-TH', this.options) }}</label>
+                                        <label v-if="p.expiredate && isExpire(p.expiredate)" style="color: red;"> (หมดอายุแล้ว)</label>
                                     </p>
                                 </div>
 
@@ -109,16 +108,16 @@
             <p>Please Add your family member in <u>FAMILY</u> Menu</p>
         </div>
         <div v-if="studentSelected">
-            <div v-if="!isExpire(studentSelected.expiredate)" style="text-align: center; padding-top: 8vh;">
-                <v-btn color="green" rounded class="ma-2 pulse-button" @click="doReservation">
-                    <v-icon left>mdi-emoticon-plus</v-icon>
-                    &nbsp;Book a class
-                </v-btn>
-            </div>
-            <div v-if="isExpire(studentSelected.expiredate)" style="text-align: center; padding-top: 8vh;">
+            <div v-if="studentSelected.expiredate && isExpire(studentSelected.expiredate)" style="text-align: center; padding-top: 8vh;">
                 <v-btn color="red" rounded class="ma-2 pulse-button">
                     <v-icon left>mdi-close-thick</v-icon>
                     &nbsp;Course Expired!!
+                </v-btn>
+            </div>
+            <div v-else="studentSelected.expiredate && !isExpire(studentSelected.expiredate)" style="text-align: center; padding-top: 8vh;">
+                <v-btn color="green" rounded class="ma-2 pulse-button" @click="doReservation">
+                    <v-icon left>mdi-emoticon-plus</v-icon>
+                    &nbsp;Book a class
                 </v-btn>
             </div>
         </div>
@@ -162,7 +161,7 @@ export default {
                 this.$emit('onErrorHandler', 'ไม่สามารถจองคลาสได้ เนื่องจากยังไม่มีข้อมูลคอร์สเรียน กรุณาติดต่อ Admin')
                 return;
             }
-            if (new Date(this.studentSelected.expiredate) < new Date()) {
+            if (this.studentSelected.expiredate && (new Date(this.studentSelected.expiredate) < new Date())) {
                 this.$emit('onErrorHandler', 'ไม่สามารถจองคลาสได้ เนื่องจากหมดอายุแล้ว')
                 return;
             }

@@ -26,7 +26,7 @@
                 <v-icon left>mdi-refresh</v-icon>
                 รีเฟรช
               </v-btn>
-              <v-dialog v-model="dialog" max-width="750px">
+              <v-dialog v-model="dialog" max-width="950px">
                 <template v-slot:activator="{ props }">
                   <v-btn color="primary" dark v-bind="props"><span class="mdi mdi-book-plus-multiple"></span> สร้างคอร์สใหม่</v-btn>
                 </template>
@@ -36,57 +36,64 @@
                   </v-card-title>
                   <v-card-text>
                     <v-container>
-                      <v-row>
-                        <v-col cols="12" sm="6" md="6">
-                          <v-label>Course Refer :
-                            {{ editedItem.courserefer }}</v-label>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="6">
-                          <v-label>{{ editedItem.course_user }}</v-label>
-                        </v-col>
-                      </v-row>
-                      <v-row>
-                        <v-col cols="12" sm="4" md="5">
-                          <v-select v-model="editedItem.course" label="Course Name" item-title="coursename"
-                            item-value="course" :items="courseLookup" variant="solo-filled" no-data-text="No course"
-                            :readonly="editedIndex > -1" :rules="notNullRules" return-object required></v-select>
-                        </v-col>
-                        <v-col cols="12" sm="4" md="4">
-                          <v-select v-model="editedItem.coursetype" label="Course Type" item-title="coursetype"
-                            item-value="coursetype" :items="['Monthly', 'Limited']" variant="solo-filled"
-                            no-data-text="No course" :rules="notNullRules" required></v-select>
-                        </v-col>
+                      <v-form ref="courseform">
+                        <v-row>
+                          <v-col cols="12" sm="6" md="6">
+                            <v-label>Course Refer :
+                              {{ editedItem.courserefer }}</v-label>
+                          </v-col>
+                          <v-col cols="12" sm="6" md="6">
+                            <v-label>{{ editedItem.course_user }}</v-label>
+                          </v-col>
+                        </v-row>
+                        <v-row>
+                          <v-col cols="12" sm="4" md="5">
+                            <v-select v-model="editedItem.course" label="Course Name" item-title="coursename"
+                              item-value="course" :items="courseLookup" variant="solo-filled" no-data-text="No course"
+                              :readonly="editedIndex > -1" :rules="notNullRules" return-object required></v-select>
+                          </v-col>
+                          <v-col cols="12" sm="4" md="4">
+                            <v-select v-model="editedItem.coursetype" label="ประเภท" item-title="coursetype"
+                              item-value="coursetype" :items="['Monthly', 'Limited']" variant="solo-filled"
+                              no-data-text="No course" :rules="notNullRules" required></v-select>
+                          </v-col>
+                          <v-col cols="12" sm="4" md="3">
+                            <v-select v-model="editedItem.period" label="ระยะเวลา (เดือน)" item-title="period"
+                              item-value="period" :items="[1, 3]" variant="solo-filled" :rules="notNullRules" required></v-select>
+                          </v-col>
+                          
+                        </v-row>
+                      </v-form>
+                        <v-row>
+                          <v-col cols="12" sm="2" md="2">
+                            <v-text-field v-model="editedItem.remaining" label="คงเหลือ" variant="solo-filled"
+                              ></v-text-field>
+                          </v-col>
+                          <v-col cols="12" sm="5" md="5">
+                            <DatePicker label="วันที่เริ่มต้น" variant="solo-filled" v-model="editedItem.startdate"
+                              @click="onChangeStartDate"></DatePicker>
+                          </v-col>
 
-                        <v-col cols="12" sm="4" md="3">
-                          <v-text-field v-model="editedItem.remaining" label="Remaining" variant="solo-filled"
-                            :rules="notNullRules"></v-text-field>
-                        </v-col>
+                          <v-col cols="12" sm="5" md="5">
+                            <DatePicker label="วันหมดอายุ" variant="solo-filled" v-model="editedItem.expiredate"
+                              :mindate="editedItem.startdate"></DatePicker>
+                          </v-col>
+                        </v-row>
+                        <v-row>
+                          <v-col cols="12" sm="6" md="12">
+                                  <v-data-table :headers="CourseUsingHeaders" :items="CourseUsingtList" density="compact"
+                                  :items-per-page="1000" >
+                                  <template v-slot:item.index="{ item }">
+                                      {{ CourseUsingtList.indexOf(item) + 1 }}
+                                  </template>
+                                  <template v-slot:item.classdate="{ item }">
+                                      <p>{{ format_date(item.classdate) }} </p>
+                                  </template>
+                                  <template #bottom></template>
+                              </v-data-table>
+                          </v-col>
                       </v-row>
-                      <v-row>
-                        <v-col cols="12" sm="6" md="6">
-                          <DatePicker label="Start Date" variant="solo-filled" v-model="editedItem.startdate"
-                            @click="onChangeStartDate" rules="notNullRules"></DatePicker>
-                        </v-col>
-
-                        <v-col cols="12" sm="6" md="6">
-                          <DatePicker label="Expire Date" variant="solo-filled" v-model="editedItem.expiredate"
-                            :mindate="editedItem.startdate" rules="notNullRules"></DatePicker>
-                        </v-col>
-                      </v-row>
-                      <v-row>
-                        <v-col cols="12" sm="6" md="12">
-                                <v-data-table :headers="CourseUsingHeaders" :items="CourseUsingtList" density="compact"
-                                :items-per-page="1000" >
-                                <template v-slot:item.index="{ item }">
-                                    {{ CourseUsingtList.indexOf(item) + 1 }}
-                                </template>
-                                <template v-slot:item.classdate="{ item }">
-                                    <p>{{ format_date(item.classdate) }} </p>
-                                </template>
-                                <template #bottom></template>
-                            </v-data-table>
-                        </v-col>
-                    </v-row>
+                    
                     </v-container>
                   </v-card-text>
 
@@ -191,6 +198,7 @@ export default {
       startdate: null,
       expiredate: null,
       course_user: null,
+      period: null,
     },
     defaultItem: {
       courserefer: null,
@@ -202,6 +210,7 @@ export default {
       startdate: null,
       expiredate: null,
       course_user: null,
+      period: null,
     },
     CourseUsingHeaders: [
         { text: 'No.', value: 'index' },
@@ -211,6 +220,9 @@ export default {
     ],
     CourseUsingtList: [],
     courselist: [],
+    notNullRules: [
+      v => !!v || 'Field is required',
+    ],
   }),
 
   computed: {
@@ -288,15 +300,15 @@ export default {
             console.error('ไม่สามารถคัดลอกได้: ', err);
           });
       } else {
-        this.$emit("onErrorHandler", "ไม่มีคอร์สใหม่ที่จะคัดลอก");
+        //this.$emit("onErrorHandler", "ไม่มีคอร์สใหม่ที่จะคัดลอก");
       }
     },
 
     editItem(item) {
       this.editedIndex = this.courselist.indexOf(item);
       this.editedItem = Object.assign({}, item);
-      this.editedItem.startdate = new Date(item.startdate);
-      this.editedItem.expiredate = new Date(item.expiredate);
+      if(this.editedItem.startdate) this.editedItem.startdate = new Date(item.startdate);
+      if(this.editedItem.expiredate) this.editedItem.expiredate = new Date(item.expiredate);
       let course = this.courseLookup.find(
         (course) => course.courseid == this.editedItem.courseid
       );
@@ -457,82 +469,87 @@ export default {
     },
 
     async save() {
-      this.$emit("onLoading", true);
-      const token = this.$store.getters.getToken;
-      console.log("save", this.editedItem);
+      const { valid } = await this.$refs.courseform.validate()
+      if(valid) {
+        this.$emit("onLoading", true);
+        const token = this.$store.getters.getToken;
+        console.log("save", this.editedItem);
 
-      let startdate = null;
-      let expiredate = null;
-      if (this.editedItem.startdate !==null && this.editedItem.startdate !=="") {
-        startdate = this.SQLDate(this.editedItem.startdate);
+        let startdate = null;
+        let expiredate = null;
+        if (this.editedItem.startdate !==null && this.editedItem.startdate !=="") {
+          startdate = this.SQLDate(this.editedItem.startdate);
+        }
+        if (this.editedItem.expiredate !==null && this.editedItem.expiredate !=="") {
+          expiredate = this.SQLDate(this.editedItem.expiredate);
+        }
+        if (this.editedIndex > -1) {
+          let saveObj = {
+            courserefer: this.editedItem.courserefer,
+            course: this.editedItem.course,
+            courseid: this.editedItem.courseid,
+            coursetype: this.editedItem.coursetype,
+            course_shortname: this.editItem.course_shortname,
+            remaining: this.editedItem.remaining,
+            startdate: startdate,
+            expiredate: expiredate,
+            period: this.editedItem.period,
+          };
+          await axios
+            .post(this.baseURL + "/updateCustomerCourse", saveObj, {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            .then((response) => {
+              console.dir(response);
+              if (response.data.success) {
+                this.$emit(
+                  "onInfoHandler",
+                  response.data.message || "สำเร็จ แก้ไขข้อมูลคอร์สแล้ว"
+                );
+              } else {
+                this.$emit(
+                  "onErrorHandler",
+                  response.data.message || "เสียใจ แก้ไขไม่ได้ ลองใหม่อีกครั้งนะ"
+                );
+              }
+              this.initialize();
+            });
+        } else {
+          let saveObj = {
+            courserefer: this.editedItem.courserefer,
+            course: this.editedItem.course,
+            coursetype: this.editedItem.coursetype,
+            course_shortname: this.editItem.course_shortname,
+            remaining: this.editedItem.remaining,
+            startdate: startdate,
+            expiredate: expiredate,
+            period: this.editedItem.period,
+          };
+          await axios
+            .post(this.baseURL + "/addCustomerCourse", saveObj, {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            .then((response) => {
+              console.dir(response);
+              if (response.data.success) {
+                this.$emit(
+                  "onInfoHandler",
+                  response.data.message || "สำเร็จ สร้างคอร์สใหม่แล้ว"
+                );
+                this.copyToClipboard(response.data.courserefer);
+              } else {
+                this.$emit(
+                  "onErrorHandler",
+                  response.data.message ||
+                  "เสียใจ สร้างคอร์สไม่ได้ ลองใหม่อีกครั้งนะ"
+                );
+              }
+              this.initialize();
+            });
+        }
+        this.close();
+        this.$emit("onLoading", false);
       }
-      if (this.editedItem.expiredate !==null && this.editedItem.expiredate !=="") {
-        expiredate = this.SQLDate(this.editedItem.expiredate);
-      }
-      if (this.editedIndex > -1) {
-        let saveObj = {
-          courserefer: this.editedItem.courserefer,
-          course: this.editedItem.course,
-          courseid: this.editedItem.courseid,
-          coursetype: this.editedItem.coursetype,
-          course_shortname: this.editItem.course_shortname,
-          remaining: this.editedItem.remaining,
-          startdate: startdate,
-          expiredate: expiredate,
-        };
-        await axios
-          .post(this.baseURL + "/updateCustomerCourse", saveObj, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-          .then((response) => {
-            console.dir(response);
-            if (response.data.success) {
-              this.$emit(
-                "onInfoHandler",
-                response.data.message || "สำเร็จ แก้ไขข้อมูลคอร์สแล้ว"
-              );
-            } else {
-              this.$emit(
-                "onErrorHandler",
-                response.data.message || "เสียใจ แก้ไขไม่ได้ ลองใหม่อีกครั้งนะ"
-              );
-            }
-            this.initialize();
-          });
-      } else {
-        let saveObj = {
-          courserefer: this.editedItem.courserefer,
-          course: this.editedItem.course,
-          coursetype: this.editedItem.coursetype,
-          course_shortname: this.editItem.course_shortname,
-          remaining: this.editedItem.remaining,
-          startdate: startdate,
-          expiredate: expiredate,
-        };
-        await axios
-          .post(this.baseURL + "/addCustomerCourse", saveObj, {
-            headers: { Authorization: `Bearer ${token}` },
-          })
-          .then((response) => {
-            console.dir(response);
-            if (response.data.success) {
-              this.$emit(
-                "onInfoHandler",
-                response.data.message || "สำเร็จ สร้างคอร์สใหม่แล้ว"
-              );
-              this.copyToClipboard(response.data.courserefer);
-            } else {
-              this.$emit(
-                "onErrorHandler",
-                response.data.message ||
-                "เสียใจ สร้างคอร์สไม่ได้ ลองใหม่อีกครั้งนะ"
-              );
-            }
-            this.initialize();
-          });
-      }
-      this.close();
-      this.$emit("onLoading", false);
     },
     async getCourseLookup() {
       const token = this.$store.getters.getToken;
