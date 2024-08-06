@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="container-header">
-      <h1><span class="mdi mdi-book-account"></span> Customer's Courses</h1>
+      <h1><span class="mdi mdi-book-account"></span> Customer's Courses / คอร์สของลูกค้า</h1>
     </div>
     <div class="container-content">
       <v-card flat>
@@ -22,10 +22,13 @@
               <v-toolbar-title>Customer's Courses</v-toolbar-title>
               <v-divider class="mx-2" inset vertical></v-divider>
               <v-spacer></v-spacer>
+              <v-btn color="primary" @click="initialize">
+                <v-icon left>mdi-refresh</v-icon>
+                รีเฟรช
+              </v-btn>
               <v-dialog v-model="dialog" max-width="750px">
                 <template v-slot:activator="{ props }">
-                  <v-btn color="primary" dark v-bind="props"><span class="mdi mdi-book-plus-multiple"></span> New
-                    Customer Course</v-btn>
+                  <v-btn color="primary" dark v-bind="props"><span class="mdi mdi-book-plus-multiple"></span> สร้างคอร์สใหม่</v-btn>
                 </template>
                 <v-card>
                   <v-card-title>

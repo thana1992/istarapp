@@ -11,16 +11,20 @@
         </v-card-title>
 
         <v-divider></v-divider>
-        <v-data-table :loading="loadingStudent" :headers="StudentListHeaders" :items="StudentList"
+        
+        <v-data-table :loading="loadingStudent" :headers="StudentListHeaders" :items="StudentList" 
             :sort-by="[{ key: 'studentid', order: 'asc' }]" :search="search">
             <template v-slot:top>
                 <v-toolbar flat>
                     <v-toolbar-title>Gymnasts' List</v-toolbar-title>
+                    <v-btn color="primary" @click="initialize">
+                        <v-icon left>mdi-refresh</v-icon>
+                        รีเฟรช
+                    </v-btn>
                     <v-dialog v-model="dialogStudent" max-width="800px" style="z-index: 999">
                         <template v-slot:activator="{ props }">
                             <v-btn color="primary" dark v-bind="props"><span
-                                    class="mdi mdi-emoticon-plus-outline"></span> New
-                                Student</v-btn>
+                                    class="mdi mdi-emoticon-plus-outline"></span> เพิ่มนักเรียนใหม่</v-btn>
                         </template>
 
                         <v-card>
@@ -299,11 +303,11 @@ export default {
         }
     },
     methods: {
-        initialize() {
+        async initialize() {
             this.$emit("onLoading", true);
-            this.getCustomerCourseLookup();
-            this.getFamilyLookup();
-            this.getStudentList();
+            await this.getCustomerCourseLookup();
+            await this.getFamilyLookup();
+            await this.getStudentList();
 
             this.$emit("onLoading", false);
         },

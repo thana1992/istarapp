@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="container-header">
-            <h1><span class="mdi mdi-calendar-edit"></span> Booking Management</h1>
+            <h1><span class="mdi mdi-calendar-edit"></span> Booking Management / การจองคลาสเรียน</h1>
         </div>
         <div class="container-content">
             <v-divider color="#fffff" thickness="3"></v-divider>
@@ -43,8 +43,7 @@
                                             <v-dialog v-model="dialogBookingEdit" max-width="800px">
                                                 <template v-slot:activator="{ props }">
                                                     <v-btn color="primary" dark v-bind="props"><span
-                                                            class="mdi mdi-emoticon-plus-outline"></span> New
-                                                        Booking</v-btn>
+                                                            class="mdi mdi-emoticon-plus-outline"></span> เพิ่มการจอง</v-btn>
                                                 </template>
                                                 <v-card>
                                                     <v-card-title>

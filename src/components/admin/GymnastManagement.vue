@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="container-header">
-            <h1><span class="mdi mdi-gymnastics"></span> Gymnast Management</h1>
+            <h1><span class="mdi mdi-gymnastics"></span> Gymnast Management / รายชื่อเด็ก</h1>
         </div>
         <div class="container-content">
             <v-divider color="#fffff" thickness="3"></v-divider>
