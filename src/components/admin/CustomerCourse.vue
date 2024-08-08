@@ -114,8 +114,21 @@
                   <v-card-text>ต้องการลบคอร์สเรียนนี้จริงๆหรอ ?</v-card-text>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="#4CAF50" variant="tonal" @click="checkBeforeDelete">ใช่! ลบเลย</v-btn>
-                    <v-btn color="#F44336" variant="tonal" @click="closeDelete">ไม่ลบละ เปลี่ยนใจ</v-btn>
+                    <v-btn color="#4CAF50" variant="tonal" @click="checkBeforeDelete">ยืนยัน</v-btn>
+                    <v-btn color="#F44336" variant="tonal" @click="closeDelete">ยกเลิก</v-btn>
+
+                    <v-spacer></v-spacer>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
+              <v-dialog v-model="dialogFinish" persistent width="auto">
+                <v-card>
+                  <v-card-title></v-card-title>
+                  <v-card-text>ยืนยันการจบคอร์ส และเก็บประวัติ ?</v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="#4CAF50" variant="tonal" @click="finishCourseConfirm">ยืนยัน</v-btn>
+                    <v-btn color="#F44336" variant="tonal" @click="closeFinish">ยกเลิก</v-btn>
 
                     <v-spacer></v-spacer>
                   </v-card-actions>
@@ -127,8 +140,8 @@
                   <v-card-text>{{ deleteNotifyMsg }}</v-card-text>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">ใช่! ลบเลย</v-btn>
-                    <v-btn color="#F44336" variant="tonal" @click="closeDeleteNotify">ไม่ลบละ เปลี่ยนใจ</v-btn>
+                    <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">ยืนยัน</v-btn>
+                    <v-btn color="#F44336" variant="tonal" @click="closeDeleteNotify">ยกเลิก</v-btn>
 
                     <v-spacer></v-spacer>
                   </v-card-actions>
@@ -155,6 +168,16 @@
             <br /><br />
             <v-btn color="primary" @click="initialize"> Reset </v-btn>
           </template>
+
+          <template v-slot:item.edit="{ item }">
+              <v-icon size="large" color="info" @click="editItem(item)">mdi-pencil</v-icon>
+          </template>
+          <template v-slot:item.finish="{ item }">
+              <v-icon size="large" color="error" @click="finishCourse(item)">mdi-check</v-icon>
+          </template>
+          <template v-slot:item.delete="{ item }">
+              <v-icon size="large" color="error" @click="deleteItem(item)">mdi-delete-forever</v-icon>
+          </template>
           <template v-slot:loading><v-skeleton-loader type="table-row@20"></v-skeleton-loader></template>
         </v-data-table>
       </v-card>
@@ -173,6 +196,7 @@ export default {
   data: () => ({
     search: "",
     dialog: false,
+    dialogFinish: false,
     dialogDelete: false,
     loadingCustomerCourse: false,
     deleteNotifyMsg: "",
@@ -185,7 +209,10 @@ export default {
       { title: "วันหมดอายุ", key: "expiredate", align: "left" },
       { title: "คงเหลือ", key: "remaining", align: "end" },
       { title: "ผู้ใช้คอร์ส", key: "userlist", align: "left" },
-      { title: "", key: "actions", sortable: false },
+      //{ title: "", key: "actions", sortable: false },
+      { title: "แก้ไข", key: "edit", sortable: false },
+      { title: "ลบ", key: "delete", sortable: false },
+      { title: "จบคอร์ส", key: "finish", sortable: false, align: "center" },
     ],
     editedIndex: -1,
     editedItem: {
@@ -237,6 +264,9 @@ export default {
   watch: {
     dialog(val) {
       val || this.close();
+    },
+    dialogFinish(val) {
+      val || this.closeFinish();
     },
     dialogDelete(val) {
       val || this.closeDelete();
@@ -317,7 +347,11 @@ export default {
       this.dialog = true;
       console.log("editItem", this.editedItem);
     },
-
+    finishCourse(item) {
+      this.editedIndex = this.courselist.indexOf(item);
+      this.editedItem = Object.assign({}, item);
+      this.dialogFinish = true;
+    },
     deleteItem(item) {
       this.editedIndex = this.courselist.indexOf(item);
       this.editedItem = Object.assign({}, item);
@@ -360,6 +394,38 @@ export default {
           this.$emit("onLoading", false);
           return false;
         });
+    },
+    async finishCourseConfirm() {
+      this.$emit("onLoading", true);
+      const token = this.$store.getters.getToken;
+      await axios
+        .post(
+          this.baseURL + "/finishCustomerCourse",
+          {
+            courserefer: this.editedItem.courserefer,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        )
+        .then((response) => {
+          console.dir(response);
+          if (response.data.success) {
+            this.dialogFinish = false;
+            this.$emit("onInfoHandler", "สำเร็จ จบคอร์สแล้ว");
+          } else {
+            this.dialogFinish = false;
+            this.$emit(
+              "onErrorHandler",
+              response.data.message || "เสียใจ จบคอร์สไม่ได้ ลองใหม่อีกครั้งนะ"
+            );
+          }
+          this.initialize();
+        })
+        .catch((error) => {
+          console.error(error);
+        });
+      this.$emit("onLoading", false);
     },
     async deleteItemConfirm() {
       this.$emit("onLoading", true);
@@ -444,6 +510,14 @@ export default {
     },
     close() {
       this.dialog = false;
+      this.$nextTick(() => {
+        this.editedItem = Object.assign({}, this.defaultItem);
+        this.editedIndex = -1;
+      });
+    },
+
+    closeFinish() {
+      this.dialogFinish = false;
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
