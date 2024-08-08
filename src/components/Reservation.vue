@@ -12,7 +12,7 @@
                         <p>การจองคลาสของ {{ student.firstname + ' ' + student.lastname }}</p>
                     </v-row>
                     <v-row justify="space-around" class="ma-2 pa-2">
-                        <v-date-picker v-model="date" :min="tomorrow" @click="selectDate"></v-date-picker>
+                        <v-date-picker v-model="date" :min="tomorrow" :allowed-dates="isDateAllowed" @click="selectDate"></v-date-picker>
                     </v-row>
                     <v-row justify="space-around" class="ma-2 pa-2">
                         <v-select v-model="classtimeSelect" label="Class time" class="ma-2 pa-2" item-title="text"
@@ -73,6 +73,7 @@ export default {
             ],
             //weekday:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
             questionDialog: false,
+            holidays: [],
         }
     },
     async created() {
@@ -105,17 +106,45 @@ export default {
         }
 
     },
-    mounted() {
+    async mounted() {
         const tomorrow = new Date()
         tomorrow.setDate(new Date().getDate() + 1)
         this.date = tomorrow
+        await this.fetchHolidays();
         this.getClassTime()
     },
     methods: {
         selectDate() {
-            console.log(new Date(this.date).toLocaleDateString('en-US', { weekday: 'long' }))
+            //console.log(new Date(this.date).toLocaleDateString('en-US', { weekday: 'long' }))
             this.classtimeSelect = null
             this.getClassTime()
+        },
+        isDateAllowed(date) {
+            const isMonday = moment(date).day() === 1;  // ตรวจสอบว่าวันที่นั้นเป็นวันจันทร์หรือไม่
+        const isHoliday = this.holidays.some(holiday => moment(date).isSame(holiday, 'day')); // ตรวจสอบว่าวันที่เป็นวันหยุดหรือไม่
+
+        return !isMonday && !isHoliday;
+        },
+        async fetchHolidays() {
+            try {
+                const token = this.$store.getters.getToken;
+                const response = await axios.get(this.baseURL + '/getHolidays', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                });
+                console.dir(response);
+                if (response.data.success) {
+                    this.holidays = response.data.holidays.map(date => moment(date).startOf('day'));
+                    
+                } else {
+                    //console.error('Failed to fetch holidays:', response.data.message);
+                    this.$emit('onErrorHandler', response.data.message)
+                }
+            } catch (error) {
+                //console.error('Error fetching holidays:', error);
+                this.$emit('onErrorHandler', error.message)
+            }
         },
         async validate() {
             let { valid } = await this.$refs.reserveForm.validate()
@@ -134,7 +163,7 @@ export default {
                 classday: new Date(this.date).toLocaleDateString('en-US', { weekday: 'long' }),
                 courseid: this.student.courseid
             }
-            console.log("request", req)
+            //console.log("request", req)
             const token = this.$store.getters.getToken;
             axios.post(this.baseURL + '/getClassTime', req, {
                 headers: {
@@ -142,7 +171,7 @@ export default {
                 },
             })
                 .then(response => {
-                    console.dir(response);
+                    //console.dir(response);
                     if (response.data.success) {
                         const data = response.data.results
                         if (data.length == 0) {
