@@ -468,6 +468,7 @@ export default {
                     this.dialogFinish = false;
                     this.getCustomerCourseLookup();
                     this.editedStudentItem.courserefer = null;
+                    this.editedStudentItem.current_course_detail = null;
                     this.$emit("onInfoHandler", "สำเร็จ จบคอร์สแล้ว");
                 } else {
                     this.dialogFinish = false;

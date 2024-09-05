@@ -59,7 +59,7 @@
                           </v-col>
                           <v-col cols="12" sm="4" md="3">
                             <v-select v-model="editedItem.period" label="ระยะเวลา (เดือน)" item-title="period"
-                              item-value="period" :items="[1, 3]" variant="solo-filled" :rules="notNullRules" required></v-select>
+                              item-value="period" :items="[1, 2, 3, 6, 12]" variant="solo-filled" :rules="notNullRules" required></v-select>
                           </v-col>
                           
                         </v-row>
