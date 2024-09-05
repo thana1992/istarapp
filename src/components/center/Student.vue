@@ -26,6 +26,19 @@
                             <v-btn color="primary" dark v-bind="props"><span
                                     class="mdi mdi-emoticon-plus-outline"></span> เพิ่มนักเรียนใหม่</v-btn>
                         </template>
+                        <v-dialog v-model="dialogFinish" persistent width="auto">
+                            <v-card>
+                            <v-card-title></v-card-title>
+                            <v-card-text>ยืนยันการจบคอร์ส และเก็บประวัติ ?</v-card-text>
+                            <v-card-actions>
+                                <v-spacer></v-spacer>
+                                <v-btn color="#4CAF50" variant="tonal" @click="finishCourseConfirm">ยืนยัน</v-btn>
+                                <v-btn color="#F44336" variant="tonal" @click="closeFinish">ยกเลิก</v-btn>
+
+                                <v-spacer></v-spacer>
+                            </v-card-actions>
+                            </v-card>
+                        </v-dialog>
 
                         <v-card>
                             <v-card-title>
@@ -116,11 +129,24 @@
                                                     filterable></v-autocomplete>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="6">
+                                                <v-btn height="55"
+                                                    prepend-icon="mdi-check-circle"
+                                                    @click="finishCourse()"
+                                                    >
+                                                    <template v-slot:prepend>
+                                                        <v-icon color="success"></v-icon>
+                                                    </template>
+                                                    จบคอร์ส
+                                                </v-btn>
+                                            </v-col>
+                                        </v-row>
+                                        <v-rol>
+                                            <v-col cols="12" sm="12" md="12">
                                                 <v-label style="white-space: break-spaces">{{
                                                     editedStudentItem.current_course_detail
                                                 }}</v-label>
                                             </v-col>
-                                        </v-row>
+                                        </v-rol>
                                         <v-row>
                                             <v-col cols="12" sm="6" md="12">
                                                     <v-data-table :headers="CourseUsingHeaders" :items="CourseUsingtList" density="compact"
@@ -263,6 +289,7 @@ export default {
             dialogStudent: false,
             dialogStudentDelete: false,
             loadingStudent: false,
+            dialogFinish: false,
             notNullRules: [(v) => !!v || "field is required"],
         };
     },
@@ -418,6 +445,50 @@ export default {
                 }
             }
             this.$emit("onLoading", false);
+        },
+        finishCourse() {
+            this.dialogFinish = true;
+        },
+        async finishCourseConfirm() {
+        this.$emit("onLoading", true);
+        const token = this.$store.getters.getToken;
+            await axios
+                .post(
+                this.baseURL + "/finishCustomerCourse",
+                {
+                    courserefer: this.editedStudentItem.courserefer,
+                },
+                {
+                    headers: { Authorization: `Bearer ${token}` },
+                }
+                )
+                .then((response) => {
+                console.dir(response);
+                if (response.data.success) {
+                    this.dialogFinish = false;
+                    this.getCustomerCourseLookup();
+                    this.editedStudentItem.courserefer = null;
+                    this.$emit("onInfoHandler", "สำเร็จ จบคอร์สแล้ว");
+                } else {
+                    this.dialogFinish = false;
+                    this.$emit(
+                    "onErrorHandler",
+                    response.data.message || "เสียใจ จบคอร์สไม่ได้ ลองใหม่อีกครั้งนะ"
+                    );
+                }
+                this.initialize();
+                })
+                .catch((error) => {
+                console.error(error);
+                });
+            this.$emit("onLoading", false);
+        },
+        closeFinish() {
+            this.dialogFinish = false;
+            this.$nextTick(() => {
+                this.editedItem = Object.assign({}, this.defaultItem);
+                this.editedIndex = -1;
+            });
         },
         getCustomerCourseLookup() {
             const token = this.$store.getters.getToken;
