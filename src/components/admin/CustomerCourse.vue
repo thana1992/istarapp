@@ -623,6 +623,10 @@ export default {
         }
         this.close();
         this.$emit("onLoading", false);
+      } else {
+          this.$emit('onErrorHandler', 'กรุณากรอกข้อมูลให้ครบถ้วน')
+          this.$emit('onLoading', false)
+          return
       }
     },
     async getCourseLookup() {
