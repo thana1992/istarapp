@@ -88,7 +88,7 @@
                                                                     <v-col cols="12" sm="6" md="4">
                                                                         <DatePicker label="Class date"
                                                                             v-model="selectedDate" variant="solo-filled"
-                                                                            @update:modelValue="getClassTime">
+                                                                            @update:modelValue="getClassTime" :rules="requireRules">
                                                                         </DatePicker>
                                                                     </v-col>
                                                                     <v-col cols="12" sm="6" md="6">
@@ -457,6 +457,7 @@ export default ({
         async doSaveNewBooking() {
             this.$emit('onLoading', true)
             const { valid } = await this.$refs.bookingform.validate()
+            
             if (valid) {
                 this.$emit('onLoading', true)
                 // Make API request to register the user
@@ -516,6 +517,10 @@ export default ({
                         });
                 }
                 this.$emit('onLoading', false)
+            } else {
+                this.$emit('onErrorHandler', 'กรุณากรอกข้อมูลให้ครบถ้วน')
+                this.$emit('onLoading', false)
+                return
             }
 
         },

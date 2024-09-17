@@ -7,7 +7,7 @@
             <v-card-title>Booking class on {{ classdate.toLocaleDateString('en-US', options) }} </v-card-title>
             <v-card-text>การจองคลาส{{ classdate.toLocaleDateString('th-TH', options) }} </v-card-text>
           </v-list-item>
-          <v-data-table :loading="loadingBooking" :headers="bookingHeaders" :items="bookingData" class="elevation-1">
+          <v-data-table :loading="loadingBooking" :headers="bookingHeaders" :items="bookingData" items-per-page="20" class="elevation-1">
             <template v-slot:loading><v-skeleton-loader type="table-row@20"></v-skeleton-loader></template>
             <template v-slot:no-data> No booking class </template>
             <template v-for="(header, index) in bookingHeaders" v-slot:[`item.${header.key}`]="{ item }">
