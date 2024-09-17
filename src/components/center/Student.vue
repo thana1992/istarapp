@@ -594,6 +594,7 @@ export default {
             this.dialogStudent = false;
             this.$nextTick(() => {
                 this.editedStudentItem = Object.assign({}, this.defaultStudentItem);
+                this.CourseUsingtList = [];
                 this.editedStudentIndex = -1;
                 this.imagePreview = this.profileAvatar;
             });
