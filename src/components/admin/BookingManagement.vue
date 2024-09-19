@@ -237,7 +237,6 @@ export default ({
             loadingCourse: false,
             loadingClassTime: false,
             BookingList: [],
-            courserefer: '',
             BookingListHeaders: [
                 { title: 'ชื่อ', key: 'fullname' },
                 { title: 'ชื่อคอร์ส', key: 'coursename' },
@@ -255,6 +254,7 @@ export default ({
                 classdate: null,
                 classtime: null,
                 courseinfo: null,
+                courserefer: null,
             },
             defaultBookingItem: {
                 fullname: null,
@@ -265,6 +265,7 @@ export default ({
                 classdate: null,
                 classtime: null,
                 courseinfo: null,
+                courserefer: null,
             },
             courseinfoColor: 'courseinfoColorGreen',
             selectedDate: null,
@@ -328,7 +329,6 @@ export default ({
                         if (res) {
                             this.courseinfoColor = 'courseinfoColorGreen'
                             this.editedBookingItem.courseid = res.courseid
-                            this.courserefer = res.courserefer
                             if (res.coursetype == 'Monthly') {
                                 this.editedBookingItem.courseinfo = 'หมายเลขคอร์ส: ' + res.courserefer + ' วันหมดอายุ: ' + this.format_date(res.expiredate) + ' รายเดือน'
                             } else {
@@ -568,7 +568,7 @@ export default ({
             await axios.post(this.baseURL + '/cancelBookingByAdmin', {
                 reservationid: this.editedBookingItem.reservationid,
                 studentid: this.editedBookingItem.studentid,
-                courserefer: this.courserefer,
+                courserefer: this.editedBookingItem.courserefer,
             },
                 {
                     headers: { Authorization: `Bearer ${token}`, }
@@ -576,7 +576,7 @@ export default ({
                 .then(response => {
                     //console.dir(response);
                     if (response.data.success) {
-                        this.$emit('onInfoHandler', 'Delete Reservation Successful');
+                        this.$emit('onInfoHandler', response.data.message || 'Delete Reservation Successful');
                     } else {
                         this.$emit('onErrorHandler', response.data.message || 'Delete Reservation failed');
                     }
