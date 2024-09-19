@@ -46,14 +46,14 @@
                                                             class="mdi mdi-emoticon-plus-outline"></span> เพิ่มการจอง</v-btn>
                                                 </template>
                                                 <v-card>
-                                                    <v-card-title>
+                                                    <v-card-title class="sticky-header">
                                                         <span v-if="editedBookingIndex == -1"
                                                             class="mdi mdi-emoticon-plus-outline"></span>
                                                         <span v-if="editedBookingIndex != -1"
                                                             class="mdi mdi-human-edit"></span>
                                                         <span>{{ formBookingTitle }}</span>
                                                     </v-card-title>
-                                                    <v-card-text>
+                                                    <v-card-text class="scrollable-content">
                                                         <v-container>
                                                             <v-form ref="bookingform">
                                                                 <v-row>
@@ -105,13 +105,13 @@
                                                         </v-container>
                                                     </v-card-text>
 
-                                                    <v-card-actions>
+                                                    <v-card-actions class="sticky-footer">
                                                         <v-spacer></v-spacer>
-                                                        <v-btn color="blue-darken-1" variant="text"
+                                                        <v-btn color="red-darken-1" variant="flat"
                                                             @click="clickCancelEditBooking">
                                                             Cancel
                                                         </v-btn>
-                                                        <v-btn color="blue-darken-1" variant="text"
+                                                        <v-btn color="blue-darken-1" variant="flat"
                                                             @click="doSaveNewBooking">
                                                             Save
                                                         </v-btn>
@@ -747,6 +747,25 @@ const DashboardAPI = {
 }
 </script>
 <style scoped>
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: lightgray;
+}
+
+.sticky-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background-color: lightgray;
+}
+
+.scrollable-content {
+  max-height: 950px;
+  overflow-y: auto;
+}
+
 .courseinfoColorRed {
     color: red;
 }

@@ -31,10 +31,10 @@
                   <v-btn color="primary" dark v-bind="props"><span class="mdi mdi-book-plus-multiple"></span> สร้างคอร์สใหม่</v-btn>
                 </template>
                 <v-card>
-                  <v-card-title>
+                  <v-card-title class="sticky-header">
                     <span class="mdi mdi-book-plus-multiple"></span><span>{{ formTitle }}</span>
                   </v-card-title>
-                  <v-card-text>
+                  <v-card-text class="scrollable-content">
                     <v-container>
                       <v-form ref="courseform">
                         <v-row>
@@ -97,12 +97,12 @@
                     </v-container>
                   </v-card-text>
 
-                  <v-card-actions>
+                  <v-card-actions class="sticky-footer">
                     <v-spacer></v-spacer>
-                    <v-btn color="blue-darken-1" variant="text" @click="close">
+                    <v-btn color="red-darken-1" variant="flat" @click="close">
                       Cancel
                     </v-btn>
-                    <v-btn color="blue-darken-1" variant="text" @click="save">
+                    <v-btn color="blue-darken-1" variant="flat" @click="save">
                       Save
                     </v-btn>
                   </v-card-actions>
@@ -244,6 +244,8 @@ export default {
         { title: 'Name', value: 'fullname' },
         { title: 'Class Date', value: 'classdate' },
         { title : 'Classtime', value: 'classtime'},
+        { title: 'CreateBy', value: 'createby' },
+        { title: 'UpdateBy', value: 'updateby' },
     ],
     CourseUsingtList: [],
     courselist: [],
@@ -758,5 +760,23 @@ export default {
 <style scoped>
 .highlighted-red {
   color: red;
+}
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: lightgray;
+}
+
+.sticky-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background-color: lightgray;
+}
+
+.scrollable-content {
+  max-height: 950px;
+  overflow-y: auto;
 }
 </style>

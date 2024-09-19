@@ -33,15 +33,14 @@
             <v-card>
                 <v-card-title class="text-h5">
                 </v-card-title>
-                <v-card-text>ต้องการจองคลาสสำหรับ {{ student.nickname }} <br> วันที่ {{ format_date(date) }} เวลา {{
-                                classtimeSelect.classtime }}</v-card-text>
+                <v-card-text><center>ต้องการจองคลาส {{ student.nickname }} <br> {{ format_date(date) }} <br> เวลา {{ classtimeSelect.classtime }}</center></v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="#4CAF50" variant="tonal" @click="submitReservation">
+                    <v-btn color="#4CAF50" size="large" variant="tonal" @click="submitReservation">
                         แน่นอน จองเลย!
                     </v-btn>
-                    <v-btn color="#F44336" variant="tonal" @click="questionDialog = false">
-                        เดี๋ยว! ขอคิดก่อน
+                    <v-btn color="#F44336" size="large" variant="tonal" @click="questionDialog = false">
+                        ยกเลิก
                     </v-btn>
                 </v-card-actions>
             </v-card>
@@ -244,9 +243,11 @@ export default {
         },
         format_date(value) {
             if (value) {
-                return moment(String(value)).format('DD/MM/YYYY')
+                const userLocale = navigator.language || 'en'; // ดึง locale จากการตั้งค่าของอุปกรณ์
+                return moment(String(value)).locale(userLocale).format('dddd D MMMM YYYY');
             }
         },
+        
     },
     computed: {
         ...mapGetters({

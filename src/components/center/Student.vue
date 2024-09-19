@@ -21,7 +21,7 @@
                         <v-icon left>mdi-refresh</v-icon>
                         รีเฟรช
                     </v-btn>
-                    <v-dialog v-model="dialogStudent" max-width="800px" style="z-index: 999">
+                    <v-dialog v-model="dialogStudent" max-width="1080px" style="z-index: 999">
                         <template v-slot:activator="{ props }">
                             <v-btn color="primary" dark v-bind="props"><span
                                     class="mdi mdi-emoticon-plus-outline"></span> เพิ่มนักเรียนใหม่</v-btn>
@@ -41,21 +41,21 @@
                         </v-dialog>
 
                         <v-card>
-                            <v-card-title>
+                            <v-card-title class="sticky-header">
                                 <span v-if="editedStudentIndex == -1" class="mdi mdi-emoticon-plus-outline"></span>
                                 <span v-if="editedStudentIndex != -1" class="mdi mdi-human-edit"></span>
                                 <span>{{ formStudentTitle }}</span>
                             </v-card-title>
-                            <v-card-text>
+                            <v-card-text class="scrollable-content">
                                 <v-container>
                                     <v-form ref="newstdform">
                                         <v-row>
-                                            <v-col cols="12" sm="12" md="12">
+                                            <v-col cols="12" sm="12" md="12" style="text-align: center;">
                                                 <div style="
-                            min-height: 150px;
-                            display: ruby-text;
-                            cursor: pointer;
-                          ">
+                                                    min-height: 150px;
+                                                    display: ruby-text;
+                                                    cursor: pointer;
+                                                ">
                                                     <v-img :src="imagePreview" class="info-photo rounded-circle"
                                                         width="150" height="150" @click="triggerFileInput">
                                                     </v-img>
@@ -166,12 +166,12 @@
                                 </v-container>
                             </v-card-text>
 
-                            <v-card-actions>
+                            <v-card-actions class="sticky-footer">
                                 <v-spacer></v-spacer>
-                                <v-btn color="blue-darken-1" variant="text" @click="closeStudent">
+                                <v-btn color="red-darken-1" variant="flat" @click="closeStudent">
                                     Cancel
                                 </v-btn>
-                                <v-btn color="blue-darken-1" variant="text" @click="doSaveNewStudent">
+                                <v-btn color="blue-darken-1" variant="flat" @click="doSaveNewStudent">
                                     Save
                                 </v-btn>
                             </v-card-actions>
@@ -282,6 +282,8 @@ export default {
                 { title: 'Name', value: 'fullname' },
                 { title: 'Class Date', value: 'classdate' },
                 { title : 'Classtime', value: 'classtime'},
+                { title: 'CreateBy', value: 'createby' },
+                { title: 'UpdateBy', value: 'updateby' },
             ],
             CourseUsingtList: [],
             base64Image: null,
@@ -911,6 +913,25 @@ const ComponentAPI = {
 
 .highlighted-red {
   color: red;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: lightgray;
+}
+
+.sticky-footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 10;
+  background-color: lightgray;
+}
+
+.scrollable-content {
+  max-height: 950px;
+  overflow-y: auto;
 }
 </style>
 ```

@@ -91,7 +91,8 @@ export default ({
                         if (success) {
                             if (results) {
                                 //console.log('results', results)
-                                this.bookingHeaders = Object.keys(results).map((key) => ({ title: key, key: key, sortable: false, align: 'center' }));
+                                this.bookingHeaders = Object.keys(results).map((key) => ({ title: key, key: key, sortable: false, align: "right"}));
+                                this.bookingHeaders.unshift({ title: 'No.', key: 'idx', sortable: false, align: "right"  })
                                 this.bookingList = this.formattedData(results)
                                 //console.log('bookingList'+ JSON.stringify(this.bookingList))
                                 //console.log('bookingHeaders'+ JSON.stringify(this.bookingHeaders))
@@ -153,7 +154,13 @@ export default ({
                 });
             });
 
-            return rows;
+            const formattedRows = rows.map((row, index) => ({
+                idx: index + 1, // Adding 1 to start from 1 instead of 0
+                ...row
+            }));
+
+            console.log('formattedData : ' + JSON.stringify(formattedRows))
+            return formattedRows;
         },
     },
     computed: {

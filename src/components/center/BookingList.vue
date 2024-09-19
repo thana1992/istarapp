@@ -8,15 +8,19 @@
             <v-card-text>การจองคลาส{{ classdate.toLocaleDateString('th-TH', options) }} </v-card-text>
           </v-list-item>
           <v-data-table :loading="loadingBooking" :headers="bookingHeaders" :items="bookingData" items-per-page="20" class="elevation-1">
-            <template v-slot:loading><v-skeleton-loader type="table-row@20"></v-skeleton-loader></template>
-            <template v-slot:no-data> No booking class </template>
+            <template v-slot:loading>
+              <v-skeleton-loader type="table-row@20"></v-skeleton-loader>
+            </template>
+            <template v-slot:no-data>
+              No booking class
+            </template>
             <template v-for="(header, index) in bookingHeaders" v-slot:[`item.${header.key}`]="{ item }">
-              <p :class="{ 'highlighted-cell': item[header.key] != null && item[header.key].indexOf('(1)') > -1 }" style="white-space: normal;">
-                {{ item[header.key] != null && item[header.key].indexOf('(1)') > -1 ? item[header.key].replace("(1)", "") :
-              item[header.key] }}
-              </p>
+              <td :class="{ 'highlighted-cell': typeof item[header.key] === 'string' && item[header.key].includes('(1)') }" style="white-space: normal;" name="col-center">
+                {{ typeof item[header.key] === 'string' && item[header.key].includes('(1)') ? item[header.key].replace('(1)', '') : item[header.key] }}
+              </td>
             </template>
           </v-data-table>
+
         </v-card>
       </v-col>
     </v-row>
@@ -131,4 +135,13 @@ const BookingListAPI = {
 .highlighted-cell {
   color: rgb(70, 200, 70);
 }
+
+.hover-cell {
+  transition: background-color 0.3s;
+}
+
+.hover-cell:hover {
+  background-color: rgba(0, 0, 0, 0.1); /* เปลี่ยนสีพื้นหลังเมื่อ hover */
+}
+
 </style>
