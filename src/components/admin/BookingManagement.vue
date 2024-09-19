@@ -237,6 +237,7 @@ export default ({
             loadingCourse: false,
             loadingClassTime: false,
             BookingList: [],
+            courserefer: '',
             BookingListHeaders: [
                 { title: 'ชื่อ', key: 'fullname' },
                 { title: 'ชื่อคอร์ส', key: 'coursename' },
@@ -327,6 +328,7 @@ export default ({
                         if (res) {
                             this.courseinfoColor = 'courseinfoColorGreen'
                             this.editedBookingItem.courseid = res.courseid
+                            this.courserefer = res.courserefer
                             if (res.coursetype == 'Monthly') {
                                 this.editedBookingItem.courseinfo = 'หมายเลขคอร์ส: ' + res.courserefer + ' วันหมดอายุ: ' + this.format_date(res.expiredate) + ' รายเดือน'
                             } else {
@@ -566,6 +568,7 @@ export default ({
             await axios.post(this.baseURL + '/cancelBookingByAdmin', {
                 reservationid: this.editedBookingItem.reservationid,
                 studentid: this.editedBookingItem.studentid,
+                courserefer: this.courserefer,
             },
                 {
                     headers: { Authorization: `Bearer ${token}`, }
