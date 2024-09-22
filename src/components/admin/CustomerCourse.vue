@@ -715,46 +715,47 @@ export default {
         return result;
     },
     calExpireText(expdate) {
-        if(!expdate) return '';
-        const today = new Date();
-        const expirationDate = new Date(expdate);
-        let returnText = ''
-        if (expirationDate < today) {
-          returnText = 'หมดอายุ';
-        } else {
+      if (!expdate) return '';
+      const today = new Date();
+      const expirationDate = new Date(expdate);
+      let returnText = '';
 
+      if (expirationDate < today) {
+          returnText = 'หมดอายุ';
+      } else {
+          let years = expirationDate.getFullYear() - today.getFullYear();
           let months = expirationDate.getMonth() - today.getMonth();
           let days = expirationDate.getDate() - today.getDate();
-          let years = expirationDate.getFullYear() - today.getFullYear();
 
+          // Adjust days if negative
           if (days < 0) {
               months -= 1;
               days += new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate(); // จำนวนวันในเดือนปัจจุบัน
           }
 
+          // Adjust months if negative
           if (months < 0) {
               years -= 1;
               months += 12;
           }
 
           if (years > 0) {
-              months += years * 12;
+              returnText += `${years} ปี `;
           }
-          
           if (months > 0) {
               returnText += `${months} เดือน `;
           }
           if (days > 0) {
               returnText += `${days} วัน`;
           }
-        }
+      }
 
-        console.log('today', this.format_date(today, 'YYYY-MM-DD'));
-        console.log('expirationDate', this.format_date(expirationDate, 'YYYY-MM-DD'));
-        console.log('returnText', returnText);
-        return returnText;
-    },
-  },
+      console.log('today', this.format_date(today, 'YYYY-MM-DD'));
+      console.log('expirationDate', this.format_date(expirationDate, 'YYYY-MM-DD'));
+      console.log('returnText', returnText);
+      return returnText;
+    }
+  }
 };
 </script>
 <style scoped>

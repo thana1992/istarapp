@@ -798,44 +798,45 @@ export default {
             return result;
         },
         calExpireText(expdate) {
-            if(!expdate) return '';
+            if (!expdate) return '';
             const today = new Date();
             const expirationDate = new Date(expdate);
-            //console.log('today', this.format_date(today, 'YYYY-MM-DD'));
-            //console.log('expirationDate', this.format_date(expirationDate, 'YYYY-MM-DD'));
+            let returnText = '';
 
             if (expirationDate < today) {
-                return 'หมดอายุ';
+                returnText = 'หมดอายุ';
+            } else {
+                let years = expirationDate.getFullYear() - today.getFullYear();
+                let months = expirationDate.getMonth() - today.getMonth();
+                let days = expirationDate.getDate() - today.getDate();
+
+                // Adjust days if negative
+                if (days < 0) {
+                    months -= 1;
+                    days += new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate(); // จำนวนวันในเดือนปัจจุบัน
+                }
+
+                // Adjust months if negative
+                if (months < 0) {
+                    years -= 1;
+                    months += 12;
+                }
+
+                if (years > 0) {
+                    returnText += `${years} ปี `;
+                }
+                if (months > 0) {
+                    returnText += `${months} เดือน `;
+                }
+                if (days > 0) {
+                    returnText += `${days} วัน`;
+                }
             }
 
-            let months = expirationDate.getMonth() - today.getMonth();
-            let days = expirationDate.getDate() - today.getDate();
-            let years = expirationDate.getFullYear() - today.getFullYear();
-
-            if (days < 0) {
-                months -= 1;
-                days += new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate(); // จำนวนวันในเดือนปัจจุบัน
-            }
-
-            if (months < 0) {
-                years -= 1;
-                months += 12;
-            }
-
-            if (years > 0) {
-                months += years * 12;
-            }
-            
-            let returnText = ''
-            if (months > 0) {
-                returnText += `${months} เดือน `;
-            }
-            if (days > 0) {
-                returnText += `${days} วัน`;
-            }
-            //console.log('returnText', returnText);
+            console.log('today', this.format_date(today, 'YYYY-MM-DD'));
+            console.log('expirationDate', this.format_date(expirationDate, 'YYYY-MM-DD'));
+            console.log('returnText', returnText);
             return returnText;
-            
         },
     },
     watch: {
