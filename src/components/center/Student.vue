@@ -865,7 +865,7 @@ export default {
                 : "Edit student information";
         },
         profileAvatar() {
-            return require("@/assets/avatar/2.png");
+            return this.editedStudentItem.gender == 'ชาย' ? require("@/assets/avatar/4.png") : require("@/assets/avatar/2.png");
         },
     },
 };
