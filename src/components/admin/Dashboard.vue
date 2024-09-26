@@ -56,7 +56,7 @@
                             </v-list-item>
                         </v-card>
                     </v-col>
-                    <v-col cols="12" sm="6" md="3" xl="3">
+                    <v-col cols="12" sm="6" md="2" xl="2">
                         <v-card :class="pulse" link @click="onClickCardNewStudent">
                             <v-list-item class="header-card" height="60">
                                 <div>Approve New Students <span class=""></span></div>
@@ -88,27 +88,35 @@
                             </v-list-item>
                         </v-card>
                     </v-col> -->
-                    <v-col cols="12" sm="2" md="1" xl="1">
-                        <v-card class="mx-auto booking-btn-card" link @click="onClickBtn">
-                            <v-list-item class="btn-card">
+                    <v-col sm="3" md="2" xl="1">
+                        <v-card class="mx-auto" link @click="onClickBtn">
+                            <v-list-item class="btn-card-1">
                                 <div style="text-align: center;">BUTTON</div>
-                                <div class="btn-booking-icon"><span class="mdi mdi-account-star"></span></div>
+                                <div class="btn-card-icon"><span class="mdi mdi-weather-night"></span></div>
                             </v-list-item>
                         </v-card>
                     </v-col>
-                    <v-col cols="12" sm="2" md="1" xl="1">
-                        <v-card class="mx-auto booking-btn-card" link @click="onClickBtn">
-                            <v-list-item class="btn-card">
+                    <v-col sm="3" md="2" xl="1">
+                        <v-card class="mx-auto" link @click="onClickBtn">
+                            <v-list-item class="btn-card-2">
                                 <div style="text-align: center;">BUTTON</div>
-                                <div class="btn-booking-icon"><span class="mdi mdi-account-cowboy-hat-outline"></span></div>
+                                <div class="btn-card-icon"><span class="mdi mdi-star-shooting"></span></div>
                             </v-list-item>
                         </v-card>
                     </v-col>
-                    <v-col cols="12" sm="2" md="1" xl="1">
-                        <v-card class="mx-auto booking-btn-card" link @click="onClickNewBooking">
-                            <v-list-item class="booking-btn-card">
+                    <v-col sm="3" md="2" xl="1">
+                        <v-card class="mx-auto" link @click="onClickBtn">
+                            <v-list-item class="btn-card-3">
+                                <div style="text-align: center;">BUTTON</div>
+                                <div class="btn-card-icon"><span class="mdi mdi-star-face"></span></div>
+                            </v-list-item>
+                        </v-card>
+                    </v-col>
+                    <v-col sm="3" md="2" xl="1">
+                        <v-card class="mx-auto" link @click="onClickNewBooking">
+                            <v-list-item class="btn-card-4">
                                 <div style="text-align: center;">BOOKING</div>
-                                <div class="btn-booking-icon"><span class="mdi mdi-calendar-plus"></span></div>
+                                <div class="btn-card-icon"><span class="mdi mdi-star-plus"></span></div>
                             </v-list-item>
                         </v-card>
                     </v-col>
@@ -180,6 +188,80 @@
             </v-card>
         </template>
     </v-dialog>
+
+    <v-dialog v-model="dialogNewBooking" max-width="800px">
+        <v-card>
+            <v-card-title class="sticky-header">
+                <span v-if="editedBookingIndex == -1"
+                    class="mdi mdi-emoticon-plus-outline"></span>
+                <span v-if="editedBookingIndex != -1"
+                    class="mdi mdi-human-edit"></span>
+                <span>{{ formBookingTitle }}</span>
+            </v-card-title>
+            <v-card-text class="scrollable-content">
+                <v-container>
+                    <v-form ref="bookingform">
+                        <v-row>
+                            <v-col cols="12" sm="12" md="12">
+                                <v-label :class="courseinfoColor">{{ editedBookingItem.courseinfo }}</v-label>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="6">
+                                <v-autocomplete v-model="editedBookingItem.studentid"
+                                    label="Name" item-title="name"
+                                    item-value="studentid"
+                                    :items="studentLookup" variant="solo-filled"
+                                    no-data-text="No student data"
+                                    :rules="notNullRules"
+                                    @update:modelValue="onStudentChange"
+                                    :readonly="editedBookingIndex != -1"
+                                    filterable
+                                    required>
+                                </v-autocomplete>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="6">
+                                <v-select v-model="editedBookingItem.courseid"
+                                    label="Course Name" item-title="coursename"
+                                    item-value="courseid" :items="courseLookup"
+                                    variant="solo-filled"
+                                    no-data-text="No course data"
+                                    :rules="notNullRules"
+                                    :loading="loadingCourse"
+                                    @update:modelValue="getClassTime"
+                                    required></v-select>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="4">
+                                <DatePicker label="Class date"
+                                    v-model="selectBookingDate" variant="solo-filled"
+                                    @update:modelValue="getClassTime" :rules="requireRules">
+                                </DatePicker>
+                            </v-col>
+                            <v-col cols="12" sm="6" md="6">
+                                <v-select v-model="editedBookingItem.classtime"
+                                    label="Class time" item-title="text"
+                                    item-value="classid" :items="classtimesData"
+                                    variant="solo-filled" :rules="notNullRules"
+                                    no-data-text="No class data"
+                                    :loading="loadingClassTime"
+                                    return-object="true" required></v-select>
+                            </v-col>
+                        </v-row>
+                    </v-form>
+                </v-container>
+            </v-card-text>
+
+            <v-card-actions class="sticky-footer">
+                <v-spacer></v-spacer>
+                <v-btn color="red-darken-1" variant="flat"
+                    @click="clickCancelNewBooking">
+                    Cancel
+                </v-btn>
+                <v-btn color="blue-darken-1" variant="flat"
+                    @click="doSaveNewBooking">
+                    Save
+                </v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
     <!-- <vue3-autocounter ref='counter' :startAmount='0' :endAmount='3' :duration='1' prefix='$' suffix='USD' separator=',' :autoinit='true' /> -->
 </div>
 </template>
@@ -189,6 +271,7 @@ import DatePicker from '@/components/DatePicker.vue'
 import Student from '../center/Student.vue'
 import BookingList from '../center/BookingList.vue'
 import ApproveNewStudent from './ApproveNewStudent.vue'
+import BookingManagement from './BookingManagement.vue'
 import moment from 'moment'
 import { mapGetters } from 'vuex';
 import Vue3autocounter from 'vue3-autocounter';
@@ -198,6 +281,7 @@ export default ({
         Student,
         BookingList,
         ApproveNewStudent,
+        BookingManagement,
         'vue3-autocounter': Vue3autocounter
     },
     data() {
@@ -215,13 +299,39 @@ export default ({
             totalWaitingNewStudents: 0,
             totalWaitCancelBooking: 0,
             pulse: '',
-
             bookingList: [],
             bookingHeaders: [],
             loadingBooking: false,
-
             state: 'bookinglist',
-            notNullRules: [v => !!v || 'This field is required',]
+            notNullRules: [v => !!v || 'This field is required',],
+
+            loadingCourse: false,
+            editedBookingIndex: -1,
+            dialogNewBooking: false,
+            selectBookingDate: null,
+            classtimesData: [],
+            editedBookingItem: {
+                fullname: null,
+                reservationid: null,
+                studentid: null,
+                courseid: null,
+                classid: null,
+                classdate: null,
+                classtime: null,
+                courseinfo: null,
+                courserefer: null,
+            },
+            defaultBookingItem: {
+                fullname: null,
+                reservationid: null,
+                studentid: null,
+                courseid: null,
+                classid: null,
+                classdate: null,
+                classtime: null,
+                courseinfo: null,
+                courserefer: null,
+            },
         }
     },
 
@@ -289,6 +399,8 @@ export default ({
             */
             await this.refreshCardDashboard()
             await this.getBookingList()
+            await this.getCourseLookup()
+            await this.getStudentLookup()
         },
         refreshData() {
             console.log('refreshData : ' + new Date())
@@ -376,6 +488,214 @@ export default ({
                     }
                 });
         },
+        async getStudentLookup() {
+            const token = this.$store.getters.getToken;
+            await axios
+                .post(this.baseURL + '/studentLookup', {}, { headers: { Authorization: `Bearer ${token}`, } },)
+                .then(response => {
+                    console.dir('studentLookup', response);
+                    if (response.data.success) {
+                        this.studentLookup = response.data.results
+                    }
+                })
+                .catch(error => {
+                    if (error.response.status == 401) {
+                        this.$emit('onErrorHandler', error.response.data.message)
+                        this.$emit('onClickChangeState', 'login')
+                    } else {
+                        this.$emit('onErrorHandler', error.message)
+                    }
+                });
+        },
+        async onStudentChange(studentid) {
+            console.log('Student selected:', studentid);
+            this.loadingCourse = true
+            const token = this.$store.getters.getToken;
+            await axios.post(this.baseURL + '/getCustomerCourseInfo', {
+                studentid: this.editedBookingItem.studentid,
+            },
+                {
+                    headers: { Authorization: `Bearer ${token}`, }
+                })
+                .then(response => {
+                    //console.dir(response);
+                    if (response.data.success) {
+                        console.log('getCustomerCourseInfo', response.data.results);
+                        const res = response.data.results[0];
+                        if (res) {
+                            this.courseinfoColor = 'courseinfoColorGreen'
+                            this.editedBookingItem.courseid = res.courseid
+                            if (res.coursetype == 'Monthly') {
+                                this.editedBookingItem.courseinfo = 'หมายเลขคอร์ส: ' + res.courserefer + ' วันหมดอายุ: ' + this.format_date(res.expiredate) + ' รายเดือน'
+                            } else {
+                                this.editedBookingItem.courseinfo = 'หมายเลขคอร์ส: ' + res.courserefer + ' วันหมดอายุ: ' + this.format_date(res.expiredate) + ' เหลือ: ' + res.remaining + ' ครั้ง'
+                            }
+                        } else {
+                            this.courseinfoColor = 'courseinfoColorRed'
+                            this.editedBookingItem.courseinfo = 'นักเรียนคนนี้ยังไม่มี Course ที่สมัครเรียน'
+                            this.editedBookingItem.courseid = null
+                        }
+                    } else {
+                        this.$emit('onErrorHandler', 'getCustomerCourseInfo failed');
+                    }
+                })
+                .catch(error => {
+                    console.log(error)
+                    if (error.response && error.response.status == 401) {
+                        this.$emit('onErrorHandler', error.response.data.message)
+                        this.$emit('onClickChangeState', 'login')
+                    } else {
+                        this.$emit('onErrorHandler', error.message)
+                    }
+                });
+            this.loadingCourse = false
+        },
+        async getClassTime() {
+            if (this.editedBookingItem.courseid == null) return;
+            if (this.selectBookingDate == null) return;
+            this.loadingClassTime = true
+            this.classtimesData = []
+            let req = {
+                classdate: this.SQLDate(this.selectBookingDate),
+                classday: new Date(this.selectBookingDate).toLocaleDateString('en-US', { weekday: 'long' }),
+                courseid: this.editedBookingItem.courseid
+            }
+            console.log("request", req)
+            const token = this.$store.getters.getToken;
+            await axios.post(this.baseURL + '/getClassTime', req, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+                .then(response => {
+                    console.dir(response);
+                    if (response.data.success) {
+                        const data = response.data.results
+                        if (data.length == 0) {
+                            this.classtimesData = []
+                            this.editedBookingItem.classtime = null
+                        } else {
+                            this.classtimesData = data;
+                            if (this.editedBookingItem.classtime != null) {
+                                if (typeof this.editedBookingItem.classtime === 'object' && this.editedBookingItem.classtime !== null) {
+                                    this.editedBookingItem.classtime = this.classtimesData.find(x => x.classtime == this.editedBookingItem.classtime.classtime)
+                                } else {
+                                    this.editedBookingItem.classtime = this.classtimesData.find(x => x.classtime == this.editedBookingItem.classtime)
+                                }
+                            }
+                        }
+                    } else {
+                        this.classtimesData = []
+                        this.editedBookingItem.classtime = null
+                    }
+                    this.loadingClassTime = false
+                })
+
+        },
+        async getCourseLookup() {
+            const token = this.$store.getters.getToken;
+            await axios
+                .get(this.baseURL + '/courseLookup', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    }
+                })
+                .then(response => {
+                    //console.dir(response);
+                    if (response.data.success) {
+                        this.courseLookup = response.data.results
+                    }
+                })
+                .catch(error => {
+                    if (error.response.status == 401) {
+                        this.$emit('onErrorHandler', error.response.data.message)
+                        this.$emit('onClickChangeState', 'login')
+                    } else {
+                        this.$emit('onErrorHandler', error.message)
+                    }
+                });
+        },
+        clickCancelNewBooking() {
+            this.dialogNewBooking = false
+            setTimeout(() => {
+                this.$nextTick(() => {
+                    this.editedBookingItem = Object.assign({}, this.defaultBookingItem)
+                    this.selectBookingDate = null
+                    this.editedBookingIndex = -1
+                    this.classtimesData = []
+                })
+            }, 300)
+        },
+        async doSaveNewBooking() {
+            this.$emit('onLoading', true)
+            const { valid } = await this.$refs.bookingform.validate()
+            
+            if (valid) {
+                this.$emit('onLoading', true)
+                // Make API request to register the user
+                const BookingObj = {
+                    studentid: this.editedBookingItem.studentid,
+                    courseid: this.editedBookingItem.courseid,
+                    classid: this.editedBookingItem.classtime.classid,
+                    classdate: this.SQLDate(this.selectBookingDate),
+                    classtime: this.editedBookingItem.classtime.classtime,
+                    classday: this.editedBookingItem.classtime.classday,
+                    reservationid: this.editedBookingItem.reservationid,
+                }
+                console.log(this.editedBookingIndex + ' BookingObj : ', BookingObj)
+
+                const token = this.$store.getters.getToken;
+                if (this.editedBookingIndex > -1) {
+                    BookingObj.reservationid = this.editedBookingItem.reservationid
+                    await axios
+                        .post(this.baseURL + '/updateBookingByAdmin', BookingObj, { headers: { Authorization: `Bearer ${token}`, } })
+                        .then(response => {
+                            if (response.data.success) {
+                                this.$emit('onInfoHandler', 'แก้ไขข้อมูลสำเร็จแล้ว');
+                                this.getBookingList()
+                                this.dialogNewBooking = false
+                            } else {
+                                this.$emit('onErrorHandler', response.data.message || 'แก้ไขข้อมูลไม่สำเร็จ ลองใหม่อีกครั้งนะ');
+                            }
+                        })
+                        .catch(error => {
+                            if (error.response.status == 401) {
+                                this.$emit('onErrorHandler', error.response.data.message)
+                                this.$emit('onClickChangeState', 'login')
+                            } else {
+                                this.$emit('onErrorHandler', error.message)
+                            }
+                        });
+                } else {
+                    await axios
+                        .post(this.baseURL + '/addBookingByAdmin', BookingObj, { headers: { Authorization: `Bearer ${token}`, } })
+                        .then(response => {
+                            if (response.data.success) {
+                                this.$emit('onInfoHandler', 'เพิ่มการจองคลาสสำเร็จแล้ว');
+                                this.getBookingList()
+                                this.dialogNewBooking = false
+                            } else {
+                                this.$emit('onErrorHandler', response.data.message || 'เพิ่มการจองคลาสไม่สำเร็จ ลองใหม่อีกครั้งนะ');
+                            }
+                            this.$emit('onUpdateDataSuccess')
+                        })
+                        .catch(error => {
+                            if (error.response.status == 401) {
+                                this.$emit('onErrorHandler', error.response.data.message)
+                                this.$emit('onClickChangeState', 'login')
+                            } else {
+                                this.$emit('onErrorHandler', error.message)
+                            }
+                        });
+                }
+                this.$emit('onLoading', false)
+            } else {
+                this.$emit('onErrorHandler', 'กรุณากรอกข้อมูลให้ครบถ้วน')
+                this.$emit('onLoading', false)
+                return
+            }
+
+        },
         onClickCardTotalStudent() {
             this.state = 'studentlist'
             this.refreshData()
@@ -399,7 +719,9 @@ export default ({
             return date;
         },
         async onClickNewBooking() {
-            this.$emit('onErrorHandler', 'แปบนึงนะ ยังใช้ไม่ได้ เดี๋ยวรีบทำให้นะ')
+            await this.getStudentLookup()
+            this.dialogNewBooking = true
+            //this.$emit('onErrorHandler', 'แปบนึงนะ ยังใช้ไม่ได้ เดี๋ยวรีบทำให้นะ')
         },
         async onClickBtn() {
             this.$emit('onErrorHandler', 'มันต้องเป็นปุ่มอะไรสักอย่างแหละ ถ้าคิดออกแล้วจะทำให้ เสนอมาได้นะ ว่าอยากได้อะไร')
@@ -537,8 +859,10 @@ export default ({
     computed: {
         ...mapGetters({
             token: 'getToken',
-        })
-
+        }),
+        formBookingTitle() {
+            return this.editedBookingIndex === -1 ? 'Add a new booking' : 'Edit booking information'
+        },
     }
 })
 import { Promise } from 'core-js';
@@ -594,18 +918,27 @@ button span.mdi,
     color: black;
 }
 
-.booking-btn-card {
-    background-color: #00e1ff;
+.btn-card-icon {
+    font-size: 30px;
+    text-align: center;
+}
+.btn-card-1 {
+    background-color: #ff6868;
     color: black;
     height: 150px;
 }
-.btn-booking-icon {
-    font-size: 25px;
-    text-align: center;
+.btn-card-2 {
+    background-color: #f1ca5d;
+    color: black;
+    height: 150px;
 }
-
-.btn-card {
-    background-color: #ff6868;
+.btn-card-3 {
+    background-color: burlywood;
+    color: black;
+    height: 150px;
+}
+.btn-card-4 {
+    background-color: #8ffbff;
     color: black;
     height: 150px;
 }

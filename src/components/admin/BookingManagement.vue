@@ -62,8 +62,7 @@
                                                             <v-form ref="bookingform">
                                                                 <v-row>
                                                                     <v-col cols="12" sm="12" md="12">
-                                                                        <v-label :class="courseinfoColor">{{
-                                        editedBookingItem.courseinfo }}</v-label>
+                                                                        <v-label :class="courseinfoColor">{{ editedBookingItem.courseinfo }}</v-label>
                                                                     </v-col>
                                                                     <v-col cols="12" sm="6" md="6">
                                                                         <v-autocomplete v-model="editedBookingItem.studentid"

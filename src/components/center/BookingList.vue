@@ -15,9 +15,19 @@
               No booking class
             </template>
             <template v-for="(header, index) in bookingHeaders" v-slot:[`item.${header.key}`]="{ item }">
-              <td :class="{ 'highlighted-cell': typeof item[header.key] === 'string' && item[header.key].includes('(1)') }" style="white-space: normal;" name="col-center">
-                {{ typeof item[header.key] === 'string' && item[header.key].includes('(1)') ? item[header.key].replace('(1)', '') : item[header.key] }}
-              </td>
+              <td 
+    :class="{
+      'highlighted-cell': typeof item[header.key] === 'string' && item[header.key].includes('(1)'),
+      'bold-cell': typeof item[header.key] === 'number'
+    }" 
+    style="white-space: normal;" name="col-center"
+  >
+    {{ 
+      typeof item[header.key] === 'string' && item[header.key].includes('(1)')
+        ? item[header.key].replace('(1)', '') 
+        : item[header.key] 
+    }}
+  </td>
             </template>
           </v-data-table>
 
@@ -130,6 +140,10 @@ const BookingListAPI = {
 .header-card {
   background-color: #eeeeee;
   color: black;
+}
+
+.bold-cell {
+  font-weight: bold;
 }
 
 .highlighted-cell {
