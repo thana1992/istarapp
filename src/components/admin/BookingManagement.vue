@@ -134,7 +134,7 @@
                                                     </v-card-actions>
                                                 </v-card>
                                             </v-dialog>
-                                            <v-dialog v-model="dialogBookingCheckin" persistent width="auto">
+                                            <v-dialog v-model="dialogCheckin" persistent width="auto">
                                                 <v-card>
                                                     <v-card-title></v-card-title>
                                                     <v-card-text>ต้องการ Check-in สำหรับ {{ editedBookingItem.fullname
@@ -142,9 +142,25 @@
                                                     <v-card-actions>
                                                         <v-spacer></v-spacer>
                                                         <v-btn color="#4CAF50" variant="tonal"
-                                                            @click="clickConfirmCheckinBooking">Yes</v-btn>
+                                                            @click="clickConfirmCheckinDialog">Yes</v-btn>
                                                         <v-btn color="#F44336" variant="tonal"
-                                                            @click="clickCancelCheckinBooking">Cancel</v-btn>
+                                                            @click="clickCancelCheckinDialog">Cancel</v-btn>
+
+                                                        <v-spacer></v-spacer>
+                                                    </v-card-actions>
+                                                </v-card>
+                                            </v-dialog>
+                                            <v-dialog v-model="dialogUndoCheckin" persistent width="auto">
+                                                <v-card>
+                                                    <v-card-title></v-card-title>
+                                                    <v-card-text>ต้องการ ยกเลิก Check-in สำหรับ {{ editedBookingItem.fullname
+                                                        }} ?</v-card-text>
+                                                    <v-card-actions>
+                                                        <v-spacer></v-spacer>
+                                                        <v-btn color="#4CAF50" variant="tonal"
+                                                            @click="clickConfirmUndoCheckinDialog">Yes</v-btn>
+                                                        <v-btn color="#F44336" variant="tonal"
+                                                            @click="clickCancelUndoCheckinDialog">Cancel</v-btn>
 
                                                         <v-spacer></v-spacer>
                                                     </v-card-actions>
@@ -153,15 +169,17 @@
                                         </v-toolbar>
                                     </template>
                                     <template v-slot:item.edit="{ item }">
-                                        <v-icon v-if="parseInt(item.checkedin) == '0'" size="large" color="info"
+                                        <v-icon size="large" color="info"
                                             @click="clickEditBooking(item)">mdi-pencil</v-icon>
                                     </template>
                                     <template v-slot:item.checkin="{ item }">
                                         <v-icon v-if="parseInt(item.checkedin) == '0'" size="large"
-                                            @click="clickCheckinBooking(item)">mdi-check-bold</v-icon>
+                                            @click="clickCheckin(item)">mdi-check-bold</v-icon>
+                                        <v-icon v-else-if="parseInt(item.checkedin) == '1'" size="large"
+                                            @click="clickUndoCheckin(item)">mdi-close-thick</v-icon>
                                     </template>
                                     <template v-slot:item.delete="{ item }">
-                                        <v-icon v-if="parseInt(item.checkedin) == '0'" size="large" color="error"
+                                        <v-icon size="large" color="error"
                                             @click="deleteBookingItem(item)">mdi-delete-forever</v-icon>
                                     </template>
                                     <template v-slot:loading><v-skeleton-loader
@@ -271,9 +289,10 @@ export default ({
             selectedDate: null,
             editedBookingIndex: -1,
             dialogBookingEdit: false,
-            dialogBookingCheckin: false,
+            dialogCheckin: false,
             dialogBookingDelete: false,
             loadingBooking: false,
+            dialogUndoCheckin: false,
             state: 'bookinglist',
 
             notNullRules: [v => !!v || 'This field is required',]
@@ -531,7 +550,7 @@ export default ({
             this.editedBookingItem = Object.assign({}, item)
             this.dialogBookingDelete = true
         },
-        async clickConfirmCheckinBooking() {
+        async clickConfirmCheckinDialog() {
             this.$emit('onLoading', true)
             const token = this.$store.getters.getToken;
             await axios.post(this.baseURL + '/checkinByAdmin', {
@@ -548,7 +567,7 @@ export default ({
                     } else {
                         this.$emit('onErrorHandler', response.data.message || 'Check-in failed');
                     }
-                    this.dialogBookingCheckin = false
+                    this.dialogCheckin = false
                     this.getReservationList()
                 })
                 .catch(error => {
@@ -561,7 +580,36 @@ export default ({
                 });
             this.$emit('onLoading', false)
         },
-
+        async clickConfirmUndoCheckinDialog() {
+            this.$emit('onLoading', true)
+            const token = this.$store.getters.getToken;
+            await axios.post(this.baseURL + '/undoCheckinByAdmin', {
+                reservationid: this.editedBookingItem.reservationid,
+                studentid: this.editedBookingItem.studentid,
+            },
+                {
+                    headers: { Authorization: `Bearer ${token}`, }
+                })
+                .then(response => {
+                    //console.dir(response);
+                    if (response.data.success) {
+                        this.$emit('onInfoHandler', 'Cancel Check-in Successful');
+                    } else {
+                        this.$emit('onErrorHandler', response.data.message || 'Cancel Check-in failed');
+                    }
+                    this.dialogCheckin = false
+                    this.getReservationList()
+                })
+                .catch(error => {
+                    if (error.response.status == 401) {
+                        this.$emit('onErrorHandler', error.response.data.message)
+                        this.$emit('onClickChangeState', 'login')
+                    } else {
+                        this.$emit('onErrorHandler', error.message)
+                    }
+                });
+            this.$emit('onLoading', false)
+        },
         async clickConfirmDeleteBooking() {
             this.$emit('onLoading', true)
             const token = this.$store.getters.getToken;
@@ -602,14 +650,29 @@ export default ({
             this.getClassTime();
             this.dialogBookingEdit = true
         },
-        clickCheckinBooking(item) {
-            console.log('clickCheckinBooking', item)
+        clickCheckin(item) {
+            console.log('clickCheckin', item)
             this.editedBookingIndex = this.BookingList.indexOf(item)
             this.editedBookingItem = Object.assign({}, item)
-            this.dialogBookingCheckin = true
+            this.dialogCheckin = true
         },
-        clickCancelCheckinBooking() {
-            this.dialogBookingCheckin = false
+        clickUndoCheckin(item) {
+            console.log('clickUndoCheckin', item)
+            this.editedBookingIndex = this.BookingList.indexOf(item)
+            this.editedBookingItem = Object.assign({}, item)
+            this.dialogUndoCheckin = true
+        },
+        clickCancelCheckinDialog() {
+            this.dialogCheckin = false
+            setTimeout(() => {
+                this.$nextTick(() => {
+                    this.editedBookingItem = Object.assign({}, this.defaultBookingItem)
+                    this.editedBookingIndex = -1
+                })
+            }, 300)
+        },
+        clickCancelUndoCheckinDialog() {
+            this.dialogUndoCheckin = false
             setTimeout(() => {
                 this.$nextTick(() => {
                     this.editedBookingItem = Object.assign({}, this.defaultBookingItem)
@@ -692,8 +755,11 @@ export default ({
         dialogBookingEdit(val) {
             val || this.clickCancelEditBooking()
         },
-        dialogBookingCheckin(val) {
-            val || this.clickCancelCheckinBooking()
+        dialogCheckin(val) {
+            val || this.clickCancelCheckinDialog()
+        },
+        dialogUndoCheckin(val) {
+            val || this.clickCancelUndoCheckinDialog()
         },
         dialogBookingDelete(val) {
             val || this.clickCancelDeleteBooking()
