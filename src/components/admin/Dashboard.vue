@@ -72,7 +72,7 @@
                             </v-list-item>
                         </v-card>
                     </v-col>
-                    <v-col cols="12" sm="6" md="3" xl="3">
+                    <!-- <v-col cols="12" sm="2" md="2" xl="2">
                         <v-card class="mx-auto" link>
                             <v-list-item class="header-card" height="60">
                                 <div>Approve Cancel booking</div>
@@ -85,6 +85,30 @@
                                 </v-list-item-title>
                                 <v-list-item-subtitle>Bookings</v-list-item-subtitle>
                                 <span class="mdi mdi-account-multiple-check"></span>
+                            </v-list-item>
+                        </v-card>
+                    </v-col> -->
+                    <v-col cols="12" sm="2" md="1" xl="1">
+                        <v-card class="mx-auto booking-btn-card" link @click="onClickBtn">
+                            <v-list-item class="btn-card">
+                                <div style="text-align: center;">BUTTON</div>
+                                <div class="btn-booking-icon"><span class="mdi mdi-account-star"></span></div>
+                            </v-list-item>
+                        </v-card>
+                    </v-col>
+                    <v-col cols="12" sm="2" md="1" xl="1">
+                        <v-card class="mx-auto booking-btn-card" link @click="onClickBtn">
+                            <v-list-item class="btn-card">
+                                <div style="text-align: center;">BUTTON</div>
+                                <div class="btn-booking-icon"><span class="mdi mdi-account-cowboy-hat-outline"></span></div>
+                            </v-list-item>
+                        </v-card>
+                    </v-col>
+                    <v-col cols="12" sm="2" md="1" xl="1">
+                        <v-card class="mx-auto booking-btn-card" link @click="onClickNewBooking">
+                            <v-list-item class="booking-btn-card">
+                                <div style="text-align: center;">BOOKING</div>
+                                <div class="btn-booking-icon"><span class="mdi mdi-calendar-plus"></span></div>
                             </v-list-item>
                         </v-card>
                     </v-col>
@@ -374,6 +398,12 @@ export default ({
             date.setDate(date.getDate() + 1);
             return date;
         },
+        async onClickNewBooking() {
+            this.$emit('onErrorHandler', 'แปบนึงนะ ยังใช้ไม่ได้ เดี๋ยวรีบทำให้นะ')
+        },
+        async onClickBtn() {
+            this.$emit('onErrorHandler', 'มันต้องเป็นปุ่มอะไรสักอย่างแหละ ถ้าคิดออกแล้วจะทำให้ เสนอมาได้นะ ว่าอยากได้อะไร')
+        },
         async getBookingList() {
             // Call the API and set the bookingList object
             this.loadingBooking = true
@@ -564,6 +594,21 @@ button span.mdi,
     color: black;
 }
 
+.booking-btn-card {
+    background-color: #00e1ff;
+    color: black;
+    height: 150px;
+}
+.btn-booking-icon {
+    font-size: 25px;
+    text-align: center;
+}
+
+.btn-card {
+    background-color: #ff6868;
+    color: black;
+    height: 150px;
+}
 .fade-enter-active,
 .fade-leave-active {
     transition: opacity 0.5s ease;

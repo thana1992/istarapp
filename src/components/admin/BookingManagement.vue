@@ -33,13 +33,17 @@
                                 </v-card-title>
 
                                 <v-divider></v-divider>
-                                <v-data-table fixed-header height="580" :loading="loadingBooking"
+                                <v-data-table fixed-header height="auto" :loading="loadingBooking"
                                     loading-text="Loading... Please wait" :headers="BookingListHeaders"
                                     :items="BookingList" :sort-by="[{ key: 'classtime', order: 'asc' }]"
                                     :search="search">
                                     <template v-slot:top>
                                         <v-toolbar flat>
                                             <v-toolbar-title>All class bookings today</v-toolbar-title>
+                                            <v-btn color="primary" @click="initialize">
+                                                <v-icon left>mdi-refresh</v-icon>
+                                                รีเฟรช
+                                            </v-btn>
                                             <v-dialog v-model="dialogBookingEdit" max-width="800px">
                                                 <template v-slot:activator="{ props }">
                                                     <v-btn color="primary" dark v-bind="props"><span
@@ -551,7 +555,6 @@ export default ({
             this.dialogBookingDelete = true
         },
         async clickConfirmCheckinDialog() {
-            this.$emit('onLoading', true)
             const token = this.$store.getters.getToken;
             await axios.post(this.baseURL + '/checkinByAdmin', {
                 reservationid: this.editedBookingItem.reservationid,
@@ -563,7 +566,7 @@ export default ({
                 .then(response => {
                     //console.dir(response);
                     if (response.data.success) {
-                        this.$emit('onInfoHandler', 'Check-in Successful');
+                        //this.$emit('onInfoHandler', 'Check-in Successful');
                     } else {
                         this.$emit('onErrorHandler', response.data.message || 'Check-in failed');
                     }
@@ -578,10 +581,8 @@ export default ({
                         this.$emit('onErrorHandler', error.message)
                     }
                 });
-            this.$emit('onLoading', false)
         },
         async clickConfirmUndoCheckinDialog() {
-            this.$emit('onLoading', true)
             const token = this.$store.getters.getToken;
             await axios.post(this.baseURL + '/undoCheckinByAdmin', {
                 reservationid: this.editedBookingItem.reservationid,
@@ -593,7 +594,7 @@ export default ({
                 .then(response => {
                     //console.dir(response);
                     if (response.data.success) {
-                        this.$emit('onInfoHandler', 'Cancel Check-in Successful');
+                        //this.$emit('onInfoHandler', 'Cancel Check-in Successful');
                     } else {
                         this.$emit('onErrorHandler', response.data.message || 'Cancel Check-in failed');
                     }
@@ -608,7 +609,6 @@ export default ({
                         this.$emit('onErrorHandler', error.message)
                     }
                 });
-            this.$emit('onLoading', false)
         },
         async clickConfirmDeleteBooking() {
             this.$emit('onLoading', true)
@@ -654,13 +654,13 @@ export default ({
             console.log('clickCheckin', item)
             this.editedBookingIndex = this.BookingList.indexOf(item)
             this.editedBookingItem = Object.assign({}, item)
-            this.dialogCheckin = true
+            this.clickConfirmCheckinDialog()
         },
         clickUndoCheckin(item) {
             console.log('clickUndoCheckin', item)
             this.editedBookingIndex = this.BookingList.indexOf(item)
             this.editedBookingItem = Object.assign({}, item)
-            this.dialogUndoCheckin = true
+            this.clickConfirmUndoCheckinDialog()
         },
         clickCancelCheckinDialog() {
             this.dialogCheckin = false

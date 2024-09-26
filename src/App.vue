@@ -108,7 +108,7 @@
           @onInfoHandler="onShowInfoDialog($event)" @onLoading="onLoading($event)"></AddFamily>
 
         <Dashboard v-else-if="state == 'dashboard'" @onErrorHandler="onError($event)"
-          @onClickChangeState="onClickChangeState($event)" @onLoading="onLoading($event)"></Dashboard>
+          @onInfoHandler="onShowInfoDialog($event)" @onClickChangeState="onClickChangeState($event)" @onLoading="onLoading($event)"></Dashboard>
 
         <BookingManagement v-else-if="state == 'bookingmanager'" @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)" @onClickChangeState="onClickChangeState($event)"
