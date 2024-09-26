@@ -597,7 +597,7 @@ export default ({
                     } else {
                         this.$emit('onErrorHandler', response.data.message || 'Cancel Check-in failed');
                     }
-                    this.dialogCheckin = false
+                    this.dialogUndoCheckin = false
                     this.getReservationList()
                 })
                 .catch(error => {
