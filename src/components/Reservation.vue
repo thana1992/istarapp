@@ -172,10 +172,13 @@ export default {
                 .then(response => {
                     //console.dir(response);
                     if (response.data.success) {
-                        const data = response.data.results
+                        let data = response.data.results
                         if (data.length == 0) {
                             this.classtimesData = []
                         } else {
+                            console.log('classtimesData : ', data)
+                            data = data.filter(item => item.classtime !== "แข่ง");
+                            console.log('classtimesData : ', data)
                             this.classtimesData = data;
                         }
                     } else {
