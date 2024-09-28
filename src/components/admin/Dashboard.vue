@@ -616,6 +616,7 @@ export default ({
                 });
         },
         clickCancelNewBooking() {
+            this.editedBookingItem = Object.assign({}, this.defaultBookingItem)
             this.dialogNewBooking = false
             setTimeout(() => {
                 this.$nextTick(() => {
