@@ -231,20 +231,24 @@ export default {
     AffterLogin() {
       this.userdata = JSON.parse(localStorage.getItem('userdata'))
       console.log("userdata", this.userdata);
-      this.parent = this.userdata.firstname
-      this.student = null;
-      if (this.userdata.usertype == 0) { // head
-        this.managerflag = true
-        this.state = 'dashboard'
-      } else if (this.userdata.usertype == 1) { // admin
-        this.adminflag = true
-        this.state = 'dashboard'
-      } else if (this.userdata.usertype == 2) { // coach
-        this.coachflag = true
-        this.state = 'viewclasses'
-      } else { // customer
-        this.customerflag = true
-        this.state = 'home'
+      if(this.userdata) {
+        this.parent = this.userdata.firstname
+        this.student = null;
+        if (this.userdata.usertype == 0) { // head
+          this.managerflag = true
+          this.state = 'dashboard'
+        } else if (this.userdata.usertype == 1) { // admin
+          this.adminflag = true
+          this.state = 'dashboard'
+        } else if (this.userdata.usertype == 2) { // coach
+          this.coachflag = true
+          this.state = 'viewclasses'
+        } else { // customer
+          this.customerflag = true
+          this.state = 'home'
+        }
+      }else {
+        this.state = 'login'
       }
     },
     toggleRail(page) {
