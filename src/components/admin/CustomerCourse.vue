@@ -80,7 +80,7 @@
                           </v-col>
                         </v-row>
                         <v-row>
-                          <v-col cols="12" sm="6" md="12">
+                          <v-col cols="12" sm="12" md="12">
                                   <v-data-table :headers="CourseUsingHeaders" :items="CourseUsingtList" density="compact"
                                   :items-per-page="1000" >
                                   <template v-slot:item.index="{ item }">
