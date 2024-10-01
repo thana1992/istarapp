@@ -192,11 +192,14 @@
                     </v-dialog>
                 </v-toolbar>
             </template>
-            <template v-slot:item.index="{ item }">{{
-                StudentList.indexOf(item) + 1
-            }}</template>
+            <template v-slot:item.index="{ item }">
+                {{ StudentList.indexOf(item) + 1 }}
+            </template>
             <template v-slot:item.dateofbirth="{ item }">
                 {{ calculateAge(item.dateofbirth).int }}
+            </template>
+            <template v-slot:item.remaining="{ item }">
+                {{ item.remaining_label }}
             </template>
             <template v-slot:item.expiredate="{ item }">
                 <p :class="{ 'highlighted-red': item.expiredate != null && expireDateLeft(item.expiredate).indexOf('หมดอายุ') > -1 }">
@@ -935,4 +938,3 @@ const ComponentAPI = {
   overflow-y: auto;
 }
 </style>
-```
