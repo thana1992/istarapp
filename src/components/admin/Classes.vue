@@ -42,6 +42,10 @@
                         <v-text-field v-model="editedItem.maxperson" label="Max Student"
                           variant="solo-filled"></v-text-field>
                       </v-col>
+                      <v-col cols="12" sm="6" md="50">
+                        <v-text-field v-model="editedItem.adminflag" label="Admin Flag"
+                          variant="solo-filled"></v-text-field>
+                      </v-col>
                     </v-row>
                   </v-container>
                 </v-card-text>
@@ -108,6 +112,7 @@ export default {
       { title: 'Class Day', key: 'classday' },
       { title: 'Class Time', key: 'classtime' },
       { title: 'Max student', key: 'maxperson' },
+      { title: 'Admin Flag', key: 'adminflag' },
       { title: 'Actions', key: 'actions', sortable: false },
     ],
     editedIndex: -1,
@@ -115,11 +120,13 @@ export default {
       classday: '',
       classtime: '',
       maxperson: 0,
+      adminflag: 0,
     },
     defaultItem: {
       classday: '',
       classtime: '',
       maxperson: 20,
+      adminflag: 0,
     },
     classlist: [],
     courseLookup: [],
@@ -256,7 +263,8 @@ export default {
           courseid: this.editedItem.courseid,
           classday: this.editedItem.classday,
           classtime: this.editedItem.classtime,
-          maxperson: this.editedItem.maxperson
+          maxperson: this.editedItem.maxperson,
+          adminflag: this.editedItem.adminflag
         }
         await axios
           .post(this.baseURL + '/updateClass', saveObj,
@@ -277,7 +285,8 @@ export default {
           courseid: this.editedItem.courseid,
           classday: this.editedItem.classday,
           classtime: this.editedItem.classtime,
-          maxperson: this.editedItem.maxperson
+          maxperson: this.editedItem.maxperson,
+          adminflag: this.editedItem.adminflag
         }
         await axios
           .post(this.baseURL + '/addClass', saveObj,

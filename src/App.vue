@@ -37,6 +37,9 @@
           <v-list-item v-if="managerflag" prepend-icon="mdi-view-dashboard-variant-outline" title="จัดการคลาสเรียน"
             value="classes" @click="onClickChangeState('classes')">
           </v-list-item>
+          <v-list-item v-if="managerflag" prepend-icon="mdi-calendar-remove" title="จัดการวันหยุด"
+            value="holidaymanager" @click="onClickChangeState('holidaymanager')">
+          </v-list-item>
           <br>
           <hr>
           <v-list-item v-if="isLoggedIn" prepend-icon="mdi-logout" title="LOGOUT" @click="onClickLogout()">
@@ -127,6 +130,9 @@
 
         <Classes v-else-if="state == 'classes'" @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)" @onLoading="onLoading($event)"></Classes>
+
+        <HolidayManagment v-else-if="state == 'holidaymanager'" @onErrorHandler="onError($event)"
+          @onInfoHandler="onShowInfoDialog($event)" @onLoading="onLoading($event)"></HolidayManagment>
         </Transition>
       </v-main>
     </v-layout>
@@ -177,6 +183,7 @@ import BookingManagement from '@/components/admin/BookingManagement.vue';
 import CustomerCourse from '@/components/admin/CustomerCourse.vue';
 import Course from './components/admin/Courses.vue'
 import Classes from './components/admin/Classes.vue'
+import HolidayManagment from './components/admin/HolidayManagment.vue'
 import CryptoJS from 'crypto-js';
 import { ref, computed, onMounted, inject } from 'vue';
 import { mapGetters } from 'vuex';
@@ -224,6 +231,7 @@ export default {
     CustomerCourse,
     Course,
     Classes,
+    HolidayManagment,
     LoadingDialog
   },
   methods: {

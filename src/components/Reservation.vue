@@ -127,7 +127,7 @@ export default {
         async fetchHolidays() {
             try {
                 const token = this.$store.getters.getToken;
-                const response = await axios.get(this.baseURL + '/getHolidays', {
+                const response = await axios.get(this.baseURL + '/holidaysList', {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     }
@@ -177,7 +177,7 @@ export default {
                             this.classtimesData = []
                         } else {
                             console.log('classtimesData : ', data)
-                            data = data.filter(item => item.classtime !== "แข่ง");
+                            //data = data.filter(item => item.classtime !== "แข่ง");
                             console.log('classtimesData : ', data)
                             this.classtimesData = data;
                         }
