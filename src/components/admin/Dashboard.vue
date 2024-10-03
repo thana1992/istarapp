@@ -91,7 +91,7 @@
                     <v-col sm="3" md="2" xl="1">
                         <v-card class="mx-auto" link @click="callChildMethodAddNewStudent">
                             <v-list-item class="btn-card-1">
-                                <div style="text-align: center;">Add Student</div>
+                                <div style="text-align: center;">New Student</div>
                                 <div class="btn-card-icon"><span class="mdi mdi-emoticon-plus-outline"></span></div>
                             </v-list-item>
                         </v-card>
@@ -99,7 +99,7 @@
                     <v-col sm="3" md="2" xl="1">
                         <v-card class="mx-auto" link @click="callChildMethodAddNewCustomerCourse">
                             <v-list-item class="btn-card-2">
-                                <div style="text-align: center;">Create Course</div>
+                                <div style="text-align: center;">New Course</div>
                                 <div class="btn-card-icon"><span class="mdi mdi-book-plus-outline"></span></div>
                             </v-list-item>
                         </v-card>
@@ -107,7 +107,7 @@
                     <v-col sm="3" md="2" xl="1">
                         <v-card class="mx-auto" link @click="onClickBtn">
                             <v-list-item class="btn-card-3">
-                                <div style="text-align: center;">BUTTON</div>
+                                <div style="text-align: center;">Comming Soon</div>
                                 <div class="btn-card-icon"><span class="mdi mdi-star-face"></span></div>
                             </v-list-item>
                         </v-card>
@@ -115,7 +115,7 @@
                     <v-col sm="3" md="2" xl="1">
                         <v-card class="mx-auto" link @click="onClickNewBooking">
                             <v-list-item class="btn-card-4">
-                                <div style="text-align: center;">BOOKING</div>
+                                <div style="text-align: center;">New Booking</div>
                                 <div class="btn-card-icon"><span class="mdi mdi-calendar-plus-outline"></span></div>
                             </v-list-item>
                         </v-card>
