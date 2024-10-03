@@ -105,7 +105,7 @@ export default {
                         headers: { Authorization: `Bearer ${token}`, }
                     })
                 .then(response => {
-                    console.dir(response);
+                    //console.dir(response);
                     if (response.data.success) {
                         this.family = response.data.results
                     } else {
@@ -113,7 +113,7 @@ export default {
                     }
                 })
                 .catch(error => {
-                    console.error(error);
+                    //console.error(error);
                 });
             this.$emit('onLoading', false)
         },
@@ -129,7 +129,7 @@ export default {
                     headers: { Authorization: `Bearer ${token}`, }
                 })
                 .then(response => {
-                    console.dir(response);
+                    //console.dir(response);
                     if (response.data.success) {
                         this.$emit('onInfoHandler', 'Delete Family Member Successful');
                     } else {

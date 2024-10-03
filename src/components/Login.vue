@@ -74,7 +74,7 @@ export default {
               password: encryptedPassword,
             })
             .then(response => {
-              console.log('login ', response);
+              //console.log('login ', response);
 
               if (response.data.success) {
                 //tokenService.setToken(response.data.token);
@@ -82,7 +82,7 @@ export default {
                 this.setToken(response.data.token);
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem("userdata", JSON.stringify(response.data.userdata));
-                console.log("USER DATA " + localStorage.getItem("userdata"));
+                //console.log("USER DATA " + localStorage.getItem("userdata"));
                 // Example usage in Login.vue
                 this.$store.dispatch('setToken', { token: response.data.token, userdata: response.data.userdata });
 
@@ -94,8 +94,8 @@ export default {
               this.$emit('onLoading', false)
             })
             .catch(error => {
-              console.log('error '+ error);
-              console.error(error);
+              //console.log('error '+ error);
+              //console.error(error);
               this.$emit('onLoading', false)
               this.$emit('onErrorHandler', error.message)
             });
@@ -125,9 +125,9 @@ export default {
         this.$emit('onLoading', true)
         try {
             const token = localStorage.getItem('token');
-            console.log('check token '+ token)
+            //console.log('check token '+ token)
             const userdata = JSON.parse(localStorage.getItem('userdata'));
-            console.log ('check userdata '+ userdata)
+            //console.log ('check userdata '+ userdata)
             if (!token) {
 
                 this.showLogin = true;
@@ -143,12 +143,12 @@ export default {
                 })
                 .then(response => {
                     //alert('verifyToken ' + token);
-                    console.dir(response);
+                    //console.dir(response);
                     this.$store.dispatch('setToken', { token: token, userdata: localStorage.getItem("userdata") });
                     this.$emit('onAffterLogin');
                 })
                 .catch(error => {
-                    console.error(error);
+                    //console.error(error);
                     this.showLogin = true;
                     this.$emit('onLoading', false)
                 });

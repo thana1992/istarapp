@@ -281,7 +281,7 @@ export default {
   async created() {
     try {
       const token = this.$store.getters.getToken;
-      console.log("token ", token);
+      //console.log("token ", token);
       if (!token) {
         this.errorMsg = "Not found token, Please login...";
         this.errorDialog = true;
@@ -300,13 +300,13 @@ export default {
           }
         )
         .then((response) => {
-          console.dir(response);
+          //console.dir(response);
           if (response.data.success) {
             this.initialize();
           }
         })
         .catch((error) => {
-          console.error(error);
+          //console.error(error);
           this.$emit("onErrorHandler", error.response.data.message);
           this.$emit("onClickChangeState", "login");
         });
@@ -329,7 +329,7 @@ export default {
             //consol.log('คัดลอกคอร์สใหม่เรียบร้อยแล้ว');
           })
           .catch(err => {
-            console.error('ไม่สามารถคัดลอกได้: ', err);
+            //console.error('ไม่สามารถคัดลอกได้: ', err);
           });
       } else {
         //this.$emit("onErrorHandler", "ไม่มีคอร์สใหม่ที่จะคัดลอก");
@@ -347,7 +347,7 @@ export default {
       this.editedItem.course = course;
       this.checkCourseUser();
       this.dialog = true;
-      console.log("editItem", this.editedItem);
+      //console.log("editItem", this.editedItem);
     },
     finishCourse(item) {
       this.editedIndex = this.courselist.indexOf(item);
@@ -373,7 +373,7 @@ export default {
           }
         )
         .then((response) => {
-          console.dir(response);
+          //console.dir(response);
           if (response.data.success) {
             this.deleteItemConfirm();
           } else {
@@ -381,7 +381,7 @@ export default {
             response.data.results.forEach((result) => {
               nicknameList.push(result.nickname);
             });
-            console.dir(nicknameList);
+            //console.dir(nicknameList);
             this.deleteNotifyMsg =
               "คอร์สเรียนนี้ กำลังถูกใช้โดย " +
               nicknameList.join(", ") +
@@ -392,7 +392,7 @@ export default {
           }
         })
         .catch((error) => {
-          console.error(error);
+          //console.error(error);
           this.$emit("onLoading", false);
           return false;
         });
@@ -411,7 +411,7 @@ export default {
           }
         )
         .then((response) => {
-          console.dir(response);
+          //console.dir(response);
           if (response.data.success) {
             this.dialogFinish = false;
             this.$emit("onInfoHandler", "สำเร็จ จบคอร์สแล้ว");
@@ -425,7 +425,7 @@ export default {
           this.initialize();
         })
         .catch((error) => {
-          console.error(error);
+          //console.error(error);
         });
       this.$emit("onLoading", false);
     },
@@ -443,7 +443,7 @@ export default {
           }
         )
         .then((response) => {
-          console.dir(response);
+          //console.dir(response);
           if (response.data.success) {
             this.dialogDelete = false;
             this.dialogDeleteNotify = false;
@@ -459,7 +459,7 @@ export default {
           this.initialize();
         })
         .catch((error) => {
-          console.error(error);
+          //console.error(error);
         });
       this.$emit("onLoading", false);
     },
@@ -475,11 +475,11 @@ export default {
         .then((response) => {
           //console.dir(response);
           if (response.data.success) {
-            console.log("getStudentCourseDetail", response.data);
+            //console.log("getStudentCourseDetail", response.data);
             const res = response.data.results;
             if (res) {
               const data = response.data.results[0];
-              console.log("data", data.user);
+              //console.log("data", data.user);
               if (data.user > 0) {
                 this.editedItem.course_user =
                   "มีผู้กำลังใช้คอร์สนี้ " + data.user + " คน " + data.userlist;
@@ -500,7 +500,7 @@ export default {
           }
         })
         .catch((error) => {
-          console.log(error);
+          //console.log(error);
           if (error.response && error.response.status == 401) {
             this.$emit("onErrorHandler", error.response.data.message);
             this.$emit("onClickChangeState", "login");
@@ -549,7 +549,7 @@ export default {
       if(valid) {
         this.$emit("onLoading", true);
         const token = this.$store.getters.getToken;
-        console.log("save", this.editedItem);
+        //console.log("save", this.editedItem);
 
         let startdate = null;
         let expiredate = null;
@@ -576,7 +576,7 @@ export default {
               headers: { Authorization: `Bearer ${token}` },
             })
             .then((response) => {
-              console.dir(response);
+              //console.dir(response);
               if (response.data.success) {
                 this.$emit(
                   "onInfoHandler",
@@ -606,7 +606,7 @@ export default {
               headers: { Authorization: `Bearer ${token}` },
             })
             .then((response) => {
-              console.dir(response);
+              //console.dir(response);
               if (response.data.success) {
                 this.$emit(
                   "onInfoHandler",
@@ -655,7 +655,7 @@ export default {
         });
     },
     selectCourse() {
-      console.log("selectCourse");
+      //console.log("selectCourse");
       let course = this.courseLookup.find(
         (course) => course.courseid == this.editedItem.courseid
       );
@@ -675,7 +675,7 @@ export default {
           }
         )
         .then((response) => {
-          console.dir(response);
+          //console.dir(response);
           if (response.data.success) {
             if (response.data.results && response.data.results.length > 0) {
               this.courselist = response.data.results;
@@ -684,7 +684,7 @@ export default {
           this.loadingCustomerCourse = false;
         })
         .catch((error) => {
-          console.error(error);
+          //console.error(error);
           this.loadingCustomerCourse = false;
           if (error.response.status == 401) {
             this.$emit("onErrorHandler", error.response.data.message);
@@ -695,7 +695,7 @@ export default {
         });
     },
     onChangeStartDate() {
-      console.log("onChangeStartDate");
+      //console.log("onChangeStartDate");
       this.editedItem.expiredate = null;
     },
     SQLDate(date) {
@@ -750,11 +750,16 @@ export default {
           }
       }
 
-      console.log('today', this.format_date(today, 'YYYY-MM-DD'));
-      console.log('expirationDate', this.format_date(expirationDate, 'YYYY-MM-DD'));
-      console.log('returnText', returnText);
+      // //console.log('today', this.format_date(today, 'YYYY-MM-DD'));
+      // //console.log('expirationDate', this.format_date(expirationDate, 'YYYY-MM-DD'));
+      // //console.log('returnText', returnText);
       return returnText;
-    }
+    },
+    showAddNewCustomerCourse() {
+      this.editedIndex = -1;
+      this.editedItem = Object.assign({}, this.defaultItem);
+      this.dialog = true;
+    },
   }
 };
 </script>

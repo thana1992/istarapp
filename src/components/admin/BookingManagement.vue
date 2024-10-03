@@ -303,13 +303,13 @@ export default ({
     },
 
     async created() {
-        console.log('BookingManagement created...' + new Date())
+        //console.log('BookingManagement created...' + new Date())
         this.$emit('onLoading', true)
         await this.initialize()
         this.$emit('onLoading', false)
     },
     mounted() {
-        console.log('mounted...' + new Date())
+        //console.log('mounted...' + new Date())
         this.interval = setInterval(() => {
             this.refreshData()
         }, 60000)
@@ -334,7 +334,7 @@ export default ({
             await this.getReservationList()
         },
         async onStudentChange(studentid) {
-            console.log('Student selected:', studentid);
+            //console.log('Student selected:', studentid);
             this.loadingCourse = true
             const token = this.$store.getters.getToken;
             await axios.post(this.baseURL + '/getCustomerCourseInfo', {
@@ -346,7 +346,7 @@ export default ({
                 .then(response => {
                     //console.dir(response);
                     if (response.data.success) {
-                        console.log('getCustomerCourseInfo', response.data.results);
+                        //console.log('getCustomerCourseInfo', response.data.results);
                         const res = response.data.results[0];
                         if (res) {
                             this.courseinfoColor = 'courseinfoColorGreen'
@@ -365,7 +365,7 @@ export default ({
                     }
                 })
                 .catch(error => {
-                    console.log(error)
+                    //console.log(error)
                     if (error.response && error.response.status == 401) {
                         this.$emit('onErrorHandler', error.response.data.message)
                         this.$emit('onClickChangeState', 'login')
@@ -385,7 +385,7 @@ export default ({
                 classday: new Date(this.selectedDate).toLocaleDateString('en-US', { weekday: 'long' }),
                 courseid: this.editedBookingItem.courseid
             }
-            console.log("request", req)
+            //console.log("request", req)
             const token = this.$store.getters.getToken;
             await axios.post(this.baseURL + '/getClassTime', req, {
                 headers: {
@@ -393,7 +393,7 @@ export default ({
                 },
             })
                 .then(response => {
-                    console.dir(response);
+                    //console.dir(response);
                     if (response.data.success) {
                         const data = response.data.results
                         if (data.length == 0) {
@@ -464,7 +464,7 @@ export default ({
             await axios
                 .post(this.baseURL + '/studentLookup', {}, { headers: { Authorization: `Bearer ${token}`, } },)
                 .then(response => {
-                    console.dir('studentLookup', response);
+                    //console.dir('studentLookup', response);
                     if (response.data.success) {
                         this.studentLookup = response.data.results
                     }
@@ -494,7 +494,7 @@ export default ({
                     classday: this.editedBookingItem.classtime.classday,
                     reservationid: this.editedBookingItem.reservationid,
                 }
-                console.log(this.editedBookingIndex + ' BookingObj : ', BookingObj)
+                //console.log(this.editedBookingIndex + ' BookingObj : ', BookingObj)
 
                 const token = this.$store.getters.getToken;
                 if (this.editedBookingIndex > -1) {
@@ -641,7 +641,7 @@ export default ({
             this.$emit('onLoading', false)
         },
         clickEditBooking(item) {
-            console.log('clickEditBooking', item)
+            //console.log('clickEditBooking', item)
             this.courseinfoColor = 'courseinfoColorGreen'
             this.editedBookingIndex = this.BookingList.indexOf(item)
             this.editedBookingItem = Object.assign({}, item)
@@ -650,13 +650,13 @@ export default ({
             this.dialogBookingEdit = true
         },
         clickCheckin(item) {
-            console.log('clickCheckin', item)
+            //console.log('clickCheckin', item)
             this.editedBookingIndex = this.BookingList.indexOf(item)
             this.editedBookingItem = Object.assign({}, item)
             this.clickConfirmCheckinDialog()
         },
         clickUndoCheckin(item) {
-            console.log('clickUndoCheckin', item)
+            //console.log('clickUndoCheckin', item)
             this.editedBookingIndex = this.BookingList.indexOf(item)
             this.editedBookingItem = Object.assign({}, item)
             this.clickConfirmUndoCheckinDialog()
@@ -715,8 +715,8 @@ export default ({
                             this.loadingBooking = false
                         }
                     } else {
-                        console.dir("error : " , error)
-                        console.log("results : " + results)
+                        //console.dir("error : " , error)
+                        //console.log("results : " + results)
                         this.loadingBooking = false
                         this.$emit('onErrorHandler', message || 'Get Reservation failed')
                     }

@@ -26,7 +26,7 @@ if (token) {
   store.dispatch('setToken', token);
 }
 
-console.log("env.SERVER_URL ", env.SERVER_URL);
+//console.log("env.SERVER_URL ", env.SERVER_URL);
 app.config.globalProperties.baseURL = env.SERVER_URL;
 
 app.component('VueDatePicker', VueDatePicker).use(vuetify).use(store).mount('#app');

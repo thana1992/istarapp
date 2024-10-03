@@ -30,14 +30,14 @@
           <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-gymnastics" title="รายชื่อเด็ก"
             value="studentmanager" @click="onClickChangeState('gymnastmanager')">
           </v-list-item>
-          <v-label v-if="managerflag">Management menu</v-label>
+          <v-label v-if="managerflag || adminflag">Management menu</v-label>
           <v-list-item v-if="managerflag" prepend-icon="mdi-star-shooting-outline" title="จัดการคอร์ส" value="course"
             @click="onClickChangeState('course')">
           </v-list-item>
           <v-list-item v-if="managerflag" prepend-icon="mdi-view-dashboard-variant-outline" title="จัดการคลาสเรียน"
             value="classes" @click="onClickChangeState('classes')">
           </v-list-item>
-          <v-list-item v-if="managerflag" prepend-icon="mdi-calendar-remove" title="จัดการวันหยุด"
+          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-calendar-remove" title="จัดการวันหยุด"
             value="holidaymanager" @click="onClickChangeState('holidaymanager')">
           </v-list-item>
           <br>
@@ -238,7 +238,7 @@ export default {
 
     AffterLogin() {
       this.userdata = JSON.parse(localStorage.getItem('userdata'))
-      console.log("userdata", this.userdata);
+      //console.log("userdata", this.userdata);
       if(this.userdata) {
         this.parent = this.userdata.firstname
         this.student = null;
@@ -317,7 +317,7 @@ export default {
           },
         })
           .then(response => {
-            console.log(response)
+            //console.log(response)
             this.$store.dispatch('logout');
             localStorage.removeItem('userdata');
             localStorage.removeItem('token');
@@ -326,7 +326,7 @@ export default {
           })
       } catch (error) {
         // Handle errors
-        console.error('Error during logout:', error);
+        //console.error('Error during logout:', error);
         localStorage.removeItem('userdata');
         localStorage.removeItem('token');
         this.state = 'login'
@@ -345,8 +345,8 @@ export default {
   created() {
     //this.onLoading(true)
     // this.user_details = JSON.parse(localStorage.getItem('userdata'))
-    // console.log("user_details", this.user_details);
-    // console.log("env ", env.SERVER_URL)
+    // //console.log("user_details", this.user_details);
+    // //console.log("env ", env.SERVER_URL)
     // if (this.user_details) {
     //   this.parent = this.user_details.firstname
     //   this.student = null;

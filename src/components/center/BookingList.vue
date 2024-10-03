@@ -105,7 +105,7 @@ const BookingListAPI = {
   baseURL: process.env.SERVER_URL,
   fetchDataBooking({ token, classday, classdate }) {
     return new Promise(resolve => {
-      console.log('DashboardAPI : ' + this.baseURL + '/getBookingList' + ' classday : ' + classday + ' classdate : ' + classdate)
+      //console.log('DashboardAPI : ' + this.baseURL + '/getBookingList' + ' classday : ' + classday + ' classdate : ' + classdate)
       axios
         .post(this.baseURL + '/getBookingList', {
           classday: classday,
@@ -117,7 +117,7 @@ const BookingListAPI = {
             }
           })
         .then(response => {
-          console.log('fetchDataBooking result', response);
+          //console.log('fetchDataBooking result', response);
           if (response.data.success) {
             resolve({ success: true, results: response.data.bookinglist })
           } else {

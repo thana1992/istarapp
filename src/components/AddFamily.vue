@@ -98,7 +98,7 @@ export default {
                             headers: { Authorization: `Bearer ${token}`, }
                         })
                     .then(response => {
-                        console.log(response)
+                        //console.log(response)
                         if (response.data.success) {
                             this.$emit('onLoading', false)
                             this.$emit('onInfoHandler', response.data.message || 'เพิ่มสมาชิกครอบครัวสำเร็จแล้ว');
@@ -108,7 +108,7 @@ export default {
                         }
                     })
                     .catch(error => {
-                        console.error(error);
+                        //console.error(error);
                         if (error.response.status == 401) {
                             this.$emit('onErrorHandler', error.response.data.message)
                             this.$emit('onClickChangeState', 'login')
@@ -144,7 +144,7 @@ export default {
     async created() {
         try {
             const token = this.$store.getters.getToken;
-            console.log('token ', token)
+            //console.log('token ', token)
             if (!token) {
                 this.errorMsg = 'Not found token, Please login...'
                 this.errorDialog = true
@@ -159,10 +159,10 @@ export default {
                     }
                 })
                 .then(response => {
-                    console.dir(response);
+                    //console.dir(response);
                 })
                 .catch(error => {
-                    console.error(error);
+                    //console.error(error);
                     this.$emit('onErrorHandler', error.response.data.message)
                     this.$emit('onClickChangeState', 'login')
                 });

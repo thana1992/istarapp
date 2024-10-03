@@ -89,18 +89,18 @@
                         </v-card>
                     </v-col> -->
                     <v-col sm="3" md="2" xl="1">
-                        <v-card class="mx-auto" link @click="onClickBtn">
+                        <v-card class="mx-auto" link @click="callChildMethodAddNewStudent">
                             <v-list-item class="btn-card-1">
-                                <div style="text-align: center;">BUTTON</div>
-                                <div class="btn-card-icon"><span class="mdi mdi-weather-night"></span></div>
+                                <div style="text-align: center;">Add Student</div>
+                                <div class="btn-card-icon"><span class="mdi mdi-emoticon-plus-outline"></span></div>
                             </v-list-item>
                         </v-card>
                     </v-col>
                     <v-col sm="3" md="2" xl="1">
-                        <v-card class="mx-auto" link @click="onClickBtn">
+                        <v-card class="mx-auto" link @click="callChildMethodAddNewCustomerCourse">
                             <v-list-item class="btn-card-2">
-                                <div style="text-align: center;">BUTTON</div>
-                                <div class="btn-card-icon"><span class="mdi mdi-star-shooting"></span></div>
+                                <div style="text-align: center;">Create Course</div>
+                                <div class="btn-card-icon"><span class="mdi mdi-book-plus-outline"></span></div>
                             </v-list-item>
                         </v-card>
                     </v-col>
@@ -116,7 +116,7 @@
                         <v-card class="mx-auto" link @click="onClickNewBooking">
                             <v-list-item class="btn-card-4">
                                 <div style="text-align: center;">BOOKING</div>
-                                <div class="btn-card-icon"><span class="mdi mdi-star-plus"></span></div>
+                                <div class="btn-card-icon"><span class="mdi mdi-calendar-plus-outline"></span></div>
                             </v-list-item>
                         </v-card>
                     </v-col>
@@ -137,25 +137,38 @@
                     </v-col>
                     <v-col cols="12" sm="12" md="8" xl="9">
                         <Transition name="fade" mode="out-in">
-                            <v-card class="mx-0" v-if="state == 'studentlist'">
+                            <v-card class="mx-0" v-show="state == 'studentlist'">
                                 <Student @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
-                                    @onLoading="onLoading($event)">
+                                    @onLoading="onLoading($event)" ref="StudentComponent">
                                 </Student>
                             </v-card>
-                            <v-card v-else-if="state == 'approvenewstudent'">
+                        </Transition>
+                        <Transition name="fade" mode="out-in">
+                            <v-card v-show="state == 'approvenewstudent'">
                                 <ApproveNewStudent @onErrorHandler="onError($event)"
                                     @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
                                     @onLoading="onLoading($event)">
                                 </ApproveNewStudent>
                             </v-card>
-                            <v-card v-else-if="state == 'bookinglist'">
+                        </Transition>
+                        <Transition name="fade" mode="out-in">
+                            <v-card v-show="state == 'bookinglist'">
                                 <BookingList @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
                                     @onLoading="onLoading($event)" :bookingHeaders="bookingHeaders"
                                     :bookingData="bookingList" :classdate="datepick" :loadingBooking="loadingBooking">
                                 </BookingList>
+                            </v-card>
+                        </Transition>
+                        <Transition name="fade" mode="out-in">
+                            <v-card v-show="state == 'customercourse'">
+                                <CustomerCourse @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
+                                    @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
+                                    @onLoading="onLoading($event)"
+                                    ref="CustomerCourseComponent">
+                                </CustomerCourse>
                             </v-card>
                         </Transition>
                     </v-col>
@@ -272,9 +285,11 @@ import Student from '../center/Student.vue'
 import BookingList from '../center/BookingList.vue'
 import ApproveNewStudent from './ApproveNewStudent.vue'
 import BookingManagement from './BookingManagement.vue'
+import CustomerCourse from './CustomerCourse.vue'
 import moment from 'moment'
 import { mapGetters } from 'vuex';
 import Vue3autocounter from 'vue3-autocounter';
+import { ref, onMounted, nextTick  } from 'vue';
 export default ({
     components: {
         DatePicker,
@@ -282,6 +297,7 @@ export default ({
         BookingList,
         ApproveNewStudent,
         BookingManagement,
+        CustomerCourse,
         'vue3-autocounter': Vue3autocounter
     },
     data() {
@@ -342,7 +358,7 @@ export default ({
         this.$emit('onLoading', false)
         try {
             const token = this.$store.getters.getToken;
-            console.log('token ', token)
+            //console.log('token ', token)
             if (!token) {
                 this.errorMsg = 'Not found token, Please login...'
                 this.errorDialog = true
@@ -357,13 +373,13 @@ export default ({
                 }
             })
             .then(response => {
-                console.dir(response);
+                //console.dir(response);
                 if (response.data.success) {
                     this.initialize()
                 }
             })
             .catch(error => {
-                console.error(error);
+                //console.error(error);
                 this.$emit('onErrorHandler', error.response.data.message)
                 this.$emit('onClickChangeState', 'login')
             });
@@ -372,13 +388,13 @@ export default ({
         }
     },
     mounted() {
-        console.log('dashboard mounted...' + new Date())
+        //console.log('dashboard mounted...' + new Date())
         this.interval = setInterval(() => {
             this.refreshData()
         }, 60000)
     },
     unmounted() {
-        console.log('dashboard unmounted...' + new Date())
+        //console.log('dashboard unmounted...' + new Date())
         clearInterval(this.interval)
     },
     methods: {
@@ -386,13 +402,13 @@ export default ({
             /*
             axios.get(this.baseURL+'/checkToken', {})
             .then(response => {
-                console.dir(response);
+                //console.dir(response);
                 if (response.data) {
                     const activeSessions = response.data.activeSessions
                     activeSessions.forEach(item => {
                         let iat = new Date(item.iat * 1000)
                         let exp = new Date(item.exp * 1000)
-                        console.log(item.username + " : " + iat.toLocaleString() + " : " + exp.toLocaleString())
+                        //console.log(item.username + " : " + iat.toLocaleString() + " : " + exp.toLocaleString())
                     });
                 }
             })
@@ -403,7 +419,7 @@ export default ({
             await this.getStudentLookup()
         },
         refreshData() {
-            console.log('refreshData : ' + new Date())
+            //console.log('refreshData : ' + new Date())
             this.refreshCardDashboard()
             if (this.state == "bookinglist") {
                 this.getBookingList()
@@ -415,10 +431,10 @@ export default ({
         },
         async refreshCardDashboard() {
             const token = this.$store.getters.getToken;
-            // console.log('refreshCardDashboard...'+new Date())
-            // console.log('today : ' + this.SQLDate(this.today()))
-            // console.log('tomorrow : ' + this.SQLDate(this.tomorrow()))
-            // console.log('token : ' + token)
+            // //console.log('refreshCardDashboard...'+new Date())
+            // //console.log('today : ' + this.SQLDate(this.today()))
+            // //console.log('tomorrow : ' + this.SQLDate(this.tomorrow()))
+            // //console.log('token : ' + token)
             await axios
                 .post(this.baseURL + '/refreshCardDashboard', {
                     today: this.SQLDate(this.today()),
@@ -493,7 +509,7 @@ export default ({
             await axios
                 .post(this.baseURL + '/studentLookup', {}, { headers: { Authorization: `Bearer ${token}`, } },)
                 .then(response => {
-                    console.dir('studentLookup', response);
+                    //console.dir('studentLookup', response);
                     if (response.data.success) {
                         this.studentLookup = response.data.results
                     }
@@ -508,7 +524,7 @@ export default ({
                 });
         },
         async onStudentChange(studentid) {
-            console.log('Student selected:', studentid);
+            //console.log('Student selected:', studentid);
             this.loadingCourse = true
             const token = this.$store.getters.getToken;
             await axios.post(this.baseURL + '/getCustomerCourseInfo', {
@@ -520,7 +536,7 @@ export default ({
                 .then(response => {
                     //console.dir(response);
                     if (response.data.success) {
-                        console.log('getCustomerCourseInfo', response.data.results);
+                        //console.log('getCustomerCourseInfo', response.data.results);
                         const res = response.data.results[0];
                         if (res) {
                             this.courseinfoColor = 'courseinfoColorGreen'
@@ -540,7 +556,7 @@ export default ({
                     }
                 })
                 .catch(error => {
-                    console.log(error)
+                    //console.log(error)
                     if (error.response && error.response.status == 401) {
                         this.$emit('onErrorHandler', error.response.data.message)
                         this.$emit('onClickChangeState', 'login')
@@ -560,7 +576,7 @@ export default ({
                 classday: new Date(this.selectBookingDate).toLocaleDateString('en-US', { weekday: 'long' }),
                 courseid: this.editedBookingItem.courseid
             }
-            console.log("request", req)
+            //console.log("request", req)
             const token = this.$store.getters.getToken;
             await axios.post(this.baseURL + '/getClassTime', req, {
                 headers: {
@@ -568,7 +584,7 @@ export default ({
                 },
             })
                 .then(response => {
-                    console.dir(response);
+                    //console.dir(response);
                     if (response.data.success) {
                         const data = response.data.results
                         if (data.length == 0) {
@@ -643,7 +659,7 @@ export default ({
                     classday: this.editedBookingItem.classtime.classday,
                     reservationid: this.editedBookingItem.reservationid,
                 }
-                console.log(this.editedBookingIndex + ' BookingObj : ', BookingObj)
+                //console.log(this.editedBookingIndex + ' BookingObj : ', BookingObj)
 
                 const token = this.$store.getters.getToken;
                 if (this.editedBookingIndex > -1) {
@@ -725,6 +741,7 @@ export default ({
             //this.$emit('onErrorHandler', 'แปบนึงนะ ยังใช้ไม่ได้ เดี๋ยวรีบทำให้นะ')
         },
         async onClickBtn() {
+            
             this.$emit('onErrorHandler', 'มันต้องเป็นปุ่มอะไรสักอย่างแหละ ถ้าคิดออกแล้วจะทำให้ เสนอมาได้นะ ว่าอยากได้อะไร')
         },
         async getBookingList() {
@@ -745,15 +762,15 @@ export default ({
                                 this.bookingHeaders = Object.keys(results).map((key) => ({ title: key, key: key, sortable: false, align: 'right' }));
                                 this.bookingHeaders.unshift({ title: 'No.', key: 'idx', sortable: false, align: 'right' })
                                 this.bookingList = this.formattedData(results)
-                                console.log('bookingList'+ JSON.stringify(this.bookingList))
-                                console.log('bookingHeaders '+ JSON.stringify(this.bookingHeaders))
+                                //console.log('bookingList'+ JSON.stringify(this.bookingList))
+                                //console.log('bookingHeaders '+ JSON.stringify(this.bookingHeaders))
 
                             } else {
                                 this.bookingHeaders = []
                                 this.bookingList = []
                             }
                         } else {
-                            console.log("message : " + message)
+                            //console.log("message : " + message)
                             this.$emit('onErrorHandler', message || 'Get Bookinglist failed')
                         }
                         if (classdate == this.SQLDate(this.datepick)) {
@@ -762,7 +779,7 @@ export default ({
 
                     })
                     .catch(error => {
-                        console.log('error : ', error)
+                        //console.log('error : ', error)
                         this.loadingBooking = false
                         if (error.response.status == 401) {
                             this.$emit('onErrorHandler', error.response.data.message)
@@ -773,7 +790,7 @@ export default ({
                     });
 
             } catch (error) {
-                console.log('error : ', error)
+                //console.log('error : ', error)
                 this.$emit('onErrorHandler', error.message)
             }
         },
@@ -837,7 +854,7 @@ export default ({
                 ...row
             }));
 
-            console.log('formattedData : ' + JSON.stringify(formattedRows))
+            //console.log('formattedData : ' + JSON.stringify(formattedRows))
             return formattedRows;
         },
         tomorrow() {
@@ -850,6 +867,9 @@ export default ({
         },
     },
     watch: {
+        dialogStudent(val) {
+            val || this.closeStudent();
+        },
         dialogBooking(val) {
             val || this.closeBooking()
         },
@@ -864,6 +884,59 @@ export default ({
         formBookingTitle() {
             return this.editedBookingIndex === -1 ? 'Add a new booking' : 'Edit booking information'
         },
+        formStudentTitle() {
+            return this.editedStudentIndex === -1
+                ? "Add a new student"
+                : "Edit student information";
+        },
+        profileAvatar() {
+            return this.editedStudentItem.gender == 'ชาย' ? require("@/assets/avatar/4.png") : require("@/assets/avatar/2.png");
+        },
+        tomorrow_std() {
+            const d = new Date()
+            d.setDate(d.getDate() + 1)
+            return d
+        },
+        today_std() {
+            return new Date()
+        },
+    },
+    setup() {
+        const StudentComponent  = ref(null)
+        const callChildMethodAddNewStudent = async () => {
+            // รอให้ Vue ทำการ update DOM เสร็จสิ้น
+            await nextTick();
+
+            if (StudentComponent.value) {
+                StudentComponent.value.showAddNewStudent();  // เรียก method ของ component ลูกเมื่อมันพร้อม
+            } else {
+                //console.error('Child component is still not available.');
+            }
+        };
+
+        const CustomerCourseComponent = ref(null)
+        const callChildMethodAddNewCustomerCourse = async () => {
+            // รอให้ Vue ทำการ update DOM เสร็จสิ้น
+            await nextTick();
+
+            if (CustomerCourseComponent.value) {
+                CustomerCourseComponent.value.showAddNewCustomerCourse();  // เรียก method ของ component ลูกเมื่อมันพร้อม
+            } else {
+                //console.error('Child component is still not available.');
+            }
+        };
+        
+        // ตรวจสอบการ mount ของ component ลูก
+        onMounted(() => {
+            //console.log('Parent component mounted');
+        });
+        
+        return {
+            StudentComponent,
+            callChildMethodAddNewStudent,
+            CustomerCourseComponent,
+            callChildMethodAddNewCustomerCourse,
+        };
     }
 })
 import { Promise } from 'core-js';
@@ -871,7 +944,7 @@ const DashboardAPI = {
     baseURL: env.SERVER_URL,
     fetchDataBooking({ token, classday, classdate }) {
         return new Promise(resolve => {
-            console.log('DashboardAPI : ' + this.baseURL + '/getBookingList' + ' classday : ' + classday + ' classdate : ' + classdate)
+            //console.log('DashboardAPI : ' + this.baseURL + '/getBookingList' + ' classday : ' + classday + ' classdate : ' + classdate)
             axios
                 .post(this.baseURL + '/getBookingList', {
                     classday: classday,

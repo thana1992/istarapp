@@ -138,14 +138,14 @@ export default {
             headers: { Authorization: `Bearer ${token}`, }
           })
         .then(response => {
-          console.dir(response);
+          //console.dir(response);
           if (response.data.success) {
             this.courselist = response.data.results
           }
           this.loadingCourses = false;
         })
         .catch(error => {
-          console.error(error);
+          //console.error(error);
           this.loadingCourses = false
         });
       this.$emit('onLoading', false)
@@ -174,7 +174,7 @@ export default {
             headers: { Authorization: `Bearer ${token}`, }
           })
         .then(response => {
-          console.dir(response);
+          //console.dir(response);
           if (response.data.success) {
             this.$emit('onInfoHandler', 'สำเร็จ ระเบิดคลาสนี้สมดั่งใจคุณแล้ว');
           } else {
@@ -183,7 +183,7 @@ export default {
           this.initialize()
         })
         .catch(error => {
-          console.error(error);
+          //console.error(error);
         });
       this.closeDelete()
       this.$emit('onLoading', false)
@@ -220,7 +220,7 @@ export default {
               headers: { Authorization: `Bearer ${token}`, }
             })
           .then(response => {
-            console.dir(response);
+            //console.dir(response);
             if (response.data.success) {
               this.$emit('onInfoHandler', 'สำเร็จ แก้ไขข้อมูลคอร์สแล้ว');
             } else {
@@ -239,7 +239,7 @@ export default {
               headers: { Authorization: `Bearer ${token}`, }
             })
           .then(response => {
-            console.dir(response);
+            //console.dir(response);
             if (response.data.success) {
               this.$emit('onInfoHandler', 'สำเร็จ สร้างคอร์สใหม่แล้ว');
             } else {

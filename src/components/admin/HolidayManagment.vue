@@ -2,6 +2,7 @@
     <div class="container">
       <div class="container-header">
         <h1><span class="mdi mdi-calendar-remove"></span> Holiday Management</h1>
+        <h3 class="program-description">เมื่อเพิ่มวันหยุดแล้ว ผู้ปกครองจะไม่สามารถ กดจองคลาสในวันหยุดได้ หากต้องการปิดยิมเพื่อพาเด็กไปแข่ง ก็ให้เพิ่มเป็นวันหยุดด้วยนะ</h3>
       </div>
       <div class="container-content">
         <v-data-table :headers="headers" :items="holidayList" :loading="loadingHolidays">
@@ -125,7 +126,7 @@
             this.loadingHolidays = false;
           })
           .catch(error => {
-            console.error(error);
+            //console.error(error);
             this.loadingHolidays = false;
           });
       },
@@ -146,7 +147,7 @@
             this.initialize();
           })
           .catch(error => {
-            console.error(error);
+            //console.error(error);
           });
           this.dialogHolidayDelete = false;
       },

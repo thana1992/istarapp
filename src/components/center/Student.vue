@@ -128,7 +128,7 @@
                                                     editable @update:modelValue="onCourseChange"
                                                     filterable></v-autocomplete>
                                             </v-col>
-                                            <v-col cols="12" sm="6" md="6">
+                                            <v-col cols="12" sm="6" md="6" v-if="editedStudentIndex != -1">
                                                 <v-btn height="55"
                                                     prepend-icon="mdi-check-circle"
                                                     @click="finishCourse()"
@@ -320,13 +320,13 @@ export default {
                     }
                 )
                 .then((response) => {
-                    console.dir(response);
+                    //console.dir(response);
                     if (response.data.success) {
                         this.initialize();
                     }
                 })
                 .catch((error) => {
-                    console.error(error);
+                    //console.error(error);
                     this.$emit("onErrorHandler", error.response.data.message);
                     this.$emit("onClickChangeState", "login");
                 });
@@ -468,7 +468,7 @@ export default {
                 }
                 )
                 .then((response) => {
-                console.dir(response);
+                //console.dir(response);
                 if (response.data.success) {
                     this.dialogFinish = false;
                     this.getCustomerCourseLookup();
@@ -485,7 +485,7 @@ export default {
                 this.initialize();
                 })
                 .catch((error) => {
-                console.error(error);
+                //console.error(error);
                 });
             this.$emit("onLoading", false);
         },
@@ -647,7 +647,7 @@ export default {
             try {
                 await this.saveImage(sid);
             } catch (error) {
-                console.error("Error uploading image:", error);
+                //console.error("Error uploading image:", error);
             }
             this.uploadLoading = false;
         },
@@ -666,7 +666,7 @@ export default {
                     }
                 );
                 if (response.data.success) {
-                    this.$emit("onInfoHandler", "Upload Image Successful");
+                    //this.$emit("onInfoHandler", "Upload Image Successful");
                 } else {
                     this.$emit(
                         "onErrorHandler",
@@ -674,7 +674,7 @@ export default {
                     );
                 }
             } catch (error) {
-                console.error("Error saving profile image URL:", error);
+                //console.error("Error saving profile image URL:", error);
             }
         },
         async loadProfileImage() {
@@ -694,7 +694,7 @@ export default {
                     this.imagePreview = this.profileAvatar;
                 }
             } catch (error) {
-                console.error("Error loading profile image:", error);
+                //console.error("Error loading profile image:", error);
             }
         },
         triggerFileInput() {
@@ -714,11 +714,11 @@ export default {
                 .then((response) => {
                     //console.dir(response);
                     if (response.data.success) {
-                        console.log("getStudentCourseDetail", response.data);
+                        //console.log("getStudentCourseDetail", response.data);
                         const res = response.data.results;
                         if (res) {
                             const data = response.data.results[0];
-                            console.log("data", data.user);
+                            //console.log("data", data.user);
                             if (data.user > 0) {
                                 this.editedStudentItem.current_course_detail =
                                     "มีผู้กำลังใช้คอร์สนี้ " + data.user + " คน " + data.userlist;
@@ -836,10 +836,15 @@ export default {
                 }
             }
 
-            console.log('today', this.format_date(today, 'YYYY-MM-DD'));
-            console.log('expirationDate', this.format_date(expirationDate, 'YYYY-MM-DD'));
-            console.log('returnText', returnText);
+            // //console.log('today', this.format_date(today, 'YYYY-MM-DD'));
+            // //console.log('expirationDate', this.format_date(expirationDate, 'YYYY-MM-DD'));
+            // //console.log('returnText', returnText);
             return returnText;
+        },
+        showAddNewStudent() {
+            this.editedStudentIndex = -1;
+            this.editedStudentItem = Object.assign({}, this.defaultStudentItem);
+            this.dialogStudent = true;
         },
     },
     watch: {

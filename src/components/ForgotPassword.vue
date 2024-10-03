@@ -114,7 +114,7 @@ export default {
           username: this.username,
           mobileno: this.phonenumber,
         });
-        console.log("phoneMatch", response);
+        //console.log("phoneMatch", response);
         valid = response.data.success;
         this.isPhoneMatched = valid;
         this.phoneMatchError = valid ? '' : 'The username and phone number you entered don\'t match / username และเบอร์โทรศัพท์ไม่ถูกต้อง';
@@ -138,7 +138,7 @@ export default {
           phoneNumber: this.phonenumber,
         });
         this.$emit('onLoading', false);
-        console.log("doRequestOTP", response);
+        //console.log("doRequestOTP", response);
         if (response.data.success) {
           this.sid = response.data.message.sid;
           this.verifyBtn = true;
@@ -151,7 +151,7 @@ export default {
           this.$emit('onErrorHandler', response.data.message || 'Invalid OTP');
         }
       } catch (error) {
-        console.log("doRequestOTP", error);
+        //console.log("doRequestOTP", error);
         this.$emit('onLoading', false);
         this.$emit('onErrorHandler', error.message);
       }
@@ -164,7 +164,7 @@ export default {
           otp: this.otppassword,
         });
         this.$emit('onLoading', false);
-        console.log("doVerify", response);
+        //console.log("doVerify", response);
         if (response.data.success) {
           localStorage.setItem('token', response.data.token);
           this.$store.dispatch('setToken', { token: response.data.token });
@@ -202,7 +202,7 @@ export default {
               headers: { Authorization: `Bearer ${token}`, }
           });
           this.$emit('onLoading', false);
-          console.log("doChangePassword", response);
+          //console.log("doChangePassword", response);
           if (response.data.success) {
             this.$emit('onSuccessHandler', 'Password changed successfully');
             this.$emit('onForgotHandler', 'login');

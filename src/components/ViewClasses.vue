@@ -67,7 +67,7 @@ export default ({
             await this.getBookingList()
         },
         refreshData() {
-            console.log('refreshData : ' + new Date())
+            //console.log('refreshData : ' + new Date())
             if (this.state == "bookinglist") {
                 this.getBookingList()
             }
@@ -103,8 +103,8 @@ export default ({
                             }
                         } else {
                             this.loadingBooking = false
-                            console.log("message : " + message)
-                            console.log("results : " + results)
+                            //console.log("message : " + message)
+                            //console.log("results : " + results)
                             this.$emit('onErrorHandler', message || 'Get Bookinglist failed')
                         }
                         if (classdate == this.SQLDate(this.datepick)) {
@@ -113,7 +113,7 @@ export default ({
 
                     })
                     .catch(error => {
-                        console.log('error : ', error)
+                        //console.log('error : ', error)
                         this.loadingBooking = false
                         if (error.response.status == 401) {
                             this.$emit('onErrorHandler', error.response.data.message)
@@ -124,7 +124,7 @@ export default ({
                     });
 
             } catch (error) {
-                console.log('error : ', error)
+                //console.log('error : ', error)
                 this.$emit('onErrorHandler', error.message)
             }
         },
@@ -159,7 +159,7 @@ export default ({
                 ...row
             }));
 
-            console.log('formattedData : ' + JSON.stringify(formattedRows))
+            //console.log('formattedData : ' + JSON.stringify(formattedRows))
             return formattedRows;
         },
     },
@@ -175,7 +175,7 @@ const DashboardAPI = {
     baseURL: env.SERVER_URL,
     fetchDataBooking({ token, classday, classdate }) {
         return new Promise(resolve => {
-            console.log('DashboardAPI : ' + this.baseURL + '/getBookingList' + ' classday : ' + classday + ' classdate : ' + classdate)
+            //console.log('DashboardAPI : ' + this.baseURL + '/getBookingList' + ' classday : ' + classday + ' classdate : ' + classdate)
             axios
                 .post(this.baseURL + '/getBookingList', {
                     classday: classday,

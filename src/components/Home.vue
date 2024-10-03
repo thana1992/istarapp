@@ -53,15 +53,22 @@
                             <div class="info-detail">
                                 <p>{{ p.fullname }}</p>
                                 <p>เพศ {{ p.gender }} อายุ {{ calculateAge(p.dateofbirth) }}</p>
+                                <br>
+                                <h3 class="group-header">Course Info</h3>
                                 <div v-if="p.courserefer">
-                                    <p>Course No. {{ p.courserefer }} </p>
+                                    <p><label>Course No. {{ p.courserefer }}</label></p>
                                     <p>
                                         <label>คอร์ส {{ p.coursename }}</label>
+                                    </p>
+                                    <p>
                                         <label v-if="p.coursetype == 'Monthly'"> รายเดือน</label>
-                                        <label v-else> คงเหลือ {{ p.remaining }} ครั้ง</label>
+                                        <label v-else-if="p.remaining == 0">คงเหลือ {{ p.remaining }} ครั้ง</label>
+                                        <label v-else>คงเหลือ {{ p.remaining }} ครั้ง</label>
                                     </p>
                                     <p>
                                         <label v-if="p.expiredate">หมดอายุ {{ new Date(p.expiredate).toLocaleDateString('th-TH', this.options) }}</label>
+                                    </p>
+                                    <p>
                                         <label v-if="p.expiredate && isExpire(p.expiredate)" style="color: red;"> (หมดอายุแล้ว)</label>
                                     </p>
                                 </div>
@@ -135,7 +142,7 @@ import { TrinityRingsSpinner } from 'epic-spinners'
 export default {
     setup() {
         const isAuthenticated = computed(() => !!localStorage.getItem('token'));
-        console.log(isAuthenticated.value)
+        //console.log(isAuthenticated.value)
 
         return { isAuthenticated };
     },
@@ -146,7 +153,7 @@ export default {
     },
     methods: {
         selectChild(student) {
-            console.log(student)
+            //console.log(student)
             this.studentid = student.studentid
             this.studentSelected = student
             this.loadProfileImage()
@@ -187,14 +194,14 @@ export default {
                         headers: { Authorization: `Bearer ${token}`, }
                     })
                 .then(response => {
-                    console.dir(response);
+                    //console.dir(response);
                     if (response.data.success) {
                         this.familylist = response.data.results
-                        console.log('familylist ', this.familylist)
+                        //console.log('familylist ', this.familylist)
                     }
                 })
                 .catch(error => {
-                    console.error(error);
+                    //console.error(error);
                 });
             this.$emit('onLoading', false)
         },
@@ -203,7 +210,7 @@ export default {
                 // Replace 'gymnastId' with the actual ID of the gymnast
                 const response = await axios.get(this.baseURL + `/student/${this.studentSelected.studentid}/profile-image`,
                     { headers: { Authorization: `Bearer ${this.token}` } });
-                console.log('response : ', response)
+                //console.log('response : ', response)
                 //this.editedStudentItem.profile_image = response.data.image;
                 this.studentSelected.base64Image = response.data.image;
                 if (response.data.image !== null) {
@@ -212,7 +219,7 @@ export default {
                     this.imagePreview = this.profileAvatar;
                 }
             } catch (error) {
-                console.error('Error loading profile image:', error);
+                //console.error('Error loading profile image:', error);
             }
         },
         async getReservationDetail(studentid) {
@@ -227,7 +234,7 @@ export default {
                         headers: { Authorization: `Bearer ${token}`, }
                     })
                 .then(response => {
-                    console.dir(response);
+                    //console.dir(response);
                     if (response.data.success) {
                         this.memberReservationDetail = response.data.results
                     } else {
@@ -235,7 +242,7 @@ export default {
                     }
                 })
                 .catch(error => {
-                    console.error(error);
+                    //console.error(error);
                 });
         },
         format_date(value) {
@@ -264,9 +271,9 @@ export default {
 
         },
         isExpire(expdate) {
-            console.log('expdate', expdate)
+            //console.log('expdate', expdate)
             if(!expdate) return true;
-            console.log('=====================')
+            //console.log('=====================')
             const today = new Date();
             const expirationDate = new Date(expdate);
             //console.log('today', this.format_date(today, 'YYYY-MM-DD'));
@@ -322,7 +329,7 @@ export default {
         this.$emit('onLoading', true)
         try {
             const token = this.$store.getters.getToken;
-            console.log('check token '+ token)
+            //console.log('check token '+ token)
             if (!token) {
                 this.errorMsg = 'Not found token, Please login...'
                 this.errorDialog = true
@@ -345,7 +352,7 @@ export default {
                     }
                 })
                 .catch(error => {
-                    console.error(error);
+                    //console.error(error);
                     this.$emit('onErrorHandler', error.response.data.message)
                     this.$emit('onClickChangeState', 'login')
                 });
@@ -392,7 +399,10 @@ export default {
     text-align: center;
     width: 100%;
 }
-
+.info-detail label {
+    background-color: yellow;
+    padding: 0px 10px 0px 10px;
+}
 .btn-reserve {
     float: right;
     box-shadow: 0 0 0 0;

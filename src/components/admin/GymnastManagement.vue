@@ -28,7 +28,7 @@ export default {
     async created() {
         try {
             const token = this.$store.getters.getToken;
-            console.log('token ', token)
+            //console.log('token ', token)
             if (!token) {
                 this.errorMsg = 'Not found token, Please login...'
                 this.errorDialog = true
@@ -43,13 +43,13 @@ export default {
                     }
                 })
                 .then(response => {
-                    console.dir(response);
+                    //console.dir(response);
                     if (response.data.success) {
                         //this.initialize()
                     }
                 })
                 .catch(error => {
-                    console.error(error);
+                    //console.error(error);
                     this.$emit('onErrorHandler', error.response.data.message)
                     this.$emit('onClickChangeState', 'login')
                 });

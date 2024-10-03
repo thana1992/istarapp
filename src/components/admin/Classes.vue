@@ -168,7 +168,7 @@ export default {
             headers: { Authorization: `Bearer ${token}`, }
           })
         .then(response => {
-          console.dir(response);
+          //console.dir(response);
           if (response.data.success) {
             this.classlist = response.data.results
           }
@@ -176,7 +176,7 @@ export default {
         })
         .catch(error => {
           this.loadingClasses = false
-          console.error(error);
+          //console.error(error);
         });
       await this.getCourseLookup()
       this.$emit('onLoading', false)
@@ -190,13 +190,13 @@ export default {
             headers: { Authorization: `Bearer ${token}`, }
           })
         .then(response => {
-          console.dir(response);
+          //console.dir(response);
           if (response.data.success) {
             this.courseLookup = response.data.results
           }
         })
         .catch(error => {
-          console.error(error);
+          //console.error(error);
         });
     },
 
@@ -223,7 +223,7 @@ export default {
             headers: { Authorization: `Bearer ${token}`, }
           })
         .then(response => {
-          console.dir(response);
+          //console.dir(response);
           if (response.data.success) {
             this.$emit('onInfoHandler', 'สำเร็จ ระเบิดคลาสนี้สมดั่งใจคุณแล้ว');
           } else {
@@ -232,7 +232,7 @@ export default {
           this.initialize()
         })
         .catch(error => {
-          console.error(error);
+          //console.error(error);
         });
       this.closeDelete()
       this.$emit('onLoading', false)
@@ -272,7 +272,7 @@ export default {
               headers: { Authorization: `Bearer ${token}`, }
             })
           .then(response => {
-            console.dir(response);
+            //console.dir(response);
             if (response.data.success) {
               this.$emit('onInfoHandler', 'สำเร็จ แก้ไขข้อมูลคลาสแล้ว');
             } else {
@@ -294,7 +294,7 @@ export default {
               headers: { Authorization: `Bearer ${token}`, }
             })
           .then(response => {
-            console.dir(response);
+            //console.dir(response);
             if (response.data.success) {
               this.$emit('onInfoHandler', 'สำเร็จ สร้างคลาสใหม่แล้ว');
             } else {

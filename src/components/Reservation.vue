@@ -78,7 +78,7 @@ export default {
     async created() {
         try {
             const token = this.$store.getters.getToken;
-            console.log('token ', token)
+            //console.log('token ', token)
             if (!token) {
                 this.errorMsg = 'Not found token, Please login...'
                 this.errorDialog = true
@@ -93,10 +93,10 @@ export default {
                     }
                 })
                 .then(response => {
-                    console.dir(response);
+                    //console.dir(response);
                 })
                 .catch(error => {
-                    console.error(error);
+                    //console.error(error);
                     this.$emit('onErrorHandler', error.response.data.message)
                     this.$emit('onClickChangeState', 'login')
                 });
@@ -132,7 +132,7 @@ export default {
                         Authorization: `Bearer ${token}`,
                     }
                 });
-                console.dir(response);
+                //console.dir(response);
                 if (response.data.success) {
                     this.holidays = response.data.holidays.map(date => moment(date).startOf('day'));
                     
@@ -176,9 +176,9 @@ export default {
                         if (data.length == 0) {
                             this.classtimesData = []
                         } else {
-                            console.log('classtimesData : ', data)
+                            //console.log('classtimesData : ', data)
                             //data = data.filter(item => item.classtime !== "แข่ง");
-                            console.log('classtimesData : ', data)
+                            //console.log('classtimesData : ', data)
                             this.classtimesData = data;
                         }
                     } else {
@@ -200,7 +200,7 @@ export default {
                 studentname: this.student.firstname + ' ' + this.student.lastname,
                 studentnickname: this.student.nickname,
             }
-            console.log('checkDuplicateReservation : ', reservaObj)
+            //console.log('checkDuplicateReservation : ', reservaObj)
             const token = this.$store.getters.getToken;
             await axios.post(this.baseURL + '/checkDuplicateReservation', reservaObj, {
                 headers: {
@@ -208,7 +208,7 @@ export default {
                 },
             })
                 .then(response => {
-                    console.dir(response);
+                    //console.dir(response);
                     if (!response.data.success) {
                         this.$emit('onErrorHandler', 'คุณได้จองคลาสในวันที่ ' + this.format_date(this.date) + ' ไปแล้ว กรุณาเลือกวันอื่น')
                         isDuplicate = true;
@@ -223,7 +223,7 @@ export default {
                     },
                 })
                     .then(response => {
-                        console.dir(response);
+                        //console.dir(response);
                         if (response.data.success) {
                             this.$emit('onInfoHandler', 'จองคลาสสำเร็จ แล้วพบกัน :)')
                             this.$emit('onSuccessHandler', 'home')
@@ -232,7 +232,7 @@ export default {
                         }
                     })
                     .catch(error => {
-                        console.error(error);
+                        //console.error(error);
                         this.$emit('onErrorHandler', error.message || 'Reservation failed')
                     });
             }

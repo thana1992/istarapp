@@ -85,25 +85,25 @@ export default {
           headers: { Authorization: `Bearer ${token}`, }
         })
         .then(response => {
-          console.log('getNewStudentList res : ', response)
+          //console.log('getNewStudentList res : ', response)
           if (response.data.results.length == 0) {
             this.newStudentList = []
             this.loadingNewStudentList = false
           } else {
-            console.log('getNewStudentList res : ', response.data.results)
+            //console.log('getNewStudentList res : ', response.data.results)
             this.newStudentList = response.data.results
             this.loadingNewStudentList = false
           }
         })
         .catch(error => {
-          console.log(error)
+          //console.log(error)
         })
     },
 
     async approveNewStudent() {
       this.$emit('onLoading', true)
-      console.log('approveNewStudent : ', this.newStudentList)
-      console.log('confirmStudentList : ', this.confirmStudentList)
+      //console.log('approveNewStudent : ', this.newStudentList)
+      //console.log('confirmStudentList : ', this.confirmStudentList)
       const apprObj = this.confirmStudentList
       const token = this.$store.getters.getToken;
       await axios.post(this.baseURL + '/approveNewStudent', {
@@ -113,7 +113,7 @@ export default {
           headers: { Authorization: `Bearer ${token}`, }
         })
         .then(response => {
-          console.log(response)
+          //console.log(response)
 
           this.$emit('onUpdateDataSuccess');
           this.$emit('onInfoHandler', response.data.message || 'Approve new student success');
@@ -121,7 +121,7 @@ export default {
         .catch(error => {
 
           this.$emit('onErrorHandler', error.message || 'Approve new student failed');
-          console.log(error)
+          //console.log(error)
         })
 
       this.dialogConfirmApprove = false;
@@ -130,7 +130,7 @@ export default {
     },
     async deleteNewStudent() {
       this.$emit('onLoading', true)
-      console.log('deleteNewStudent : ', this.studentNewDeleteObj)
+      //console.log('deleteNewStudent : ', this.studentNewDeleteObj)
       const token = this.$store.getters.getToken;
       await axios.post(this.baseURL + '/deleteStudent', {
         familyid: this.studentNewDeleteObj.familyid,
@@ -141,7 +141,7 @@ export default {
           headers: { Authorization: `Bearer ${token}`, }
         })
         .then(response => {
-          console.log(response)
+          //console.log(response)
           this.dialogStudentNewDelete = false;
 
           this.$emit('onUpdateDataSuccess');
@@ -150,7 +150,7 @@ export default {
         .catch(error => {
           this.dialogStudentNewDelete = false;
           this.$emit('onErrorHandler', error.message || 'Delete new student failed');
-          console.log(error)
+          //console.log(error)
         })
       this.studentNewDeleteObj = null
       this.$emit('onLoading', false)
@@ -226,7 +226,7 @@ export default {
   watch: {
     // dialogConfirmApprove (val) {
     //   if(this.confirmStudentList.length == 0) {
-    //     console.log("check")
+    //     //console.log("check")
     //     this.$emit('onErrorHandler', 'Please select student to approve');
     //     return
     //   }else{
