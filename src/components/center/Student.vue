@@ -120,7 +120,7 @@
                                             </v-col>
                                         </v-row>
                                         <v-row>
-                                            <v-col cols="12" sm="6" md="6">
+                                            <v-col cols="12" sm="4" md="4">
                                                 <v-autocomplete v-model="editedStudentItem.courserefer"
                                                     label="Course Refer" item-title="courserefer"
                                                     item-value="courserefer" :items="customerCourseLookup"
@@ -128,7 +128,21 @@
                                                     editable @update:modelValue="onCourseChange"
                                                     filterable></v-autocomplete>
                                             </v-col>
-                                            <v-col cols="12" sm="6" md="6" v-if="editedStudentIndex != -1">
+                                            <!-- วางลูกศรตรงกลาง -->
+                                            <v-col cols="12" sm="4" md="4" class="arrow-col">
+      <div class="arrow">
+        <span class="arrow-text">Next Course</span>
+      </div>
+    </v-col>
+                                            <v-col cols="12" sm="4" md="4">
+                                                <v-autocomplete v-model="editedStudentItem.courserefer"
+                                                    label="Continue Course Refer" item-title="courserefer"
+                                                    item-value="courserefer" :items="customerCourseLookup"
+                                                    variant="solo-filled" no-data-text="No course"
+                                                    editable @update:modelValue="onCourseChange"
+                                                    filterable></v-autocomplete>
+                                            </v-col>
+                                            <!--<v-col cols="12" sm="2" md="2" v-if="editedStudentIndex != -1">
                                                 <v-btn height="55"
                                                     prepend-icon="mdi-check-circle"
                                                     @click="finishCourse()"
@@ -138,7 +152,7 @@
                                                     </template>
                                                     จบคอร์ส
                                                 </v-btn>
-                                            </v-col>
+                                            </v-col>-->
                                         </v-row>
                                         <v-rol>
                                             <v-col cols="12" sm="12" md="12">
@@ -941,5 +955,47 @@ const ComponentAPI = {
 .scrollable-content {
   max-height: 950px;
   overflow-y: auto;
+}
+
+.arrow-col {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+
+.arrow {
+  width: 80%; /* ความยาวของหางลูกศร */
+  height: 5px; /* ความสูงของหางลูกศร */
+  background: #b1b1b1;
+
+  position: relative;
+  border-radius: 4px; /* ทำให้หางลูกศรดูมนๆ */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.arrow::after {
+    content: '';
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+    border-left: 16px solid #b1b1b1;
+    right: -7px;
+    top: -5px;
+    
+}
+
+.arrow-text {
+  background: linear-gradient(90deg, red, orange, green, blue, indigo, violet); /* ไล่สีตัวอักษร */
+  -webkit-background-clip: text; /* ทำให้พื้นหลังเลือนหายไป */
+  -webkit-text-fill-color: transparent; /* ทำให้สีพื้นหลังแสดงแทนสีตัวอักษร */
+  font-size: 14px;
+  position: relative;
+  z-index: 1;
+  top: -15px;
 }
 </style>
