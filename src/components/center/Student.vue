@@ -127,13 +127,12 @@
                                                     variant="solo-filled" no-data-text="No course"
                                                     editable @update:modelValue="onCourseChange"
                                                     filterable></v-autocomplete>
-                                            </v-col>
-                                            <!-- วางลูกศรตรงกลาง -->
+                                            </v-col><!--
                                             <v-col cols="12" sm="4" md="4" class="arrow-col">
-      <div class="arrow">
-        <span class="arrow-text">Next Course</span>
-      </div>
-    </v-col>
+                                                <div class="arrow">
+                                                    <span class="arrow-text">Next Course</span>
+                                                </div>
+                                            </v-col>
                                             <v-col cols="12" sm="4" md="4">
                                                 <v-autocomplete v-model="editedStudentItem.courserefer"
                                                     label="Continue Course Refer" item-title="courserefer"
@@ -141,8 +140,8 @@
                                                     variant="solo-filled" no-data-text="No course"
                                                     editable @update:modelValue="onCourseChange"
                                                     filterable></v-autocomplete>
-                                            </v-col>
-                                            <!--<v-col cols="12" sm="2" md="2" v-if="editedStudentIndex != -1">
+                                            </v-col>-->
+                                            <v-col cols="12" sm="2" md="2" v-if="editedStudentIndex != -1">
                                                 <v-btn height="55"
                                                     prepend-icon="mdi-check-circle"
                                                     @click="finishCourse()"
@@ -152,7 +151,7 @@
                                                     </template>
                                                     จบคอร์ส
                                                 </v-btn>
-                                            </v-col>-->
+                                            </v-col>
                                         </v-row>
                                         <v-rol>
                                             <v-col cols="12" sm="12" md="12">
