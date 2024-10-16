@@ -50,7 +50,7 @@ import DatePicker from '@/components/DatePicker.vue'
 import moment from 'moment'
 import { mapGetters } from 'vuex';
 import { io } from 'socket.io-client';
-const socket = io(env.SERVER_URL);
+const socket = io(this.baseURL);
 
 export default {
     components: {
