@@ -290,6 +290,9 @@ import moment from 'moment'
 import { mapGetters } from 'vuex';
 import Vue3autocounter from 'vue3-autocounter';
 import { ref, onMounted, nextTick  } from 'vue';
+import { io } from 'socket.io-client';
+const socket = io(env.SERVER_URL);
+
 export default ({
     components: {
         DatePicker,
@@ -392,6 +395,11 @@ export default ({
         this.interval = setInterval(() => {
             this.refreshData()
         }, 60000)
+
+        socket.on('update_admin_newstudent', (data) => {
+            console.log('update_admin_newstudent', data)
+            this.refreshCardDashboard()
+        });
     },
     unmounted() {
         //console.log('dashboard unmounted...' + new Date())
