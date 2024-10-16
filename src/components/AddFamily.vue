@@ -49,8 +49,6 @@ import axios from 'axios'
 import DatePicker from '@/components/DatePicker.vue'
 import moment from 'moment'
 import { mapGetters } from 'vuex';
-import { io } from 'socket.io-client';
-const socket = io(env.SERVER_URL);
 
 export default {
     components: {
@@ -104,8 +102,7 @@ export default {
                         if (response.data.success) {
                             this.$emit('onLoading', false)
                             this.$emit('onInfoHandler', response.data.message || 'เพิ่มสมาชิกครอบครัวสำเร็จแล้ว');
-                            this.$emit('onClickChangeState', 'familylist');
-                            socket.emit('add_newstudent'); // ส่ง Socket ไปที่ Server
+                            this.$emit('onClickChangeState', 'familylist')
                         } else {
                             this.$emit('onErrorHandler', response.data.message || 'เพิ่มสมาชิกครอบครัวไม่สำเร็จ');
                         }
