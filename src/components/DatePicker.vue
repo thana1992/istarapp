@@ -55,9 +55,10 @@ const clearDate = () => {
   emit("update:modelValue", null);
 };
 
-watch(modelValue, (newDate) => {
+watch(() => modelValue, (newDate) => {
   selectedDate.value = newDate;
 });
+
 
 watch(selectedDate, (newDate) => {
   emit("update:modelValue", newDate);
