@@ -4,7 +4,7 @@
     <div class="main-greeting">
       <h1>Login</h1>
       <p>Welcome to the iStar Gymnastics,</p>
-      <p>Have a wonderful day :D</p>
+      <p>Have a wonderful day :D...</p>
     </div>
     <v-card class="main-form px-3 py-3 mb-12">
       <v-form ref="login_form" v-model="login_form" @submit.prevent="doLogin">
