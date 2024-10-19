@@ -69,6 +69,7 @@ export default {
             people: '',
             classTimeRules: [
                 v => !!v || 'Class time is required',
+                v => !v || (v.available > 0) || 'ไม่สามารถจองคลาสที่ท่านเลือก' // ตรวจสอบ available
             ],
             //weekday:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
             questionDialog: false,
