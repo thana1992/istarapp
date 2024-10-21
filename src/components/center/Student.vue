@@ -127,20 +127,20 @@
                                                     variant="solo-filled" no-data-text="No course"
                                                     editable @update:modelValue="onCourseChange"
                                                     filterable></v-autocomplete>
-                                            </v-col><!--
+                                            </v-col>
                                             <v-col cols="12" sm="4" md="4" class="arrow-col">
                                                 <div class="arrow">
                                                     <span class="arrow-text">Next Course</span>
                                                 </div>
                                             </v-col>
                                             <v-col cols="12" sm="4" md="4">
-                                                <v-autocomplete v-model="editedStudentItem.courserefer"
-                                                    label="Continue Course Refer" item-title="courserefer"
-                                                    item-value="courserefer" :items="customerCourseLookup"
+                                                <v-autocomplete v-model="editedStudentItem.courserefer2"
+                                                    label="Continue Course Refer" item-title="courserefer2"
+                                                    item-value="courserefer2" :items="customerCourseLookup"
                                                     variant="solo-filled" no-data-text="No course"
                                                     editable @update:modelValue="onCourseChange"
                                                     filterable></v-autocomplete>
-                                            </v-col>-->
+                                            </v-col>
                                             <v-col cols="12" sm="2" md="2" v-if="editedStudentIndex != -1">
                                                 <v-btn height="55"
                                                     prepend-icon="mdi-check-circle"
@@ -288,6 +288,7 @@ export default {
                 dateofbirth: null,
                 age: null,
                 courserefer: null,
+                courserefer: 2,
                 current_course_detail: null,
                 username: null,
                 profile_image: null,
@@ -398,6 +399,7 @@ export default {
                     dateofbirth: dob,
                     familyid: this.editedStudentItem.familyid,
                     courserefer: this.editedStudentItem.courserefer,
+                    courserefer2: this.editedStudentItem.courserefer2,
                     shortnote: this.editedStudentItem.shortnote,
                 };
 
