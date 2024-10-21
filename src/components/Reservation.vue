@@ -12,7 +12,7 @@
                         <p>การจองคลาสของ {{ student.firstname + ' ' + student.lastname }}</p>
                     </v-row>
                     <v-row justify="space-around" class="ma-2 pa-2">
-                        <v-date-picker v-model="date" :min="tomorrow" :allowed-dates="isDateAllowed" @click="selectDate"></v-date-picker>
+                        <v-date-picker v-model="date" :min="tomorrow" :allowed-dates="isDateAllowed" @update:month="handleMonthChange" @click="selectDate"></v-date-picker>
                     </v-row>
                     <v-row justify="space-around" class="ma-2 pa-2">
                         <v-select v-model="classtimeSelect" label="Class time" class="ma-2 pa-2" item-title="text"
@@ -63,6 +63,9 @@ export default {
     data() {
         return {
             date: new Date(),
+            date: new Date(),
+            previousMonth: new Date().getMonth(),
+            previousYear: new Date().getFullYear(),
             tomorrow: new Date(),
             classtimeSelect: null,
             classtimesData: [],
@@ -116,36 +119,44 @@ export default {
     },
     methods: {
         async selectDate() {
-            //console.log(new Date(this.date).toLocaleDateString('en-US', { weekday: 'long' }))
-            this.classtimeSelect = null
-            await this.getClassTime()
-            await this.getHolidayInformation()
+            this.classtimeSelect = null;
+            await this.getClassTime();
+        },
+        handleMonthChange(newDate) {
+            console.log("handleMonthChange", newDate);
+            const newMonth = new Date(newDate).getMonth();
+            const newYear = new Date(newDate).getFullYear();
+
+            // ตรวจสอบเดือนและปีที่เลือกใหม่
+            if (newMonth !== this.previousMonth || newYear !== this.previousYear) {
+                // หากเดือนหรือปีเปลี่ยนแปลง ให้เรียก API
+                this.getHolidayInformation();
+                
+                // อัปเดตค่าของเดือนและปี
+                this.previousMonth = newMonth;
+                this.previousYear = newYear;
+            }
         },
         isDateAllowed(date) {
             const isMonday = moment(date).day() === 1;  // ตรวจสอบว่าวันที่นั้นเป็นวันจันทร์หรือไม่
-        const isHoliday = this.holidays.some(holiday => moment(date).isSame(holiday, 'day')); // ตรวจสอบว่าวันที่เป็นวันหยุดหรือไม่
-
-        return !isMonday && !isHoliday;
+            const isHoliday = this.holidays.some(holiday => moment(date).isSame(holiday, 'day')); // ตรวจสอบว่าวันที่เป็นวันหยุดหรือไม่
+            return !isMonday && !isHoliday;
         },
+        
         async fetchHolidays() {
             try {
                 const token = this.$store.getters.getToken;
                 const response = await axios.get(this.baseURL + '/holidaysList', {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
+                    headers: { Authorization: `Bearer ${token}` }
                 });
-                //console.dir(response);
+                
                 if (response.data.success) {
                     this.holidays = response.data.holidays.map(date => moment(date).startOf('day'));
-                    
                 } else {
-                    //console.error('Failed to fetch holidays:', response.data.message);
-                    this.$emit('onErrorHandler', response.data.message)
+                    this.$emit('onErrorHandler', response.data.message);
                 }
             } catch (error) {
-                //console.error('Error fetching holidays:', error);
-                this.$emit('onErrorHandler', error.message)
+                this.$emit('onErrorHandler', error.message);
             }
         },
         async validate() {
@@ -158,36 +169,27 @@ export default {
             this.questionDialog = true
             //await this.submitReservation()
         },
-        getClassTime() {
-            let req = {
+        async getClassTime() {
+            const req = {
                 classdate: this.SQLDate(this.date),
-                //classday: this.weekday[this.date.getDay()],
                 classday: new Date(this.date).toLocaleDateString('en-US', { weekday: 'long' }),
                 courseid: this.student.courseid
-            }
-            //console.log("request", req)
+            };
+
             const token = this.$store.getters.getToken;
-            axios.post(this.baseURL + '/getClassTime', req, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-                .then(response => {
-                    //console.dir(response);
-                    if (response.data.success) {
-                        let data = response.data.results
-                        if (data.length == 0) {
-                            this.classtimesData = []
-                        } else {
-                            //console.log('classtimesData : ', data)
-                            //data = data.filter(item => item.classtime !== "แข่ง");
-                            //console.log('classtimesData : ', data)
-                            this.classtimesData = data;
-                        }
-                    } else {
-                        this.classtimesData = []
-                    }
-                })
+            try {
+                const response = await axios.post(this.baseURL + '/getClassTime', req, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (response.data.success) {
+                    this.classtimesData = response.data.results.length ? response.data.results : [];
+                } else {
+                    this.classtimesData = [];
+                }
+            } catch (error) {
+                this.$emit('onErrorHandler', error.message);
+            }
         },
         async getHolidayInformation() {
             const token = this.$store.getters.getToken;
