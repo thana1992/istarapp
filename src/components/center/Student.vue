@@ -135,8 +135,8 @@
                                             </v-col>
                                             <v-col cols="12" sm="4" md="4">
                                                 <v-autocomplete v-model="editedStudentItem.courserefer2"
-                                                    label="Continue Course Refer" item-title="courserefer2"
-                                                    item-value="courserefer2" :items="customerCourseLookup"
+                                                    label="Continue Course Refer" item-title="courserefer"
+                                                    item-value="courserefer" :items="customerCourseLookup"
                                                     variant="solo-filled" no-data-text="No course"
                                                     editable @update:modelValue="onCourseChange"
                                                     filterable></v-autocomplete>
