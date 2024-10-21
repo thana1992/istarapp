@@ -968,7 +968,7 @@ const ComponentAPI = {
 .arrow {
   width: 80%; /* ความยาวของหางลูกศร */
   height: 5px; /* ความสูงของหางลูกศร */
-  background: #b1b1b1;
+  background:  linear-gradient(90deg,rgb(255, 255, 255), black); /* ไล่สีตัวอักษร */
 
   position: relative;
   border-radius: 4px; /* ทำให้หางลูกศรดูมนๆ */
@@ -984,17 +984,17 @@ const ComponentAPI = {
     height: 0;
     border-top: 8px solid transparent;
     border-bottom: 8px solid transparent;
-    border-left: 16px solid #b1b1b1;
+    border-left: 16px solid #000000;
     right: -7px;
     top: -5px;
     
 }
 
 .arrow-text {
-  background: linear-gradient(90deg, red, orange, green, blue, indigo, violet); /* ไล่สีตัวอักษร */
+  background: #7e7e7e;
   -webkit-background-clip: text; /* ทำให้พื้นหลังเลือนหายไป */
   -webkit-text-fill-color: transparent; /* ทำให้สีพื้นหลังแสดงแทนสีตัวอักษร */
-  font-size: 14px;
+  font-size: blod 14px;
   position: relative;
   z-index: 1;
   top: -15px;

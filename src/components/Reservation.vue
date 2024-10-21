@@ -112,12 +112,14 @@ export default {
         this.date = tomorrow
         await this.fetchHolidays();
         this.getClassTime()
+        this.getHolidayInformation()
     },
     methods: {
         selectDate() {
             //console.log(new Date(this.date).toLocaleDateString('en-US', { weekday: 'long' }))
             this.classtimeSelect = null
             this.getClassTime()
+            this.getHolidayInformation()
         },
         isDateAllowed(date) {
             const isMonday = moment(date).day() === 1;  // ตรวจสอบว่าวันที่นั้นเป็นวันจันทร์หรือไม่
@@ -185,6 +187,20 @@ export default {
                     } else {
                         this.classtimesData = []
                     }
+                })
+        },
+        getHolidayInformation() {
+            const token = this.$store.getters.getToken;
+            axios.post(this.baseURL + '/getHolidayInformation', {
+                selectdate: this.SQLDate(this.date),
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                })
+                .then(response => {
+                    console.dir(response);
+                    
                 })
         },
         async submitReservation() {
