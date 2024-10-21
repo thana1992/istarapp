@@ -111,15 +111,15 @@ export default {
         tomorrow.setDate(new Date().getDate() + 1)
         this.date = tomorrow
         await this.fetchHolidays();
-        this.getClassTime()
-        this.getHolidayInformation()
+        await this.getClassTime()
+        await this.getHolidayInformation()
     },
     methods: {
-        selectDate() {
+        async selectDate() {
             //console.log(new Date(this.date).toLocaleDateString('en-US', { weekday: 'long' }))
             this.classtimeSelect = null
-            this.getClassTime()
-            this.getHolidayInformation()
+            await this.getClassTime()
+            await this.getHolidayInformation()
         },
         isDateAllowed(date) {
             const isMonday = moment(date).day() === 1;  // ตรวจสอบว่าวันที่นั้นเป็นวันจันทร์หรือไม่
@@ -189,9 +189,9 @@ export default {
                     }
                 })
         },
-        getHolidayInformation() {
+        async getHolidayInformation() {
             const token = this.$store.getters.getToken;
-            axios.post(this.baseURL + '/getHolidayInformation', {
+            await axios.post(this.baseURL + '/getHolidayInformation', {
                 selectdate: this.SQLDate(this.date),
             }, {
                 headers: {
