@@ -63,7 +63,6 @@ export default {
     data() {
         return {
             date: new Date(),
-            date: new Date(),
             previousMonth: new Date().getMonth(),
             previousYear: new Date().getFullYear(),
             tomorrow: new Date(),

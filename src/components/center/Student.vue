@@ -138,7 +138,7 @@
                                                     label="Continue Course Refer" item-title="courserefer"
                                                     item-value="courserefer" :items="customerCourseLookup"
                                                     variant="solo-filled" no-data-text="No course"
-                                                    editable @update:modelValue="onCourseChange"
+                                                    editable
                                                     filterable></v-autocomplete>
                                             </v-col>
                                             <v-col cols="12" sm="2" md="2" v-if="editedStudentIndex != -1">
@@ -272,6 +272,7 @@ export default {
                 dateofbirth: null,
                 age: null,
                 courserefer: null,
+                courserefer2: null,
                 current_course_detail: null,
                 username: null,
                 profile_image: null,
@@ -288,7 +289,7 @@ export default {
                 dateofbirth: null,
                 age: null,
                 courserefer: null,
-                courserefer: 2,
+                courserefer2: null,
                 current_course_detail: null,
                 username: null,
                 profile_image: null,
