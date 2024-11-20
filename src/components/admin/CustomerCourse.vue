@@ -80,6 +80,20 @@
                           </v-col>
                         </v-row>
                         <v-row>
+                          <v-col cols="4" sm="4" md="4">
+                            <v-btn-toggle v-model="editedItem.paid" mandatory>
+                              <v-btn :value="true" color="success" elevation="3" depressed>
+                                <v-icon left>mdi-check-circle</v-icon>
+                                จ่ายแล้ว
+                              </v-btn>
+                              <v-btn :value="false" color="error" elevation="3" depressed>
+                                <v-icon left>mdi-cancel</v-icon>
+                                ยังไม่จ่าย
+                              </v-btn>
+                            </v-btn-toggle>
+                          </v-col>
+                        </v-row>
+                        <v-row>
                           <v-col cols="12" sm="12" md="12">
                                   <v-data-table :headers="CourseUsingHeaders" :items="CourseUsingtList" density="compact"
                                   :items-per-page="1000" >
@@ -157,18 +171,21 @@
                     {{ expireDateLeft(item.expiredate) }}
                 </p>
             </template>
-          <template v-slot:item.actions="{ item }">
+          <!-- <template v-slot:item.actions="{ item }">
             <v-icon size="small" class="me-2" @click="editItem(item)">
               mdi-pencil
             </v-icon>
             <v-icon size="small" @click="deleteItem(item)"> mdi-delete </v-icon>
-          </template>
+          </template> -->
           <template v-slot:no-data>
             No Customer's course list
             <br /><br />
             <v-btn color="primary" @click="initialize"> Reset </v-btn>
           </template>
-
+          <template v-slot:item.paid="{ item }">
+            <v-chip color="success" v-if="item.paid == 0">จ่ายแล้ว</v-chip>
+            <v-chip color="error" v-else>ยังไม่จ่าย</v-chip>
+          </template>
           <template v-slot:item.edit="{ item }">
               <v-icon size="large" color="info" @click="editItem(item)">mdi-pencil</v-icon>
           </template>
@@ -209,6 +226,7 @@ export default {
       { title: "วันหมดอายุ", key: "expiredate", align: "left" },
       { title: "คงเหลือ", key: "remaining", align: "end" },
       { title: "ผู้ใช้คอร์ส", key: "userlist", align: "left" },
+      { title: "ชำระเงิน", key: "paid", align: "center" },
       //{ title: "", key: "actions", sortable: false },
       { title: "แก้ไข", key: "edit", sortable: false },
       { title: "ลบ", key: "delete", sortable: false },
@@ -226,6 +244,7 @@ export default {
       expiredate: null,
       course_user: null,
       period: null,
+      paid: false,
     },
     defaultItem: {
       courserefer: null,
@@ -238,6 +257,7 @@ export default {
       expiredate: null,
       course_user: null,
       period: null,
+      paid: false,
     },
     CourseUsingHeaders: [
         { text: 'No.', value: 'index' },
@@ -570,6 +590,7 @@ export default {
             startdate: startdate,
             expiredate: expiredate,
             period: this.editedItem.period,
+            paid: this.editedItem.paid,
           };
           await axios
             .post(this.baseURL + "/updateCustomerCourse", saveObj, {
@@ -600,6 +621,7 @@ export default {
             startdate: startdate,
             expiredate: expiredate,
             period: this.editedItem.period,
+            paid: this.editedItem.paid,
           };
           await axios
             .post(this.baseURL + "/addCustomerCourse", saveObj, {
