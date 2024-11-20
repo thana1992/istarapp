@@ -80,17 +80,17 @@
                           </v-col>
                         </v-row>
                         <v-row>
-                          <v-col cols="4" sm="4" md="4">
-                            <v-btn-toggle v-model="editedItem.paid" mandatory>
-                              <v-btn :value="1" color="success" elevation="3" depressed>
-                                <v-icon left>mdi-check-circle</v-icon>
-                                จ่ายแล้ว
-                              </v-btn>
-                              <v-btn :value="0" color="error" elevation="3" depressed>
-                                <v-icon left>mdi-cancel</v-icon>
-                                ยังไม่จ่าย
-                              </v-btn>
-                            </v-btn-toggle>
+                          <v-col cols="3" sm="3" md="3">
+                            <v-checkbox
+                              v-model="editedItem.paid"
+                              :label="editedItem.paid ? 'จ่ายแล้ว' : 'ยังไม่จ่าย'"
+                              color="success"
+                              class="ma-2"
+                            />
+                          </v-col>
+                          <v-col cols="3" sm="3" md="3">
+                            <DatePicker label="วันที่ชำระ" variant="solo-filled" v-model="editedItem.expiredate"
+                              :mindate="editedItem.startdate"></DatePicker>
                           </v-col>
                         </v-row>
                         <v-row>
