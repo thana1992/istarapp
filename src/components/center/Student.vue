@@ -98,6 +98,12 @@
                                             </v-col>
                                         </v-row>
                                         <v-row>
+                                            <v-col cols="12" sm="6" md="3">
+                                                <v-text-field label="Level" type="number" v-model="editedStudentItem.level" 
+                                                    variant="solo-filled" :rules="levelRules" ></v-text-field>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
                                             <v-col cols="12" sm="6" md="12">
                                                 <v-textarea v-model="editedStudentItem.shortnote" label="Short Note"
                                                     variant="solo-filled" rows="4">
@@ -270,6 +276,7 @@ export default {
                 nickname: null,
                 gender: null,
                 dateofbirth: null,
+                level: null,
                 age: null,
                 courserefer: null,
                 courserefer2: null,
@@ -287,6 +294,7 @@ export default {
                 nickname: null,
                 gender: null,
                 dateofbirth: null,
+                level: null,
                 age: null,
                 courserefer: null,
                 courserefer2: null,
@@ -398,6 +406,7 @@ export default {
                     nickname: this.editedStudentItem.nickname,
                     gender: this.editedStudentItem.gender,
                     dateofbirth: dob,
+                    level: this.editedStudentItem.level,
                     familyid: this.editedStudentItem.familyid,
                     courserefer: this.editedStudentItem.courserefer,
                     courserefer2: this.editedStudentItem.courserefer2,
