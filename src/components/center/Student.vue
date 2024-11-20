@@ -259,6 +259,7 @@ export default {
                 //{ title: 'Date of Birth', key: 'dateofbirthshow' },
                 { title: "เพศ", key: "gender", align: "left" },
                 { title: "อายุ", key: "dateofbirth", align: "end"},
+                { title: "Level", key: "level", align: "center" },
                 //{ title: "Course Start", key: "startdate", align: "center" },
                 { title: 'ชื่อคอร์ส', key: 'coursename', align: 'left' },
                 { title: "คงเหลือ", key: "remaining", align: "center" },
