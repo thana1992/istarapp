@@ -244,7 +244,7 @@ export default {
       expiredate: null,
       course_user: null,
       period: null,
-      paid: false,
+      paid: 0,
     },
     defaultItem: {
       courserefer: null,
@@ -257,7 +257,7 @@ export default {
       expiredate: null,
       course_user: null,
       period: null,
-      paid: false,
+      paid: 0,
     },
     CourseUsingHeaders: [
         { text: 'No.', value: 'index' },
