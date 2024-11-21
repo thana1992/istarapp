@@ -118,7 +118,7 @@
                                                 </v-autocomplete>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="7">
-                                                <v-file-input v-model="editedStudentItem.profilepic" label="รูปโปรไฟล์"
+                                                <v-file-input v-model="editedStudentItem.profile_image" label="รูปโปรไฟล์"
                                                     accept="image/*" show-size outlined prepend-icon="mdi-camera"
                                                     :loading="uploadLoading" @change="onFileChange"
                                                     @click:clear="onFileClear" style="display: none" ref="fileInput">
@@ -642,7 +642,7 @@ export default {
             this.editedStudentItem.profile_image = null;
             this.imagePreview = this.profileAvatar;
         },
-        onFileChange(e) {
+        async onFileChange(e) {
             const file = e.target.files[0];
             //console.log("file : ", file);
 
@@ -655,6 +655,7 @@ export default {
                 return;
             }
             if (file) {
+                await this.handleProfileImageUpload(file, this.editedStudentItem.studentid);
                 this.editedStudentItem.profile_image = file;
                 const reader = new FileReader();
                 reader.onload = () => {
@@ -725,6 +726,20 @@ export default {
         },
         triggerFileInput() {
             this.$refs.fileInput.click();
+        },
+        async handleProfileImageUpload(file, sid) {
+            const formData = new FormData();
+            formData.append('file', file);
+
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData,
+            });
+
+            const data = await response.json();
+            const imageUrl = data.url;
+            console.log('imageUrl', imageUrl);
+            //await updateProfileImageUrl(sid, imageUrl);
         },
         async onCourseChange() {
             this.loadingCourse = true;
