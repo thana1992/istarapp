@@ -655,6 +655,7 @@ export default {
                 return;
             }
             if (file) {
+                this.uploadProfile(file);
                 this.editedStudentItem.profile_image = file;
                 const reader = new FileReader();
                 reader.onload = () => {
@@ -662,6 +663,25 @@ export default {
                     this.base64Image = reader.result.split(",")[1]; // เก็บเฉพาะส่วนข้อมูล Base64
                 };
                 reader.readAsDataURL(file);
+            }
+        },
+        async uploadProfile(file) {
+            const formData = new FormData();
+            const newFileName = `${this.editedStudentItem.studentid}_${file.name}`;
+            const renamedFile = new File([file], newFileName, { type: file.type });
+            formData.append('file', renamedFile);
+
+            try {
+                const response = await axios.post(this.baseURL+'/upload', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+                this.uploadUrl = response.data.url;
+                console.log('File uploaded:', this.uploadUrl);
+            } catch (error) {
+                console.error('Error uploading file:', error);
+                //alert('Error uploading file. Please try again.');
             }
         },
         async uploadImageProfile(sid) {
