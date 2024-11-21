@@ -284,6 +284,7 @@ export default {
                 current_course_detail: null,
                 username: null,
                 profile_image: null,
+                profile_image_url: null,
                 shortnote: null,
             },
             defaultStudentItem: {
@@ -302,6 +303,7 @@ export default {
                 current_course_detail: null,
                 username: null,
                 profile_image: null,
+                profile_image_url: null,
                 shortnote: null,
             },
             CourseUsingHeaders: [
@@ -412,6 +414,7 @@ export default {
                     courserefer: this.editedStudentItem.courserefer,
                     courserefer2: this.editedStudentItem.courserefer2,
                     shortnote: this.editedStudentItem.shortnote,
+                    profile_image_url: this.editedStudentItem.profile_image_url,
                 };
 
                 //console.log(this.editedStudentIndex+ ' StudentObj : ', StudentObj)
@@ -424,7 +427,8 @@ export default {
                         })
                         .then((response) => {
                             if (response.data.success) {
-                                this.uploadImageProfile(this.editedStudentItem.studentid);
+                                this.handleProfileImageUpload(this.editedStudentItem.profile_image, this.editedStudentItem.studentid);
+                                //this.uploadImageProfile(this.editedStudentItem.studentid);
                                 this.$emit("onInfoHandler", "แก้ไขข้อมูลสำเร็จแล้ว");
                                 this.getStudentList();
                                 this.dialogStudent = false;
@@ -452,7 +456,8 @@ export default {
                         })
                         .then((response) => {
                             if (response.data.success) {
-                                this.uploadImageProfile(response.data.studentid);
+                                this.handleProfileImageUpload(this.editedStudentItem.profile_image, response.data.studentid);
+                                //this.uploadImageProfile(response.data.studentid);
                                 this.$emit("onInfoHandler", "เพิ่มสมาชิกสำเร็จแล้ว");
                                 this.getStudentList();
                                 this.dialogStudent = false;
@@ -655,70 +660,36 @@ export default {
                 return;
             }
             if (file) {
-                await this.handleProfileImageUpload(file, this.editedStudentItem.studentid);
                 this.editedStudentItem.profile_image = file;
                 const reader = new FileReader();
                 reader.onload = () => {
                     this.imagePreview = reader.result;
-                    this.base64Image = reader.result.split(",")[1]; // เก็บเฉพาะส่วนข้อมูล Base64
                 };
                 reader.readAsDataURL(file);
-            }
-        },
-        async uploadImageProfile(sid) {
-            if (!this.editedStudentItem.profile_image) {
-                //this.$emit("onErrorHandler", "Please select an image to upload");
-                return;
-            }
-            this.uploadLoading = true;
-            try {
-                await this.saveImage(sid);
-            } catch (error) {
-                //console.error("Error uploading image:", error);
-            }
-            this.uploadLoading = false;
-        },
-        async saveImage(sid) {
-            const image = this.base64Image;
-            try {
-                // Replace 'gymnastId' with the actual ID of the gymnast
-                const token = this.$store.getters.getToken;
-                const response = await axios.put(
-                    this.baseURL + `/student/${sid}/profile-image`,
-                    { image },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${token}`,
-                        },
-                    }
-                );
-                if (response.data.success) {
-                    //this.$emit("onInfoHandler", "Upload Image Successful");
-                } else {
-                    this.$emit(
-                        "onErrorHandler",
-                        response.data.message || "Upload Image failed"
-                    );
-                }
-            } catch (error) {
-                //console.error("Error saving profile image URL:", error);
             }
         },
         async loadProfileImage() {
             try {
                 // Replace 'gymnastId' with the actual ID of the gymnast
-                const response = await axios.get(
-                    this.baseURL +
-                    `/student/${this.editedStudentItem.studentid}/profile-image`,
-                    { headers: { Authorization: `Bearer ${this.token}` } }
-                );
-                //console.log("response : ", response);
-                //this.editedStudentItem.profile_image = response.data.image;
-                this.base64Image = response.data.image;
-                if (response.data.image !== null) {
-                    this.imagePreview = `data:image/*;base64,${response.data.image}`;
+                if(this.editedStudentItem.profile_image_url){
+                    this.imagePreview = this.editedStudentItem.profile_image_url;
                 } else {
-                    this.imagePreview = this.profileAvatar;
+                    const response = await axios.get(
+                        this.baseURL +
+                        `/student/${this.editedStudentItem.studentid}/profile-image`,
+                        { headers: { Authorization: `Bearer ${this.token}` } }
+                    );
+                    //console.log("response : ", response);
+                    //this.editedStudentItem.profile_image = response.data.image;
+                    let profileImageUrl = response.data.imageUrl;
+                    this.base64Image = response.data.image;
+                    if (profileImageUrl) {
+                        this.imagePreview = profileImageUrl;
+                    } else if (response.data.image !== null) {
+                        this.imagePreview = `data:image/*;base64,${response.data.image}`;
+                    } else {
+                        this.imagePreview = this.profileAvatar;
+                    }
                 }
             } catch (error) {
                 //console.error("Error loading profile image:", error);
@@ -728,18 +699,58 @@ export default {
             this.$refs.fileInput.click();
         },
         async handleProfileImageUpload(file, sid) {
-            const formData = new FormData();
-            formData.append('file', file);
+            if (this.editedStudentItem.profile_image_url && !file) {
+                console.log('No new image to upload');
+                return;
+            }
 
-            const response = await fetch('/upload', {
+            let fileToUpload = file;
+
+            // ถ้าไม่มีไฟล์ ให้ตรวจสอบ this.base64Image
+            if (!fileToUpload && this.base64Image) {
+
+                let base64String = this.base64Image;
+                if (!base64String.startsWith('data:image')) {
+                    base64String = `data:image/jpeg;base64,${base64String}`;
+                }
+
+                const byteString = atob(base64String.split(',')[1]);
+                const mimeString = base64String.split(',')[0].split(':')[1].split(';')[0];
+                const ab = new ArrayBuffer(byteString.length);
+                const ia = new Uint8Array(ab);
+                for (let i = 0; i < byteString.length; i++) {
+                ia[i] = byteString.charCodeAt(i);
+                }
+                fileToUpload = new Blob([ab], { type: mimeString });
+                fileToUpload = new File([fileToUpload], `${sid}.png`, { type: mimeString });
+            }
+
+            if (!fileToUpload) {
+                console.error('No file to upload');
+                return;
+            }
+
+            const formData = new FormData();
+            const timestamp = Date.now();
+            const newFileName = `${sid}`;
+
+            // สร้างไฟล์ใหม่ด้วยชื่อไฟล์ใหม่
+            const renamedFile = new File([fileToUpload], newFileName, { type: fileToUpload.type });
+
+            formData.append('profileImage', renamedFile);
+            formData.append('studentid', sid);
+
+            const response = await fetch(this.baseURL + '/uploadProfileImage', {
                 method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${this.token}`, // เพิ่ม token ลงใน headers
+                },
                 body: formData,
             });
 
             const data = await response.json();
             const imageUrl = data.url;
             console.log('imageUrl', imageUrl);
-            //await updateProfileImageUrl(sid, imageUrl);
         },
         async onCourseChange() {
             this.loadingCourse = true;
