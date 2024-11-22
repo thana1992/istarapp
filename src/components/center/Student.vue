@@ -63,6 +63,13 @@
                                             </v-col>
                                         </v-row>
                                         <v-row>
+                                            <v-col cols="12" sm="12" md="12">
+                                                <h3 class="group-header">Student Infomation</h3>
+                                                <v-divider class="border-opacity-100" color="success" thickness="3"></v-divider>
+                                                <v-divider color="#fffff" thickness="3"></v-divider>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
                                             <v-col cols="12" sm="6" md="4">
                                                 <v-text-field v-model="editedStudentItem.firstname" label="Firstname"
                                                     variant="solo-filled" :rules="notNullRules" required></v-text-field>
@@ -157,6 +164,13 @@
                                                     </template>
                                                     จบคอร์ส
                                                 </v-btn>
+                                            </v-col>
+                                        </v-row>
+                                        <v-row>
+                                            <v-col cols="12" sm="12" md="12">
+                                            <h3 class="group-header">Course usage history</h3>
+                                            <v-divider class="border-opacity-100" color="success" thickness="3"></v-divider>
+                                            <v-divider color="#fffff" thickness="3"></v-divider>
                                             </v-col>
                                         </v-row>
                                         <v-rol>
@@ -731,8 +745,7 @@ export default {
             }
 
             const formData = new FormData();
-            const timestamp = Date.now();
-            const newFileName = `${sid}`;
+            const newFileName = `${sid}.${fileToUpload.name.split('.').pop()}`;
 
             // สร้างไฟล์ใหม่ด้วยชื่อไฟล์ใหม่
             const renamedFile = new File([fileToUpload], newFileName, { type: fileToUpload.type });

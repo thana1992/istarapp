@@ -38,6 +38,14 @@
                     <v-container>
                       <v-form ref="courseform">
                         <v-row>
+                          <v-col cols="12" sm="12" md="12">
+                            <h3 class="group-header">Course Infomation</h3>
+                            <v-divider class="border-opacity-100" color="info" thickness="3"></v-divider>
+                            <v-divider color="#fffff" thickness="3"></v-divider>
+                          </v-col>
+                        </v-row>
+                        <v-row></v-row>
+                        <v-row>
                           <v-col cols="12" sm="6" md="6">
                             <v-label>Course Refer :
                               {{ editedItem.courserefer }}</v-label>
@@ -65,18 +73,25 @@
                         </v-row>
                       </v-form>
                         <v-row>
-                          <v-col cols="12" sm="2" md="2">
+                          <v-col cols="12" sm="3" md="3">
                             <v-text-field v-model="editedItem.remaining" label="คงเหลือ" variant="solo-filled"
                               ></v-text-field>
                           </v-col>
-                          <v-col cols="12" sm="5" md="5">
+                          <v-col cols="12" sm="3" md="3">
                             <DatePicker label="วันที่เริ่มต้น" variant="solo-filled" v-model="editedItem.startdate"
                               @click="onChangeStartDate"></DatePicker>
                           </v-col>
 
-                          <v-col cols="12" sm="5" md="5">
+                          <v-col cols="12" sm="3" md="3">
                             <DatePicker label="วันหมดอายุ" variant="solo-filled" v-model="editedItem.expiredate"
                               :mindate="editedItem.startdate"></DatePicker>
+                          </v-col>
+                        </v-row>
+                        <v-row>
+                          <v-col cols="12" sm="12" md="12">
+                            <h3 class="group-header">Course Payment</h3>
+                            <v-divider class="border-opacity-100" color="info" thickness="3"></v-divider>
+                            <v-divider color="#fffff" thickness="3"></v-divider>
                           </v-col>
                         </v-row>
                         <v-row>
@@ -86,14 +101,49 @@
                               :label="editedItem.paid ? 'จ่ายแล้ว' : 'ยังไม่จ่าย'"
                               color="success"
                               class="ma-2"
+                              :value="1"
                             />
                           </v-col>
-                          <v-col cols="3" sm="3" md="3">
-                            <DatePicker label="วันที่ชำระ" variant="solo-filled" v-model="editedItem.expiredate"
+                          <v-col cols="12" sm="3" md="3">
+                            <DatePicker label="วันที่ชำระ" variant="solo-filled" v-model="editedItem.paydate"
                               :mindate="editedItem.startdate"></DatePicker>
                           </v-col>
+                          
+                          <v-col cols="12" sm="6" md="6">
+                            <v-file-input
+                              v-model="editedItem.slip_customer"
+                              label="อัพโหลดสลิป"
+                              accept="image/*"
+                              prepend-icon="mdi-camera"
+                              outlined
+                            ></v-file-input>
+                            <div v-if="editedItem.slip_image_url">
+                              <a @click.prevent="showSlipDialog = true" href="#">
+                                <v-icon>mdi-image-search</v-icon> ดูสลิปที่อัพโหลดแล้ว
+                              </a>
+                              <v-dialog v-model="showSlipDialog" max-width="500">
+                                <v-card>
+                                  <v-card-title class="headline">สลิปการชำระเงิน</v-card-title>
+                                  <v-card-text>
+                                    <v-img :src="editedItem.slip_image_url" width="100%" height="auto"></v-img>
+                                  </v-card-text>
+                                  <v-card-actions>
+                                    <v-spacer></v-spacer>
+                                    <v-btn color="primary" text @click="showSlipDialog = false">ปิด</v-btn>
+                                  </v-card-actions>
+                                </v-card>
+                              </v-dialog>
+                            </div>
+                          </v-col>
                         </v-row>
-                        <v-row>
+                        <v-row v-if="editedIndex > -1">
+                          <v-col cols="12" sm="12" md="12">
+                            <h3 class="group-header">Course usage history</h3>
+                            <v-divider class="border-opacity-100" color="success" thickness="3"></v-divider>
+                            <v-divider color="#fffff" thickness="3"></v-divider>
+                          </v-col>
+                        </v-row>
+                        <v-row v-if="editedIndex > -1">
                           <v-col cols="12" sm="12" md="12">
                                   <v-data-table :headers="CourseUsingHeaders" :items="CourseUsingtList" density="compact"
                                   :items-per-page="1000" >
@@ -245,6 +295,9 @@ export default {
       course_user: null,
       period: null,
       paid: 0,
+      paydate: null,
+      slip_customer: '',
+      slip_image_url: '',
     },
     defaultItem: {
       courserefer: null,
@@ -258,7 +311,13 @@ export default {
       course_user: null,
       period: null,
       paid: 0,
+      paydate: null,
+      slip_customer: '',
+      slip_image_url: '',
     },
+    showPreview: false,
+    isViewMode: false, // เปลี่ยนเป็น false เมื่ออยู่ในโหมดแก้ไข
+    showSlipDialog: false,
     CourseUsingHeaders: [
         { text: 'No.', value: 'index' },
         { title: 'Name', value: 'fullname' },
@@ -366,6 +425,9 @@ export default {
       );
       this.editedItem.course = course;
       this.checkCourseUser();
+      if(this.editedItem.slip_image_url) {
+        this.isViewMode = true;
+      }
       this.dialog = true;
       //console.log("editItem", this.editedItem);
     },
@@ -532,6 +594,7 @@ export default {
     },
     close() {
       this.dialog = false;
+      this.isViewMode = false;
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem);
         this.editedIndex = -1;
@@ -573,11 +636,15 @@ export default {
 
         let startdate = null;
         let expiredate = null;
+        let paydate = null;
         if (this.editedItem.startdate !==null && this.editedItem.startdate !=="") {
           startdate = this.SQLDate(this.editedItem.startdate);
         }
         if (this.editedItem.expiredate !==null && this.editedItem.expiredate !=="") {
           expiredate = this.SQLDate(this.editedItem.expiredate);
+        }
+        if (this.editedItem.paydate !==null && this.editedItem.paydate !=="") {
+          paydate = this.SQLDate(this.editedItem.paydate);
         }
         if (this.editedIndex > -1) {
           let saveObj = {
@@ -591,26 +658,19 @@ export default {
             expiredate: expiredate,
             period: this.editedItem.period,
             paid: this.editedItem.paid,
+            paydate: paydate,
           };
-          await axios
-            .post(this.baseURL + "/updateCustomerCourse", saveObj, {
-              headers: { Authorization: `Bearer ${token}` },
-            })
-            .then((response) => {
-              //console.dir(response);
-              if (response.data.success) {
-                this.$emit(
-                  "onInfoHandler",
-                  response.data.message || "สำเร็จ แก้ไขข้อมูลคอร์สแล้ว"
-                );
-              } else {
-                this.$emit(
-                  "onErrorHandler",
-                  response.data.message || "เสียใจ แก้ไขไม่ได้ ลองใหม่อีกครั้งนะ"
-                );
-              }
-              this.initialize();
-            });
+          const response = await axios.post(this.baseURL + "/updateCustomerCourse", saveObj, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (response.data.success) {
+            await this.handleUploadSlip(this.editedItem.slip_customer, this.editedItem.courserefer);
+            this.$emit("onInfoHandler", response.data.message || "สำเร็จ แก้ไขข้อมูลคอร์สใหม่แล้ว");
+          } else {
+            this.$emit("onErrorHandler", response.data.message || "เสียใจ แก้ไขคอร์สไม่ได้ ลองใหม่อีกครั้งนะ");
+          }
+          this.initialize();
         } else {
           let saveObj = {
             courserefer: this.editedItem.courserefer,
@@ -622,28 +682,20 @@ export default {
             expiredate: expiredate,
             period: this.editedItem.period,
             paid: this.editedItem.paid,
+            paydate: paydate,
           };
-          await axios
-            .post(this.baseURL + "/addCustomerCourse", saveObj, {
-              headers: { Authorization: `Bearer ${token}` },
-            })
-            .then((response) => {
-              //console.dir(response);
-              if (response.data.success) {
-                this.$emit(
-                  "onInfoHandler",
-                  response.data.message || "สำเร็จ สร้างคอร์สใหม่แล้ว"
-                );
-                this.copyToClipboard(response.data.courserefer);
-              } else {
-                this.$emit(
-                  "onErrorHandler",
-                  response.data.message ||
-                  "เสียใจ สร้างคอร์สไม่ได้ ลองใหม่อีกครั้งนะ"
-                );
-              }
-              this.initialize();
-            });
+          const response = await axios.post(this.baseURL + "/addCustomerCourse", saveObj, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+
+          if (response.data.success) {
+            await this.handleUploadSlip(this.editedItem.slip_customer, response.data.courserefer);
+            this.$emit("onInfoHandler", response.data.message || "สำเร็จ สร้างคอร์สใหม่แล้ว");
+            this.copyToClipboard(response.data.courserefer);
+          } else {
+            this.$emit("onErrorHandler", response.data.message || "เสียใจ สร้างคอร์สไม่ได้ ลองใหม่อีกครั้งนะ");
+          }
+          this.initialize();
         }
         this.close();
         this.$emit("onLoading", false);
@@ -651,6 +703,37 @@ export default {
           this.$emit('onErrorHandler', 'กรุณากรอกข้อมูลให้ครบถ้วน')
           this.$emit('onLoading', false)
           return
+      }
+    },
+    async handleUploadSlip(file, courserefer) {
+
+      if (this.editedItem.slip_image_url && !file) {
+          console.log('No new image to upload');
+          return;
+      }
+
+      if (file) {
+        const formData = new FormData();
+        const newFileName = `${courserefer}.${file.name.split('.').pop()}`;
+
+        // สร้างไฟล์ใหม่ด้วยชื่อไฟล์ใหม่
+        const renamedFile = new File([file], newFileName, { type: file.type });
+
+        formData.append("slipImage", renamedFile);
+        formData.append("courserefer", courserefer);
+
+        const response = await fetch(this.baseURL + '/uploadSlipImage', {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${this.token}`, // เพิ่ม token ลงใน headers
+            },
+            body: formData,
+        });
+
+        const data = await response.json();
+        const imageUrl = data.url;
+        console.log('imageUrl', imageUrl);
+        
       }
     },
     async getCourseLookup() {
@@ -806,5 +889,9 @@ export default {
 .scrollable-content {
   max-height: 950px;
   overflow-y: auto;
+}
+.v-img {
+  border: 1px solid #ccc;
+  background-color: white;
 }
 </style>
