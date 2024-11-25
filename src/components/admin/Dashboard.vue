@@ -113,7 +113,7 @@
                         </v-card>
                     </v-col>
                     <v-col sm="3" md="2" xl="1">
-                        <v-card class="mx-auto" link @click="onClickNewBooking">
+                        <v-card class="mx-auto" link @click="callChildMethodAddNewBooking">
                             <v-list-item class="btn-card-4">
                                 <div style="text-align: center;">New Booking</div>
                                 <div class="btn-card-icon"><span class="mdi mdi-calendar-plus-outline"></span></div>
@@ -171,6 +171,15 @@
                                 </CustomerCourse>
                             </v-card>
                         </Transition>
+                        <Transition name="fade" mode="out-in">
+                            <v-card v-show="state == 'customercourse'">
+                                <BookingManagement @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
+                                    @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
+                                    @onLoading="onLoading($event)"
+                                    ref="BookingManagementComponent">
+                                </BookingManagement>
+                            </v-card>
+                        </Transition>
                     </v-col>
                 </v-row>
             </div>
@@ -202,79 +211,6 @@
         </template>
     </v-dialog>
 
-    <v-dialog v-model="dialogNewBooking" max-width="800px">
-        <v-card>
-            <v-card-title class="sticky-header">
-                <span v-if="editedBookingIndex == -1"
-                    class="mdi mdi-emoticon-plus-outline"></span>
-                <span v-if="editedBookingIndex != -1"
-                    class="mdi mdi-human-edit"></span>
-                <span>{{ formBookingTitle }}</span>
-            </v-card-title>
-            <v-card-text class="scrollable-content">
-                <v-container>
-                    <v-form ref="bookingform">
-                        <v-row>
-                            <v-col cols="12" sm="12" md="12">
-                                <v-label :class="courseinfoColor">{{ editedBookingItem.courseinfo }}</v-label>
-                            </v-col>
-                            <v-col cols="12" sm="6" md="6">
-                                <v-autocomplete v-model="editedBookingItem.studentid"
-                                    label="Name" item-title="name"
-                                    item-value="studentid"
-                                    :items="studentLookup" variant="solo-filled"
-                                    no-data-text="No student data"
-                                    :rules="notNullRules"
-                                    @update:modelValue="onStudentChange"
-                                    :readonly="editedBookingIndex != -1"
-                                    filterable
-                                    required>
-                                </v-autocomplete>
-                            </v-col>
-                            <v-col cols="12" sm="6" md="6">
-                                <v-select v-model="editedBookingItem.courseid"
-                                    label="Course Name" item-title="coursename"
-                                    item-value="courseid" :items="courseLookup"
-                                    variant="solo-filled"
-                                    no-data-text="No course data"
-                                    :rules="notNullRules"
-                                    :loading="loadingCourse"
-                                    @update:modelValue="getClassTime"
-                                    required></v-select>
-                            </v-col>
-                            <v-col cols="12" sm="6" md="4">
-                                <DatePicker label="Class date"
-                                    v-model="selectBookingDate" variant="solo-filled"
-                                    @update:modelValue="getClassTime" :rules="requireRules">
-                                </DatePicker>
-                            </v-col>
-                            <v-col cols="12" sm="6" md="6">
-                                <v-select v-model="editedBookingItem.classtime"
-                                    label="Class time" item-title="text"
-                                    item-value="classid" :items="classtimesData"
-                                    variant="solo-filled" :rules="notNullRules"
-                                    no-data-text="No class data"
-                                    :loading="loadingClassTime"
-                                    return-object="true" required></v-select>
-                            </v-col>
-                        </v-row>
-                    </v-form>
-                </v-container>
-            </v-card-text>
-
-            <v-card-actions class="sticky-footer">
-                <v-spacer></v-spacer>
-                <v-btn color="red-darken-1" variant="flat"
-                    @click="clickCancelNewBooking">
-                    Cancel
-                </v-btn>
-                <v-btn color="blue-darken-1" variant="flat"
-                    @click="doSaveNewBooking">
-                    Save
-                </v-btn>
-            </v-card-actions>
-        </v-card>
-    </v-dialog>
     <!-- <vue3-autocounter ref='counter' :startAmount='0' :endAmount='3' :duration='1' prefix='$' suffix='USD' separator=',' :autoinit='true' /> -->
 </div>
 </template>
@@ -910,7 +846,7 @@ export default ({
             if (StudentComponent.value) {
                 StudentComponent.value.showAddNewStudent();  // เรียก method ของ component ลูกเมื่อมันพร้อม
             } else {
-                //console.error('Child component is still not available.');
+                console.error('Child component is still not available.');
             }
         };
 
@@ -922,10 +858,21 @@ export default ({
             if (CustomerCourseComponent.value) {
                 CustomerCourseComponent.value.showAddNewCustomerCourse();  // เรียก method ของ component ลูกเมื่อมันพร้อม
             } else {
-                //console.error('Child component is still not available.');
+                console.error('Child component is still not available.');
             }
         };
         
+        const BookingManagementComponent = ref(null)
+        const callChildMethodAddNewBooking = async () => {
+            // รอให้ Vue ทำการ update DOM เสร็จสิ้น
+            await nextTick();
+
+            if (BookingManagementComponent.value) {
+                BookingManagementComponent.value.showAddNewBooking();  // เรียก method ของ component ลูกเมื่อมันพร้อม
+            } else {
+                console.error('Child component is still not available.');
+            }
+        };
         // ตรวจสอบการ mount ของ component ลูก
         onMounted(() => {
             //console.log('Parent component mounted');
@@ -936,6 +883,8 @@ export default ({
             callChildMethodAddNewStudent,
             CustomerCourseComponent,
             callChildMethodAddNewCustomerCourse,
+            BookingManagementComponent,
+            callChildMethodAddNewBooking
         };
     }
 })

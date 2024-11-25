@@ -111,7 +111,7 @@
                                                     <v-card-actions class="sticky-footer">
                                                         <v-spacer></v-spacer>
                                                         <v-btn color="red-darken-1" variant="flat"
-                                                            @click="clickCancelEditBooking">
+                                                            @click="closeEditBooking">
                                                             Cancel
                                                         </v-btn>
                                                         <v-btn color="blue-darken-1" variant="flat"
@@ -679,7 +679,7 @@ export default ({
                 })
             }, 300)
         },
-        clickCancelEditBooking() {
+        closeEditBooking() {
             this.dialogBookingEdit = false
             setTimeout(() => {
                 this.$nextTick(() => {
@@ -749,10 +749,15 @@ export default ({
                 return moment(String(value)).format('DD/MM/YYYY')
             }
         },
+        showAddNewBooking() {
+            this.editedBookingIndex = -1;
+            this.editedBookingItem = Object.assign({}, this.defaultBookingItem);
+            this.dialogBookingEdit = true;
+        },
     },
     watch: {
         dialogBookingEdit(val) {
-            val || this.clickCancelEditBooking()
+            val || this.closeEditBooking()
         },
         dialogCheckin(val) {
             val || this.clickCancelCheckinDialog()
