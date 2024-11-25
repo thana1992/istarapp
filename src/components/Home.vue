@@ -208,18 +208,26 @@ export default {
         async loadProfileImage() {
             try {
                 // Replace 'gymnastId' with the actual ID of the gymnast
-                const response = await axios.get(this.baseURL + `/student/${this.studentSelected.studentid}/profile-image`,
-                    { headers: { Authorization: `Bearer ${this.token}` } });
-                //console.log('response : ', response)
-                //this.editedStudentItem.profile_image = response.data.image;
-                this.studentSelected.base64Image = response.data.image;
-                if (response.data.image !== null) {
-                    this.imagePreview = `data:image/*;base64,${response.data.image}`;
+                if(this.studentSelected.profile_image_url){
+                    this.imagePreview = this.studentSelected.profile_image_url;
                 } else {
-                    this.imagePreview = this.profileAvatar;
+                    const response = await axios.get(
+                        this.baseURL +
+                        `/student/${this.studentSelected.studentid}/profile-image`,
+                        { headers: { Authorization: `Bearer ${this.token}` } }
+                    );
+                    let profileImageUrl = response.data.imageUrl;
+                    this.base64Image = response.data.image;
+                    if (profileImageUrl) {
+                        this.imagePreview = profileImageUrl;
+                    } else if (response.data.image !== null) {
+                        this.imagePreview = `data:image/*;base64,${response.data.image}`;
+                    } else {
+                        this.imagePreview = this.profileAvatar;
+                    }
                 }
             } catch (error) {
-                //console.error('Error loading profile image:', error);
+                //console.error("Error loading profile image:", error);
             }
         },
         async getReservationDetail(studentid) {
