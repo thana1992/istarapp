@@ -12,7 +12,7 @@
                         <p>การจองคลาสของ {{ student.firstname + ' ' + student.lastname }}</p>
                     </v-row>
                     <v-row justify="space-around" class="ma-2 pa-2">
-                        <v-date-picker v-model="date" :min="tomorrow" :allowed-dates="isDateAllowed" @update:month="handleMonthChange" @click="selectDate"></v-date-picker>
+                        <v-date-picker v-model="date" :min="minDate" :allowed-dates="isDateAllowed" @update:month="handleMonthChange" @click="selectDate"></v-date-picker>
                     </v-row>
                     <v-row justify="space-around" class="ma-2 pa-2">
                         <v-select v-model="classtimeSelect" label="Class time" class="ma-2 pa-2" item-title="text"
@@ -62,10 +62,10 @@ export default {
     },
     data() {
         return {
-            date: new Date(),
+            date: null,
+            minDate: null,
             previousMonth: new Date().getMonth(),
             previousYear: new Date().getFullYear(),
-            tomorrow: new Date(),
             classtimeSelect: null,
             classtimesData: [],
             people: '',
@@ -79,42 +79,11 @@ export default {
         }
     },
     async created() {
-        try {
-            const token = this.$store.getters.getToken;
-            //console.log('token ', token)
-            if (!token) {
-                this.errorMsg = 'Not found token, Please login...'
-                this.errorDialog = true
-                this.$emit('onClickChangeState', 'login')
-                return;
-            }
-
-            await axios
-                .post(this.baseURL + '/verifyToken', {}, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                })
-                .then(response => {
-                    //console.dir(response);
-                })
-                .catch(error => {
-                    //console.error(error);
-                    this.$emit('onErrorHandler', error.response.data.message)
-                    this.$emit('onClickChangeState', 'login')
-                });
-        } catch (error) {
-            this.$emit('onErrorHandler', error.message)
-        }
-
-    },
-    async mounted() {
-        const tomorrow = new Date()
-        tomorrow.setDate(new Date().getDate() + 1)
-        this.date = tomorrow
         await this.fetchHolidays();
-        await this.getClassTime()
-        await this.getHolidayInformation()
+        this.date = new Date();
+        this.minDate = this.date;
+        await this.getClassTime();
+        await this.getHolidayInformation();
     },
     methods: {
         async selectDate() {
@@ -122,7 +91,7 @@ export default {
             await this.getClassTime();
         },
         handleMonthChange(newDate) {
-            console.log("handleMonthChange", newDate);
+            //console.log("handleMonthChange", newDate);
             const newMonth = new Date(newDate).getMonth();
             const newYear = new Date(newDate).getFullYear();
 
@@ -139,9 +108,9 @@ export default {
         isDateAllowed(date) {
             const isMonday = moment(date).day() === 1;  // ตรวจสอบว่าวันที่นั้นเป็นวันจันทร์หรือไม่
             const isHoliday = this.holidays.some(holiday => moment(date).isSame(holiday, 'day')); // ตรวจสอบว่าวันที่เป็นวันหยุดหรือไม่
+            //console.log('Checking date:', moment(date).format('YYYY-MM-DD'), 'isMonday:', isMonday, 'isHoliday:', isHoliday);
             return !isMonday && !isHoliday;
         },
-        
         async fetchHolidays() {
             try {
                 const token = this.$store.getters.getToken;
@@ -203,6 +172,17 @@ export default {
                     console.dir(response);
                     
                 })
+        },
+        getNextAvailableDate(date) {
+            let nextDate = new Date(date);
+            nextDate.setDate(nextDate.getDate() + 1); // เริ่มจากวันพรุ่งนี้
+            while (this.isHoliday(nextDate) || moment(nextDate).day() === 1) { // ตรวจสอบวันหยุดและวันจันทร์
+                nextDate.setDate(nextDate.getDate() + 1);
+            }
+            return nextDate;
+        },
+        isHoliday(date) {
+            return this.holidays.some(holiday => moment(date).isSame(holiday, 'day'));
         },
         async submitReservation() {
             this.$emit('onLoading', true)
@@ -269,6 +249,13 @@ export default {
             }
         },
         
+    },
+    watch: {
+        date(newDate) {
+            if (this.isHoliday(newDate) || moment(newDate).day() === 1) {
+                this.date = this.getNextAvailableDate(newDate);
+            }
+        }
     },
     computed: {
         ...mapGetters({
