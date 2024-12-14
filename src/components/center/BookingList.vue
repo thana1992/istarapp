@@ -23,7 +23,7 @@
       typeof item[header.key] === 'string' && item[header.key].includes('(blue)') ? 'highlighted-cell-blue' : '',
       typeof item[header.key] === 'string' && item[header.key].includes('(yellow)') ? 'highlighted-cell-yellow' : '',
       typeof item[header.key] === 'string' && item[header.key].includes('(pink)') ? 'highlighted-cell-pink' : '',
-      typeof item[header.key] === 'string' && item[header.key].includes('(pay)') ? 'pay-icon mdi mdi-cash mdi-spin' : '',
+      typeof item[header.key] === 'string' && item[header.key].includes('(pay)') ? 'mdi mdi-cash mdi-spin' : '',
       typeof item[header.key] === 'number' ? 'bold-cell' : ''
     ]" 
     style="white-space: normal; padding: 0.75em 0.25em; border-radius: 1.3em 0.5em; min-width: 140px;" name="col-center"
@@ -37,7 +37,7 @@
             .replace('(blue)', '')
             .replace('(yellow)', '')
             .replace('(pink)', '')
-            .replace('(pay)', '')
+            .replace('(pay)', '<i class="mdi mdi-cash"></i>')
         : item[header.key] 
     }}
   </td>
