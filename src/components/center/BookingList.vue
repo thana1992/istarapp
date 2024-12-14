@@ -22,6 +22,7 @@
       typeof item[header.key] === 'string' && item[header.key].includes('(green)') ? 'highlighted-cell-green' : '',
       typeof item[header.key] === 'string' && item[header.key].includes('(blue)') ? 'highlighted-cell-blue' : '',
       typeof item[header.key] === 'string' && item[header.key].includes('(yellow)') ? 'highlighted-cell-yellow' : '',
+      typeof item[header.key] === 'string' && item[header.key].includes('(pink)') ? 'highlighted-cell-pink' : '',
       typeof item[header.key] === 'number' ? 'bold-cell' : ''
     ]" 
     style="white-space: normal;" name="col-center"
@@ -34,6 +35,7 @@
             .replace('(green)', '')
             .replace('(blue)', '')
             .replace('(yellow)', '')
+            .replace('(pink)', '')
         : item[header.key] 
     }}
   </td>
@@ -178,6 +180,11 @@ const BookingListAPI = {
 .highlighted-cell-yellow {
   font-weight: bold;
   color: yellow
+}
+
+.highlighted-cell-pink {
+  font-weight: bold;
+  color: pink;
 }
 
 .hover-cell {
