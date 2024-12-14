@@ -15,27 +15,29 @@
               No booking class
             </template>
             <template v-for="(header, index) in bookingHeaders" v-slot:[`item.${header.key}`]="{ item }">
-              <td 
-                :class="{
-                  'highlighted-cell-green': typeof item[header.key] === 'string' && item[header.key].includes('(1)'),
-                  'highlighted-cell-red': typeof item[header.key] === 'string' && item[header.key].includes('(red)'),
-                  'highlighted-cell-blue': typeof item[header.key] === 'string' && item[header.key].includes('(blue)'),
-                  'highlighted-cell-yellow': typeof item[header.key] === 'string' && item[header.key].includes('(yellow)'),
-                  'bold-cell': typeof item[header.key] === 'number'
-                }" 
-                style="white-space: normal;" name="col-center"
-              >
-                {{ 
-                  typeof item[header.key] === 'string' && item[header.key].includes('(1)')
-                    ? item[header.key].replace('(1)', '') 
-                    : typeof item[header.key] === 'string' && item[header.key].includes('(red)')
-                    ? item[header.key].replace('(red)', '')
-                    : typeof item[header.key] === 'string' && item[header.key].includes('(blue)')
-                    ? item[header.key].replace('(blue)', '')
-                    : item[header.key] 
-                }}
-              </td>
-            </template>
+  <td 
+    :class="[
+      typeof item[header.key] === 'string' && item[header.key].includes('(1)') ? 'highlighted-blackground' : '',
+      typeof item[header.key] === 'string' && item[header.key].includes('(red)') ? 'highlighted-cell-red' : '',
+      typeof item[header.key] === 'string' && item[header.key].includes('(green)') ? 'highlighted-cell-green' : '',
+      typeof item[header.key] === 'string' && item[header.key].includes('(blue)') ? 'highlighted-cell-blue' : '',
+      typeof item[header.key] === 'string' && item[header.key].includes('(yellow)') ? 'highlighted-cell-yellow' : '',
+      typeof item[header.key] === 'number' ? 'bold-cell' : ''
+    ]" 
+    style="white-space: normal;" name="col-center"
+  >
+    {{ 
+      typeof item[header.key] === 'string'
+        ? item[header.key]
+            .replace('(1)', '')
+            .replace('(red)', '')
+            .replace('(green)', '')
+            .replace('(blue)', '')
+            .replace('(yellow)', '')
+        : item[header.key] 
+    }}
+  </td>
+</template>
           </v-data-table>
 
         </v-card>
@@ -153,14 +155,19 @@ const BookingListAPI = {
   font-weight: bold;
 }
 
+.highlighted-blackground {
+  font-weight: bold;
+  background-color: rgb(70, 200, 70);
+}
+
 .highlighted-cell-green {
   font-weight: bold;
-  color: rgb(70, 200, 70);
+  color: green
 }
 
 .highlighted-cell-red {
   font-weight: bold;
-  color: rgb(200, 70, 70);
+  color: red;
 }
 
 .highlighted-cell-blue {
@@ -170,7 +177,7 @@ const BookingListAPI = {
 
 .highlighted-cell-yellow {
   font-weight: bold;
-  color: rgb(200, 200, 70);
+  color: yellow
 }
 
 .hover-cell {
