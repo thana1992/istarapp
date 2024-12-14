@@ -81,7 +81,8 @@ export default {
     async created() {
         await this.fetchHolidays();
         this.date = new Date();
-        this.minDate = this.date;
+        this.date.setDate(this.date.getDate() + 1);
+        this.minDate = new Date();
         await this.getClassTime();
         await this.getHolidayInformation();
     },
