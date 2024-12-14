@@ -157,6 +157,13 @@ const BookingListAPI = {
   color: rgb(70, 200, 70);
 }
 
+.highlighted-cell-red {
+  background-color: red;
+}
+.highlighted-cell-blue {
+  background-color: blue;
+}
+
 .hover-cell {
   transition: background-color 0.3s;
 }
