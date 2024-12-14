@@ -18,8 +18,8 @@
               <td 
     :class="{
       'highlighted-cell-green': typeof item[header.key] === 'string' && item[header.key].includes('(1)'),
-      'highlighted-cell-blue': typeof item[header.key] === 'string' && item[header.key].includes('(2)'),
-      'highlighted-cell-red': typeof item[header.key] === 'string' && item[header.key].includes('(3)'),
+      'highlighted-cell-blue': typeof item[header.key] === 'string' && item[header.key].includes('(blue)'),
+      'highlighted-cell-red': typeof item[header.key] === 'string' && item[header.key].includes('(red)'),
       'bold-cell': typeof item[header.key] === 'number'
     }" 
     style="white-space: normal;" name="col-center"
