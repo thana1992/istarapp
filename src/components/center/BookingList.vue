@@ -39,7 +39,7 @@
             .replace('(pay)', '')
         : item[header.key] 
     }}
-    <v-icon v-if="typeof item[header.key] === 'string' && item[header.key].includes('(pay)')">mdi-cash mdi-flip-h</v-icon>
+    <v-icon v-if="typeof item[header.key] === 'string' && item[header.key].includes('(pay)')">mdi-bell-ring-outline</v-icon>
   </td>
 </template>
           </v-data-table>
@@ -184,12 +184,6 @@ const BookingListAPI = {
 
 .highlighted-cell-pink {
   color: #eb697f;
-}
-
-.pay-icon {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px; /* ระยะห่างระหว่างข้อความและไอคอน */
 }
 
 .hover-cell {
