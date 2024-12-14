@@ -28,6 +28,9 @@
       typeof item[header.key] === 'string' && item[header.key].includes('(1)')
         ? item[header.key].replace('(1)', '') 
         : item[header.key] 
+      typeof item[header.key] === 'string' && item[header.key].includes('(red)')
+        ? item[header.key].replace('(1)', '') 
+        : item[header.key] 
     }}
   </td>
             </template>
