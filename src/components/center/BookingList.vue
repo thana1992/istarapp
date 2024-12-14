@@ -23,7 +23,7 @@
       typeof item[header.key] === 'string' && item[header.key].includes('(blue)') ? 'highlighted-cell-blue' : '',
       typeof item[header.key] === 'string' && item[header.key].includes('(yellow)') ? 'highlighted-cell-yellow' : '',
       typeof item[header.key] === 'string' && item[header.key].includes('(pink)') ? 'highlighted-cell-pink' : '',
-      typeof item[header.key] === 'string' && item[header.key].includes('(pay)') ? 'mdi mdi-cash mdi-flip-h pay-icon' : '',
+      typeof item[header.key] === 'string' && item[header.key].includes('(pay)') ? 'pay-icon' : '',
       typeof item[header.key] === 'number' ? 'bold-cell' : ''
     ]" 
     style="white-space: normal; padding: 0.75em 0.25em; border-radius: 1.3em 0.5em; min-width: 140px;" name="col-center"
@@ -40,6 +40,7 @@
             .replace('(pay)', '')
         : item[header.key] 
     }}
+    <v-icon v-if="typeof item[header.key] === 'string' && item[header.key].includes('(pay)')">mdi-cash</v-icon>
   </td>
 </template>
           </v-data-table>
