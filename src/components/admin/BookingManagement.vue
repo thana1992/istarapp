@@ -640,8 +640,11 @@ export default ({
                 });
             this.$emit('onLoading', false)
         },
-        clickEditBooking(item) {
+        async clickEditBooking(item) {
             //console.log('clickEditBooking', item)
+            await this.getCourseLookup()
+            await this.getFamilyLookup()
+            await this.getStudentLookup()
             this.courseinfoColor = 'courseinfoColorGreen'
             this.editedBookingIndex = this.BookingList.indexOf(item)
             this.editedBookingItem = Object.assign({}, item)
@@ -749,7 +752,10 @@ export default ({
                 return moment(String(value)).format('DD/MM/YYYY')
             }
         },
-        showAddNewBooking() {
+        async showAddNewBooking() {
+            await this.getCourseLookup()
+            await this.getFamilyLookup()
+            await this.getStudentLookup()
             this.editedBookingIndex = -1;
             this.editedBookingItem = Object.assign({}, this.defaultBookingItem);
             this.dialogBookingEdit = true;

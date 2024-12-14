@@ -541,9 +541,9 @@ export default {
                 this.editedIndex = -1;
             });
         },
-        getCustomerCourseLookup() {
+        async getCustomerCourseLookup() {
             const token = this.$store.getters.getToken;
-            axios
+            await axios
                 .get(this.baseURL + "/getCustomerCourseLookup", {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -564,9 +564,9 @@ export default {
                     }
                 });
         },
-        getFamilyLookup() {
+        async getFamilyLookup() {
             const token = this.$store.getters.getToken;
-            axios
+            await axios
                 .get(this.baseURL + "/familyLookup", {
                     headers: { Authorization: `Bearer ${token}` },
                 })
@@ -586,6 +586,8 @@ export default {
                 });
         },
         async clickEditStudent(item) {
+            await this.getCustomerCourseLookup();
+            await this.getFamilyLookup();
             this.editedStudentIndex = this.StudentList.indexOf(item);
             this.editedStudentItem = Object.assign({}, item);
             if(this.editedStudentItem.dateofbirth) {
@@ -596,7 +598,7 @@ export default {
             await this.loadProfileImage();
             this.dialogStudent = true;
         },
-        clickDeleteStudent(item) {
+        clickDeleteStudent(item) {  
             this.editedStudentIndex = this.StudentList.indexOf(item);
             this.editedStudentItem = Object.assign({}, item);
             this.dialogStudentDelete = true;
@@ -906,7 +908,9 @@ export default {
             // //console.log('returnText', returnText);
             return returnText;
         },
-        showAddNewStudent() {
+        async showAddNewStudent() {
+            await this.getCustomerCourseLookup();
+            await this.getFamilyLookup();
             this.editedStudentIndex = -1;
             this.editedStudentItem = Object.assign({}, this.defaultStudentItem);
             this.dialogStudent = true;

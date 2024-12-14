@@ -15,20 +15,31 @@
               No booking class
             </template>
             <template v-for="(header, index) in bookingHeaders" v-slot:[`item.${header.key}`]="{ item }">
-              <td 
-    :class="{
-      'highlighted-cell': typeof item[header.key] === 'string' && item[header.key].includes('(1)'),
-      'bold-cell': typeof item[header.key] === 'number'
-    }" 
-    style="white-space: normal;" name="col-center"
+  <td 
+    :class="[
+      typeof item[header.key] === 'string' && item[header.key].includes('(1)') ? 'highlighted-blackground' : '',
+      typeof item[header.key] === 'string' && item[header.key].includes('(red)') ? 'highlighted-cell-red' : '',
+      typeof item[header.key] === 'string' && item[header.key].includes('(green)') ? 'highlighted-cell-green' : '',
+      typeof item[header.key] === 'string' && item[header.key].includes('(blue)') ? 'highlighted-cell-blue' : '',
+      typeof item[header.key] === 'string' && item[header.key].includes('(yellow)') ? 'highlighted-cell-yellow' : '',
+      typeof item[header.key] === 'string' && item[header.key].includes('(pink)') ? 'highlighted-cell-pink' : '',
+      typeof item[header.key] === 'number' ? 'bold-cell' : ''
+    ]" 
+    style="white-space: normal; padding: 0.75em 1em;" name="col-center"
   >
     {{ 
-      typeof item[header.key] === 'string' && item[header.key].includes('(1)')
-        ? item[header.key].replace('(1)', '') 
+      typeof item[header.key] === 'string'
+        ? item[header.key]
+            .replace('(1)', '')
+            .replace('(red)', '')
+            .replace('(green)', '')
+            .replace('(blue)', '')
+            .replace('(yellow)', '')
+            .replace('(pink)', '')
         : item[header.key] 
     }}
   </td>
-            </template>
+</template>
           </v-data-table>
 
         </v-card>
@@ -146,9 +157,29 @@ const BookingListAPI = {
   font-weight: bold;
 }
 
-.highlighted-cell {
+.highlighted-blackground {
   font-weight: bold;
-  color: rgb(70, 200, 70);
+  background-color: rgb(128, 233, 128);
+}
+
+.highlighted-cell-green {
+  color: green
+}
+
+.highlighted-cell-red {
+  color: red;
+}
+
+.highlighted-cell-blue {
+  color: blue;
+}
+
+.highlighted-cell-yellow {
+  color: yellow
+}
+
+.highlighted-cell-pink {
+  color: pink;
 }
 
 .hover-cell {
