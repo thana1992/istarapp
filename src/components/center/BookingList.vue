@@ -25,7 +25,7 @@
       typeof item[header.key] === 'string' && item[header.key].includes('(pink)') ? 'highlighted-cell-pink' : '',
       typeof item[header.key] === 'number' ? 'bold-cell' : ''
     ]" 
-    style="white-space: normal;" name="col-center"
+    style="white-space: normal; padding: 1em;" name="col-center"
   >
     {{ 
       typeof item[header.key] === 'string'
@@ -159,31 +159,26 @@ const BookingListAPI = {
 
 .highlighted-blackground {
   font-weight: bold;
-  background-color: rgb(70, 200, 70);
+  background-color: rgb(128, 233, 128);
 }
 
 .highlighted-cell-green {
-  font-weight: bold;
   color: green
 }
 
 .highlighted-cell-red {
-  font-weight: bold;
   color: red;
 }
 
 .highlighted-cell-blue {
-  font-weight: bold;
   color: skyblue;
 }
 
 .highlighted-cell-yellow {
-  font-weight: bold;
   color: yellow
 }
 
 .highlighted-cell-pink {
-  font-weight: bold;
   color: pink;
 }
 
