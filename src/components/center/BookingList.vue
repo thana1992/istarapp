@@ -25,7 +25,7 @@
       typeof item[header.key] === 'string' && item[header.key].includes('(pink)') ? 'highlighted-cell-pink' : '',
       typeof item[header.key] === 'number' ? 'bold-cell' : ''
     ]" 
-    style="white-space: normal; padding: 0.75em 1em; border-radius: 1.3em 0.5em; min-width: 120px;" name="col-center"
+    style="white-space: normal; padding: 0.75em 0.25em; border-radius: 1.3em 0.5em; min-width: 140px;" name="col-center"
   >
     {{ 
       typeof item[header.key] === 'string'
