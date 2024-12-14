@@ -36,8 +36,10 @@
             .replace('(blue)', '')
             .replace('(yellow)', '')
             .replace('(pink)', '')
+            .replace('(pay)', '')
         : item[header.key] 
     }}
+    <v-icon v-if="typeof item[header.key] === 'string' && item[header.key].includes('(pay)')">mdi-bell-ring-outline</v-icon>
   </td>
 </template>
           </v-data-table>
