@@ -415,7 +415,9 @@ export default {
       }
     },
 
-    editItem(item) {
+    async editItem(item) {
+      await this.getCustomerCourseList();
+      await this.getCourseLookup();
       this.editedIndex = this.courselist.indexOf(item);
       this.editedItem = Object.assign({}, item);
       if(this.editedItem.startdate) this.editedItem.startdate = new Date(item.startdate);
@@ -860,7 +862,9 @@ export default {
       // //console.log('returnText', returnText);
       return returnText;
     },
-    showAddNewCustomerCourse() {
+    async showAddNewCustomerCourse() {
+      await this.getCustomerCourseList();
+      await this.getCourseLookup();
       this.editedIndex = -1;
       this.editedItem = Object.assign({}, this.defaultItem);
       this.dialog = true;
