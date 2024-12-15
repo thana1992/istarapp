@@ -416,9 +416,9 @@ export default {
     },
 
     async editItem(item) {
-      await this.getCustomerCourseList();
+      //await this.getCustomerCourseList();
       await this.getCourseLookup();
-      this.editedIndex = this.courselist.indexOf(item);
+      this.editedIndex = this.courselist.findIndex(course => course.courserefer === item.courserefer);
       this.editedItem = Object.assign({}, item);
       if(this.editedItem.startdate) this.editedItem.startdate = new Date(item.startdate);
       if(this.editedItem.expiredate) this.editedItem.expiredate = new Date(item.expiredate);
