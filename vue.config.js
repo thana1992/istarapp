@@ -5,6 +5,8 @@ module.exports = defineConfig({
   lintOnSave: false,
   transpileDependencies: true,
   devServer: {
+    client: false,
+    webSocketServer: false,
     allowedHosts: 'all',
     proxy: {
       // Proxy ทุกคำขอที่ไม่ใช่ Static Files ไปยัง SERVER_URL
