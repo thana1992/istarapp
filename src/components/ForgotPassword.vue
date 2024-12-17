@@ -208,10 +208,12 @@ export default {
             this.$emit('onForgotHandler', 'login');
           } else {
             this.$emit('onErrorHandler', response.data.message);
+            this.$emit('onForgotHandler', 'login');
           }
         } catch (error) {
           this.$emit('onLoading', false);
           this.$emit('onErrorHandler', error.message);
+          this.$emit('onForgotHandler', 'login');
         }
       }
     },
