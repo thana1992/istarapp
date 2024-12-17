@@ -190,7 +190,7 @@ export default {
       }
     },
     async doChangePassword() {
-      //this.$emit('onLoading', true);
+      this.$emit('onLoading', true);
       if (this.checkNewPassword()) {
         
         const token = this.$store.getters.getToken;
