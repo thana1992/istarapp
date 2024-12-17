@@ -215,6 +215,9 @@ export default {
           this.$emit('onErrorHandler', error.message);
           this.$emit('onForgotHandler', 'login');
         }
+      } else {
+        return false;
+      
       }
     },
     checkNewPassword() {
