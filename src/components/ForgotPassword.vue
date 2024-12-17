@@ -190,8 +190,9 @@ export default {
       }
     },
     async doChangePassword() {
+      this.$emit('onLoading', true);
       if (this.checkNewPassword()) {
-        this.$emit('onLoading', true);
+        
         const token = this.$store.getters.getToken;
         const encryptedPassword = this.encryptPassword(this.newPassword);
         try {
@@ -201,17 +202,23 @@ export default {
           },{
               headers: { Authorization: `Bearer ${token}`, }
           });
-          this.$emit('onLoading', false);
-          //console.log("doChangePassword", response);
           if (response.data.success) {
+            // ลบ token จาก localStorage
+            localStorage.removeItem('token');
+            console.log("doChangePassword Success", response);
             this.$emit('onSuccessHandler', 'Password changed successfully');
             this.$emit('onForgotHandler', 'login');
           } else {
+            // ลบ token จาก localStorage
+            localStorage.removeItem('token');
             this.$emit('onErrorHandler', response.data.message);
+            this.$emit('onForgotHandler', 'login');
           }
         } catch (error) {
-          this.$emit('onLoading', false);
+          // ลบ token จาก localStorage
+          localStorage.removeItem('token');
           this.$emit('onErrorHandler', error.message);
+          this.$emit('onForgotHandler', 'login');
         }
       }
     },
