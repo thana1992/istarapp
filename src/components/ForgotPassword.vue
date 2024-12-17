@@ -201,9 +201,8 @@ export default {
           },{
               headers: { Authorization: `Bearer ${token}`, }
           });
-          this.$emit('onLoading', false);
-          //console.log("doChangePassword", response);
           if (response.data.success) {
+            this.$emit('onLoading', false);
             this.$emit('onSuccessHandler', 'Password changed successfully');
             this.$emit('onForgotHandler', 'login');
           } else {
