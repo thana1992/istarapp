@@ -570,7 +570,8 @@ export default ({
                         this.$emit('onErrorHandler', response.data.message || 'Check-in failed');
                     }
                     this.dialogCheckin = false
-                    this.getReservationList()
+                    this.item.checkedin = 1;
+                    //this.getReservationList()
                 })
                 .catch(error => {
                     if (error.response.status == 401) {
@@ -598,7 +599,8 @@ export default ({
                         this.$emit('onErrorHandler', response.data.message || 'Cancel Check-in failed');
                     }
                     this.dialogUndoCheckin = false
-                    this.getReservationList()
+                    this.item.checkedin = 0;
+                    //this.getReservationList()
                 })
                 .catch(error => {
                     if (error.response.status == 401) {

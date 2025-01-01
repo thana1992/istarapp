@@ -142,7 +142,6 @@ export default {
                     }
                 })
                 .then(response => {
-                    alert('verifyToken res ' + token);
                     console.dir(response);
                     this.$store.dispatch('setToken', { token: token, userdata: localStorage.getItem("userdata") });
                     this.$emit('onAffterLogin');
