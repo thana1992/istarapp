@@ -36,7 +36,7 @@
                                 <v-data-table fixed-header height="auto" :loading="loadingBooking"
                                     loading-text="Loading... Please wait" :headers="BookingListHeaders"
                                     :items="BookingList" :sort-by="[{ key: 'classtime', order: 'asc' }]"
-                                    :search="search">
+                                    :search="search" >
                                     <template v-slot:top>
                                         <v-toolbar flat>
                                             <v-toolbar-title>All class bookings today</v-toolbar-title>
@@ -553,7 +553,45 @@ export default ({
             this.editedBookingItem = Object.assign({}, item)
             this.dialogBookingDelete = true
         },
-        async clickConfirmCheckinDialog() {
+        async clickConfirmUndoCheckinDialog() {
+            try {
+                // ยิงไปหลังบ้านเพื่ออัพเดทข้อมูล checkin
+                await this.updateUndoCheckinStatus();
+
+                // บันทึกตำแหน่งการ scroll ของหน้าจอ
+                const scrollTop = window.scrollY;
+
+                // โหลดข้อมูลใหม่
+                await this.getReservationList();
+
+                // คืนค่าตำแหน่งการ scroll ของหน้าจอ
+                this.$nextTick(() => {
+                window.scrollTo(0, scrollTop);
+                });
+            } catch (error) {
+                console.error('Error in clickConfirmUndoCheckinDialog:', error);
+            }
+            },
+            async clickConfirmCheckinDialog() {
+            try {
+                // ยิงไปหลังบ้านเพื่ออัพเดทข้อมูล checkin
+                await this.updateCheckinStatus();
+
+                // บันทึกตำแหน่งการ scroll ของหน้าจอ
+                const scrollTop = window.scrollY;
+
+                // โหลดข้อมูลใหม่
+                await this.getReservationList();
+
+                // คืนค่าตำแหน่งการ scroll ของหน้าจอ
+                this.$nextTick(() => {
+                window.scrollTo(0, scrollTop);
+                });
+            } catch (error) {
+                console.error('Error in clickConfirmCheckinDialog:', error);
+            }
+        },
+        async updateCheckinStatus() {
             const token = this.$store.getters.getToken;
             await axios.post(this.baseURL + '/checkinByAdmin', {
                 reservationid: this.editedBookingItem.reservationid,
@@ -570,11 +608,10 @@ export default ({
                         this.$emit('onErrorHandler', response.data.message || 'Check-in failed');
                     }
                     this.dialogCheckin = false
-                    this.item.checkedin = 1;
-                    //this.getReservationList()
                 })
                 .catch(error => {
-                    if (error.response.status == 401) {
+                    console.log(error)
+                    if (error.response.status && error.response.status == 401) {
                         this.$emit('onErrorHandler', error.response.data.message)
                         this.$emit('onClickChangeState', 'login')
                     } else {
@@ -582,7 +619,7 @@ export default ({
                     }
                 });
         },
-        async clickConfirmUndoCheckinDialog() {
+        async updateUndoCheckinStatus() {
             const token = this.$store.getters.getToken;
             await axios.post(this.baseURL + '/undoCheckinByAdmin', {
                 reservationid: this.editedBookingItem.reservationid,
@@ -599,11 +636,11 @@ export default ({
                         this.$emit('onErrorHandler', response.data.message || 'Cancel Check-in failed');
                     }
                     this.dialogUndoCheckin = false
-                    this.item.checkedin = 0;
-                    //this.getReservationList()
                 })
                 .catch(error => {
-                    if (error.response.status == 401) {
+                    console.log(error)
+
+                    if (error.response.status && error.response.status == 401) {
                         this.$emit('onErrorHandler', error.response.data.message)
                         this.$emit('onClickChangeState', 'login')
                     } else {
@@ -720,8 +757,6 @@ export default ({
                             this.loadingBooking = false
                         }
                     } else {
-                        //console.dir("error : " , error)
-                        //console.log("results : " + results)
                         this.loadingBooking = false
                         this.$emit('onErrorHandler', message || 'Get Reservation failed')
                     }
