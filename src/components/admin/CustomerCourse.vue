@@ -63,18 +63,18 @@
                           <v-col cols="12" sm="4" md="4">
                             <v-select v-model="editedItem.coursetype" label="ประเภท" item-title="coursetype"
                               item-value="coursetype" :items="['Monthly', 'Limited']" variant="solo-filled"
-                              no-data-text="No course" :rules="notNullRules" required></v-select>
+                              no-data-text="No course" :rules="notNullRules" :readonly="editedIndex !== -1" required></v-select>
                           </v-col>
                           <v-col cols="12" sm="4" md="3">
                             <v-select v-model="editedItem.period" label="ระยะเวลา (เดือน)" item-title="period"
-                              item-value="period" :items="[1, 2, 3, 6, 12]" variant="solo-filled" :rules="notNullRules" required></v-select>
+                              item-value="period" :items="[1, 2, 3, 6, 12]" variant="solo-filled" :rules="notNullRules" :readonly="editedIndex !== -1" required></v-select>
                           </v-col>
                           
                         </v-row>
                       </v-form>
                         <v-row>
                           <v-col cols="12" sm="3" md="3">
-                            <v-text-field v-model="editedItem.remaining" label="คงเหลือ" variant="solo-filled"
+                            <v-text-field v-model="editedItem.remaining" label="คงเหลือ" variant="solo-filled" :readonly="editedIndex !== -1"
                               ></v-text-field>
                           </v-col>
                           <v-col cols="12" sm="3" md="3">
