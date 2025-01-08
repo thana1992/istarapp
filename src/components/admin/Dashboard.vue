@@ -155,11 +155,12 @@
                         </Transition>
                         <Transition name="fade" mode="out-in">
                             <v-card v-show="state == 'bookinglist'">
-                                <BookingList @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
+                                <BookingListAdmin @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
                                     @onLoading="onLoading($event)" :bookingHeaders="bookingHeaders"
+                                    @student-clicked="onStudentClicked($event)"
                                     :bookingData="bookingList" :classdate="datepick" :loadingBooking="loadingBooking">
-                                </BookingList>
+                                </BookingListAdmin>
                             </v-card>
                         </Transition>
                         <Transition name="fade" mode="out-in">
@@ -218,7 +219,7 @@
 import axios from 'axios'
 import DatePicker from '@/components/DatePicker.vue'
 import Student from '../center/Student.vue'
-import BookingList from '../center/BookingList.vue'
+import BookingListAdmin from '../center/BookingListAdmin.vue'
 import ApproveNewStudent from './ApproveNewStudent.vue'
 import BookingManagement from './BookingManagement.vue'
 import CustomerCourse from './CustomerCourse.vue'
@@ -230,7 +231,7 @@ export default ({
     components: {
         DatePicker,
         Student,
-        BookingList,
+        BookingListAdmin,
         ApproveNewStudent,
         BookingManagement,
         CustomerCourse,
@@ -350,20 +351,18 @@ export default ({
             })
             */
             await this.refreshCardDashboard()
-            await this.getBookingList()
-            await this.getCourseLookup()
-            await this.getStudentLookup()
+            await this.getBookingListAdmin()
         },
         refreshData() {
             //console.log('refreshData : ' + new Date())
             this.refreshCardDashboard()
             if (this.state == "bookinglist") {
-                this.getBookingList()
+                this.getBookingListAdmin()
             }
         },
         selectDate() {
             this.state = 'bookinglist'
-            this.getBookingList()
+            this.getBookingListAdmin()
         },
         async refreshCardDashboard() {
             const token = this.$store.getters.getToken;
@@ -404,251 +403,6 @@ export default ({
                     }
                 });
         },
-        getApproveNewStudents() {
-            axios
-                .get(this.baseURL + '/getApproveNewStudents', {})
-                .then(response => {
-                    //console.dir(response);
-                    if (response.data.success) {
-                        this.courselist = response.data.results
-                    }
-                })
-                .catch(error => {
-                    if (error.response.status == 401) {
-                        this.$emit('onErrorHandler', error.response.data.message)
-                        this.$emit('onClickChangeState', 'login')
-                    } else {
-                        this.$emit('onErrorHandler', error.message)
-                    }
-                });
-        },
-        getApproveCancelBookingClass() {
-            axios
-                .get(this.baseURL + '/getApproveCancelBookingClass', {})
-                .then(response => {
-                    //console.dir(response);
-                    if (response.data.success) {
-                        this.courselist = response.data.results
-                    }
-                })
-                .catch(error => {
-                    if (error.response.status == 401) {
-                        this.$emit('onErrorHandler', error.response.data.message)
-                        this.$emit('onClickChangeState', 'login')
-                    } else {
-                        this.$emit('onErrorHandler', error.message)
-                    }
-                });
-        },
-        async getStudentLookup() {
-            const token = this.$store.getters.getToken;
-            await axios
-                .post(this.baseURL + '/studentLookup', {}, { headers: { Authorization: `Bearer ${token}`, } },)
-                .then(response => {
-                    //console.dir('studentLookup', response);
-                    if (response.data.success) {
-                        this.studentLookup = response.data.results
-                    }
-                })
-                .catch(error => {
-                    if (error.response.status == 401) {
-                        this.$emit('onErrorHandler', error.response.data.message)
-                        this.$emit('onClickChangeState', 'login')
-                    } else {
-                        this.$emit('onErrorHandler', error.message)
-                    }
-                });
-        },
-        async onStudentChange(studentid) {
-            //console.log('Student selected:', studentid);
-            this.loadingCourse = true
-            const token = this.$store.getters.getToken;
-            await axios.post(this.baseURL + '/getCustomerCourseInfo', {
-                studentid: this.editedBookingItem.studentid,
-            },
-                {
-                    headers: { Authorization: `Bearer ${token}`, }
-                })
-                .then(response => {
-                    //console.dir(response);
-                    if (response.data.success) {
-                        //console.log('getCustomerCourseInfo', response.data.results);
-                        const res = response.data.results[0];
-                        if (res) {
-                            this.courseinfoColor = 'courseinfoColorGreen'
-                            this.editedBookingItem.courseid = res.courseid
-                            if (res.coursetype == 'Monthly') {
-                                this.editedBookingItem.courseinfo = 'หมายเลขคอร์ส: ' + res.courserefer + ' วันหมดอายุ: ' + this.format_date(res.expiredate) + ' รายเดือน'
-                            } else {
-                                this.editedBookingItem.courseinfo = 'หมายเลขคอร์ส: ' + res.courserefer + ' วันหมดอายุ: ' + this.format_date(res.expiredate) + ' เหลือ: ' + res.remaining + ' ครั้ง'
-                            }
-                        } else {
-                            this.courseinfoColor = 'courseinfoColorRed'
-                            this.editedBookingItem.courseinfo = 'นักเรียนคนนี้ยังไม่มี Course ที่สมัครเรียน'
-                            this.editedBookingItem.courseid = null
-                        }
-                    } else {
-                        this.$emit('onErrorHandler', 'getCustomerCourseInfo failed');
-                    }
-                })
-                .catch(error => {
-                    //console.log(error)
-                    if (error.response && error.response.status == 401) {
-                        this.$emit('onErrorHandler', error.response.data.message)
-                        this.$emit('onClickChangeState', 'login')
-                    } else {
-                        this.$emit('onErrorHandler', error.message)
-                    }
-                });
-            this.loadingCourse = false
-        },
-        async getClassTime() {
-            if (this.editedBookingItem.courseid == null) return;
-            if (this.selectBookingDate == null) return;
-            this.loadingClassTime = true
-            this.classtimesData = []
-            let req = {
-                classdate: this.SQLDate(this.selectBookingDate),
-                classday: new Date(this.selectBookingDate).toLocaleDateString('en-US', { weekday: 'long' }),
-                courseid: this.editedBookingItem.courseid
-            }
-            //console.log("request", req)
-            const token = this.$store.getters.getToken;
-            await axios.post(this.baseURL + '/getClassTime', req, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-                .then(response => {
-                    //console.dir(response);
-                    if (response.data.success) {
-                        const data = response.data.results
-                        if (data.length == 0) {
-                            this.classtimesData = []
-                            this.editedBookingItem.classtime = null
-                        } else {
-                            this.classtimesData = data;
-                            if (this.editedBookingItem.classtime != null) {
-                                if (typeof this.editedBookingItem.classtime === 'object' && this.editedBookingItem.classtime !== null) {
-                                    this.editedBookingItem.classtime = this.classtimesData.find(x => x.classtime == this.editedBookingItem.classtime.classtime)
-                                } else {
-                                    this.editedBookingItem.classtime = this.classtimesData.find(x => x.classtime == this.editedBookingItem.classtime)
-                                }
-                            }
-                        }
-                    } else {
-                        this.classtimesData = []
-                        this.editedBookingItem.classtime = null
-                    }
-                    this.loadingClassTime = false
-                })
-
-        },
-        async getCourseLookup() {
-            const token = this.$store.getters.getToken;
-            await axios
-                .get(this.baseURL + '/courseLookup', {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                })
-                .then(response => {
-                    //console.dir(response);
-                    if (response.data.success) {
-                        this.courseLookup = response.data.results
-                    }
-                })
-                .catch(error => {
-                    if (error.response.status == 401) {
-                        this.$emit('onErrorHandler', error.response.data.message)
-                        this.$emit('onClickChangeState', 'login')
-                    } else {
-                        this.$emit('onErrorHandler', error.message)
-                    }
-                });
-        },
-        clickCancelNewBooking() {
-            this.editedBookingItem = Object.assign({}, this.defaultBookingItem)
-            this.dialogNewBooking = false
-            setTimeout(() => {
-                this.$nextTick(() => {
-                    this.editedBookingItem = Object.assign({}, this.defaultBookingItem)
-                    this.selectBookingDate = null
-                    this.editedBookingIndex = -1
-                    this.classtimesData = []
-                })
-            }, 300)
-        },
-        async doSaveNewBooking() {
-            this.$emit('onLoading', true)
-            const { valid } = await this.$refs.bookingform.validate()
-            
-            if (valid) {
-                this.$emit('onLoading', true)
-                // Make API request to register the user
-                const BookingObj = {
-                    studentid: this.editedBookingItem.studentid,
-                    courseid: this.editedBookingItem.courseid,
-                    classid: this.editedBookingItem.classtime.classid,
-                    classdate: this.SQLDate(this.selectBookingDate),
-                    classtime: this.editedBookingItem.classtime.classtime,
-                    classday: this.editedBookingItem.classtime.classday,
-                    reservationid: this.editedBookingItem.reservationid,
-                }
-                //console.log(this.editedBookingIndex + ' BookingObj : ', BookingObj)
-
-                const token = this.$store.getters.getToken;
-                if (this.editedBookingIndex > -1) {
-                    BookingObj.reservationid = this.editedBookingItem.reservationid
-                    await axios
-                        .post(this.baseURL + '/updateBookingByAdmin', BookingObj, { headers: { Authorization: `Bearer ${token}`, } })
-                        .then(response => {
-                            if (response.data.success) {
-                                this.$emit('onInfoHandler', 'แก้ไขข้อมูลสำเร็จแล้ว');
-                                this.getBookingList()
-                                this.dialogNewBooking = false
-                            } else {
-                                this.$emit('onErrorHandler', response.data.message || 'แก้ไขข้อมูลไม่สำเร็จ ลองใหม่อีกครั้งนะ');
-                            }
-                        })
-                        .catch(error => {
-                            if (error.response.status == 401) {
-                                this.$emit('onErrorHandler', error.response.data.message)
-                                this.$emit('onClickChangeState', 'login')
-                            } else {
-                                this.$emit('onErrorHandler', error.message)
-                            }
-                        });
-                } else {
-                    await axios
-                        .post(this.baseURL + '/addBookingByAdmin', BookingObj, { headers: { Authorization: `Bearer ${token}`, } })
-                        .then(response => {
-                            if (response.data.success) {
-                                this.$emit('onInfoHandler', 'เพิ่มการจองคลาสสำเร็จแล้ว');
-                                this.getBookingList()
-                                this.dialogNewBooking = false
-                            } else {
-                                this.$emit('onErrorHandler', response.data.message || 'เพิ่มการจองคลาสไม่สำเร็จ ลองใหม่อีกครั้งนะ');
-                            }
-                            this.$emit('onUpdateDataSuccess')
-                        })
-                        .catch(error => {
-                            if (error.response.status == 401) {
-                                this.$emit('onErrorHandler', error.response.data.message)
-                                this.$emit('onClickChangeState', 'login')
-                            } else {
-                                this.$emit('onErrorHandler', error.message)
-                            }
-                        });
-                }
-                this.$emit('onLoading', false)
-            } else {
-                this.$emit('onErrorHandler', 'กรุณากรอกข้อมูลให้ครบถ้วน')
-                this.$emit('onLoading', false)
-                return
-            }
-
-        },
         onClickCardTotalStudent() {
             this.state = 'studentlist'
             this.refreshData()
@@ -671,16 +425,10 @@ export default ({
             date.setDate(date.getDate() + 1);
             return date;
         },
-        async onClickNewBooking() {
-            await this.getStudentLookup()
-            this.dialogNewBooking = true
-            //this.$emit('onErrorHandler', 'แปบนึงนะ ยังใช้ไม่ได้ เดี๋ยวรีบทำให้นะ')
-        },
         async onClickBtn() {
-            
             this.$emit('onErrorHandler', 'มันต้องเป็นปุ่มอะไรสักอย่างแหละ ถ้าคิดออกแล้วจะทำให้ เสนอมาได้นะ ว่าอยากได้อะไร')
         },
-        async getBookingList() {
+        async getBookingListAdmin() {
             // Call the API and set the bookingList object
             this.loadingBooking = true
             try {
@@ -729,6 +477,10 @@ export default ({
                 //console.log('error : ', error)
                 this.$emit('onErrorHandler', error.message)
             }
+        },
+        onStudentClicked(student) {
+            console.log('onStudentClicked : ' + JSON.stringify(student))
+            this.cellChildMethodUpdateStudent(student)
         },
         onClickChangeState(state) {
             this.state = state
@@ -790,7 +542,7 @@ export default ({
                 ...row
             }));
 
-            //console.log('formattedData : ' + JSON.stringify(formattedRows))
+            console.log('formattedData : ' + JSON.stringify(formattedRows))
             return formattedRows;
         },
         tomorrow() {
@@ -849,6 +601,16 @@ export default ({
                 console.error('Child component is still not available.');
             }
         };
+        const cellChildMethodUpdateStudent = async (student) => {
+            // รอให้ Vue ทำการ update DOM เสร็จสิ้น
+            await nextTick();
+
+            if (StudentComponent.value) {
+                StudentComponent.value.showRetrieveStudent(student);  // เรียก method ของ component ลูกเมื่อมันพร้อม
+            } else {
+                console.error('Child component is still not available.');
+            }
+        };
 
         const CustomerCourseComponent = ref(null)
         const callChildMethodAddNewCustomerCourse = async () => {
@@ -881,6 +643,7 @@ export default ({
         return {
             StudentComponent,
             callChildMethodAddNewStudent,
+            cellChildMethodUpdateStudent,
             CustomerCourseComponent,
             callChildMethodAddNewCustomerCourse,
             BookingManagementComponent,
@@ -893,9 +656,9 @@ const DashboardAPI = {
     baseURL: env.SERVER_URL,
     fetchDataBooking({ token, classday, classdate }) {
         return new Promise(resolve => {
-            //console.log('DashboardAPI : ' + this.baseURL + '/getBookingList' + ' classday : ' + classday + ' classdate : ' + classdate)
+            //console.log('DashboardAPI : ' + this.baseURL + '/getBookingListAdmin' + ' classday : ' + classday + ' classdate : ' + classdate)
             axios
-                .post(this.baseURL + '/getBookingList', {
+                .post(this.baseURL + '/getBookingListAdmin', {
                     classday: classday,
                     classdate: classdate
                 },

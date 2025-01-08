@@ -15,38 +15,20 @@
               No booking class
             </template>
             <template v-for="(header, index) in bookingHeaders" v-slot:[`item.${header.key}`]="{ item }" >
-  <td 
-    :class="[
-      typeof item[header.key] === 'string' && item[header.key].includes('(1)') ? 'highlighted-blackground' : '',
-      typeof item[header.key] === 'string' && item[header.key].includes('(red)') ? 'highlighted-cell-red' : '',
-      typeof item[header.key] === 'string' && item[header.key].includes('(green)') ? 'highlighted-cell-green' : '',
-      typeof item[header.key] === 'string' && item[header.key].includes('(blue)') ? 'highlighted-cell-blue' : '',
-      typeof item[header.key] === 'string' && item[header.key].includes('(yellow)') ? 'highlighted-cell-yellow' : '',
-      typeof item[header.key] === 'string' && item[header.key].includes('(pink)') ? 'highlighted-cell-pink' : '',
-      typeof item[header.key] === 'number' ? 'bold-cell' : ''
-    ]" 
-    style="white-space: normal; 
-    padding: 0.75em 0.25em; 
-    border-radius: 1.3em 0.5em; 
-    min-width: 140px;" 
-    name="col-center"
-    @click="handleCellClick(item[header.key], header.key)"
-  >
-    {{ 
-      typeof item[header.key] === 'string'
-        ? item[header.key]
-            .replace('(1)', '')
-            .replace('(red)', '')
-            .replace('(green)', '')
-            .replace('(blue)', '')
-            .replace('(yellow)', '')
-            .replace('(pink)', '')
-            .replace('(pay)', '')
-        : item[header.key] 
-    }}
-    <v-icon v-if="typeof item[header.key] === 'string' && item[header.key].includes('(pay)')" class="bell-icon">mdi-bell-ring</v-icon>
-  </td>
-</template>
+              <td
+                :class="[getClass(item[header.key]), { 'no-hover': !item[header.key] }]" 
+                style="white-space: normal; padding: 0.75em 0.25em; border-radius: 1.3em 0.5em; min-width: 140px;" 
+                name="col-center"
+                @click="handleCellClick(item[header.key], header.key)"
+              >
+                {{
+                  typeof item[header.key] === 'object' && item[header.key] !== null
+                    ? parseName(item[header.key])
+                    : item[header.key]
+                }}
+                <v-icon v-if="typeof item[header.key] === 'object' && item[header.key] !== null && item[header.key].name.includes('(pay)')" class="bell-icon">mdi-bell-ring</v-icon>
+              </td>
+            </template>
           </v-data-table>
 
         </v-card>
@@ -91,13 +73,6 @@ export default {
       required: false,
     }
   },
-  watch: {
-    //classdate: 'fetchDataBooking',
-  },
-  mounted() {
-    // Fetch the initial booking list when the component is mounted
-    //this.fetchDataBooking();
-  },
   computed: {
     ...mapGetters({
       token: 'getToken',
@@ -105,7 +80,13 @@ export default {
   },
   methods: {
     handleCellClick(value, key) {
-      console.log('Cell clicked:', value, key);
+      
+      console.log('Cell clicked [' + key + '] : ' +value);
+      if (typeof value === "number") {
+          return;
+      }
+      console.log("studentid = ", value.studentid);
+      this.$emit('student-clicked', value, key);
       // เพิ่ม logic ที่คุณต้องการเมื่อคลิก cell
     },
     SQLDate(date) {
@@ -118,7 +99,44 @@ export default {
     },
     highlightCell(item, header) {
       return 'highlighted-cell';
-    }
+    },
+    parseName(value) {
+      //console.log('parseName value :', value);
+      if (typeof value === 'object' && value !== null) {
+        return value.name
+          .replace('(1)', '')
+          .replace('(red)', '')
+          .replace('(green)', '')
+          .replace('(blue)', '')
+          .replace('(yellow)', '')
+          .replace('(pink)', '')
+          .replace('(pay)', '');
+      }
+      return value;
+    },
+    getClass(value) {
+  const classes = [];
+  
+  if (typeof value === 'object' && value !== null) {
+    const name = value.name;
+    classes.push(
+      name.includes('(1)') ? 'highlighted-blackground' : '',
+      name.includes('(red)') ? 'highlighted-cell-red' : '',
+      name.includes('(green)') ? 'highlighted-cell-green' : '',
+      name.includes('(blue)') ? 'highlighted-cell-blue' : '',
+      name.includes('(yellow)') ? 'highlighted-cell-yellow' : '',
+      name.includes('(pink)') ? 'highlighted-cell-pink' : ''
+    );
+  } else if (value !== null && typeof value === 'number') {
+    classes.push('bold-cell');
+  }
+
+  if (value !== undefined) {
+    classes.push('hover-cell');
+  }
+
+  return classes;
+}
   },
 };
 
@@ -129,7 +147,7 @@ const BookingListAPI = {
     return new Promise(resolve => {
       //console.log('DashboardAPI : ' + this.baseURL + '/getBookingList' + ' classday : ' + classday + ' classdate : ' + classdate)
       axios
-        .post(this.baseURL + '/getBookingList', {
+        .post(this.baseURL + '/getBookingListAdmin', {
           classday: classday,
           classdate: classdate
         },
@@ -201,6 +219,11 @@ const BookingListAPI = {
 
 .hover-cell:hover {
   background-color: rgba(0, 0, 0, 0.1); /* เปลี่ยนสีพื้นหลังเมื่อ hover */
+  cursor: pointer; /* เปลี่ยน cursor เมื่อ hover */
+}
+
+.no-hover {
+  cursor: default; /* ไม่เปลี่ยน cursor เมื่อ hover */
 }
 
 .bell-icon {
