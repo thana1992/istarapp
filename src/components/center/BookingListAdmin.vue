@@ -81,11 +81,11 @@ export default {
   methods: {
     handleCellClick(value, key) {
       
-      console.log('Cell clicked [' + key + '] : ' +value);
+      //console.log('Cell clicked [' + key + '] : ' +value);
       if (typeof value === "number") {
           return;
       }
-      console.log("studentid = ", value.studentid);
+      //console.log("studentid = ", value.studentid);
       this.$emit('student-clicked', value, key);
       // เพิ่ม logic ที่คุณต้องการเมื่อคลิก cell
     },

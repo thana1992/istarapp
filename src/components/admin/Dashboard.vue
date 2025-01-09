@@ -479,8 +479,12 @@ export default ({
             }
         },
         onStudentClicked(student) {
-            console.log('onStudentClicked : ' + JSON.stringify(student))
+            //console.log('onStudentClicked : ' + JSON.stringify(student))
             this.cellChildMethodUpdateStudent(student)
+        },
+        async refreshData() {
+            await this.refreshCardDashboard()
+            await this.getBookingListAdmin()
         },
         onClickChangeState(state) {
             this.state = state
@@ -542,7 +546,7 @@ export default ({
                 ...row
             }));
 
-            console.log('formattedData : ' + JSON.stringify(formattedRows))
+            //console.log('formattedData : ' + JSON.stringify(formattedRows))
             return formattedRows;
         },
         tomorrow() {

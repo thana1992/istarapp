@@ -324,9 +324,9 @@ export default {
                 { text: 'No.', value: 'index' },
                 { title: 'Name', value: 'fullname' },
                 { title: 'Class Date', value: 'classdate' },
-                { title : 'Classtime', value: 'classtime'},
-                { title: 'Username ที่จอง', value: 'createby' },
-                { title: 'Username ที่แก้ไขการจอง', value: 'updateby' },
+                { title: 'Classtime', value: 'classtime'},
+                { title: 'CreateBy', value: 'createby' },
+                { title: 'UpdateBy', value: 'updateby' },
             ],
             CourseUsingtList: [],
             base64Image: null,
@@ -446,6 +446,7 @@ export default {
                                 this.$emit("onInfoHandler", "แก้ไขข้อมูลสำเร็จแล้ว");
                                 this.getStudentList();
                                 this.dialogStudent = false;
+                                this.$emit("onUpdateDataSuccess");
                             } else {
                                 this.$emit(
                                     "onErrorHandler",
@@ -936,7 +937,7 @@ export default {
             this.dialogStudent = true;
         },
         async getStudentInfo(studentid) {
-            console.log('getStudentInfo', studentid);
+            //console.log('getStudentInfo', studentid);
             const token = this.$store.getters.getToken;
             let studentDetail = {};
             await axios
