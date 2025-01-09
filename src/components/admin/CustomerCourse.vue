@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="container-header">
-      <h1><span class="mdi mdi-book-account"></span> Customer's Courses / คอร์สของลูกค้า</h1>
+      <h1><span class="mdi mdi-book-account"></span> Customer's Course / คอร์สของลูกค้า</h1>
     </div>
     <div class="container-content">
       <v-card flat>
@@ -863,10 +863,12 @@ export default {
       return returnText;
     },
     async showAddNewCustomerCourse() {
+      this.$emit("onLoading", true);
       await this.getCustomerCourseList();
       await this.getCourseLookup();
       this.editedIndex = -1;
       this.editedItem = Object.assign({}, this.defaultItem);
+      this.$emit("onLoading", false);
       this.dialog = true;
     },
   }

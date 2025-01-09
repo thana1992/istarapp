@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="container-header">
-      <h1><span class="mdi mdi-clipboard-text-clock"></span> Finished Customer's Courses / คอร์สของลูกค้าที่เลิกใช้แล้ว</h1>
+      <h1><span class="mdi mdi-clipboard-text-clock"></span> Customer Course History / ประวัติคอร์สของลูกค้า</h1>
     </div>
     <div class="container-content">
       <v-card flat>

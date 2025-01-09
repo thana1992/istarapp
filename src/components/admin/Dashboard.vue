@@ -104,19 +104,20 @@
                             </v-list-item>
                         </v-card>
                     </v-col>
-                    <v-col sm="3" md="2" xl="1">
-                        <v-card class="mx-auto" link @click="onClickBtn">
-                            <v-list-item class="btn-card-3">
-                                <div style="text-align: center;">Comming Soon</div>
-                                <div class="btn-card-icon"><span class="mdi mdi-star-face"></span></div>
-                            </v-list-item>
-                        </v-card>
-                    </v-col>
+                    
                     <v-col sm="3" md="2" xl="1">
                         <v-card class="mx-auto" link @click="callChildMethodAddNewBooking">
                             <v-list-item class="btn-card-4">
                                 <div style="text-align: center;">New Booking</div>
                                 <div class="btn-card-icon"><span class="mdi mdi-calendar-plus-outline"></span></div>
+                            </v-list-item>
+                        </v-card>
+                    </v-col>
+                    <v-col sm="3" md="2" xl="1">
+                        <v-card class="mx-auto" link @click="callChildMethodAddNewHoliday">
+                            <v-list-item class="btn-card-3">
+                                <div style="text-align: center;">New Holiday</div>
+                                <div class="btn-card-icon"><span class="mdi mdi-door-sliding-lock"></span></div>
                             </v-list-item>
                         </v-card>
                     </v-col>
@@ -181,6 +182,15 @@
                                 </BookingManagement>
                             </v-card>
                         </Transition>
+                        <Transition name="fade" mode="out-in">
+                            <v-card v-show="state == 'holidaymanagment'">
+                                <HolidayManagment @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
+                                    @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
+                                    @onLoading="onLoading($event)"
+                                    ref="HolidayManagmentComponent">
+                                </HolidayManagment>
+                            </v-card>
+                        </Transition>
                     </v-col>
                 </v-row>
             </div>
@@ -223,6 +233,7 @@ import BookingListAdmin from '../center/BookingListAdmin.vue'
 import ApproveNewStudent from './ApproveNewStudent.vue'
 import BookingManagement from './BookingManagement.vue'
 import CustomerCourse from './CustomerCourse.vue'
+import HolidayManagment from './HolidayManagment.vue'
 import moment from 'moment'
 import { mapGetters } from 'vuex';
 import Vue3autocounter from 'vue3-autocounter';
@@ -235,6 +246,7 @@ export default ({
         ApproveNewStudent,
         BookingManagement,
         CustomerCourse,
+        HolidayManagment,
         'vue3-autocounter': Vue3autocounter
     },
     data() {
@@ -639,6 +651,19 @@ export default ({
                 console.error('Child component is still not available.');
             }
         };
+
+        const HolidayManagmentComponent = ref(null)
+        const callChildMethodAddNewHoliday = async () => {
+            // รอให้ Vue ทำการ update DOM เสร็จสิ้น
+            await nextTick();
+
+            if (HolidayManagmentComponent.value) {
+                HolidayManagmentComponent.value.showAddNewHoliday();  // เรียก method ของ component ลูกเมื่อมันพร้อม
+            } else {
+                console.error('Child component is still not available.');
+            }
+        };
+
         // ตรวจสอบการ mount ของ component ลูก
         onMounted(() => {
             //console.log('Parent component mounted');
@@ -648,10 +673,15 @@ export default ({
             StudentComponent,
             callChildMethodAddNewStudent,
             cellChildMethodUpdateStudent,
+
             CustomerCourseComponent,
             callChildMethodAddNewCustomerCourse,
+
             BookingManagementComponent,
-            callChildMethodAddNewBooking
+            callChildMethodAddNewBooking,
+
+            HolidayManagmentComponent,
+            callChildMethodAddNewHoliday
         };
     }
 })
