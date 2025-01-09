@@ -270,6 +270,7 @@ export default {
             StudentListHeaders: [
                 //{ title: "No.", key: "index", align: "center" },
                 { title: "ชื่อ", key: "fullname" },
+                { title: "ชื่อเล่น", key: "nickname", align: "left" },
                 //{ title: 'Date of Birth', key: 'dateofbirthshow' },
                 { title: "เพศ", key: "gender", align: "left" },
                 { title: "อายุ", key: "dateofbirth", align: "end"},
@@ -775,8 +776,7 @@ export default {
             await axios
                 .get(
                     this.baseURL +
-                    "/getStudentCourseDetail/" +
-                    this.editedStudentItem.courserefer,
+                    "/getStudentCourseDetail/" + this.editedStudentItem.courserefer,
                     {
                         headers: { Authorization: `Bearer ${this.token}` },
                     }
@@ -912,10 +912,12 @@ export default {
             return returnText;
         },
         async showAddNewStudent() {
+            this.$emit('onLoading', true);
             await this.getCustomerCourseLookup();
             await this.getFamilyLookup();
             this.editedStudentIndex = -1;
             this.editedStudentItem = Object.assign({}, this.defaultStudentItem);
+            this.$emit('onLoading', false);
             this.dialogStudent = true;
         },
         async showRetrieveStudent(obj) {
@@ -923,6 +925,12 @@ export default {
             this.$emit('onLoading', true);
             this.editedStudentIndex = 0;
             let studentDetail = await this.getStudentInfo(obj.studentid);
+            if(studentDetail[0].delflag == 1) {
+                this.$emit('onLoading', false);
+                this.$emit('onErrorHandler', 'ไม่สามารถแก้ไขข้อมูลเด็กที่ถูกลบไปแล้ว');
+                
+                return;
+            }
             
             this.editedStudentItem = Object.assign({}, studentDetail[0]);
             await this.getCustomerCourseLookup();

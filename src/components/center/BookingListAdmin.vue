@@ -6,6 +6,17 @@
           <v-list-item class="header-card">
             <v-card-title>Booking class on {{ classdate.toLocaleDateString('en-US', options) }} </v-card-title>
             <v-card-text>การจองคลาส{{ classdate.toLocaleDateString('th-TH', options) }} </v-card-text>
+            
+          </v-list-item>
+          <v-list-item class="header-cell">
+            <v-card-text >
+              <div class="description-cell">
+                
+                <div><v-icon class="blue-icon">mdi-circle-slice-8</v-icon> ทดลองเรียน</div>
+                <div><v-icon class="pink-icon">mdi-circle-slice-8</v-icon> รายครั้ง</div>
+                <div><v-icon class="bell-icon">mdi-bell-ring</v-icon> ต้องชำระเงิน / คอร์สหมด</div>
+              </div>
+            </v-card-text>
           </v-list-item>
           <v-data-table :loading="loadingBooking" :headers="bookingHeaders" :items="bookingData" items-per-page="20" class="elevation-1">
             <template v-slot:loading>
@@ -16,8 +27,7 @@
             </template>
             <template v-for="(header, index) in bookingHeaders" v-slot:[`item.${header.key}`]="{ item }" >
               <td
-                :class="[getClass(item[header.key]), { 'no-hover': !item[header.key] }]" 
-                style="white-space: normal; padding: 0.75em 0.25em; border-radius: 1.3em 0.5em; min-width: 140px;" 
+                :class="[getClass(item[header.key]), { 'no-hover': !item[header.key] || typeof item[header.key] ==='number' }]" 
                 name="col-center"
                 @click="handleCellClick(item[header.key], header.key)"
               >
@@ -115,28 +125,32 @@ export default {
       return value;
     },
     getClass(value) {
-  const classes = [];
-  
-  if (typeof value === 'object' && value !== null) {
-    const name = value.name;
-    classes.push(
-      name.includes('(1)') ? 'highlighted-blackground' : '',
-      name.includes('(red)') ? 'highlighted-cell-red' : '',
-      name.includes('(green)') ? 'highlighted-cell-green' : '',
-      name.includes('(blue)') ? 'highlighted-cell-blue' : '',
-      name.includes('(yellow)') ? 'highlighted-cell-yellow' : '',
-      name.includes('(pink)') ? 'highlighted-cell-pink' : ''
-    );
-  } else if (value !== null && typeof value === 'number') {
-    classes.push('bold-cell');
-  }
+      const classes = [];
+      
+      if (typeof value === 'object' && value !== null) {
+        const name = value.name;
+        classes.push(
+          name.includes('(1)') ? 'highlighted-blackground' : '',
+          name.includes('(red)') ? 'highlighted-cell-red' : '',
+          name.includes('(green)') ? 'highlighted-cell-green' : '',
+          name.includes('(blue)') ? 'highlighted-cell-blue' : '',
+          name.includes('(yellow)') ? 'highlighted-cell-yellow' : '',
+          name.includes('(pink)') ? 'highlighted-cell-pink' : ''
+        );
+      } else if (value !== null && typeof value === 'number') {
+        classes.push('bold-cell');
+      }
 
-  if (value !== undefined) {
-    classes.push('hover-cell');
-  }
+      if (value !== undefined) {
+        if (typeof value === 'number') {
+          
+        } else {
+          classes.push('cell-nickname hover-cell');
+        }
+      }
 
-  return classes;
-}
+      return classes;
+    }
   },
 };
 
@@ -213,12 +227,19 @@ const BookingListAPI = {
   color: #eb697f;
 }
 
+.cell-nickname {
+  white-space: normal; 
+  padding: 0.75em 0.25em; 
+  border-radius: 0.25em 0.75em; 
+  min-width: 140px;
+}
+
 .hover-cell {
-  transition: background-color 0.3s;
+  transition: background-color 0.5s, color 0.5s;
 }
 
 .hover-cell:hover {
-  background-color: rgba(0, 0, 0, 0.1); /* เปลี่ยนสีพื้นหลังเมื่อ hover */
+  color: red; /* เปลี่ยนสีพื้นหลังให้สว่างขึ้น */
   cursor: pointer; /* เปลี่ยน cursor เมื่อ hover */
 }
 
@@ -231,6 +252,31 @@ const BookingListAPI = {
   animation: swing 2s ease-in-out infinite;
   transform-origin: top center;
   filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
+}
+
+.header-cell {
+  font-weight: bold;
+}
+
+.description-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.description-cell div {
+  margin-right: 20px; /* กำหนดระยะห่างระหว่างไอคอน */
+}
+
+.description-cell div:last-child {
+  margin-right: 0; /* ลบระยะห่างของไอคอนสุดท้าย */
+}
+.blue-icon {
+  color: blue;
+}
+
+.pink-icon {
+  color: #eb697f;
 }
 
 @keyframes swing {

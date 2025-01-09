@@ -24,9 +24,11 @@
                   <v-card-text>
                     <v-container>
                       <v-row>
-                        <v-col cols="12">
+                        <v-col cols="12" class="text-center">
                           <v-date-picker v-model="editedItem.holidaydate" label="Holiday Date" required></v-date-picker>
                         </v-col>
+                      </v-row> 
+                      <v-row>
                         <v-col cols="12">
                           <v-text-field v-model="editedItem.description" label="Description" variant="solo-filled" required></v-text-field>
                         </v-col>
@@ -151,13 +153,13 @@
           });
           this.dialogHolidayDelete = false;
       },
-        clickCancelDeleteHoliday() {
-            this.dialogHolidayDelete = false;
-            this.$nextTick(() => {
-                this.editedItem = Object.assign({}, this.defaultItem);
-                this.editedIndex = -1;
-            });
-        },
+      clickCancelDeleteHoliday() {
+          this.dialogHolidayDelete = false;
+          this.$nextTick(() => {
+              this.editedItem = Object.assign({}, this.defaultItem);
+              this.editedIndex = -1;
+          });
+      },
       async save() {
         const token = this.$store.getters.getToken;
         if (this.editedItem.id) {
@@ -182,6 +184,13 @@
         this.close();
         this.initialize();
       },
+      showAddNewHoliday() {
+        this.$nextTick(() => {
+              this.editedItem = Object.assign({}, this.defaultItem);
+              this.editedIndex = -1;
+          });
+        this.dialog = true;
+      },
       close() {
         this.dialog = false;
         this.editedItem = { ...this.defaultItem };
@@ -197,4 +206,8 @@
     },
   };
   </script>
-  
+  <style scoped>
+  .text-center {
+    justify-items: center;
+  }
+  </style>

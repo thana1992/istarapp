@@ -18,10 +18,13 @@
             value="viewclasses" @click="onClickChangeState('viewclasses')">
           </v-list-item>
           <v-label v-if="managerflag || adminflag">Admin menu</v-label>
-          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-view-dashboard" title="หน้าแรก"
+          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-view-dashboard" title="DASHBOARD"
             value="dashboard" @click="onClickChangeState('dashboard')">
           </v-list-item>
-          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-calendar-edit" title="การจองคลาสเรียน"
+          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-gymnastics" title="รายชื่อเด็ก"
+            value="studentmanager" @click="onClickChangeState('gymnastmanager')">
+          </v-list-item>
+          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-calendar-edit" title="จัดการข้อมูลการจอง"
             value="bookingmanager" @click="onClickChangeState('bookingmanager')">
           </v-list-item>
           <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-book-account" title="คอร์สของลูกค้า"
@@ -30,9 +33,7 @@
           <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-clipboard-text-clock" title="ประวัติคอร์สของลูกค้า"
             value="customercoursefinished" @click="onClickChangeState('customercoursefinished')">
           </v-list-item>
-          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-gymnastics" title="รายชื่อเด็ก"
-            value="studentmanager" @click="onClickChangeState('gymnastmanager')">
-          </v-list-item>
+          
           <v-label v-if="managerflag || adminflag">Management menu</v-label>
           <v-list-item v-if="managerflag" prepend-icon="mdi-star-shooting-outline" title="จัดการคอร์ส" value="course"
             @click="onClickChangeState('course')">

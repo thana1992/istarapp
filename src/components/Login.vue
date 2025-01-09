@@ -125,9 +125,9 @@ export default {
         this.$emit('onLoading', true)
         try {
             const token = localStorage.getItem('token');
-            console.log('check token '+ token)
+            //console.log('check token '+ token)
             const userdata = JSON.parse(localStorage.getItem('userdata'));
-            console.log ('check userdata '+ userdata)
+            //console.log ('check userdata '+ userdata)
             if (!token) {
 
                 this.showLogin = true;
@@ -142,7 +142,7 @@ export default {
                     }
                 })
                 .then(response => {
-                    console.dir(response);
+                    //console.dir(response);
                     this.$store.dispatch('setToken', { token: token, userdata: localStorage.getItem("userdata") });
                     this.$emit('onAffterLogin');
                     this.$emit('onLoading', false)

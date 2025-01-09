@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="container-header">
-            <h1><span class="mdi mdi-calendar-edit"></span> Booking Management / การจองคลาสเรียน</h1>
+            <h1><span class="mdi mdi-calendar-edit"></span> Booking Management / จัดการข้อมูลการจองคลาสเรียน</h1>
         </div>
         <div class="container-content">
             <v-divider color="#fffff" thickness="3"></v-divider>
@@ -790,11 +790,13 @@ export default ({
             }
         },
         async showAddNewBooking() {
+            this.$emit('onLoading', true)
             await this.getCourseLookup()
             await this.getFamilyLookup()
             await this.getStudentLookup()
             this.editedBookingIndex = -1;
             this.editedBookingItem = Object.assign({}, this.defaultBookingItem);
+            this.$emit('onLoading', false)
             this.dialogBookingEdit = true;
         },
     },
