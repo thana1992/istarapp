@@ -27,6 +27,9 @@
           <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-book-account" title="คอร์สของลูกค้า"
             value="customercourse" @click="onClickChangeState('customercourse')">
           </v-list-item>
+          <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-clipboard-text-clock" title="ประวัติคอร์สของลูกค้า"
+            value="customercoursefinished" @click="onClickChangeState('customercoursefinished')">
+          </v-list-item>
           <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-gymnastics" title="รายชื่อเด็ก"
             value="studentmanager" @click="onClickChangeState('gymnastmanager')">
           </v-list-item>
@@ -125,6 +128,8 @@
           @onInfoHandler="onShowInfoDialog($event)" @onClickChangeState="onClickChangeState($event)"
           @onLoading="onLoading($event)"></CustomerCourse>
 
+        <CustomerCourseFinished v-else-if="state == 'customercoursefinished'" @onErrorHandler="onError($event)"></CustomerCourseFinished>
+
         <Course v-else-if="state == 'course'" @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
           @onLoading="onLoading($event)"></Course>
 
@@ -181,6 +186,7 @@ import Dashboard from './components/admin/Dashboard.vue'
 import GymnastManagement from '@/components/admin/GymnastManagement.vue';
 import BookingManagement from '@/components/admin/BookingManagement.vue';
 import CustomerCourse from '@/components/admin/CustomerCourse.vue';
+import CustomerCourseFinished from './components/admin/CustomerCourseFinished.vue'
 import Course from './components/admin/Courses.vue'
 import Classes from './components/admin/Classes.vue'
 import HolidayManagment from './components/admin/HolidayManagment.vue'
@@ -229,6 +235,7 @@ export default {
     GymnastManagement,
     BookingManagement,
     CustomerCourse,
+    CustomerCourseFinished,
     Course,
     Classes,
     HolidayManagment,

@@ -324,7 +324,7 @@ export default {
                 { text: 'No.', value: 'index' },
                 { title: 'Name', value: 'fullname' },
                 { title: 'Class Date', value: 'classdate' },
-                { title : 'Classtime', value: 'classtime'},
+                { title: 'Classtime', value: 'classtime'},
                 { title: 'CreateBy', value: 'createby' },
                 { title: 'UpdateBy', value: 'updateby' },
             ],
@@ -446,6 +446,7 @@ export default {
                                 this.$emit("onInfoHandler", "แก้ไขข้อมูลสำเร็จแล้ว");
                                 this.getStudentList();
                                 this.dialogStudent = false;
+                                this.$emit("onUpdateDataSuccess");
                             } else {
                                 this.$emit(
                                     "onErrorHandler",
@@ -586,14 +587,16 @@ export default {
                 });
         },
         async clickEditStudent(item) {
-            await this.getCustomerCourseLookup();
-            await this.getFamilyLookup();
+            console.log("clickEditStudent : ", item);
+            
             this.editedStudentIndex = this.StudentList.indexOf(item);
             this.editedStudentItem = Object.assign({}, item);
             if(this.editedStudentItem.dateofbirth) {
                 this.editedStudentItem.dateofbirth = new Date(item.dateofbirth);
                 this.editedStudentItem.age = this.calculateAge(item.dateofbirth).text;
             }
+            await this.getCustomerCourseLookup();
+            await this.getFamilyLookup();
             await this.onCourseChange();
             await this.loadProfileImage();
             this.dialogStudent = true;
@@ -914,6 +917,51 @@ export default {
             this.editedStudentIndex = -1;
             this.editedStudentItem = Object.assign({}, this.defaultStudentItem);
             this.dialogStudent = true;
+        },
+        async showRetrieveStudent(obj) {
+            if (!obj) return;
+            this.$emit('onLoading', true);
+            this.editedStudentIndex = 0;
+            let studentDetail = await this.getStudentInfo(obj.studentid);
+            
+            this.editedStudentItem = Object.assign({}, studentDetail[0]);
+            await this.getCustomerCourseLookup();
+            await this.getFamilyLookup();
+            if(this.editedStudentItem.dateofbirth) {
+                this.editedStudentItem.dateofbirth = new Date(studentDetail[0].dateofbirth);
+                this.editedStudentItem.age = this.calculateAge(studentDetail[0].dateofbirth).text;
+            }
+            await this.onCourseChange();
+            await this.loadProfileImage();
+            this.$emit('onLoading', false);
+            this.dialogStudent = true;
+        },
+        async getStudentInfo(studentid) {
+            //console.log('getStudentInfo', studentid);
+            const token = this.$store.getters.getToken;
+            let studentDetail = {};
+            await axios
+                .get(this.baseURL + "/getStudentInfo/" + studentid, {
+                    headers: { Authorization: `Bearer ${token}` },
+                })
+                .then((response) => {
+                    //console.dir(response);
+                    if (response.data.success) {
+                        studentDetail = response.data.results;
+                    } else {
+                        this.$emit("onErrorHandler", "getStudentInfo failed");
+                    }
+                })
+                .catch((error) => {
+                    //console.log(error);
+                    if (error.response && error.response.status == 401) {
+                        this.$emit("onErrorHandler", error.response.data.message);
+                        this.$emit("onClickChangeState", "login");
+                    } else {
+                        this.$emit("onErrorHandler", error.message);
+                    }
+                });
+            return studentDetail;
         },
     },
     watch: {

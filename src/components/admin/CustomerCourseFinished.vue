@@ -1,12 +1,12 @@
 <template>
   <div class="container">
     <div class="container-header">
-      <h1><span class="mdi mdi-book-account"></span> Customer's Courses / คอร์สของลูกค้า</h1>
+      <h1><span class="mdi mdi-clipboard-text-clock"></span> Finished Customer's Courses / คอร์สของลูกค้าที่เลิกใช้แล้ว</h1>
     </div>
     <div class="container-content">
       <v-card flat>
         <v-card-title class="d-flex align-center pe-2">
-          <v-icon icon="mdi-magnify"></v-icon> &nbsp; Find a Customer's Course
+          <v-icon icon="mdi-magnify"></v-icon> &nbsp; Find a Finished Customer's Course
 
           <v-spacer></v-spacer>
 
@@ -27,9 +27,6 @@
                 รีเฟรช
               </v-btn>
               <v-dialog v-model="dialog" max-width="950px">
-                <template v-slot:activator="{ props }">
-                  <v-btn color="primary" dark v-bind="props"><span class="mdi mdi-book-plus-multiple"></span> สร้างคอร์สใหม่</v-btn>
-                </template>
                 <v-card>
                   <v-card-title class="sticky-header">
                     <span class="mdi mdi-book-plus-multiple"></span><span>{{ formTitle }}</span>
@@ -58,33 +55,32 @@
                           <v-col cols="12" sm="4" md="5">
                             <v-select v-model="editedItem.course" label="Course Name" item-title="coursename"
                               item-value="course" :items="courseLookup" variant="solo-filled" no-data-text="No course"
-                              :readonly="editedIndex > -1" :rules="notNullRules" return-object required></v-select>
+                              disabled ></v-select>
                           </v-col>
                           <v-col cols="12" sm="4" md="4">
                             <v-select v-model="editedItem.coursetype" label="ประเภท" item-title="coursetype"
                               item-value="coursetype" :items="['Monthly', 'Limited']" variant="solo-filled"
-                              no-data-text="No course" :rules="notNullRules" :readonly="editedIndex !== -1" required></v-select>
+                              disabled></v-select>
                           </v-col>
                           <v-col cols="12" sm="4" md="3">
                             <v-select v-model="editedItem.period" label="ระยะเวลา (เดือน)" item-title="period"
-                              item-value="period" :items="[1, 2, 3, 6, 12]" variant="solo-filled" :rules="notNullRules" :readonly="editedIndex !== -1" required></v-select>
+                              item-value="period" :items="[1, 2, 3, 6, 12]" variant="solo-filled" :rules="notNullRules" disabled></v-select>
                           </v-col>
                           
                         </v-row>
                       </v-form>
                         <v-row>
                           <v-col cols="12" sm="3" md="3">
-                            <v-text-field v-model="editedItem.remaining" label="คงเหลือ" variant="solo-filled" :readonly="editedIndex !== -1"
+                            <v-text-field v-model="editedItem.remaining" label="คงเหลือ" variant="solo-filled" disabled
                               ></v-text-field>
                           </v-col>
                           <v-col cols="12" sm="3" md="3">
-                            <DatePicker label="วันที่เริ่มต้น" variant="solo-filled" v-model="editedItem.startdate"
-                              @click="onChangeStartDate"></DatePicker>
+                            <v-text-field v-model="editedItem.startdate" label="วันที่เริ่มต้น" variant="solo-filled" disabled></v-text-field>
+                            
                           </v-col>
 
                           <v-col cols="12" sm="3" md="3">
-                            <DatePicker label="วันหมดอายุ" variant="solo-filled" v-model="editedItem.expiredate"
-                              :mindate="editedItem.startdate"></DatePicker>
+                            <v-text-field v-model="editedItem.expiredate" label="วันหมดอายุ" variant="solo-filled" disabled></v-text-field>
                           </v-col>
                         </v-row>
                         <v-row>
@@ -102,11 +98,11 @@
                               color="success"
                               class="ma-2"
                               :value="1"
+                              disabled
                             />
                           </v-col>
                           <v-col cols="12" sm="3" md="3">
-                            <DatePicker label="วันที่ชำระ" variant="solo-filled" v-model="editedItem.paydate"
-                              :mindate="editedItem.startdate"></DatePicker>
+                            <v-text-field v-model="editedItem.paydate" label="วันที่ชำระ" variant="solo-filled" disabled></v-text-field>
                           </v-col>
                           
                           <v-col cols="12" sm="6" md="6">
@@ -116,6 +112,7 @@
                               accept="image/*"
                               prepend-icon="mdi-camera"
                               outlined
+                              disabled
                             ></v-file-input>
                             <div v-if="editedItem.slip_image_url">
                               <a @click.prevent="showSlipDialog = true" href="#">
@@ -164,10 +161,7 @@
                   <v-card-actions class="sticky-footer">
                     <v-spacer></v-spacer>
                     <v-btn color="red-darken-1" variant="flat" @click="close">
-                      Cancel
-                    </v-btn>
-                    <v-btn color="blue-darken-1" variant="flat" @click="save">
-                      Save
+                      Close
                     </v-btn>
                   </v-card-actions>
                 </v-card>
@@ -198,19 +192,6 @@
                   </v-card-actions>
                 </v-card>
               </v-dialog>
-              <v-dialog v-model="dialogDeleteNotify" persistent width="auto">
-                <v-card>
-                  <v-card-title></v-card-title>
-                  <v-card-text>{{ deleteNotifyMsg }}</v-card-text>
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">ยืนยัน</v-btn>
-                    <v-btn color="#F44336" variant="tonal" @click="closeDeleteNotify">ยกเลิก</v-btn>
-
-                    <v-spacer></v-spacer>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
             </v-toolbar>
           </template>
           <template v-slot:item.startdate="{ item }">
@@ -236,14 +217,11 @@
             <v-chip color="success" v-if="item.paid == 1">จ่ายแล้ว</v-chip>
             <v-chip color="error" v-else>ยังไม่จ่าย</v-chip>
           </template>
-          <template v-slot:item.edit="{ item }">
-              <v-icon size="large" color="info" @click="editItem(item)">mdi-pencil</v-icon>
+          <template v-slot:item.view="{ item }">
+              <v-icon size="large" color="info" @click="editItem(item)">mdi-eye</v-icon>
           </template>
           <template v-slot:item.finish="{ item }">
               <v-icon size="large" color="error" @click="finishCourse(item)">mdi-check</v-icon>
-          </template>
-          <template v-slot:item.delete="{ item }">
-              <v-icon size="large" color="error" @click="deleteItem(item)">mdi-delete-forever</v-icon>
           </template>
           <template v-slot:loading><v-skeleton-loader type="table-row@20"></v-skeleton-loader></template>
         </v-data-table>
@@ -266,8 +244,6 @@ export default {
     dialogFinish: false,
     dialogDelete: false,
     loadingCustomerCourse: false,
-    deleteNotifyMsg: "",
-    dialogDeleteNotify: false,
     headers: [
       { title: "หมายเลขคอร์ส", align: "start", key: "courserefer" },
       { title: "ชื่อคอร์ส", key: "coursename" },
@@ -278,9 +254,8 @@ export default {
       { title: "ผู้ใช้คอร์ส", key: "userlist", align: "left" },
       { title: "ชำระเงิน", key: "paid", align: "center" },
       //{ title: "", key: "actions", sortable: false },
-      { title: "แก้ไข", key: "edit", sortable: false, align: "center" },
-      { title: "ลบ", key: "delete", sortable: false, align: "center" },
-      { title: "จบคอร์ส", key: "finish", sortable: false, align: "center" },
+      { title: "เรียกดู", key: "view", align: "center", sortable: false },
+      //{ title: "จบคอร์ส", key: "finish", sortable: false, align: "center" },
     ],
     editedIndex: -1,
     editedItem: {
@@ -352,9 +327,6 @@ export default {
     dialogDelete(val) {
       val || this.closeDelete();
     },
-    dialogDeleteNotify(val) {
-      val || this.closeDeleteNotify();
-    },
   },
 
   async created() {
@@ -420,11 +392,12 @@ export default {
       await this.getCourseLookup();
       this.editedIndex = this.courselist.findIndex(course => course.courserefer === item.courserefer);
       this.editedItem = Object.assign({}, item);
-      if(this.editedItem.startdate) this.editedItem.startdate = new Date(item.startdate);
-      if(this.editedItem.expiredate) this.editedItem.expiredate = new Date(item.expiredate);
+      if(this.editedItem.startdate) this.editedItem.startdate = this.format_date(item.startdate);
+      if(this.editedItem.expiredate) this.editedItem.expiredate = this.format_date(item.expiredate);
       let course = this.courseLookup.find(
         (course) => course.courseid == this.editedItem.courseid
       );
+      if(this.editedItem.paydate) this.editedItem.paydate = this.format_date(this.editedItem.paydate);
       this.editedItem.course = course;
       this.checkCourseUser();
       if(this.editedItem.slip_image_url) {
@@ -442,44 +415,6 @@ export default {
       this.editedIndex = this.courselist.indexOf(item);
       this.editedItem = Object.assign({}, item);
       this.dialogDelete = true;
-    },
-    async checkBeforeDelete() {
-      this.$emit("onLoading", true);
-      const token = this.$store.getters.getToken;
-      await axios
-        .post(
-          this.baseURL + "/checkBeforeDeleteCustomerCourse",
-          {
-            courserefer: this.editedItem.courserefer,
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        )
-        .then((response) => {
-          //console.dir(response);
-          if (response.data.success) {
-            this.deleteItemConfirm();
-          } else {
-            let nicknameList = [];
-            response.data.results.forEach((result) => {
-              nicknameList.push(result.nickname);
-            });
-            //console.dir(nicknameList);
-            this.deleteNotifyMsg =
-              "คอร์สเรียนนี้ กำลังถูกใช้โดย " +
-              nicknameList.join(", ") +
-              " ต้องการลบใช่ไหม ?";
-            this.dialogDeleteNotify = true;
-            this.dialogDelete = false;
-            this.$emit("onLoading", false);
-          }
-        })
-        .catch((error) => {
-          //console.error(error);
-          this.$emit("onLoading", false);
-          return false;
-        });
     },
     async finishCourseConfirm() {
       this.$emit("onLoading", true);
@@ -504,40 +439,6 @@ export default {
             this.$emit(
               "onErrorHandler",
               response.data.message || "เสียใจ จบคอร์สไม่ได้ ลองใหม่อีกครั้งนะ"
-            );
-          }
-          this.initialize();
-        })
-        .catch((error) => {
-          //console.error(error);
-        });
-      this.$emit("onLoading", false);
-    },
-    async deleteItemConfirm() {
-      this.$emit("onLoading", true);
-      const token = this.$store.getters.getToken;
-      await axios
-        .post(
-          this.baseURL + "/deleteCustomerCourse",
-          {
-            courserefer: this.editedItem.courserefer,
-          },
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        )
-        .then((response) => {
-          //console.dir(response);
-          if (response.data.success) {
-            this.dialogDelete = false;
-            this.dialogDeleteNotify = false;
-            this.$emit("onInfoHandler", "สำเร็จ ลบคอร์สเรียนแล้ว");
-          } else {
-            this.dialogDelete = false;
-            this.dialogDeleteNotify = false;
-            this.$emit(
-              "onErrorHandler",
-              response.data.message || "เสียใจ ลบไม่ได้ ลองใหม่อีกครั้งนะ"
             );
           }
           this.initialize();
@@ -610,103 +511,6 @@ export default {
         this.editedIndex = -1;
       });
     },
-
-    closeDelete() {
-      this.dialogDelete = false;
-      if (!this.dialogDeleteNotify) {
-        this.$nextTick(() => {
-          this.editedItem = Object.assign({}, this.defaultItem);
-          this.editedIndex = -1;
-        });
-      }
-    },
-
-    closeDeleteNotify() {
-      this.dialogDeleteNotify = false;
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem);
-        this.editedIndex = -1;
-      });
-    },
-
-    async save() {
-      const { valid } = await this.$refs.courseform.validate()
-      if(valid) {
-        this.$emit("onLoading", true);
-        const token = this.$store.getters.getToken;
-        //console.log("save", this.editedItem);
-
-        let startdate = null;
-        let expiredate = null;
-        let paydate = null;
-        if (this.editedItem.startdate !==null && this.editedItem.startdate !=="") {
-          startdate = this.SQLDate(this.editedItem.startdate);
-        }
-        if (this.editedItem.expiredate !==null && this.editedItem.expiredate !=="") {
-          expiredate = this.SQLDate(this.editedItem.expiredate);
-        }
-        if (this.editedItem.paydate !==null && this.editedItem.paydate !=="") {
-          paydate = this.SQLDate(this.editedItem.paydate);
-        }
-        if (this.editedIndex > -1) {
-          let saveObj = {
-            courserefer: this.editedItem.courserefer,
-            course: this.editedItem.course,
-            courseid: this.editedItem.courseid,
-            coursetype: this.editedItem.coursetype,
-            course_shortname: this.editItem.course_shortname,
-            remaining: this.editedItem.remaining,
-            startdate: startdate,
-            expiredate: expiredate,
-            period: this.editedItem.period,
-            paid: this.editedItem.paid,
-            paydate: paydate,
-          };
-          const response = await axios.post(this.baseURL + "/updateCustomerCourse", saveObj, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-
-          if (response.data.success) {
-            await this.handleUploadSlip(this.editedItem.slip_customer, this.editedItem.courserefer);
-            this.$emit("onInfoHandler", response.data.message || "สำเร็จ แก้ไขข้อมูลคอร์สใหม่แล้ว");
-          } else {
-            this.$emit("onErrorHandler", response.data.message || "เสียใจ แก้ไขคอร์สไม่ได้ ลองใหม่อีกครั้งนะ");
-          }
-          this.initialize();
-        } else {
-          let saveObj = {
-            courserefer: this.editedItem.courserefer,
-            course: this.editedItem.course,
-            coursetype: this.editedItem.coursetype,
-            course_shortname: this.editItem.course_shortname,
-            remaining: this.editedItem.remaining,
-            startdate: startdate,
-            expiredate: expiredate,
-            period: this.editedItem.period,
-            paid: this.editedItem.paid,
-            paydate: paydate,
-          };
-          const response = await axios.post(this.baseURL + "/addCustomerCourse", saveObj, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-
-          if (response.data.success) {
-            await this.handleUploadSlip(this.editedItem.slip_customer, response.data.courserefer);
-            this.$emit("onInfoHandler", response.data.message || "สำเร็จ สร้างคอร์สใหม่แล้ว");
-            this.copyToClipboard(response.data.courserefer);
-          } else {
-            this.$emit("onErrorHandler", response.data.message || "เสียใจ สร้างคอร์สไม่ได้ ลองใหม่อีกครั้งนะ");
-          }
-          this.initialize();
-        }
-        this.close();
-        this.$emit("onLoading", false);
-      } else {
-          this.$emit('onErrorHandler', 'กรุณากรอกข้อมูลให้ครบถ้วน')
-          this.$emit('onLoading', false)
-          return
-      }
-    },
     async handleUploadSlip(file, courserefer) {
 
       if (this.editedItem.slip_image_url && !file) {
@@ -773,7 +577,7 @@ export default {
       const token = this.$store.getters.getToken;
       await axios
         .post(
-          this.baseURL + "/getCustomerCourseList",
+          this.baseURL + "/getFinishedCustomerCourseList",
           {},
           {
             headers: {
