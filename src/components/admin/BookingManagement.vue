@@ -103,6 +103,15 @@
                                                                             :loading="loadingClassTime"
                                                                             return-object="true" required></v-select>
                                                                     </v-col>
+                                                                    <v-col cols="4" sm="4" md="4">
+                                                                        <v-checkbox
+                                                                        v-model="editedBookingItem.freeflag"
+                                                                        label="ทดลองเรียนฟรี"
+                                                                        color="success"
+                                                                        class="ma-2"
+                                                                        :value="1"
+                                                                        />
+                                                                    </v-col>
                                                                 </v-row>
                                                             </v-form>
                                                         </v-container>
@@ -276,6 +285,7 @@ export default ({
                 classtime: null,
                 courseinfo: null,
                 courserefer: null,
+                freeflag: 0,
             },
             defaultBookingItem: {
                 fullname: null,
@@ -287,6 +297,7 @@ export default ({
                 classtime: null,
                 courseinfo: null,
                 courserefer: null,
+                freeflag: 0,
             },
             courseinfoColor: 'courseinfoColorGreen',
             selectedDate: null,
@@ -493,6 +504,7 @@ export default ({
                     classtime: this.editedBookingItem.classtime.classtime,
                     classday: this.editedBookingItem.classtime.classday,
                     reservationid: this.editedBookingItem.reservationid,
+                    freeflag: this.editedBookingItem.freeflag,
                 }
                 //console.log(this.editedBookingIndex + ' BookingObj : ', BookingObj)
 
