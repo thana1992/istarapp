@@ -109,6 +109,7 @@
                                                                         label="ทดลองเรียนฟรี"
                                                                         color="success"
                                                                         class="ma-2"
+                                                                        :disabled="editedBookingIndex != -1"
                                                                         :value="1"
                                                                         />
                                                                     </v-col>
@@ -846,6 +847,7 @@ export default ({
 
 })
 import { Promise } from 'core-js';
+import { readonly } from 'vue'
 const DashboardAPI = {
     baseURL: env.SERVER_URL,
     fetchDataBooking({ token, reservedate }) {

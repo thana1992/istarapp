@@ -279,6 +279,14 @@ const BookingListAPI = {
   color: #eb697f;
 }
 
+.v-data-table
+  /deep/
+  tbody
+  /deep/
+  tr:hover:not(.v-data-table__expanded__content) {
+  background: #ffffff !important;
+}
+
 @keyframes swing {
   0% { transform: rotate(15deg); }
   25% { transform: rotate(-15deg); }
@@ -287,4 +295,12 @@ const BookingListAPI = {
   100% { transform: rotate(15deg); }
 }
 
+</style>
+
+<style lang="scss">  
+  tbody {
+     tr:hover {
+        background-color: transparent !important;
+     }
+  }
 </style>
