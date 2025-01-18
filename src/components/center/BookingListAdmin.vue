@@ -26,17 +26,27 @@
               No booking class
             </template>
             <template v-for="(header, index) in bookingHeaders" v-slot:[`item.${header.key}`]="{ item }" >
-              <td
-                :class="[getClass(item[header.key]), { 'no-hover': !item[header.key] || typeof item[header.key] ==='number' }]" 
+              <td :key="index" :class="getClass(item[header.key])">
+                
+                <label :class="[getClass(item[header.key]), { 'no-hover': !item[header.key] || typeof item[header.key] ==='number' }]" 
                 name="col-center"
-                @click="handleCellClick(item[header.key], header.key)"
-              >
+                @click="handleCellClick(item[header.key], header.key)">
                 {{
                   typeof item[header.key] === 'object' && item[header.key] !== null
                     ? parseName(item[header.key])
                     : item[header.key]
                 }}
-                <v-icon v-if="typeof item[header.key] === 'object' && item[header.key] !== null && item[header.key].name.includes('(pay)')" class="bell-icon">mdi-bell-ring</v-icon>
+                </label>
+                <label class="tooltip">
+                  <v-icon v-if="typeof item[header.key] === 'object' && item[header.key] !== null && item[header.key].name.includes('(pay)')" class="bell-icon">mdi-bell-ring</v-icon>
+                  <v-span class="tooltiptext">
+                    {{
+                      typeof item[header.key] === 'object' && item[header.key] !== null
+                        ? parseWarningText(item[header.key])
+                        : item[header.key]
+                    }}
+                  </v-span>
+                </label>
               </td>
             </template>
           </v-data-table>
@@ -124,7 +134,15 @@ export default {
       }
       return value;
     },
+    parseWarningText(value) {
+      //console.log('parseWarningText value :', value);
+      if (typeof value === 'object' && value !== null) {
+        return value.msg;
+      }
+      return '';
+    },
     getClass(value) {
+      console.log('getClass value :', value);
       const classes = [];
       
       if (typeof value === 'object' && value !== null) {
@@ -231,7 +249,7 @@ const BookingListAPI = {
   white-space: normal; 
   padding: 0.75em 0.25em; 
   border-radius: 0.25em 0.75em; 
-  min-width: 140px;
+  min-width: 150px;
 }
 
 .hover-cell {
@@ -252,6 +270,7 @@ const BookingListAPI = {
   animation: swing 2s ease-in-out infinite;
   transform-origin: top center;
   filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
+  padding-left: 5px;
 }
 
 .header-cell {
@@ -285,6 +304,33 @@ const BookingListAPI = {
   /deep/
   tr:hover:not(.v-data-table__expanded__content) {
   background: #ffffff !important;
+}
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: auto;
+  background-color: rgba(0, 0, 0, 0.75);
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5vw;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  white-space: nowrap;
+  padding: 3px 10px;
 }
 
 @keyframes swing {
