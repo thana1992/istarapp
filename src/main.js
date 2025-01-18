@@ -16,6 +16,19 @@ const vuetify = createVuetify({
   components,
   directives,
   defaultTheme: 'dark',
+  themes: {
+    dark: {
+      dark: true,
+      colors: {
+        background: '#121212',
+        surface: '#121212',
+        primary: '#BB86FC',
+        secondary: '#03DAC6',
+        error: '#CF6679',
+        // เพิ่มสีอื่น ๆ ตามต้องการ
+      },
+    },
+  },
 });
 
 const app = createApp(App).component('vue3-autocounter', Vue3Autocounter)
@@ -29,4 +42,8 @@ if (token) {
 //console.log("env.SERVER_URL ", env.SERVER_URL);
 app.config.globalProperties.baseURL = env.SERVER_URL;
 
-app.component('VueDatePicker', VueDatePicker).use(vuetify).use(store).mount('#app');
+app
+  .component('VueDatePicker', VueDatePicker)
+  .use(vuetify)
+  .use(store)
+  .mount('#app');
