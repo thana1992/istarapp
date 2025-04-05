@@ -142,7 +142,7 @@ export default {
       return '';
     },
     getClass(value) {
-      console.log('getClass value :', value);
+      //console.log('getClass value :', value);
       const classes = [];
       
       if (typeof value === 'object' && value !== null) {
