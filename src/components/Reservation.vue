@@ -216,7 +216,7 @@ export default {
 
             if (!isDuplicate) {
                 const token = this.$store.getters.getToken;
-                await axios.post(this.baseURL + '/createReservation', reservaObj, {
+                await axios.post(this.baseURL + '/addBookingByCustomer', reservaObj, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
