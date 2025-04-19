@@ -418,6 +418,7 @@ export default ({
         onClickCardTotalStudent() {
             this.state = 'studentlist'
             this.refreshData()
+            this.callChildMethodRefreshStudent();
         },
         onClickCardToday() {
             this.datepick = new Date()
@@ -607,6 +608,16 @@ export default ({
     },
     setup() {
         const StudentComponent  = ref(null)
+        const callChildMethodRefreshStudent = async () => {
+            // รอให้ Vue ทำการ update DOM เสร็จสิ้น
+            await nextTick();
+
+            if (StudentComponent.value) {
+                StudentComponent.value.initialize();  // เรียก method ของ component ลูกเมื่อมันพร้อม
+            } else {
+                console.error('Child component is still not available.');
+            }
+        };
         const callChildMethodAddNewStudent = async () => {
             // รอให้ Vue ทำการ update DOM เสร็จสิ้น
             await nextTick();
@@ -671,6 +682,7 @@ export default ({
         
         return {
             StudentComponent,
+            callChildMethodRefreshStudent,
             callChildMethodAddNewStudent,
             cellChildMethodUpdateStudent,
 
