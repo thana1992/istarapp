@@ -641,7 +641,7 @@ export default {
       if(valid) {
         this.$emit("onLoading", true);
         const token = this.$store.getters.getToken;
-        //console.log("save", this.editedItem);
+        console.log("save", this.editedItem);
 
         let startdate = null;
         let expiredate = null;
@@ -660,58 +660,85 @@ export default {
         } else {
           this.editedItem.shortnote = "";
         }
-        if (this.editedIndex > -1) {
-          let saveObj = {
-            courserefer: this.editedItem.courserefer,
-            course: this.editedItem.course,
-            courseid: this.editedItem.courseid,
-            coursetype: this.editedItem.coursetype,
-            course_shortname: this.editedItem.course_shortname,
-            remaining: this.editedItem.remaining,
-            startdate: startdate,
-            expiredate: expiredate,
-            period: this.editedItem.period,
-            paid: this.editedItem.paid,
-            paydate: paydate,
-            shortnote: this.editedItem.shortnote,
-          };
-          const response = await axios.post(this.baseURL + "/updateCustomerCourse", saveObj, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-
-          if (response.data.success) {
-            await this.handleUploadSlip(this.editedItem.slip_customer, this.editedItem.courserefer);
-            this.$emit("onInfoHandler", response.data.message || "สำเร็จ แก้ไขข้อมูลคอร์สใหม่แล้ว");
+        try {
+          if (this.editedIndex > -1) {
+            let saveObj = {
+              courserefer: this.editedItem.courserefer,
+              course: this.editedItem.course,
+              courseid: this.editedItem.courseid,
+              coursetype: this.editedItem.coursetype,
+              course_shortname: this.editedItem.course_shortname,
+              remaining: this.editedItem.remaining,
+              startdate: startdate,
+              expiredate: expiredate,
+              period: this.editedItem.period,
+              paid: this.editedItem.paid,
+              paydate: paydate,
+              shortnote: this.editedItem.shortnote,
+            };
+            const response = await axios.post(this.baseURL + "/updateCustomerCourse", saveObj, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            console.dir("response", response);
+            if (response.data.success) {
+              await this.handleUploadSlip(this.editedItem.slip_customer, this.editedItem.courserefer);
+              this.$emit("onInfoHandler", response.data.message || "สำเร็จ แก้ไขข้อมูลคอร์สใหม่แล้ว");
+            } else {
+              
+              this.$emit("onErrorHandler", response.data.message || "เสียใจ แก้ไขคอร์สไม่ได้ ลองใหม่อีกครั้งนะ");
+            }
+            this.initialize();
           } else {
-            this.$emit("onErrorHandler", response.data.message || "เสียใจ แก้ไขคอร์สไม่ได้ ลองใหม่อีกครั้งนะ");
+            let saveObj = {
+              courserefer: this.editedItem.courserefer,
+              course: this.editedItem.course,
+              coursetype: this.editedItem.coursetype,
+              course_shortname: this.editedItem.course_shortname,
+              remaining: this.editedItem.remaining,
+              startdate: startdate,
+              expiredate: expiredate,
+              period: this.editedItem.period,
+              paid: this.editedItem.paid,
+              paydate: paydate,
+              shortnote: this.editedItem.shortnote,
+            };
+            const response = await axios.post(this.baseURL + "/addCustomerCourse", saveObj, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            console.dir("response", response);
+            if (response.data.success) {
+              await this.handleUploadSlip(this.editedItem.slip_customer, response.data.courserefer);
+              this.$emit("onInfoHandler", response.data.message || "สำเร็จ สร้างคอร์สใหม่แล้ว");
+              this.copyToClipboard(response.data.courserefer);
+            } else {
+              this.$emit("onErrorHandler", response.data.message || "เสียใจ สร้างคอร์สไม่ได้ ลองใหม่อีกครั้งนะ");
+            }
+            this.initialize();
           }
-          this.initialize();
-        } else {
-          let saveObj = {
-            courserefer: this.editedItem.courserefer,
-            course: this.editedItem.course,
-            coursetype: this.editedItem.coursetype,
-            course_shortname: this.editedItem.course_shortname,
-            remaining: this.editedItem.remaining,
-            startdate: startdate,
-            expiredate: expiredate,
-            period: this.editedItem.period,
-            paid: this.editedItem.paid,
-            paydate: paydate,
-            shortnote: this.editedItem.shortnote,
-          };
-          const response = await axios.post(this.baseURL + "/addCustomerCourse", saveObj, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-
-          if (response.data.success) {
-            await this.handleUploadSlip(this.editedItem.slip_customer, response.data.courserefer);
-            this.$emit("onInfoHandler", response.data.message || "สำเร็จ สร้างคอร์สใหม่แล้ว");
-            this.copyToClipboard(response.data.courserefer);
+        } catch (error) { // <--- เริ่ม catch block
+          console.error("Axios Post Error:", error); // <--- แสดง error ที่เกิดขึ้นใน console
+          // คุณสามารถดูรายละเอียดของ error ได้จาก object `error`
+          // เช่น error.response (ถ้า server ตอบกลับมาพร้อม error status)
+          // หรือ error.request (ถ้า request ถูกส่งไปแต่ไม่ได้รับการตอบกลับ)
+          // หรือ error.message
+          if (error.response) {
+            // Server ตอบกลับมาพร้อม error status (e.g., 4xx, 5xx)
+            console.log("Error Response Data:", error.response.data);
+            console.log("Error Response Status:", error.response.status);
+            console.log("Error Response Headers:", error.response.headers);
+            this.$emit("onErrorHandler", error.response.data.message || "เกิดข้อผิดพลาดในการสื่อสารกับ Server");
+          } else if (error.request) {
+            // Request ถูกส่งไปแต่ไม่ได้รับการตอบกลับ
+            console.log("Error Request:", error.message);
+            this.$emit("onErrorHandler", "ไม่ได้รับการตอบกลับจาก Server " + error.message);
           } else {
-            this.$emit("onErrorHandler", response.data.message || "เสียใจ สร้างคอร์สไม่ได้ ลองใหม่อีกครั้งนะ");
+            // เกิดข้อผิดพลาดอื่นๆ ในการตั้งค่า request
+            console.log("Error Message:", error.message);
+            this.$emit("onErrorHandler", "เกิดข้อผิดพลาด: " + error.message);
           }
-          this.initialize();
+        } finally { // <--- (ทางเลือก) finally block จะทำงานเสมอ ไม่ว่าจะมี error หรือไม่
+          this.close();
+          this.$emit("onLoading", false);
         }
         this.close();
         this.$emit("onLoading", false);
