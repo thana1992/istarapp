@@ -641,7 +641,7 @@ export default {
       if(valid) {
         this.$emit("onLoading", true);
         const token = this.$store.getters.getToken;
-        console.log("save", this.editedItem);
+        //console.log("save", this.editedItem);
 
         let startdate = null;
         let expiredate = null;
@@ -679,7 +679,6 @@ export default {
             const response = await axios.post(this.baseURL + "/updateCustomerCourse", saveObj, {
               headers: { Authorization: `Bearer ${token}` },
             });
-            console.dir("response", response);
             if (response.data.success) {
               await this.handleUploadSlip(this.editedItem.slip_customer, this.editedItem.courserefer);
               this.$emit("onInfoHandler", response.data.message || "สำเร็จ แก้ไขข้อมูลคอร์สใหม่แล้ว");
@@ -705,7 +704,6 @@ export default {
             const response = await axios.post(this.baseURL + "/addCustomerCourse", saveObj, {
               headers: { Authorization: `Bearer ${token}` },
             });
-            console.dir("response", response);
             if (response.data.success) {
               await this.handleUploadSlip(this.editedItem.slip_customer, response.data.courserefer);
               this.$emit("onInfoHandler", response.data.message || "สำเร็จ สร้างคอร์สใหม่แล้ว");
@@ -716,7 +714,7 @@ export default {
             this.initialize();
           }
         } catch (error) { // <--- เริ่ม catch block
-          console.error("Axios Post Error:", error); // <--- แสดง error ที่เกิดขึ้นใน console
+          //console.error("Axios Post Error:", error); // <--- แสดง error ที่เกิดขึ้นใน console
           // คุณสามารถดูรายละเอียดของ error ได้จาก object `error`
           // เช่น error.response (ถ้า server ตอบกลับมาพร้อม error status)
           // หรือ error.request (ถ้า request ถูกส่งไปแต่ไม่ได้รับการตอบกลับ)
