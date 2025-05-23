@@ -133,6 +133,11 @@
                             </div>
                           </v-col>
                         </v-row>
+                        <v-row>
+                          <v-col cols="12" sm="12" md="12">
+                            <v-textarea v-model="editedItem.shortnote" label="Short Note" variant="solo-filled" rows="2" readonly></v-textarea>
+                          </v-col>
+                        </v-row>
                         <v-row v-if="editedIndex > -1">
                           <v-col cols="12" sm="12" md="12">
                             <h3 class="group-header">Course usage history</h3>
@@ -273,6 +278,7 @@ export default {
       paydate: null,
       slip_customer: '',
       slip_image_url: '',
+      shortnote: '',
     },
     defaultItem: {
       courserefer: null,
@@ -289,6 +295,7 @@ export default {
       paydate: null,
       slip_customer: '',
       slip_image_url: '',
+      shortnote: '',
     },
     showPreview: false,
     isViewMode: false, // เปลี่ยนเป็น false เมื่ออยู่ในโหมดแก้ไข
