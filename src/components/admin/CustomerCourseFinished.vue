@@ -511,37 +511,6 @@ export default {
         this.editedIndex = -1;
       });
     },
-    async handleUploadSlip(file, courserefer) {
-
-      if (this.editedItem.slip_image_url && !file) {
-          console.log('No new image to upload');
-          return;
-      }
-
-      if (file) {
-        const formData = new FormData();
-        const newFileName = `${courserefer}.${file.name.split('.').pop()}`;
-
-        // สร้างไฟล์ใหม่ด้วยชื่อไฟล์ใหม่
-        const renamedFile = new File([file], newFileName, { type: file.type });
-
-        formData.append("slipImage", renamedFile);
-        formData.append("courserefer", courserefer);
-
-        const response = await fetch(this.baseURL + '/uploadSlipImage', {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${this.token}`, // เพิ่ม token ลงใน headers
-            },
-            body: formData,
-        });
-
-        const data = await response.json();
-        const imageUrl = data.url;
-        console.log('imageUrl', imageUrl);
-        
-      }
-    },
     async getCourseLookup() {
       const token = this.$store.getters.getToken;
       await axios
