@@ -136,6 +136,11 @@
                             </div>
                           </v-col>
                         </v-row>
+                        <v-row>
+                          <v-col cols="12" sm="12" md="12">
+                            <v-textarea v-model="editedItem.shortnote" label="Short Note" variant="solo-filled" rows="2"></v-textarea>
+                          </v-col>
+                        </v-row>
                         <v-row v-if="editedIndex > -1">
                           <v-col cols="12" sm="12" md="12">
                             <h3 class="group-header">Course usage history</h3>
@@ -296,6 +301,7 @@ export default {
       period: null,
       paid: 0,
       paydate: null,
+      shortnote: null,
       slip_customer: '',
       slip_image_url: '',
     },
@@ -312,6 +318,7 @@ export default {
       period: null,
       paid: 0,
       paydate: null,
+      shortnote: null,
       slip_customer: '',
       slip_image_url: '',
     },
@@ -648,19 +655,25 @@ export default {
         if (this.editedItem.paydate !==null && this.editedItem.paydate !=="") {
           paydate = this.SQLDate(this.editedItem.paydate);
         }
+        if (this.editedItem.shortnote !== null && this.editedItem.shortnote !== "") {
+          this.editedItem.shortnote = this.editedItem.shortnote;
+        } else {
+          this.editedItem.shortnote = "";
+        }
         if (this.editedIndex > -1) {
           let saveObj = {
             courserefer: this.editedItem.courserefer,
             course: this.editedItem.course,
             courseid: this.editedItem.courseid,
             coursetype: this.editedItem.coursetype,
-            course_shortname: this.editItem.course_shortname,
+            course_shortname: this.editedItem.course_shortname,
             remaining: this.editedItem.remaining,
             startdate: startdate,
             expiredate: expiredate,
             period: this.editedItem.period,
             paid: this.editedItem.paid,
             paydate: paydate,
+            shortnote: this.editedItem.shortnote,
           };
           const response = await axios.post(this.baseURL + "/updateCustomerCourse", saveObj, {
             headers: { Authorization: `Bearer ${token}` },
@@ -678,13 +691,14 @@ export default {
             courserefer: this.editedItem.courserefer,
             course: this.editedItem.course,
             coursetype: this.editedItem.coursetype,
-            course_shortname: this.editItem.course_shortname,
+            course_shortname: this.editedItem.course_shortname,
             remaining: this.editedItem.remaining,
             startdate: startdate,
             expiredate: expiredate,
             period: this.editedItem.period,
             paid: this.editedItem.paid,
             paydate: paydate,
+            shortnote: this.editedItem.shortnote,
           };
           const response = await axios.post(this.baseURL + "/addCustomerCourse", saveObj, {
             headers: { Authorization: `Bearer ${token}` },
