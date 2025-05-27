@@ -101,7 +101,8 @@
                               :label="editedItem.paid ? 'จ่ายแล้ว' : 'ยังไม่จ่าย'"
                               color="success"
                               class="ma-2"
-                              :value="1"
+                              :true-value="1"
+                              :false-value="0"
                             />
                           </v-col>
                           <v-col cols="12" sm="3" md="3">
