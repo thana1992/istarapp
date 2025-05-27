@@ -635,7 +635,7 @@ export default {
         this.editedIndex = -1;
       });
     },
-
+    /*
     async save() {
       const { valid } = await this.$refs.courseform.validate()
       if(valid) {
@@ -750,6 +750,92 @@ export default {
           return
       }
     },
+    */
+    async save() {
+      const { valid } = await this.$refs.courseform.validate();
+      if (!valid) {
+        this.$emit('onErrorHandler', 'กรุณากรอกข้อมูลให้ครบถ้วน');
+        this.$emit('onLoading', false);
+        return;
+      }
+
+      this.$emit("onLoading", true);
+      const token = this.$store.getters.getToken;
+
+      // แปลงวันที่ให้เป็นรูปแบบ SQL
+      const startdate = this.editedItem.startdate ? this.SQLDate(this.editedItem.startdate) : null;
+      const expiredate = this.editedItem.expiredate ? this.SQLDate(this.editedItem.expiredate) : null;
+      const paydate = this.editedItem.paydate ? this.SQLDate(this.editedItem.paydate) : null;
+      const shortnote = this.editedItem.shortnote || "";
+
+      try {
+        // สร้าง FormData
+        const formData = new FormData();
+        formData.append('courserefer', this.editedItem.courserefer || '');
+        // ถ้า course เป็น object ให้แปลงเป็น JSON string ก่อนส่ง
+        formData.append('coursestr', this.editedItem.course ? JSON.stringify(this.editedItem.course) : '');
+        formData.append('courseid', this.editedItem.courseid || '');
+        formData.append('coursetype', this.editedItem.coursetype);
+        formData.append('course_shortname', this.editedItem.course_shortname);
+        formData.append('remaining', this.editedItem.remaining);
+        formData.append('startdate', startdate || '');
+        formData.append('expiredate', expiredate || '');
+        formData.append('period', this.editedItem.period);
+        formData.append('paid', this.editedItem.paid);
+        formData.append('paydate', paydate || '');
+        formData.append('shortnote', shortnote);
+        formData.append('slipImage', this.editedItem.slip_image_url);
+
+        // แนบไฟล์รูปภาพหากมี
+        if (this.editedItem.slip_customer instanceof File) {
+          formData.append('slip_customer', this.editedItem.slip_customer);
+        }
+
+        const url = this.editedIndex > -1
+          ? this.baseURL + "/updateCustomerCourse2"
+          : this.baseURL + "/addCustomerCourse2";
+
+        const response = await axios.post(url, formData, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            // ไม่ต้องกำหนด 'Content-Type' ให้ Axios จัดการเอง
+          },
+        });
+
+        if (response.data.success) {
+          const message = this.editedIndex > -1
+            ? response.data.message || "สำเร็จ แก้ไขข้อมูลคอร์สใหม่แล้ว"
+            : response.data.message || "สำเร็จ สร้างคอร์สใหม่แล้ว";
+          this.$emit("onInfoHandler", message);
+
+          if (this.editedIndex === -1) {
+            this.copyToClipboard(response.data.courserefer);
+          }
+        } else {
+          const errorMsg = this.editedIndex > -1
+            ? response.data.message || "เสียใจ แก้ไขคอร์สไม่ได้ ลองใหม่อีกครั้งนะ"
+            : response.data.message || "เสียใจ สร้างคอร์สไม่ได้ ลองใหม่อีกครั้งนะ";
+          this.$emit("onErrorHandler", errorMsg);
+        }
+
+        this.initialize();
+      } catch (error) {
+        if (error.response) {
+          console.log("Error Response Data:", error.response.data);
+          this.$emit("onErrorHandler", error.response.data.message || "เกิดข้อผิดพลาดในการสื่อสารกับ Server");
+        } else if (error.request) {
+          console.log("Error Request:", error.message);
+          this.$emit("onErrorHandler", "ไม่ได้รับการตอบกลับจาก Server " + error.message);
+        } else {
+          console.log("Error Message:", error.message);
+          this.$emit("onErrorHandler", "เกิดข้อผิดพลาด: " + error.message);
+        }
+      } finally {
+        this.close();
+        this.$emit("onLoading", false);
+      }
+    },
+
     async handleUploadSlip(file, courserefer) {
 
       if (this.editedItem.slip_image_url && !file) {
