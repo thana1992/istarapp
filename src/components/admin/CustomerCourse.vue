@@ -675,6 +675,8 @@ export default {
               paid: this.editedItem.paid,
               paydate: paydate,
               shortnote: this.editedItem.shortnote,
+              slip_customer: this.editedItem.slip_customer,
+              slip_image_url: this.editedItem.slip_image_url
             };
             const response = await axios.post(this.baseURL + "/updateCustomerCourse", saveObj, {
               headers: { Authorization: `Bearer ${token}` },
@@ -700,6 +702,8 @@ export default {
               paid: this.editedItem.paid,
               paydate: paydate,
               shortnote: this.editedItem.shortnote,
+              slip_customer: this.editedItem.slip_customer,
+              slip_image_url: this.editedItem.slip_image_url
             };
             const response = await axios.post(this.baseURL + "/addCustomerCourse", saveObj, {
               headers: { Authorization: `Bearer ${token}` },
