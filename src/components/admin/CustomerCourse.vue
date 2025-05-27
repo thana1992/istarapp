@@ -293,7 +293,6 @@ export default {
       course: null,
       coursename: null,
       coursetype: null,
-      course_shortname: null,
       remaining: null,
       startdate: null,
       expiredate: null,
@@ -310,7 +309,6 @@ export default {
       course: null,
       coursename: null,
       coursetype: null,
-      course_shortname: null,
       remaining: null,
       startdate: null,
       expiredate: null,
@@ -429,6 +427,7 @@ export default {
       this.editedItem = Object.assign({}, item);
       if(this.editedItem.startdate) this.editedItem.startdate = new Date(item.startdate);
       if(this.editedItem.expiredate) this.editedItem.expiredate = new Date(item.expiredate);
+      
       let course = this.courseLookup.find(
         (course) => course.courseid == this.editedItem.courseid
       );
@@ -776,7 +775,6 @@ export default {
         formData.append('coursestr', this.editedItem.course ? JSON.stringify(this.editedItem.course) : '');
         formData.append('courseid', this.editedItem.courseid || '');
         formData.append('coursetype', this.editedItem.coursetype);
-        formData.append('course_shortname', this.editedItem.course_shortname);
         formData.append('remaining', this.editedItem.remaining);
         formData.append('startdate', startdate || '');
         formData.append('expiredate', expiredate || '');
@@ -784,16 +782,15 @@ export default {
         formData.append('paid', this.editedItem.paid);
         formData.append('paydate', paydate || '');
         formData.append('shortnote', shortnote);
-        formData.append('slipImage', this.editedItem.slip_image_url);
-
+        formData.append('slip_image_url', this.editedItem.slip_image_url || '');
         // แนบไฟล์รูปภาพหากมี
         if (this.editedItem.slip_customer instanceof File) {
-          formData.append('slip_customer', this.editedItem.slip_customer);
+          formData.append('slipImage', this.editedItem.slip_customer);
         }
 
         const url = this.editedIndex > -1
-          ? this.baseURL + "/updateCustomerCourse2"
-          : this.baseURL + "/addCustomerCourse2";
+          ? this.baseURL + "/updateCustomerCourse"
+          : this.baseURL + "/addCustomerCourse";
 
         const response = await axios.post(url, formData, {
           headers: {
@@ -889,13 +886,6 @@ export default {
             this.$emit("onErrorHandler", error.message);
           }
         });
-    },
-    selectCourse() {
-      //console.log("selectCourse");
-      let course = this.courseLookup.find(
-        (course) => course.courseid == this.editedItem.courseid
-      );
-      this.editedItem.course_shortname = course.course_shortname;
     },
     async getCustomerCourseList() {
       this.loadingCustomerCourse = true;
