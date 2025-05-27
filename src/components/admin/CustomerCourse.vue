@@ -833,7 +833,7 @@ export default {
         this.$emit("onLoading", false);
       }
     },
-
+    /*
     async handleUploadSlip(file, courserefer) {
 
       if (this.editedItem.slip_image_url && !file) {
@@ -865,6 +865,7 @@ export default {
         
       }
     },
+    */
     async getCourseLookup() {
       const token = this.$store.getters.getToken;
       await axios
