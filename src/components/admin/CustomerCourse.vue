@@ -88,6 +88,18 @@
                           </v-col>
                         </v-row>
                         <v-row>
+                          <v-col cols="6" sm="12" md="12">
+                            <v-switch
+                              v-model="editedItem.enable_double_booking"
+                              :label="editedItem.enable_double_booking ? 'คอร์สเรียนนี้ สามารถเรียนได้ มากกว่า 1 รอบ/วัน' : 'คอร์สเรียนนี้ สามารถเรียนได้ 1 รอบ/วัน'"
+                              color="success"
+                              class="ma-2"
+                              :true-value="1"
+                              :false-value="0"
+                            />
+                          </v-col>
+                        </v-row>
+                        <v-row>
                           <v-col cols="12" sm="12" md="12">
                             <h3 class="group-header">Course Payment</h3>
                             <v-divider class="border-opacity-100" color="info" thickness="3"></v-divider>
@@ -299,6 +311,7 @@ export default {
       expiredate: null,
       course_user: null,
       period: null,
+      enable_double_booking: 0,
       paid: 0,
       paydate: null,
       shortnote: null,
@@ -315,6 +328,7 @@ export default {
       expiredate: null,
       course_user: null,
       period: null,
+      enable_double_booking: 0,
       paid: 0,
       paydate: null,
       shortnote: null,
@@ -780,6 +794,7 @@ export default {
         formData.append('startdate', startdate || '');
         formData.append('expiredate', expiredate || '');
         formData.append('period', this.editedItem.period);
+        formData.append('enable_double_booking', this.editedItem.enable_double_booking ? 1 : 0);
         formData.append('paid', this.editedItem.paid);
         formData.append('paydate', paydate || '');
         formData.append('shortnote', shortnote);
