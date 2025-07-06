@@ -147,3 +147,9 @@ body {
   background-color: #cacaca;
   font: bold 14px 'Kodchasan', sans-serif;
 }
+
+.double-booking-highlight {
+  color: darkgreen;
+  text-decoration: underline;
+  font-weight: bold;
+}
