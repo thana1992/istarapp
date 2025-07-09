@@ -89,13 +89,31 @@
                         <v-row>
                           <v-col cols="6" sm="12" md="12">
                             <v-switch
-                              v-model="editedItem.enable_double_booking"
-                              :label="editedItem.enable_double_booking ? 'คอร์สเรียนนี้ สามารถเรียนได้ มากกว่า 1 รอบ/วัน' : 'คอร์สเรียนนี้ สามารถเรียนได้ 1 รอบ/วัน'"
+                              v-model.number="editedItem.enable_double_booking"
                               color="success"
                               class="ma-2"
                               :true-value="1"
                               :false-value="0"
-                            />
+                              inset
+                            >
+                              <template #label>
+                                <p>คอร์สเรียนนี้ สามารถเรียนได้</p>
+                                <span
+                                  :class="{
+                                    'double-booking-highlight': editedItem.enable_double_booking == 1
+                                  }"
+                                  @click.stop.prevent
+                                  style="cursor: default;"
+                                >
+                                  {{
+                                    editedItem.enable_double_booking == 1
+                                      ? 'มากกว่า'
+                                      : ''
+                                  }}
+                                </span>
+                                <p>&nbsp;1 รอบ/วัน</p>
+                              </template>
+                            </v-switch>
                           </v-col>
                         </v-row>
                         <v-row>
@@ -451,7 +469,7 @@ export default {
         this.isViewMode = true;
       }
       this.dialog = true;
-      //console.log("editItem", this.editedItem);
+      console.log("editItem", this.editedItem);
     },
     finishCourse(item) {
       this.editedIndex = this.courselist.indexOf(item);
