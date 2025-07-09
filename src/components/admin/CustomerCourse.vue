@@ -15,8 +15,7 @@
         </v-card-title>
 
         <v-divider></v-divider>
-        <v-data-table :headers="headers" :items="courselist" :loading="loadingCustomerCourse"
-          :sort-by="[{ key: 'coursename', order: 'asc' }]" :search="search">
+        <v-data-table :headers="headers" :items="courselist" :loading="loadingCustomerCourse" :search="search">
           <template v-slot:top>
             <v-toolbar flat>
               <v-toolbar-title>Customer's Courses</v-toolbar-title>
