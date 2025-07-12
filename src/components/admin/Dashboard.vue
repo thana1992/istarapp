@@ -2,7 +2,7 @@
     <div class="container">
         <div class="container-header">
             <h1><span class="mdi mdi-view-dashboard"></span> Dashboard</h1>
-        </div><v-btn color="primary" @click="testBookingColor">Test Booking Color</v-btn>
+        </div>
         <div class="container-content">
             <v-divider color="#fffff" thickness="3"></v-divider>
             <div class="mx-auto mt-5 px-2 py-1">
