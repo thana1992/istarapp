@@ -153,3 +153,22 @@ body {
   text-decoration: underline;
   font-weight: bold;
 }
+
+.active-student-card {
+    background-color: rgba(0, 255, 64, 0.25) !important; /* เขียวสดโปร่งแสง */
+    border: 1.5px solid #00e676;
+    box-shadow: 0 2px 8px 0 rgba(0,255,64,0.10);
+}
+
+.booking-card-white {
+    background-color: #fff !important;
+}
+.booking-card-green {
+    background-color: #b9ffb9 !important;
+}
+.booking-card-orange {
+    background-color: #ffe0b2 !important;
+}
+.booking-card-red {
+    background-color: #ffb3b3 !important;
+}
