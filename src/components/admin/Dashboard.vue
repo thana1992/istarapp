@@ -7,7 +7,7 @@
             <v-divider color="#fffff" thickness="3"></v-divider>
             <div class="mx-auto mt-5 px-2 py-1">
                 <v-row>
-                    <v-col cols="12" sm="6" md="2" xl="2">
+                    <v-col cols="12" sm="3" md="1" xl="1">
                         <v-card class="mx-auto" link @click="onClickCardTotalStudent">
                             <v-list-item class="header-card" min-height="60">
                                 <div>Total <br>Gymnasts</div>
@@ -16,6 +16,23 @@
                                 <v-list-item-title class="headline mb-1">
                                     <p class="font-card"><vue3-autocounter ref='counter' :startAmount='0'
                                             :endAmount='totalStudents' :duration='2.5' separator=',' :autoinit='true' />
+                                    </p>
+                                </v-list-item-title>
+                                <v-list-item-subtitle>Students</v-list-item-subtitle>
+                                <span class="mdi mdi-face-man-shimmer"></span>
+                                <span class="mdi mdi-face-woman-shimmer"></span>
+                            </v-list-item>
+                        </v-card>
+                    </v-col>
+                    <v-col cols="12" sm="3" md="1" xl="1">
+                        <v-card class="mx-auto" link @click="onClickCardTotalActiveStudent">
+                            <v-list-item class="header-card" min-height="60">
+                                <div>Total Active<br>Gymnasts</div>
+                            </v-list-item>
+                            <v-list-item three-line class="dashboard-card">
+                                <v-list-item-title class="headline mb-1">
+                                    <p class="font-card"><vue3-autocounter ref='counter' :startAmount='0'
+                                            :endAmount='totalActiveStudents' :duration='2.5' separator=',' :autoinit='true' />
                                     </p>
                                 </v-list-item-title>
                                 <v-list-item-subtitle>Students</v-list-item-subtitle>
@@ -259,6 +276,7 @@ export default ({
             interval: null,
             datepick: new Date(),
             totalStudents: 0,
+            totalActiveStudents: 0,
             totalBookingToday: 0,
             totalBookingTomorrow: 0,
             totalWaitingNewStudents: 0,
@@ -395,6 +413,7 @@ export default ({
                     //console.dir(response);
                     if (response.data.success) {
                         this.totalStudents = response.data.datacard.totalStudents
+                        this.totalActiveStudents = response.data.datacard.totalActiveStudents
                         this.totalBookingToday = response.data.datacard.totalBookingToday
                         this.totalBookingTomorrow = response.data.datacard.totalBookingTomorrow
                         this.totalWaitingNewStudents = response.data.datacard.totalWaitingNewStudents
@@ -419,6 +438,11 @@ export default ({
             this.state = 'studentlist'
             this.refreshData()
             this.callChildMethodRefreshStudent();
+        },
+        onClickCardTotalActiveStudent() {
+            this.state = 'studentlist'
+            this.refreshData()
+            this.callChildMethodRefreshStudentActive();
         },
         onClickCardToday() {
             this.datepick = new Date()
@@ -618,6 +642,16 @@ export default ({
                 console.error('Child component is still not available.');
             }
         };
+        const callChildMethodRefreshStudentActive = async () => {
+            // รอให้ Vue ทำการ update DOM เสร็จสิ้น
+            await nextTick();
+
+            if (StudentComponent.value) {
+                StudentComponent.value.initializeActive();  // เรียก method ของ component ลูกเมื่อมันพร้อม
+            } else {
+                console.error('Child component is still not available.');
+            }
+        };
         const callChildMethodAddNewStudent = async () => {
             // รอให้ Vue ทำการ update DOM เสร็จสิ้น
             await nextTick();
@@ -683,6 +717,7 @@ export default ({
         return {
             StudentComponent,
             callChildMethodRefreshStudent,
+            callChildMethodRefreshStudentActive,
             callChildMethodAddNewStudent,
             cellChildMethodUpdateStudent,
 
