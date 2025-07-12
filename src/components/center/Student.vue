@@ -380,14 +380,22 @@ export default {
             this.$emit("onLoading", true);
             await this.getCustomerCourseLookup();
             await this.getFamilyLookup();
-            await this.getStudentList();
+            await this.getStudentList(false);
 
             this.$emit("onLoading", false);
         },
-        async getStudentList() {
+        async initializeActive() {
+            this.$emit("onLoading", true);
+            await this.getCustomerCourseLookup();
+            await this.getFamilyLookup();
+            await this.getStudentList(true);
+
+            this.$emit("onLoading", false);
+        },
+        async getStudentList(active) {
             this.loadingStudent = true;
             const token = this.$store.getters.getToken;
-            await ComponentAPI.fetchDataStudent({ token })
+            await ComponentAPI.fetchDataStudent({ token, active })
                 .then(({ success, results, message }) => {
                     if (success) {
                         this.StudentList = results;
@@ -1006,12 +1014,15 @@ export default {
 import { Promise } from "core-js";
 const ComponentAPI = {
     baseURL: env.SERVER_URL,
-    fetchDataStudent({ token }) {
+    fetchDataStudent({ token, active }) {
         return new Promise((resolve) => {
             axios
                 .get(this.baseURL + "/getStudentList", {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                    },
+                    params: {
+                        active: active, // Default to false, can be changed based on requirements
                     },
                 })
                 .then((response) => {
