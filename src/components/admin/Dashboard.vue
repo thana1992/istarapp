@@ -2,7 +2,7 @@
     <div class="container">
         <div class="container-header">
             <h1><span class="mdi mdi-view-dashboard"></span> Dashboard</h1>
-        </div>
+        </div><v-btn color="primary" @click="testBookingColor">Test Booking Color</v-btn>
         <div class="container-content">
             <v-divider color="#fffff" thickness="3"></v-divider>
             <div class="mx-auto mt-5 px-2 py-1">
@@ -25,7 +25,7 @@
                         </v-card>
                     </v-col>
                     <v-col cols="12" sm="4" md="2" xl="2">
-                        <v-card class="mx-auto" link @click="onClickCardTotalActiveStudent">
+                        <v-card class="mx-auto active-student-card" link @click="onClickCardTotalActiveStudent">
                             <v-list-item class="header-card" min-height="60">
                                 <div>Total Active<br>Gymnasts</div>
                             </v-list-item>
@@ -42,7 +42,7 @@
                         </v-card>
                     </v-col>
                     <v-col cols="12" sm="4" md="1" xl="1">
-                        <v-card class="mx-auto" link @click="onClickCardToday">
+                        <v-card class="mx-auto" :style="getBookingCardColor(totalBookingToday)" link @click="onClickCardToday">
                             <v-list-item class="header-card" height="60">
                                 <div>Today's booking</div>
                             </v-list-item>
@@ -58,7 +58,7 @@
                         </v-card>
                     </v-col>
                     <v-col cols="12" sm="4" md="1" xl="2">
-                        <v-card class="mx-auto" link @click="oncClickCardTomorrow">
+                        <v-card class="mx-auto" :style="getBookingCardColor(totalBookingTomorrow)" link @click="oncClickCardTomorrow">
                             <v-list-item class="header-card" height="60">
                                 <div>Tomorrow's booking</div>
                             </v-list-item>
@@ -366,7 +366,6 @@ export default ({
     },
     methods: {
         async initialize() {
-            /*
             axios.get(this.baseURL+'/checkToken', {})
             .then(response => {
                 //console.dir(response);
@@ -379,7 +378,7 @@ export default ({
                     });
                 }
             })
-            */
+            
             await this.refreshCardDashboard()
             await this.getBookingListAdmin()
         },
@@ -594,6 +593,19 @@ export default ({
         today() {
             return new Date()
         },
+        getBookingCardColor(count) {
+            if (count <= 0) return { backgroundColor: '#fff', color: '#222' };
+            if (count >= 300) return { backgroundColor: '#d50000', color: '#fff' };
+            const t = count / 300;
+            const r = Math.round(185 + (213 - 185) * t);
+            const g = Math.round(255 + (0 - 255) * t);
+            const b = Math.round(185 + (0 - 185) * t);
+
+            // ปรับสีตัวอักษรให้อ่านง่าย
+            //const textColor = (r*0.299 + g*0.587 + b*0.114) < 140 ? '#fff' : '#222';
+
+            return { backgroundColor: `rgb(${r},${g},${b})` };
+},
     },
     watch: {
         dialogStudent(val) {
@@ -629,6 +641,12 @@ export default ({
         today_std() {
             return new Date()
         },
+        bookingTodayCardColor() {
+            return this.getBookingCardColor(this.totalBookingToday);
+        },
+        bookingTomorrowCardColor() {
+            return this.getBookingCardColor(this.totalBookingTomorrow);
+        }
     },
     setup() {
         const StudentComponent  = ref(null)
