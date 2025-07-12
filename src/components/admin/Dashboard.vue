@@ -7,7 +7,7 @@
             <v-divider color="#fffff" thickness="3"></v-divider>
             <div class="mx-auto mt-5 px-2 py-1">
                 <v-row>
-                    <v-col cols="12" sm="3" md="1" xl="1">
+                    <v-col cols="12" sm="4" md="1" xl="1">
                         <v-card class="mx-auto" link @click="onClickCardTotalStudent">
                             <v-list-item class="header-card" min-height="60">
                                 <div>Total <br>Gymnasts</div>
@@ -24,7 +24,7 @@
                             </v-list-item>
                         </v-card>
                     </v-col>
-                    <v-col cols="12" sm="3" md="1" xl="1">
+                    <v-col cols="12" sm="4" md="2" xl="2">
                         <v-card class="mx-auto" link @click="onClickCardTotalActiveStudent">
                             <v-list-item class="header-card" min-height="60">
                                 <div>Total Active<br>Gymnasts</div>
@@ -41,7 +41,7 @@
                             </v-list-item>
                         </v-card>
                     </v-col>
-                    <v-col cols="12" sm="6" md="2" xl="2">
+                    <v-col cols="12" sm="4" md="1" xl="1">
                         <v-card class="mx-auto" link @click="onClickCardToday">
                             <v-list-item class="header-card" height="60">
                                 <div>Today's booking</div>
@@ -57,7 +57,7 @@
                             </v-list-item>
                         </v-card>
                     </v-col>
-                    <v-col cols="12" sm="6" md="2" xl="2">
+                    <v-col cols="12" sm="4" md="1" xl="2">
                         <v-card class="mx-auto" link @click="oncClickCardTomorrow">
                             <v-list-item class="header-card" height="60">
                                 <div>Tomorrow's booking</div>
@@ -73,7 +73,7 @@
                             </v-list-item>
                         </v-card>
                     </v-col>
-                    <v-col cols="12" sm="6" md="2" xl="2">
+                    <v-col cols="12" sm="4" md="2" xl="2">
                         <v-card :class="pulse" link @click="onClickCardNewStudent">
                             <v-list-item class="header-card" height="60">
                                 <div>Approve New Students <span class=""></span></div>
@@ -105,7 +105,7 @@
                             </v-list-item>
                         </v-card>
                     </v-col> -->
-                    <v-col sm="3" md="2" xl="1">
+                    <v-col sm="3" md="1" xl="1">
                         <v-card class="mx-auto" link @click="callChildMethodAddNewStudent">
                             <v-list-item class="btn-card-1">
                                 <div style="text-align: center;">New Student</div>
@@ -113,7 +113,7 @@
                             </v-list-item>
                         </v-card>
                     </v-col>
-                    <v-col sm="3" md="2" xl="1">
+                    <v-col sm="3" md="1" xl="1">
                         <v-card class="mx-auto" link @click="callChildMethodAddNewCustomerCourse">
                             <v-list-item class="btn-card-2">
                                 <div style="text-align: center;">New Course</div>
@@ -122,7 +122,7 @@
                         </v-card>
                     </v-col>
                     
-                    <v-col sm="3" md="2" xl="1">
+                    <v-col sm="3" md="1" xl="1">
                         <v-card class="mx-auto" link @click="callChildMethodAddNewBooking">
                             <v-list-item class="btn-card-4">
                                 <div style="text-align: center;">New Booking</div>
@@ -130,7 +130,7 @@
                             </v-list-item>
                         </v-card>
                     </v-col>
-                    <v-col sm="3" md="2" xl="1">
+                    <v-col sm="3" md="1" xl="1">
                         <v-card class="mx-auto" link @click="callChildMethodAddNewHoliday">
                             <v-list-item class="btn-card-3">
                                 <div style="text-align: center;">New Holiday</div>
