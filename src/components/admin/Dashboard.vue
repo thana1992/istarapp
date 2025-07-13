@@ -3,6 +3,7 @@
         <div class="container-header">
             <h1><span class="mdi mdi-view-dashboard"></span> Dashboard</h1>
         </div>
+        <v-btn color="primary" @click="animateTomorrow">Animate Tomorrow</v-btn>
         <div class="container-content">
             <v-divider color="#fffff" thickness="3"></v-divider>
             <div class="mx-auto mt-5 px-2 py-1">
@@ -595,18 +596,36 @@ export default ({
         },
         getBookingCardColor(count) {
             if (count <= 0) return { backgroundColor: '#fff', color: '#222' };
-            if (count >= 300) return { backgroundColor: '#d50000', color: '#fff' };
-            const t = count / 300;
-            const r = Math.round(185 + (213 - 185) * t);
-            const g = Math.round(255 + (0 - 255) * t);
-            const b = Math.round(185 + (0 - 185) * t);
+            if (count >= 120) return { backgroundColor: '#d50000', color: '#fff' };
+            const t = Math.min(count / 120, 1); // ป้องกันเกิน 1
+            // ไล่สีจากขาว (#fff) ไปแดง (#d50000)
+            const r = Math.round(255 + (213 - 255) * t); // 255 → 213
+            const g = Math.round(255 + (0 - 255) * t);   // 255 → 0
+            const b = Math.round(255 + (0 - 255) * t);   // 255 → 0
 
-            // ปรับสีตัวอักษรให้อ่านง่าย
-            //const textColor = (r*0.299 + g*0.587 + b*0.114) < 140 ? '#fff' : '#222';
-
-            return { backgroundColor: `rgb(${r},${g},${b})` };
-},
+            return { backgroundColor: `rgb(${r},${g},${b})`, color: t > 0.5 ? '#fff' : '#222' };
+        },
+        animateTomorrow() {
+            // รีเซ็ตค่า
+            this.totalBookingTomorrow = 0;
+            let step = 0;
+            const max = 100;
+            const interval = 100; // ms
+            if (this._animateTimer) clearInterval(this._animateTimer);
+            this._animateTimer = setInterval(() => {
+                if (step >= max) {
+                clearInterval(this._animateTimer);
+                this._animateTimer = null;
+                } else {
+                step++;
+                this.totalBookingTomorrow = step;
+                }
+            }, interval);
+            },
     },
+    beforeUnmount() {
+    if (this._animateTimer) clearInterval(this._animateTimer);
+  },
     watch: {
         dialogStudent(val) {
             val || this.closeStudent();
