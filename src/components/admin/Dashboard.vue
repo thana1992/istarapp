@@ -3,7 +3,7 @@
         <div class="container-header">
             <h1><span class="mdi mdi-view-dashboard"></span> Dashboard</h1>
         </div>
-        <v-btn color="primary" @click="animateTomorrow">Animate Tomorrow</v-btn>
+        <!--<v-btn color="primary" @click="animateTomorrow">Animate Tomorrow</v-btn>-->
         <div class="container-content">
             <v-divider color="#fffff" thickness="3"></v-divider>
             <div class="mx-auto mt-5 px-2 py-1">
@@ -621,11 +621,11 @@ export default ({
                 this.totalBookingTomorrow = step;
                 }
             }, interval);
-            },
+        },
     },
     beforeUnmount() {
-    if (this._animateTimer) clearInterval(this._animateTimer);
-  },
+        if (this._animateTimer) clearInterval(this._animateTimer);
+    },
     watch: {
         dialogStudent(val) {
             val || this.closeStudent();
