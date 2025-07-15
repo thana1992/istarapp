@@ -13,7 +13,7 @@
       <v-form ref="forgotpassword_form" v-model="forgotpassword_form" v-if="firstProcess">
         <v-row justify="space-around" class="ma-1 pa-1">
           <v-text-field variant="solo-filled" v-model="username" label="Username" 
-          :rules="nameRules" :readonly="verifyBtn" required></v-text-field>
+          :rules="nameRules" @input="removeSpaces('username')" :readonly="verifyBtn" required></v-text-field>
         </v-row>
         <v-row justify="space-around" class="ma-1 pa-1">
           <v-text-field variant="solo-filled" v-model="phonenumber" @input="debouncedAcceptNumber" label="Phone number" 
@@ -96,6 +96,7 @@ export default {
       ],
       nameRules: [
         v => !!v || 'Username is required',
+        v => /^[a-zA-Z0-9]*$/.test(v) || 'Username must not contain special characters or spaces. / Username ต้องเป็นภาษาอังกฤษหรือตัวเลข และต้องไม่มีอักขระพิเศษหรือเว้นวรรค',
       ],
       phonenumberRules: [
         v => !!v || 'Phone number is required',
@@ -240,6 +241,9 @@ export default {
     encryptPassword(password) {
       return CryptoJS.SHA256(password).toString();
     },
+    removeSpaces(field) {
+      this[field] = this[field].replace(/\s+/g, '');
+    }
   },
   computed: {
         ...mapGetters({

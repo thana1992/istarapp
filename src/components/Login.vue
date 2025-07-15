@@ -9,7 +9,7 @@
     <v-card class="main-form px-3 py-3 mb-12">
       <v-form ref="login_form" v-model="login_form" @submit.prevent="doLogin">
         <v-row justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="username" label="Username" :rules="nameRules"
+          <v-text-field variant="solo-filled" v-model="username" label="Username" :rules="nameRules" @input="removeSpaces('username')"
             placeholder="Enter your username" name="username" autocomplete="username" required></v-text-field>
         </v-row>
         <v-row justify="space-around" class="ma-1 pa-1">
@@ -51,6 +51,7 @@ export default {
     showpassword: false,
     nameRules: [
       v => !!v || 'Username is required',
+      v => /^[a-zA-Z0-9]*$/.test(v) || 'Username must not contain special characters or spaces. / Username ต้องเป็นภาษาอังกฤษหรือตัวเลข และต้องไม่มีอักขระพิเศษหรือเว้นวรรค',
     ],
     passwordRules: [
       v => !!v || 'Password is required',
@@ -119,6 +120,9 @@ export default {
     },
     forgotpassword() {
       this.$emit('onResigterHandler', 'forgotpassword')
+    },
+    removeSpaces(field) {
+      this[field] = this[field].replace(/\s+/g, '');
     }
   },
   async created() {
