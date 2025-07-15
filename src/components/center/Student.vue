@@ -231,9 +231,6 @@
             <template v-slot:item.dateofbirth="{ item }">
                 {{ calculateAge(item.dateofbirth).int }}
             </template>
-            <template v-slot:item.remaining="{ item }">
-                {{ item.remaining_label }}
-            </template>
             <template v-slot:item.expiredate="{ item }">
                 <p :class="{ 'highlighted-red': item.expiredate != null && expireDateLeft(item.expiredate).indexOf('หมดอายุ') > -1 }">
                     {{ expireDateLeft(item.expiredate) }}
@@ -277,7 +274,7 @@ export default {
                 { title: "Level", key: "level", align: "center" },
                 //{ title: "Course Start", key: "startdate", align: "center" },
                 { title: 'ชื่อคอร์ส', key: 'coursename', align: 'left' },
-                { title: "คงเหลือ", key: "remaining", align: "center" },
+                { title: "คงเหลือ", key: "remaining_label", align: "center" },
                 { title: "วันหมดอายุ", key: "expiredate", align: "left"},
                 { title: "หมายเลขโทรศัพท์", key: "mobileno", align: "center", sortable: false },
                 { title: "แก้ไข", key: "edit", align: "center", sortable: false },
