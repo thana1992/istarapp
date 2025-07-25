@@ -80,7 +80,8 @@ export default {
     acceptPrivacyPolicy: false,
     usernameRules: [
       v => !!v || 'Username is required',
-      v => /^[a-zA-Z0-9]*$/.test(v) || 'Username must not contain special characters or spaces. / Username ต้องเป็นภาษาอังกฤษหรือตัวเลข และต้องไม่มีอักขระพิเศษหรือเว้นวรรค',
+      v => !/\s/.test(v) || 'Username must not contain spaces. / ห้ามมีเว้นวรรค',
+      v => /^[\x00-\x7F]+$/.test(v) || 'Username must be English letters, numbers, or special characters only. / ชื่อผู้ใช้ต้องเป็นตัวอักษรภาษาอังกฤษ',
     ],
     passwordRules: [
       v => !!v || 'Password is required',
