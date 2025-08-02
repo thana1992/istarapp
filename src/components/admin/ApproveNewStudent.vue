@@ -5,22 +5,24 @@
     <template v-slot:top>
       <v-toolbar flat>
         <v-toolbar-title>New Student Request</v-toolbar-title>
-        <v-dialog v-model="dialogConfirmApprove" persistent width="auto">
-          <template v-slot:activator="{ props }">
-            <v-btn color="primary" dark v-bind="props"><span class="mdi mdi-emoticon-plus-outline"></span>
-              Approve</v-btn>
-          </template>
-          <v-card>
-            <v-card-title></v-card-title>
-            <v-card-text>ยอมรับการเพิ่มเด็กทั้งหมด {{ confirmStudentList.length }} คน ?</v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmApprove">ตกลง</v-btn>
-              <v-btn color="#F44336" variant="tonal" @click="clickCancelApprove">ยกเลิก</v-btn>
-              <v-spacer></v-spacer>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
+        <!-- ปุ่ม Approve ที่คุณคุมเอง -->
+<v-btn color="primary" dark @click="openConfirmApprove">
+  <span class="mdi mdi-emoticon-plus-outline"></span> Approve
+</v-btn>
+
+<!-- v-dialog ไม่ต้องมี activator slot -->
+<v-dialog v-model="dialogConfirmApprove" persistent width="auto">
+  <v-card>
+    <v-card-title></v-card-title>
+    <v-card-text>ยอมรับการเพิ่มเด็กทั้งหมด {{ confirmStudentList.length }} คน ?</v-card-text>
+    <v-card-actions>
+      <v-spacer></v-spacer>
+      <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmApprove">ตกลง</v-btn>
+      <v-btn color="#F44336" variant="tonal" @click="clickCancelApprove">ยกเลิก</v-btn>
+      <v-spacer></v-spacer>
+    </v-card-actions>
+  </v-card>
+</v-dialog>
         <v-dialog v-model="dialogStudentNewDelete" persistent width="auto">
           <v-card>
             <v-card-title></v-card-title>
@@ -191,27 +193,34 @@ export default {
       }
     },
     calculateAge(birthDate) {
-            if (!birthDate) return { text: "", int: 0 };
+      if (!birthDate) return { text: "", int: 0 };
 
-            const currentDate = new Date();
-            if (new Date(birthDate) > currentDate) {
-                this.birthDate = null;
-                this.years = null;
-                this.months = null;
-                this.days = null;
-                alert("Invalid Date of Birth");
-            }
+      const currentDate = new Date();
+      if (new Date(birthDate) > currentDate) {
+          this.birthDate = null;
+          this.years = null;
+          this.months = null;
+          this.days = null;
+          alert("Invalid Date of Birth");
+      }
 
-            const diffTime = currentDate - new Date(birthDate);
-            const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-            let years = Math.floor(totalDays / 365.25);
-            let months = Math.floor((totalDays % 365.25) / 30.4375);
-            let days = Math.floor((totalDays % 365.25) % 30.4375);
-            return {
-                text : years + " ปี " + months + " เดือน ",
-                int : years+'.'+months
-            }
-        },
+      const diffTime = currentDate - new Date(birthDate);
+      const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+      let years = Math.floor(totalDays / 365.25);
+      let months = Math.floor((totalDays % 365.25) / 30.4375);
+      let days = Math.floor((totalDays % 365.25) % 30.4375);
+      return {
+          text : years + " ปี " + months + " เดือน ",
+          int : years+'.'+months
+      }
+    },
+    openConfirmApprove() {
+      if (this.confirmStudentList.length === 0) {
+        this.$emit('onErrorHandler', 'เลือกนักเรียบนที่ต้องการอนุมัติอย่างน้อย 1 คน');
+        return;
+      }
+      this.dialogConfirmApprove = true;
+    },
   },
   async created() {
     this.$emit('onLoading', true)
@@ -223,16 +232,5 @@ export default {
       token: 'getToken',
     }),
   },
-  watch: {
-    // dialogConfirmApprove (val) {
-    //   if(this.confirmStudentList.length == 0) {
-    //     //console.log("check")
-    //     this.$emit('onErrorHandler', 'Please select student to approve');
-    //     return
-    //   }else{
-    //     this.dialogConfirmApprove = true
-    //   }
-    // }
-  }
 }
 </script>
