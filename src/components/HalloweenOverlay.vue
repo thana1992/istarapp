@@ -13,7 +13,7 @@
 
     <!-- CORNER WEBS -->
     <svg v-if="showWebs" class="web web-tl" viewBox="0 0 200 200">
-      <g stroke="rgba(255,255,255,.85)" stroke-width="2" fill="none">
+      <g stroke="rgba(255,255,255,.85)" stroke-width="3" fill="none">
         <path d="M0 0 L160 0" />
         <path d="M0 0 L0 160" />
         <path d="M0 0 L130 26" />
@@ -69,9 +69,8 @@
       </svg>
     </div>
 
-    <!-- BOTTOM DECOR (clickable) -->
     <div class="bottom-decor">
-      <template v-for="(d, i) in decor" :key="i">
+      <template v-for="(d,i) in decor" :key="i">
         <img
           class="decor-img"
           :src="getImageSrc(d)"
@@ -231,16 +230,16 @@ export default {
       const el = event.currentTarget;
       if (!el) return;
 
-      // รีสตาร์ทแอนิเมชันเด้ง
+      // รีสตาร์ทแอนิเมชันเด้ง (override floaty ชั่วคราว)
       el.classList.remove('is-bouncing');
       void el.offsetWidth; // force reflow
       el.classList.add('is-bouncing');
 
       el.addEventListener('animationend', () => {
-        el.classList.remove('is-bouncing');
+        el.classList.remove('is-bouncing'); // กลับไป floaty
       }, { once: true });
 
-      // ขยับตำแหน่งเล็กน้อยแบบสุ่ม
+      // ขยับตำแหน่งนิดหน่อยแบบสุ่ม
       const shift = (Math.random() - 0.5) * 6; // -3..+3 vw
       d.xvw = Math.max(5, Math.min(95, d.xvw + shift));
     },
@@ -256,14 +255,29 @@ export default {
   inset: 0;
   z-index: 0;
   background: transparent;
-  pointer-events: none; /* พื้นที่ overlay ทั้งหมดไม่รับคลิก */
+  pointer-events: none;           /* ⛔️ overlay ทั้งก้อนไม่ดักคลิก */
 }
 .is-backdrop { z-index: 0; }
 
 /* ให้เฉพาะเลเยอร์ที่ต้องคลิกได้ “เปิด” event */
-.bottom-decor { pointer-events: auto; z-index: 1; position: absolute; left: 0; right: 0; bottom: 0; }
-.decor-img     { pointer-events: auto; }
-
+.bottom-decor {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  z-index: 1;
+  pointer-events: auto;           /* ✅ เปิดคลิกที่ container นี้ */
+  isolation: isolate;
+}
+.decor-img {
+  width: 70px;
+  height: auto;
+  object-fit: contain;
+  position: absolute;
+  transform-origin: bottom center;
+  pointer-events: auto;           /* ✅ ให้รับคลิกแน่นอน */
+  cursor: pointer;
+  /* ลอยเบาๆ ตามปกติ */
+  animation: floaty 6s ease-in-out infinite;
+}
 /* เลเยอร์อื่น ๆ ไม่ต้องคลิกได้ */
 .web, .fog-layer, .bat-wrap, .moon-wrap { pointer-events: none; }
 
@@ -316,22 +330,19 @@ export default {
   transition: transform 0.3s ease;
   animation: floaty 6s ease-in-out infinite;
 }
-
-/* ลอยเบา ๆ */
-@keyframes floaty {
-  0%,100% { transform: translateX(-50%) rotate(var(--rot,0)) translateY(0) scale(1); }
-  50%     { transform: translateX(-50%) rotate(var(--rot,0)) translateY(-6px) scale(1.02); }
-}
-
 /* เด้งเมื่อคลิก (override แอนิเมชันช่วงสั้น ๆ) */
 .decor-img.is-bouncing {
   animation: decorBounce 0.6s cubic-bezier(.28,.84,.42,1);
 }
+@keyframes floaty {
+  0%,100% { transform: translateX(-50%) rotate(var(--rot,0)) translateY(0) scale(1); }
+  50%     { transform: translateX(-50%) rotate(var(--rot,0)) translateY(-6px) scale(1.02); }
+}
 @keyframes decorBounce {
-  0%   { transform: translateX(-50%) rotate(var(--rot,0)) translateY(0)    scale(1); }
-  30%  { transform: translateX(-50%) rotate(var(--rot,0)) translateY(-26px) scale(1.12); }
-  60%  { transform: translateX(-50%) rotate(var(--rot,0)) translateY(-10px) scale(0.97); }
-  100% { transform: translateX(-50%) rotate(var(--rot,0)) translateY(0)    scale(1); }
+  0%   { transform: translateX(-50%) translateY(0)      scale(1);    }
+  30%  { transform: translateX(-50%) translateY(-25px)  scale(1.1);  }
+  60%  { transform: translateX(-50%) translateY(-10px)  scale(0.97); }
+  100% { transform: translateX(-50%) translateY(0)      scale(1);    }
 }
 
 /* ACCESSIBILITY */
