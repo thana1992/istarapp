@@ -154,6 +154,12 @@ body {
   font-weight: bold;
 }
 
+.header-card {
+    background-color: #eeeeee;
+    color: black;
+    opacity: 0.80;
+}
+
 .active-student-card {
     background-color: rgba(0, 255, 64, 0.25) !important; /* เขียวสดโปร่งแสง */
     border: 1.5px solid #00e676;

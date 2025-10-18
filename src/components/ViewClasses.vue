@@ -217,9 +217,4 @@ button span.mdi,
     background-color: rgba(187, 187, 187, 0.342);
     cursor: pointer;
 }
-
-.header-card {
-    background-color: #eeeeee;
-    color: black;
-}
 </style>

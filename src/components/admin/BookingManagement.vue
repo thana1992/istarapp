@@ -922,11 +922,6 @@ button span.mdi,
     cursor: pointer;
 }
 
-.header-card {
-    background-color: #eeeeee;
-    color: black;
-}
-
 .fade-enter-active,
 .fade-leave-active {
     transition: opacity 0.5s ease;

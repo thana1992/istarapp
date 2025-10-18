@@ -370,9 +370,4 @@ export default {
   .bat-root .wing-left, .bat-root .wing-right, .bat-wrap, .fog-layer, .moon-glow, .moon-wrap { animation:none !important; }
 }
 
-/* ทำให้ตารางโปร่งแสง */
-.header-card {
-  background-color: rgba(255, 255, 255, 0.75) !important;
-  backdrop-filter: blur(10px);
-}
 </style>

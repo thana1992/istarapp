@@ -159,11 +159,6 @@ const BookingListAPI = {
   margin: 1rem;
 }
 
-.header-card {
-  background-color: #eeeeee;
-  color: black;
-}
-
 .bold-cell {
   font-weight: bold;
   min-width: 10px !important;
