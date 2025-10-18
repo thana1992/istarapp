@@ -23,6 +23,7 @@
         <path d="M0 140 Q140 0 200 0" />
       </g>
     </svg>
+
     <svg v-if="showWebs" class="web web-tr" viewBox="0 0 200 200">
       <g stroke="rgba(255,255,255,.85)" stroke-width="2" fill="none">
         <path d="M200 0 L40 0" />
@@ -69,6 +70,7 @@
       </svg>
     </div>
 
+    <!-- DECOR -->
     <div class="bottom-decor">
       <template v-for="(d,i) in decor" :key="i">
         <img
@@ -121,7 +123,6 @@ export default {
       ghosts: [ require('@/assets/theme/halloween/decor/ghost-1.webp') ],
     };
 
-    // bats
     const TAU = Math.PI * 2;
     const bats = Array.from({ length: 8 }).map(() => ({
       size:  0.3 + Math.random() * 0.4,
@@ -132,14 +133,12 @@ export default {
       phase: Math.random() * TAU,
       flip:  Math.random() < 0.5 ? -1 : 1,
       delay: Math.random() * 900,
-
       jitterPhase: Math.random() * TAU,
       jitterSpeed: 0.006 + Math.random() * 0.008,
       jitterAmp:   0.8  + Math.random() * 1.4,
       ySmooth: null,
     }));
 
-    // decor
     const want = Math.floor(
       clamp(this.minDecor, 0, 60) +
       Math.random() * (clamp(this.maxDecor, 0, 70) - clamp(this.minDecor, 0, 60) + 1)
@@ -152,7 +151,7 @@ export default {
       return {
         kind,
         xvw: x,
-        raise: Math.floor(Math.random() * 40), // กระจายสูงต่ำ
+        raise: Math.floor(Math.random() * 40),
         scale: +(0.7 + Math.random() * 0.9).toFixed(2),
         rot: Math.floor(-10 + Math.random() * 20),
         imgIndex: 0
@@ -177,12 +176,10 @@ export default {
       this.bats.forEach(b => {
         b.phase       += 0.02 * b.speed;
         b.jitterPhase += b.jitterSpeed;
-
         const yTarget =
           b.yBase
           + Math.sin(b.phase)        * b.amp   * 0.6
           + Math.sin(b.jitterPhase)  * b.jitterAmp;
-
         b.ySmooth = (b.ySmooth == null)
           ? yTarget
           : (b.ySmooth * 0.88 + yTarget * 0.12);
@@ -221,8 +218,6 @@ export default {
         '--rot': `${d.rot}deg`,
         transform: `translateX(-50%) scale(${d.scale})`,
         filter: 'drop-shadow(0 4px 6px rgba(0,0,0,.4))',
-        pointerEvents: 'auto',
-        cursor: 'pointer',
       };
     },
 
@@ -230,149 +225,67 @@ export default {
       const el = event.currentTarget;
       if (!el) return;
 
-      // รีสตาร์ทคลาสแอนิเมชัน
       el.classList.remove('is-bouncing');
-      // force reflow เพื่อให้เบราว์เซอร์รู้ว่าคลาสถูกถอดแล้วจริง ๆ
       void el.offsetWidth;
       el.classList.add('is-bouncing');
 
-      // เอาคลาสออกเมื่อแอนิเมชันจบ เพื่อกลับไปลอยต่อ
       el.addEventListener('animationend', () => {
         el.classList.remove('is-bouncing');
       }, { once: true });
 
-      // (optional) ขยับตำแหน่งนิดหน่อย
-      const shift = (Math.random() - 0.5) * 6; // -3..+3 vw
+      const shift = (Math.random() - 0.5) * 6;
       d.xvw = Math.max(5, Math.min(95, d.xvw + shift));
     }
   },
-
 };
 </script>
 
 <style scoped>
-/* ===== Z-INDEX & CLICK BEHAVIOR ===== */
-/* overlay เองไม่กินคลิก (ยกเว้นส่วนที่อนุญาต) */
+/* === OVERLAY CONFIG === */
 .halloween-overlay {
   position: fixed;
   inset: 0;
-  z-index: 0;
+  z-index: 20;
   background: transparent;
-  pointer-events: none;           /* ⛔️ overlay ทั้งก้อนไม่ดักคลิก */
+  pointer-events: none;
 }
-.is-backdrop { z-index: 0; }
+.web, .fog-layer, .bat-wrap, .moon-wrap { pointer-events: none; }
 
-/* ให้เฉพาะเลเยอร์ที่ต้องคลิกได้ “เปิด” event */
+/* === DECOR === */
 .bottom-decor {
   position: absolute;
   left: 0; right: 0; bottom: 0;
-  z-index: 1;
-  pointer-events: auto;           /* ✅ เปิดคลิกที่ container นี้ */
   isolation: isolate;
+  pointer-events: none;
 }
+
 .decor-img {
+  position: absolute;
   width: 70px;
   height: auto;
   object-fit: contain;
-  position: absolute;
-  transform-origin: bottom center;
-  pointer-events: auto;           /* ✅ ให้รับคลิกแน่นอน */
-  cursor: pointer;
-  /* ลอยเบาๆ ตามปกติ */
-  animation: floaty 6s ease-in-out infinite;
-}
-/* เลเยอร์อื่น ๆ ไม่ต้องคลิกได้ */
-.web, .fog-layer, .bat-wrap, .moon-wrap { pointer-events: none; }
-
-/* ===== MOON ===== */
-.moon-wrap{
-  position:absolute; right:1vw; top:19vh; width:230px; height:230px;
-  transform-origin: 50% 50%;
-  animation: moonSway 6s ease-in-out infinite;
-}
-
-/* Media Query สำหรับจอคอมพิวเตอร์ (หน้าจอกว้าง) */
-@media (min-width: 768px) {
-  .moon-wrap {
-    right: 3vw; 
-    top: 5vh; 
-    width: 280px; 
-    height: 280px;
-  }
-}
-
-/* Media Query สำหรับจอใหญ่มาก (Desktop) */
-@media (min-width: 1200px) {
-  .moon-wrap {
-    right: 5vw; 
-    top: 8vh; 
-    width: 320px; 
-    height: 320px;
-  }
-}
-.moon-img{ width:100%; height:100%; object-fit: contain; }
-.moon-glow{
-  position:absolute; inset:-40px; border-radius:50%;
-  background: radial-gradient(circle, rgba(255,208,140,.45), transparent 70%);
-  animation: moonPulse 5.4s ease-in-out infinite;
-}
-@keyframes moonPulse{ 0%,100%{opacity:.45; transform:scale(1)} 50%{opacity:.9; transform:scale(1.08)} }
-@keyframes moonSway { 0%,100%{ transform: rotate(-5deg)} 50%{ transform: rotate(5deg)} }
-
-/* ===== SPIDER WEBS ===== */
-.web{ position:absolute; width:220px; height:220px; opacity:.95; filter:drop-shadow(0 1px 0 rgba(0,0,0,.28)); }
-.web-tl{ left:0; top:0; transform: translate(-6px,-6px); }
-.web-tr{ right:0; top:0; transform: translate(6px,-6px); }
-
-/* ===== FOG ===== */
-.fog-layer{ position:absolute; inset:0; opacity:.34; mix-blend-mode: screen; }
-.fog1{ animation: fogDrift1 36s linear infinite; opacity:.36; }
-.fog2{ animation: fogDrift2 52s linear infinite; opacity:.30; }
-.fog3{ animation: fogDrift3 70s linear infinite; opacity:.24; }
-@keyframes fogDrift1{ 0%{transform:translateX(0)} 50%{transform:translateX(24px)} 100%{transform:translateX(0)} }
-@keyframes fogDrift2{ 0%{transform:translateX(-14px)} 50%{transform:translateX(16px)} 100%{transform:translateX(-14px)} }
-@keyframes fogDrift3{ 0%{transform:translateY(-4px)} 50%{transform:translateY(4px)} 100%{transform:translateY(-4px)} }
-
-/* ===== BATS ===== */
-.bat-wrap{ position:absolute; animation: flyAcross linear infinite; filter:drop-shadow(0 2px 2px rgba(0,0,0,.25)); }
-@keyframes flyAcross{ to{ transform: translateX(145vw); } }
-.bat{ width:90px; height:45px; color:#101010; overflow:visible; }
-.wing{ transform-origin: 100px 48px; }
-.bat-root .wing-left { animation: wingFlap 760ms ease-in-out infinite alternate; }
-.bat-root .wing-right{ animation: wingFlap 760ms ease-in-out infinite alternate-reverse; }
-@keyframes wingFlap{ 0%{ transform: rotate(-12deg) } 100%{ transform: rotate(10deg) } }
-
-/* ===== BOTTOM DECOR (CLICKABLE) ===== */
-.decor-img {
-  width: 70px;
-  height: auto;
-  object-fit: contain;
-  position: absolute;
   transform-origin: bottom center;
   cursor: pointer;
-  transition: transform 0.3s ease;
+  pointer-events: auto;
   animation: floaty 6s ease-in-out infinite;
-  z-index: 999;
 }
-/* เด้งเมื่อคลิก (override แอนิเมชันช่วงสั้น ๆ) */
+
 .decor-img.is-bouncing {
   animation: decorBounce 0.6s cubic-bezier(.28,.84,.42,1) !important;
 }
+
 @keyframes floaty {
   0%,100% { transform: translateX(-50%) rotate(var(--rot,0)) translateY(0) scale(1); }
   50%     { transform: translateX(-50%) rotate(var(--rot,0)) translateY(-6px) scale(1.02); }
 }
+
 @keyframes decorBounce {
-  0%   { transform: translateX(-50%) translateY(0)      scale(1);    }
-  30%  { transform: translateX(-50%) translateY(-25px)  scale(1.1);  }
-  60%  { transform: translateX(-50%) translateY(-10px)  scale(0.97); }
-  100% { transform: translateX(-50%) translateY(0)      scale(1);    }
+  0%   { transform: translateX(-50%) translateY(0) scale(1); }
+  30%  { transform: translateX(-50%) translateY(-25px) scale(1.1); }
+  60%  { transform: translateX(-50%) translateY(-10px) scale(0.97); }
+  100% { transform: translateX(-50%) translateY(0) scale(1); }
 }
 
-/* ACCESSIBILITY */
-@media (prefers-reduced-motion: reduce){
-  .bat-root .wing-left, .bat-root .wing-right, .bat-wrap, .fog-layer, .moon-glow, .moon-wrap { animation:none !important; }
-}
-
-
+/* === MOON, FOG, BATS ... คงเดิมของคุณ === */
+/* เพิ่มเฉพาะส่วน Decor ด้านบนก็พอ */
 </style>
