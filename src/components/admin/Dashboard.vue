@@ -862,10 +862,6 @@ button span.mdi,
     animation: none;
 }
 
-.card-opacity{
-    opacity: 0.9;
-}
-
 @-webkit-keyframes pulse {
     0% {
         -webkit-box-shadow: 0 0 0 0 var(--v-shadow-key-umbra-opacity, rgba(255, 0, 0, 0.2)), 0px 1px 1px 0px var(--v-shadow-key-penumbra-opacity, rgba(255, 0, 0, 0.14)), 0px 1px 3px 0px var(--v-shadow-key-penumbra-opacity, rgba(255, 0, 0, 0.12));
