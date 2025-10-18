@@ -154,10 +154,11 @@ body {
   font-weight: bold;
 }
 
-.header-card {
+.header-card,
+.v-data-table-footer{
     background-color: #eeeeee;
     color: black;
-    opacity: 0.80;
+    opacity: 0.85;
 }
 
 .active-student-card {
