@@ -371,7 +371,7 @@ export default {
 }
 
 .header-card {
-  background-color: rgba(175, 175, 175, 0.8) !important;
+  opacity: 0.8;
 }
 
 .v-data-table {
