@@ -154,8 +154,7 @@ body {
   font-weight: bold;
 }
 
-.header-card,
-.v-data-table-footer{
+.header-card {
     background-color: #eeeeee;
     color: black;
     opacity: 0.85;

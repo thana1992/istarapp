@@ -370,4 +370,8 @@ export default {
   .bat-root .wing-left, .bat-root .wing-right, .bat-wrap, .fog-layer, .moon-glow, .moon-wrap { animation:none !important; }
 }
 
+.v-data-table-footer {
+  background-color: transparent !important;
+}
+
 </style>
