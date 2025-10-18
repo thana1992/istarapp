@@ -356,7 +356,7 @@ export default {
 }
 /* เด้งเมื่อคลิก (override แอนิเมชันช่วงสั้น ๆ) */
 .decor-img.is-bouncing {
-  animation: decorBounce 0.6s cubic-bezier(.28,.84,.42,1);
+  animation: decorBounce 0.6s cubic-bezier(.28,.84,.42,1) !important;
 }
 @keyframes floaty {
   0%,100% { transform: translateX(-50%) rotate(var(--rot,0)) translateY(0) scale(1); }
