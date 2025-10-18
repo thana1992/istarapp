@@ -369,4 +369,12 @@ export default {
 @media (prefers-reduced-motion: reduce){
   .bat-root .wing-left, .bat-root .wing-right, .bat-wrap, .fog-layer, .moon-glow, .moon-wrap { animation:none !important; }
 }
+
+.header-card {
+  background-color: rgba(175, 175, 175, 0.8);
+}
+
+.v-data-table {
+  background-color: rgba(220, 220, 220, 0.8);
+}
 </style>
