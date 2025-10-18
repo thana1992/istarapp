@@ -379,5 +379,12 @@ export default {
   .bat-root .wing-left, .bat-root .wing-right, .bat-wrap, .fog-layer, .moon-glow, .moon-wrap { animation:none !important; }
 }
 
-
+.theme-halloween .v-application,
+.theme-halloween .v-main,
+.theme-halloween .root-container {
+  background: #0e0e1027 !important;
+}
+.theme-halloween a {
+  color: #ffb347; /* เปลี่ยนให้เห็นชัดขึ้น */
+}
 </style>
