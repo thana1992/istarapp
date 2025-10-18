@@ -230,28 +230,22 @@ export default {
       const el = event.currentTarget;
       if (!el) return;
 
-      // 1) ป้องกัน floaty มาทับ: reset animation style ก่อน
-      el.style.animation = 'none';
-      // force reflow
-      void el.offsetWidth;
-
-      // 2) รีสตาร์ทด้วยคลาสเด้ง (ใส่คลาสที่จะชนะด้วย !important ใน CSS)
+      // รีสตาร์ทคลาสแอนิเมชัน
       el.classList.remove('is-bouncing');
-      void el.offsetWidth; 
+      // force reflow เพื่อให้เบราว์เซอร์รู้ว่าคลาสถูกถอดแล้วจริง ๆ
+      void el.offsetWidth;
       el.classList.add('is-bouncing');
 
-      // 3) หลังเด้งเสร็จ เอา style/คลาสออก เพื่อกลับไปลอยต่อ
+      // เอาคลาสออกเมื่อแอนิเมชันจบ เพื่อกลับไปลอยต่อ
       el.addEventListener('animationend', () => {
         el.classList.remove('is-bouncing');
-        el.style.animation = '';  // คืนค่าให้ floaty จากกฎปกติกลับมาทำงาน
       }, { once: true });
 
-      // (optional) ขยับตำแหน่งเล็กน้อย เพิ่มความรู้สึกเด้งแล้วตกลงจุดใหม่
+      // (optional) ขยับตำแหน่งนิดหน่อย
       const shift = (Math.random() - 0.5) * 6; // -3..+3 vw
       d.xvw = Math.max(5, Math.min(95, d.xvw + shift));
     }
 
-  }
 };
 </script>
 
