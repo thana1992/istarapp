@@ -106,7 +106,7 @@
                 </div>
             </Transition>
             <Transition v-else>
-                <div class="container-content" style="text-align: center; padding-top: 5vh;">
+                <div class="container-content" style="text-align: center; padding-top: 5vh; padding-bottom: 5vh; ">
                     <p>Choose you member for see information</p>
                 </div>
             </Transition>
@@ -115,13 +115,13 @@
             <p>Please Add your family member in <u>FAMILY</u> Menu</p>
         </div>
         <div v-if="studentSelected">
-            <div v-if="studentSelected.expiredate && isExpire(studentSelected.expiredate)" style="text-align: center; padding-top: 8vh;">
+            <div v-if="studentSelected.expiredate && isExpire(studentSelected.expiredate)" style="text-align: center; padding-top: 8vh; padding-bottom: 5vh;">
                 <v-btn color="red" rounded class="ma-2 pulse-button">
                     <v-icon left>mdi-close-thick</v-icon>
                     &nbsp;Course Expired!!
                 </v-btn>
             </div>
-            <div v-else="studentSelected.expiredate && !isExpire(studentSelected.expiredate)" style="text-align: center; padding-top: 8vh;">
+            <div v-else="studentSelected.expiredate && !isExpire(studentSelected.expiredate)" style="text-align: center; padding-top: 8vh; padding-bottom: 5vh;">
                 <v-btn color="green" rounded class="ma-2 pulse-button" @click="doReservation">
                     <v-icon left>mdi-emoticon-plus</v-icon>
                     &nbsp;Book a class
