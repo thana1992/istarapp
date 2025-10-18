@@ -269,7 +269,7 @@ export default {
 
 <style>
 .v-picker-title,
-.v-date-picker-header__content {
+.v-date-picker-header {
     display: none;
 }
 
