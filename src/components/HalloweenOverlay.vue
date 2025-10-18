@@ -283,30 +283,30 @@ export default {
 
 /* ===== MOON ===== */
 .moon-wrap{
-  position:absolute; right:1vw; top:19vh; width:230px; height:230px;
+  position:absolute; right:-0.25vw; top:19vh; width:230px; height:230px;
   transform-origin: 50% 50%;
   animation: moonSway 6s ease-in-out infinite;
 }
 
 /* Media Query สำหรับจอคอมพิวเตอร์ (หน้าจอกว้าง) */
-@media (min-width: 768px) {
+/* @media (min-width: 768px) {
   .moon-wrap {
     right: 3vw; 
     top: 5vh; 
     width: 280px; 
     height: 280px;
   }
-}
+} */
 
 /* Media Query สำหรับจอใหญ่มาก (Desktop) */
-@media (min-width: 1200px) {
+/* @media (min-width: 1200px) {
   .moon-wrap {
     right: 5vw; 
     top: 8vh; 
     width: 320px; 
     height: 320px;
   }
-}
+} */
 .moon-img{ width:100%; height:100%; object-fit: contain; }
 .moon-glow{
   position:absolute; inset:-40px; border-radius:50%;
