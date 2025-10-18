@@ -142,7 +142,7 @@
                 </v-row>
                 <v-row>
                     <v-col cols="12" sm="12" md="4" xl="3">
-                        <v-card class="mx-0" height="450">
+                        <v-card class="mx-0 card-opacity" height="450">
                             <v-list-item class="header-card">
                                 <div>View class booking by date</div>
                             </v-list-item>
@@ -156,7 +156,7 @@
                     </v-col>
                     <v-col cols="12" sm="12" md="8" xl="9">
                         <Transition name="fade" mode="out-in">
-                            <v-card class="mx-0" v-show="state == 'studentlist'">
+                            <v-card class="mx-0 card-opacity" v-show="state == 'studentlist'">
                                 <Student @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
                                     @onLoading="onLoading($event)" ref="StudentComponent">
@@ -164,7 +164,7 @@
                             </v-card>
                         </Transition>
                         <Transition name="fade" mode="out-in">
-                            <v-card v-show="state == 'approvenewstudent'">
+                            <v-card class="mx-0 card-opacity" v-show="state == 'approvenewstudent'">
                                 <ApproveNewStudent @onErrorHandler="onError($event)"
                                     @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
@@ -173,7 +173,7 @@
                             </v-card>
                         </Transition>
                         <Transition name="fade" mode="out-in">
-                            <v-card v-show="state == 'bookinglist'">
+                            <v-card class="mx-0 card-opacity" v-show="state == 'bookinglist'">
                                 <BookingListAdmin @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
                                     @onLoading="onLoading($event)" :bookingHeaders="bookingHeaders"
@@ -183,7 +183,7 @@
                             </v-card>
                         </Transition>
                         <Transition name="fade" mode="out-in">
-                            <v-card v-show="state == 'customercourse'">
+                            <v-card class="mx-0 card-opacity" v-show="state == 'customercourse'">
                                 <CustomerCourse @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
                                     @onLoading="onLoading($event)"
@@ -192,7 +192,7 @@
                             </v-card>
                         </Transition>
                         <Transition name="fade" mode="out-in">
-                            <v-card v-show="state == 'customercourse'">
+                            <v-card class="mx-0 card-opacity" v-show="state == 'customercourse'">
                                 <BookingManagement @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
                                     @onLoading="onLoading($event)"
@@ -201,7 +201,7 @@
                             </v-card>
                         </Transition>
                         <Transition name="fade" mode="out-in">
-                            <v-card v-show="state == 'holidaymanagment'">
+                            <v-card class="mx-0 card-opacity" v-show="state == 'holidaymanagment'">
                                 <HolidayManagment @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
                                     @onLoading="onLoading($event)"
