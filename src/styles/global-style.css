@@ -195,3 +195,11 @@ body {
   position: relative;   /* สร้าง stacking context ให้ตัวเอง */
   z-index: 2;           /* ให้อยู่เหนือ overlay */
 }
+.theme-halloween .v-application,
+.theme-halloween .v-main,
+.theme-halloween .root-container {
+  background: #0e0e1027 !important;
+}
+.theme-halloween a {
+  color: #ffb347; /* เปลี่ยนให้เห็นชัดขึ้น */
+}
