@@ -273,7 +273,7 @@ export default {
     display: none;
 } */
 
-.v-date-picker-month__day {
+/* .v-date-picker-month__day {
     height: auto !important;
-}
+} */
 </style>

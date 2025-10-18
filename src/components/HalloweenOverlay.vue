@@ -357,6 +357,7 @@ export default {
   cursor: pointer;
   transition: transform 0.3s ease;
   animation: floaty 6s ease-in-out infinite;
+  z-index: 999;
 }
 /* เด้งเมื่อคลิก (override แอนิเมชันช่วงสั้น ๆ) */
 .decor-img.is-bouncing {
