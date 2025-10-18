@@ -3,7 +3,7 @@
     <v-row>
       <v-col cols="12" sm="12" md="12" xl="12">
         <v-card class="mx-auto">
-          <v-list-item class="header-card">
+          <v-list-item class="v-data-table">
             <v-card-title>Booking class on {{ classdate.toLocaleDateString('en-US', options) }} </v-card-title>
             <v-card-text>การจองคลาส{{ classdate.toLocaleDateString('th-TH', options) }} </v-card-text>
             

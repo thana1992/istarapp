@@ -371,10 +371,10 @@ export default {
 }
 
 .header-card {
-  background-color: rgba(175, 175, 175, 0.8);
+  background-color: rgba(175, 175, 175, 0.8) !important;
 }
 
 .v-data-table {
-  background-color: rgba(220, 220, 220, 0.8);
+  background-color: rgba(220, 220, 220, 0.8) !important;
 }
 </style>
