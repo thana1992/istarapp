@@ -183,11 +183,11 @@ body {
 .theme-halloween .v-application,
 .theme-halloween .v-main,
 .theme-halloween .root-container {
-  background: #0e0e1034 !important;
+  background: #0e0e1027 !important;
 }
 
 .theme-halloween .v-card {
-  background-color: rgba(20, 20, 22, 0.253) !important;
+  background-color: rgba(20, 20, 22, 0.192) !important;
   backdrop-filter: blur(20px);
 }
 

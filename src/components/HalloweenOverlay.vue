@@ -369,4 +369,26 @@ export default {
 @media (prefers-reduced-motion: reduce){
   .bat-root .wing-left, .bat-root .wing-right, .bat-wrap, .fog-layer, .moon-glow, .moon-wrap { animation:none !important; }
 }
+
+/* ทำให้ตารางโปร่งแสง */
+:deep(.v-data-table) {
+  background-color: rgba(255, 255, 255, 0.75) !important;
+  backdrop-filter: blur(10px);
+}
+
+:deep(.v-data-table .v-data-table__wrapper) {
+  background-color: transparent !important;
+}
+
+:deep(.v-data-table thead) {
+  background-color: rgba(255, 255, 255, 0.75) !important;
+}
+
+:deep(.v-data-table tbody tr) {
+  background-color: rgba(255, 255, 255, 0.55) !important;
+}
+
+:deep(.v-data-table tbody tr:hover) {
+  background-color: rgba(255, 255, 255, 0.65) !important;
+}
 </style>
