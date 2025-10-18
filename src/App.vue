@@ -13,7 +13,7 @@
           <v-list-item v-if="managerflag || customerflag" prepend-icon="mdi-account-multiple" title="FAMILY"
             value="familylist" @click="onClickChangeState('familylist')">
           </v-list-item>
-          <v-label v-if="managerflag || customerflag || coach">Checking menu</v-label>
+          <v-label v-if="managerflag || customerflag || coachflag">Checking menu</v-label>
           <v-list-item v-if="managerflag || customerflag || coachflag" prepend-icon="mdi-table-eye" title="VIEW CLASSES"
             value="viewclasses" @click="onClickChangeState('viewclasses')">
           </v-list-item>
@@ -75,6 +75,18 @@
           </v-dialog>
         </template>
       </v-app-bar>
+      <!-- Floating Halloween toggle (always visible) -->
+    <div class="halo-toggle-global">
+      <v-btn
+        size="small"
+        variant="tonal"
+        color="orange-darken-2"
+        @click="toggleHalloween"
+        :prepend-icon="isHalloweenOn ? 'mdi-ghost' : 'mdi-ghost-outline'"
+      >
+        {{ isHalloweenOn ? 'Disable Theme' : 'Enable Theme' }}
+      </v-btn>
+    </div>
       <v-main class="root-container">
         <Transition name="fade" mode="out-in">
         <Login v-if="state == 'login'" @onAffterLogin="AffterLogin($event)" :user_details="user_details"
@@ -142,6 +154,15 @@
         </Transition>
       </v-main>
     </v-layout>
+
+    <HalloweenOverlay
+      v-if="isHalloweenOn"
+      ref="halo"
+      :behind="true"
+      :minDecor="8"
+      :maxDecor="14"
+      :skullRatio="0.35"
+    />
   </v-card>
 
   <v-dialog width="500" v-model="errorDialog">
@@ -195,7 +216,7 @@ import CryptoJS from 'crypto-js';
 import { ref, computed, onMounted, inject } from 'vue';
 import { mapGetters } from 'vuex';
 import LoadingDialog from './components/LoadingDialog.vue';
-
+import HalloweenOverlay from '@/components/HalloweenOverlay.vue';
 export default {
   data() {
     return {
@@ -220,6 +241,8 @@ export default {
       ConfirmLogoutDialog: false,
       loadingDialog: false,
       isLoading: false,
+      isLoading: false,
+      isHalloweenOn: true,
     }
   },
   name: 'App',
@@ -240,7 +263,8 @@ export default {
     Course,
     Classes,
     HolidayManagment,
-    LoadingDialog
+    LoadingDialog,
+    HalloweenOverlay,
   },
   methods: {
 
@@ -349,6 +373,32 @@ export default {
       //this.loadingDialog = loading
       this.isLoading = loading;
     },
+    toggleHalloween() {
+      this.setHalloween(!this.isHalloweenOn);
+    },
+    setHalloween(v) {
+      this.isHalloweenOn = v;
+      localStorage.setItem('isHalloweenOn', v ? 'true' : 'false');
+      // ใส่/ถอดคลาสธีมระดับเอกสาร (ถ้าคุณจะมี CSS theme-halloween เพิ่มเติม)
+      document.documentElement.classList.toggle('theme-halloween', v);
+      // บอก Overlay ให้แสดง/ซ่อน
+      if (this.$refs.halo && this.$refs.halo.setVisible) {
+        this.$refs.halo.setVisible(v);
+      }
+    },
+  },
+  mounted() {
+    // อ่านค่าที่ผู้ใช้เคยเลือกไว้ก่อน
+    const saved = localStorage.getItem('isHalloweenOn');
+    if (saved === 'true') this.isHalloweenOn = true;
+    else if (saved === 'false') this.isHalloweenOn = false;
+    else {
+      // ค่าเริ่มต้น: เปิดอัตโนมัติในเดือนตุลาคม
+      const now = new Date();
+      this.isHalloweenOn = (now.getMonth() === 9);
+    }
+    // sync การมองเห็นของ Overlay และคลาสธีม
+    this.$nextTick(() => this.setHalloween(this.isHalloweenOn));
   },
   created() {
     //this.onLoading(true)
@@ -405,5 +455,12 @@ export default {
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
+}
+.halo-toggle-global{
+  position: fixed;
+  left: max(12px, env(safe-area-inset-left));
+  bottom: max(12px, env(safe-area-inset-bottom));
+  z-index: 10001;
+  pointer-events: auto; /* ให้คลิกได้ */
 }
 </style>

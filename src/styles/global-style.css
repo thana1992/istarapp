@@ -172,3 +172,25 @@ body {
 .booking-card-red {
     background-color: #ffb3b3 !important;
 }
+/* ---- สร้างชั้นให้คอนเทนต์หลักสูงกว่า overlay เสมอ ---- */
+.v-application,
+.v-main,
+.root-container,
+.v-card {
+  position: relative;   /* สร้าง stacking context ให้ตัวเอง */
+  z-index: 2;           /* ให้อยู่เหนือ overlay */
+}
+.theme-halloween .v-application,
+.theme-halloween .v-main,
+.theme-halloween .root-container {
+  background: #0e0e1034 !important;
+}
+
+.theme-halloween .v-card {
+  background-color: rgba(20, 20, 22, 0.253) !important;
+  backdrop-filter: blur(20px);
+}
+
+.theme-halloween a {
+  color: #ffb347; /* เปลี่ยนให้เห็นชัดขึ้น */
+}
