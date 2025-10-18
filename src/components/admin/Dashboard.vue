@@ -8,7 +8,7 @@
             <v-divider color="#fffff" thickness="3"></v-divider>
             <div class="mx-auto mt-5 px-2 py-1">
                 <v-row>
-                    <v-col cols="12" sm="4" md="2" xl="2">
+                    <v-col cols="12" sm="4" md="1" xl="2">
                         <v-card class="mx-auto card-opacity" link @click="onClickCardTotalStudent">
                             <v-list-item class="header-card" min-height="60">
                                 <div>Total <br>Gymnasts</div>
@@ -42,7 +42,7 @@
                             </v-list-item>
                         </v-card>
                     </v-col>
-                    <v-col cols="12" sm="4" md="2" xl="2">
+                    <v-col cols="12" sm="4" md="1" xl="2">
                         <v-card class="mx-auto card-opacity" :style="getBookingCardColor(totalBookingToday)" link @click="onClickCardToday">
                             <v-list-item class="header-card" height="60">
                                 <div>Today's booking</div>
@@ -58,7 +58,7 @@
                             </v-list-item>
                         </v-card>
                     </v-col>
-                    <v-col cols="12" sm="4" md="2" xl="2">
+                    <v-col cols="12" sm="4" md="1" xl="2">
                         <v-card class="mx-auto card-opacity" :style="getBookingCardColor(totalBookingTomorrow)" link @click="oncClickCardTomorrow">
                             <v-list-item class="header-card" height="60">
                                 <div>Tomorrow's booking</div>
@@ -114,7 +114,7 @@
                             </v-list-item>
                         </v-card>
                     </v-col>
-                    <v-col sm="3" md="2" xl="2">
+                    <v-col sm="3" md="1" xl="1">
                         <v-card class="mx-auto card-opacity" link @click="callChildMethodAddNewCustomerCourse">
                             <v-list-item class="btn-card-2">
                                 <div style="text-align: center;">New Course</div>
@@ -123,7 +123,7 @@
                         </v-card>
                     </v-col>
                     
-                    <v-col sm="3" md="2" xl="2">
+                    <v-col sm="3" md="1" xl="1">
                         <v-card class="mx-auto card-opacity" link @click="callChildMethodAddNewBooking">
                             <v-list-item class="btn-card-4">
                                 <div style="text-align: center;">New Booking</div>
@@ -131,7 +131,7 @@
                             </v-list-item>
                         </v-card>
                     </v-col>
-                    <v-col sm="3" md="2" xl="2">
+                    <v-col sm="3" md="1" xl="1">
                         <v-card class="mx-auto card-opacity" link @click="callChildMethodAddNewHoliday">
                             <v-list-item class="btn-card-3">
                                 <div style="text-align: center;">New Holiday</div>
