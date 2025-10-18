@@ -283,7 +283,7 @@ export default {
 
 /* ===== MOON ===== */
 .moon-wrap{
-  position:absolute; right:1vw; top:2vh; width:230px; height:230px;
+  position:absolute; right:1vw; top:20vh; width:230px; height:230px;
   transform-origin: 50% 50%;
   animation: moonSway 6s ease-in-out infinite;
 }
