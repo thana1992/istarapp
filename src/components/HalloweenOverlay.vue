@@ -371,7 +371,7 @@ export default {
 }
 
 .header-card {
-  opacity: 0.8;
+  opacity: 0.8 !important;
 }
 
 .v-data-table {
