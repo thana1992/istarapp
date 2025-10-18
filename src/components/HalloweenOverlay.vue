@@ -245,6 +245,7 @@ export default {
       const shift = (Math.random() - 0.5) * 6; // -3..+3 vw
       d.xvw = Math.max(5, Math.min(95, d.xvw + shift));
     }
+  },
 
 };
 </script>
