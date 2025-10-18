@@ -12,12 +12,14 @@
                             <v-list-item class="header-card">
                                 <div>View class booking by date</div>
                             </v-list-item>
+                            <v-list-item>
                             <v-container>
                                 <v-row justify="space-around">
                                     <v-date-picker class="datepick" v-model="datepick"
                                         @update:model-value="selectDate"></v-date-picker>
                                 </v-row>
                             </v-container>
+                            </v-list-item>
                         </v-card>
                     </v-col>
                     <v-col cols="12" sm="12" md="8" xl="9">
