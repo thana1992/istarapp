@@ -283,7 +283,7 @@ export default {
 
 /* ===== MOON ===== */
 .moon-wrap{
-  position:absolute; right:1vw; top:20vh; width:230px; height:230px;
+  position:absolute; right:1vw; top:19vh; width:230px; height:230px;
   transform-origin: 50% 50%;
   animation: moonSway 6s ease-in-out infinite;
 }
@@ -371,24 +371,8 @@ export default {
 }
 
 /* ทำให้ตารางโปร่งแสง */
-:deep(.v-data-table) {
+.header-card {
   background-color: rgba(255, 255, 255, 0.75) !important;
   backdrop-filter: blur(10px);
-}
-
-:deep(.v-data-table .v-data-table__wrapper) {
-  background-color: transparent !important;
-}
-
-:deep(.v-data-table thead) {
-  background-color: rgba(255, 255, 255, 0.75) !important;
-}
-
-:deep(.v-data-table tbody tr) {
-  background-color: rgba(255, 255, 255, 0.55) !important;
-}
-
-:deep(.v-data-table tbody tr:hover) {
-  background-color: rgba(255, 255, 255, 0.65) !important;
 }
 </style>
