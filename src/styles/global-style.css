@@ -160,7 +160,8 @@ body {
   opacity: 0.8 !important;
 }
 
-.card-opacity{
+.card-opacity,
+.v-table {
   opacity: 0.9;
 }
 
