@@ -164,6 +164,28 @@ const BookingListAPI = {
   color: black;
 }
 
+/* ทำให้ตารางโปร่งแสง */
+:deep(.v-data-table) {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(10px);
+}
+
+:deep(.v-data-table .v-data-table__wrapper) {
+  background-color: transparent !important;
+}
+
+:deep(.v-data-table thead) {
+  background-color: rgba(255, 255, 255, 0.9) !important;
+}
+
+:deep(.v-data-table tbody tr) {
+  background-color: rgba(255, 255, 255, 0.6) !important;
+}
+
+:deep(.v-data-table tbody tr:hover) {
+  background-color: rgba(255, 255, 255, 0.8) !important;
+}
+
 .bold-cell {
   font-weight: bold;
   min-width: 10px !important;
