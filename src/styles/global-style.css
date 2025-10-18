@@ -155,12 +155,12 @@ body {
 }
 
 .header-card {
-  background-color: #eee;
+  background-color: rgba(185, 185, 185, 0.9);
   color: #000;
 }
 
 .card-opacity{
-    opacity: 0.9;
+  background-color: rgba(201, 201, 201, 0.9);
 }
 
 .v-data-table {
