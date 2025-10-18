@@ -157,10 +157,15 @@ body {
 .header-card {
   background-color: #eee;
   color: #000;
+  opacity: 0.8 !important;
+}
+
+.card-opacity{
+  opacity: 0.9;
 }
 
 .v-data-table {
-  background-color: rgba(255, 255, 255, 0.8);
+  background-color: rgba(220, 220, 220, 0.8) !important;
 }
 
 .active-student-card {
