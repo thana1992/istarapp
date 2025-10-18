@@ -6,7 +6,7 @@
       <p>Welcome to the iStar Gymnastics,</p>
       <p>Have a wonderful day :D...</p>
     </div>
-    <v-card class="main-form px-3 py-3 mb-12">
+    <v-card class="main-form px-3 py-3 mb-12 card-opacity">
       <v-form ref="login_form" v-model="login_form" @submit.prevent="doLogin">
         <v-row justify="space-around" class="ma-1 pa-1">
           <v-text-field variant="solo-filled" v-model="username" label="Username" :rules="nameRules" @input="removeSpaces('username')"
