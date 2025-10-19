@@ -5,72 +5,74 @@
         <h3 class="program-description">เมื่อเพิ่มวันหยุดแล้ว ผู้ปกครองจะไม่สามารถ กดจองคลาสในวันหยุดได้ หากต้องการปิดยิมเพื่อพาเด็กไปแข่ง ก็ให้เพิ่มเป็นวันหยุดด้วยนะ</h3>
       </div>
       <div class="container-content">
-        <v-data-table :headers="headers" :items="holidayList" :loading="loadingHolidays">
-          <template v-slot:top>
-            <v-toolbar flat>
-              <v-toolbar-title>Our Holidays</v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-dialog v-model="dialog" max-width="500px">
-                <template v-slot:activator="{ props }">
-                  <v-btn color="primary" dark v-bind="props">
-                    New Holiday
-                  </v-btn>
-                </template>
-                <v-card>
-                  <v-card-title>
-                    <span>{{ formTitle }}</span>
-                  </v-card-title>
-  
-                  <v-card-text>
-                    <v-container>
-                      <v-row>
-                        <v-col cols="12" class="text-center">
-                          <v-date-picker v-model="editedItem.holidaydate" label="Holiday Date" required></v-date-picker>
-                        </v-col>
-                      </v-row> 
-                      <v-row>
-                        <v-col cols="12">
-                          <v-text-field v-model="editedItem.description" label="Description" variant="solo-filled" required></v-text-field>
-                        </v-col>
-                      </v-row>
-                    </v-container>
-                  </v-card-text>
-  
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="blue-darken-1" variant="text" @click="close">
-                      Cancel
+        <v-card class="mx-auto mt-5 px-2 py-1 card-opacity">
+          <v-data-table :headers="headers" :items="holidayList" :loading="loadingHolidays">
+            <template v-slot:top>
+              <v-toolbar flat>
+                <v-toolbar-title>Our Holidays</v-toolbar-title>
+                <v-spacer></v-spacer>
+                <v-dialog v-model="dialog" max-width="500px">
+                  <template v-slot:activator="{ props }">
+                    <v-btn color="primary" dark v-bind="props">
+                      New Holiday
                     </v-btn>
-                    <v-btn color="blue-darken-1" variant="text" @click="save">
-                      Save
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-              <v-dialog v-model="dialogHolidayDelete" persistent width="auto">
-                <v-card>
-                    <v-card-title></v-card-title>
-                    <v-card-text>ต้องการลบวันหยุดนี้ใช่มั้ย {{ this.editedItem.holidaydate }} ?</v-card-text>
+                  </template>
+                  <v-card>
+                    <v-card-title>
+                      <span>{{ formTitle }}</span>
+                    </v-card-title>
+    
+                    <v-card-text>
+                      <v-container>
+                        <v-row>
+                          <v-col cols="12" class="text-center">
+                            <v-date-picker v-model="editedItem.holidaydate" label="Holiday Date" required></v-date-picker>
+                          </v-col>
+                        </v-row> 
+                        <v-row>
+                          <v-col cols="12">
+                            <v-text-field v-model="editedItem.description" label="Description" variant="solo-filled" required></v-text-field>
+                          </v-col>
+                        </v-row>
+                      </v-container>
+                    </v-card-text>
+    
                     <v-card-actions>
-                        <v-spacer></v-spacer>
-                        <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteHoliday">ใช่! ลบเลย</v-btn>
-                        <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteHoliday">เดี๋ยวก่อน
-                            รอแปบ</v-btn>
-                        <v-spacer></v-spacer>
+                      <v-spacer></v-spacer>
+                      <v-btn color="blue-darken-1" variant="text" @click="close">
+                        Cancel
+                      </v-btn>
+                      <v-btn color="blue-darken-1" variant="text" @click="save">
+                        Save
+                      </v-btn>
                     </v-card-actions>
-                </v-card>
-            </v-dialog>
-            </v-toolbar>
-          </template>
-          <template v-slot:item.actions="{ item }">
-            <v-icon size="large" color="error" @click="deleteItem(item)">mdi-delete-forever</v-icon>
-          </template>
-          <template v-slot:no-data>
-            <v-btn color="primary" @click="initialize">
-              Reset
-            </v-btn>
-          </template>
-        </v-data-table>
+                  </v-card>
+                </v-dialog>
+                <v-dialog v-model="dialogHolidayDelete" persistent width="auto">
+                  <v-card>
+                      <v-card-title></v-card-title>
+                      <v-card-text>ต้องการลบวันหยุดนี้ใช่มั้ย {{ this.editedItem.holidaydate }} ?</v-card-text>
+                      <v-card-actions>
+                          <v-spacer></v-spacer>
+                          <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteHoliday">ใช่! ลบเลย</v-btn>
+                          <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteHoliday">เดี๋ยวก่อน
+                              รอแปบ</v-btn>
+                          <v-spacer></v-spacer>
+                      </v-card-actions>
+                  </v-card>
+              </v-dialog>
+              </v-toolbar>
+            </template>
+            <template v-slot:item.actions="{ item }">
+              <v-icon size="large" color="error" @click="deleteItem(item)">mdi-delete-forever</v-icon>
+            </template>
+            <template v-slot:no-data>
+              <v-btn color="primary" @click="initialize">
+                Reset
+              </v-btn>
+            </template>
+          </v-data-table>
+        </v-card>
       </div>
     </div>
   </template>

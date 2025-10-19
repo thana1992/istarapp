@@ -8,7 +8,7 @@
             <div class="mx-auto mt-5 px-2 py-1">
                 <v-row>
                     <v-col cols="12" sm="12" md="4" xl="3">
-                        <v-card class="mx-0" height="450">
+                        <v-card class="mx-0 card-opacity" height="450">
                             <v-list-item class="header-card">
                                 <div>View class booking by date</div>
                             </v-list-item>
@@ -216,10 +216,5 @@ button span.mdi,
 .dashboard-card:hover {
     background-color: rgba(187, 187, 187, 0.342);
     cursor: pointer;
-}
-
-.header-card {
-    background-color: #eeeeee;
-    color: black;
 }
 </style>

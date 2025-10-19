@@ -268,12 +268,12 @@ export default {
 </script>
 
 <style>
-.v-picker-title,
+/* .v-picker-title,
 .v-date-picker-header__content {
     display: none;
-}
+} */
 
-.v-date-picker-month__day {
+/* .v-date-picker-month__day {
     height: auto !important;
-}
+} */
 </style>

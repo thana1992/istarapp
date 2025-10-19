@@ -4,7 +4,7 @@
       <h1><span class="mdi mdi-clipboard-text-clock"></span> Customer Course History / ประวัติคอร์สของลูกค้า</h1>
     </div>
     <div class="container-content">
-      <v-card flat>
+      <v-card class="mx-auto mt-5 px-2 py-1 card-opacity">
         <v-card-title class="d-flex align-center pe-2">
           <v-icon icon="mdi-magnify"></v-icon> &nbsp; Find a Finished Customer's Course
 

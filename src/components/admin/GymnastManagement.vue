@@ -3,7 +3,7 @@
         <div class="container-header">
             <h1><span class="mdi mdi-gymnastics"></span> Gymnast Management / รายชื่อเด็ก</h1>
         </div>
-        <div class="container-content">
+        <div class="container-content card-opacity">
             <v-divider color="#fffff" thickness="3"></v-divider>
             <Student @onErrorHandler="onErrorHandler" @onInfoHandler="onShowInfoDialog" @onLoading="onLoading($event)">
             </Student>

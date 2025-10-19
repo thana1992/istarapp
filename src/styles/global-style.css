@@ -5,6 +5,10 @@ body {
   font-family: 'Mali', cursive;
 }
 
+.v-app-bar {
+    opacity: 0.7;
+}
+
 .menu-icon {
   width: 20px;
   height: 20px;
@@ -154,6 +158,16 @@ body {
   font-weight: bold;
 }
 
+.header-card {
+  background-color: #eee !important;
+  color: #000;
+  opacity: 0.8 !important;
+}
+
+.card-opacity {
+  opacity: 0.9;
+}
+
 .active-student-card {
     background-color: rgba(0, 255, 64, 0.25) !important; /* เขียวสดโปร่งแสง */
     border: 1.5px solid #00e676;
@@ -171,4 +185,20 @@ body {
 }
 .booking-card-red {
     background-color: #ffb3b3 !important;
+}
+/* ---- สร้างชั้นให้คอนเทนต์หลักสูงกว่า overlay เสมอ ---- */
+.v-application,
+.v-main,
+.root-container,
+.v-card {
+  position: relative;   /* สร้าง stacking context ให้ตัวเอง */
+  z-index: 2;           /* ให้อยู่เหนือ overlay */
+}
+.theme-halloween .v-application,
+.theme-halloween .v-main,
+.theme-halloween .root-container {
+  background: #0e0e1027 !important;
+}
+.theme-halloween a {
+  color: #ffb347; /* เปลี่ยนให้เห็นชัดขึ้น */
 }

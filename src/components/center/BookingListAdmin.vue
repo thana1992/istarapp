@@ -2,7 +2,7 @@
   <div class="text-center">
     <v-row>
       <v-col cols="12" sm="12" md="12" xl="12">
-        <v-card class="mx-auto">
+        <v-card class="mx-auto card-opacity">
           <v-list-item class="header-card">
             <v-card-title>Booking class on {{ classdate.toLocaleDateString('en-US', options) }} </v-card-title>
             <v-card-text>การจองคลาส{{ classdate.toLocaleDateString('th-TH', options) }} </v-card-text>
@@ -207,11 +207,6 @@ const BookingListAPI = {
 <style scoped>
 .v-progress-circular {
   margin: 1rem;
-}
-
-.header-card {
-  background-color: #eeeeee;
-  color: black;
 }
 
 .bold-cell {

@@ -8,8 +8,8 @@
             <v-divider color="#fffff" thickness="3"></v-divider>
             <div class="mx-auto mt-5 px-2 py-1">
                 <v-row>
-                    <v-col cols="12" sm="4" md="1" xl="1">
-                        <v-card class="mx-auto" link @click="onClickCardTotalStudent">
+                    <v-col cols="12" sm="4" md="2" xl="1">
+                        <v-card class="mx-auto card-opacity" link @click="onClickCardTotalStudent">
                             <v-list-item class="header-card" min-height="60">
                                 <div>Total <br>Gymnasts</div>
                             </v-list-item>
@@ -26,7 +26,7 @@
                         </v-card>
                     </v-col>
                     <v-col cols="12" sm="4" md="2" xl="2">
-                        <v-card class="mx-auto active-student-card" link @click="onClickCardTotalActiveStudent">
+                        <v-card class="mx-auto card-opacity active-student-card" link @click="onClickCardTotalActiveStudent">
                             <v-list-item class="header-card" min-height="60">
                                 <div>Total Active<br>Gymnasts</div>
                             </v-list-item>
@@ -43,7 +43,7 @@
                         </v-card>
                     </v-col>
                     <v-col cols="12" sm="4" md="1" xl="1">
-                        <v-card class="mx-auto" :style="getBookingCardColor(totalBookingToday)" link @click="onClickCardToday">
+                        <v-card class="mx-auto card-opacity" :style="getBookingCardColor(totalBookingToday)" link @click="onClickCardToday">
                             <v-list-item class="header-card" height="60">
                                 <div>Today's booking</div>
                             </v-list-item>
@@ -59,7 +59,7 @@
                         </v-card>
                     </v-col>
                     <v-col cols="12" sm="4" md="1" xl="2">
-                        <v-card class="mx-auto" :style="getBookingCardColor(totalBookingTomorrow)" link @click="oncClickCardTomorrow">
+                        <v-card class="mx-auto card-opacity" :style="getBookingCardColor(totalBookingTomorrow)" link @click="oncClickCardTomorrow">
                             <v-list-item class="header-card" height="60">
                                 <div>Tomorrow's booking</div>
                             </v-list-item>
@@ -107,7 +107,7 @@
                         </v-card>
                     </v-col> -->
                     <v-col sm="3" md="1" xl="1">
-                        <v-card class="mx-auto" link @click="callChildMethodAddNewStudent">
+                        <v-card class="mx-auto card-opacity" link @click="callChildMethodAddNewStudent">
                             <v-list-item class="btn-card-1">
                                 <div style="text-align: center;">New Student</div>
                                 <div class="btn-card-icon"><span class="mdi mdi-emoticon-plus-outline"></span></div>
@@ -115,7 +115,7 @@
                         </v-card>
                     </v-col>
                     <v-col sm="3" md="1" xl="1">
-                        <v-card class="mx-auto" link @click="callChildMethodAddNewCustomerCourse">
+                        <v-card class="mx-auto card-opacity" link @click="callChildMethodAddNewCustomerCourse">
                             <v-list-item class="btn-card-2">
                                 <div style="text-align: center;">New Course</div>
                                 <div class="btn-card-icon"><span class="mdi mdi-book-plus-outline"></span></div>
@@ -124,7 +124,7 @@
                     </v-col>
                     
                     <v-col sm="3" md="1" xl="1">
-                        <v-card class="mx-auto" link @click="callChildMethodAddNewBooking">
+                        <v-card class="mx-auto card-opacity" link @click="callChildMethodAddNewBooking">
                             <v-list-item class="btn-card-4">
                                 <div style="text-align: center;">New Booking</div>
                                 <div class="btn-card-icon"><span class="mdi mdi-calendar-plus-outline"></span></div>
@@ -132,7 +132,7 @@
                         </v-card>
                     </v-col>
                     <v-col sm="3" md="1" xl="1">
-                        <v-card class="mx-auto" link @click="callChildMethodAddNewHoliday">
+                        <v-card class="mx-auto card-opacity" link @click="callChildMethodAddNewHoliday">
                             <v-list-item class="btn-card-3">
                                 <div style="text-align: center;">New Holiday</div>
                                 <div class="btn-card-icon"><span class="mdi mdi-door-sliding-lock"></span></div>
@@ -142,7 +142,7 @@
                 </v-row>
                 <v-row>
                     <v-col cols="12" sm="12" md="4" xl="3">
-                        <v-card class="mx-0" height="450">
+                        <v-card class="mx-0 card-opacity" height="450">
                             <v-list-item class="header-card">
                                 <div>View class booking by date</div>
                             </v-list-item>
@@ -156,7 +156,7 @@
                     </v-col>
                     <v-col cols="12" sm="12" md="8" xl="9">
                         <Transition name="fade" mode="out-in">
-                            <v-card class="mx-0" v-show="state == 'studentlist'">
+                            <v-card class="mx-0 card-opacity" v-show="state == 'studentlist'">
                                 <Student @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
                                     @onLoading="onLoading($event)" ref="StudentComponent">
@@ -164,7 +164,7 @@
                             </v-card>
                         </Transition>
                         <Transition name="fade" mode="out-in">
-                            <v-card v-show="state == 'approvenewstudent'">
+                            <v-card class="mx-0 card-opacity" v-show="state == 'approvenewstudent'">
                                 <ApproveNewStudent @onErrorHandler="onError($event)"
                                     @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
@@ -173,7 +173,7 @@
                             </v-card>
                         </Transition>
                         <Transition name="fade" mode="out-in">
-                            <v-card v-show="state == 'bookinglist'">
+                            <v-card class="mx-0 card-opacity" v-show="state == 'bookinglist'">
                                 <BookingListAdmin @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
                                     @onLoading="onLoading($event)" :bookingHeaders="bookingHeaders"
@@ -183,7 +183,7 @@
                             </v-card>
                         </Transition>
                         <Transition name="fade" mode="out-in">
-                            <v-card v-show="state == 'customercourse'">
+                            <v-card class="mx-0 card-opacity" v-show="state == 'customercourse'">
                                 <CustomerCourse @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
                                     @onLoading="onLoading($event)"
@@ -192,7 +192,7 @@
                             </v-card>
                         </Transition>
                         <Transition name="fade" mode="out-in">
-                            <v-card v-show="state == 'customercourse'">
+                            <v-card class="mx-0 card-opacity" v-show="state == 'customercourse'">
                                 <BookingManagement @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
                                     @onLoading="onLoading($event)"
@@ -201,7 +201,7 @@
                             </v-card>
                         </Transition>
                         <Transition name="fade" mode="out-in">
-                            <v-card v-show="state == 'holidaymanagment'">
+                            <v-card class="mx-0 card-opacity" v-show="state == 'holidaymanagment'">
                                 <HolidayManagment @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
                                     @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
                                     @onLoading="onLoading($event)"
@@ -419,9 +419,9 @@ export default ({
                         this.totalWaitingNewStudents = response.data.datacard.totalWaitingNewStudents
 
                         if (this.totalWaitingNewStudents > 0) {
-                            this.pulse = 'pulse'
+                            this.pulse = 'pulse card-opacity'
                         } else {
-                            this.pulse = ''
+                            this.pulse = 'card-opacity'
                         }
                     }
                 })
@@ -815,11 +815,6 @@ button span.mdi,
 .dashboard-card:hover {
     background-color: rgba(187, 187, 187, 0.342);
     cursor: pointer;
-}
-
-.header-card {
-    background-color: #eeeeee;
-    color: black;
 }
 
 .btn-card-icon {
