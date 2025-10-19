@@ -9,7 +9,7 @@
                 <v-divider class="border-opacity-100" color="info" length="35vw" thickness="3"></v-divider>
                 <v-divider color="#fffff" thickness="3"></v-divider>
                 <div class="familylist">
-                    <v-table class="family-list">
+                    <v-table class="family-list card-opacity">
                         <tbody>
                             <tr v-for="p in familylist" :key="p.studentid" style="cursor: pointer;" class="tr-rows"
                                 @click="selectChild(p)">
@@ -85,7 +85,7 @@
                     <v-divider color="#fffff" thickness="3"></v-divider>
 
                     <Transition v-if="memberReservationDetail">
-                        <v-table class="family-list">
+                        <v-table class="family-list card-opacity">
                             <thead>
                                 <tr>
                                     <!-- <th class="text-left">No.</th> -->

@@ -77,6 +77,7 @@
           :alt="d.kind"
           :style="decorStyle(d)"
           @click.stop="bounce(d, $event)"
+          @touchstart.stop.prevent="bounce(d, $event)"
         />
       </template>
     </div>
@@ -219,7 +220,7 @@ export default {
         left: `${d.xvw}vw`,
         bottom: `${d.raise}px`,
         '--rot': `${d.rot}deg`,
-        transform: `translateX(-50%) scale(${d.scale})`,
+        '--scale': d.scale,
         filter: 'drop-shadow(0 4px 6px rgba(0,0,0,.4))',
         pointerEvents: 'auto',
         cursor: 'pointer',
@@ -230,23 +231,20 @@ export default {
       const el = event.currentTarget;
       if (!el) return;
 
-      // รีสตาร์ทคลาสแอนิเมชัน
+      // รีสตาร์ทแอนิเมชันเด้ง (override floaty ชั่วคราว)
       el.classList.remove('is-bouncing');
-      // force reflow เพื่อให้เบราว์เซอร์รู้ว่าคลาสถูกถอดแล้วจริง ๆ
-      void el.offsetWidth;
+      void el.offsetWidth; // force reflow
       el.classList.add('is-bouncing');
 
-      // เอาคลาสออกเมื่อแอนิเมชันจบ เพื่อกลับไปลอยต่อ
       el.addEventListener('animationend', () => {
-        el.classList.remove('is-bouncing');
+        el.classList.remove('is-bouncing'); // กลับไป floaty
       }, { once: true });
 
-      // (optional) ขยับตำแหน่งนิดหน่อย
+      // ขยับตำแหน่งนิดหน่อยแบบสุ่ม
       const shift = (Math.random() - 0.5) * 6; // -3..+3 vw
-      d.xvw = Math.max(5, Math.min(95, d.xvw + shift));
-    }
-  },
-
+      d.xvw = clamp(d.xvw + shift, 5, 95);
+    },
+  }
 };
 </script>
 
@@ -258,6 +256,7 @@ export default {
   inset: 0;
   z-index: 0;
   background: transparent;
+  pointer-events: none;           /* ⛔️ overlay ทั้งก้อนไม่ดักคลิก */
 }
 .is-backdrop { z-index: 0; }
 
@@ -285,29 +284,9 @@ export default {
 
 /* ===== MOON ===== */
 .moon-wrap{
-  position:absolute; right:1vw; top:19vh; width:230px; height:230px;
+  position:absolute; right:1vw; top:25vh; width:220px; height:220px;
   transform-origin: 50% 50%;
-  animation: moonSway 6s ease-in-out infinite;
-}
-
-/* Media Query สำหรับจอคอมพิวเตอร์ (หน้าจอกว้าง) */
-@media (min-width: 768px) {
-  .moon-wrap {
-    right: 3vw; 
-    top: 5vh; 
-    width: 280px; 
-    height: 280px;
-  }
-}
-
-/* Media Query สำหรับจอใหญ่มาก (Desktop) */
-@media (min-width: 1200px) {
-  .moon-wrap {
-    right: 5vw; 
-    top: 8vh; 
-    width: 320px; 
-    height: 320px;
-  }
+  animation: moonSway 3s ease-in-out infinite;
 }
 .moon-img{ width:100%; height:100%; object-fit: contain; }
 .moon-glow{
@@ -348,30 +327,67 @@ export default {
   object-fit: contain;
   position: absolute;
   transform-origin: bottom center;
+  transform: translateX(-50%) rotate(var(--rot, 0)) scale(var(--scale, 1));
   cursor: pointer;
   transition: transform 0.3s ease;
   animation: floaty 6s ease-in-out infinite;
-  z-index: 999;
 }
 /* เด้งเมื่อคลิก (override แอนิเมชันช่วงสั้น ๆ) */
 .decor-img.is-bouncing {
-  animation: decorBounce 0.6s cubic-bezier(.28,.84,.42,1) !important;
+  animation: decorBounce 0.6s cubic-bezier(.28,.84,.42,1) both !important;
 }
 @keyframes floaty {
-  0%,100% { transform: translateX(-50%) rotate(var(--rot,0)) translateY(0) scale(1); }
-  50%     { transform: translateX(-50%) rotate(var(--rot,0)) translateY(-6px) scale(1.02); }
+  0%,100% {
+    transform:
+      translateX(-50%)
+      rotate(var(--rot, 0))
+      translateY(0)
+      scale(var(--scale, 1));
+  }
+  50% {
+    transform:
+      translateX(-50%)
+      rotate(var(--rot, 0))
+      translateY(-6px)
+      scale(var(--scale, 1))
+      scale(1.02);
+  }
 }
 @keyframes decorBounce {
-  0%   { transform: translateX(-50%) translateY(0)      scale(1);    }
-  30%  { transform: translateX(-50%) translateY(-25px)  scale(1.1);  }
-  60%  { transform: translateX(-50%) translateY(-10px)  scale(0.97); }
-  100% { transform: translateX(-50%) translateY(0)      scale(1);    }
+  0% {
+    transform:
+      translateX(-50%)
+      rotate(var(--rot, 0))
+      translateY(0)
+      scale(var(--scale, 1));
+  }
+  30% {
+    transform:
+      translateX(-50%)
+      rotate(var(--rot, 0))
+      translateY(-25px)
+      scale(var(--scale, 1))
+      scale(1.1);
+  }
+  60% {
+    transform:
+      translateX(-50%)
+      rotate(var(--rot, 0))
+      translateY(-10px)
+      scale(var(--scale, 1))
+      scale(0.97);
+  }
+  100% {
+    transform:
+      translateX(-50%)
+      rotate(var(--rot, 0))
+      translateY(0)
+      scale(var(--scale, 1));
+  }
 }
 
 /* ACCESSIBILITY */
 @media (prefers-reduced-motion: reduce){
   .bat-root .wing-left, .bat-root .wing-right, .bat-wrap, .fog-layer, .moon-glow, .moon-wrap { animation:none !important; }
 }
-
-
 </style>

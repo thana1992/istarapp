@@ -9,7 +9,7 @@
                     <h3 class="group-header">Family member</h3>
                     <v-divider class="border-opacity-100" color="info" length="35vw" thickness="3"></v-divider>
                     <v-divider color="#fffff" thickness="3"></v-divider>
-                    <v-table class="family-list">
+                    <v-table class="family-list card-opacity">
                         <tbody>
                             <tr v-for="people in family" :key="people.studentid" style="cursor: pointer; "
                                 :class="{ 'highlight-row': people.journal === '1' }" class="tr-rows">

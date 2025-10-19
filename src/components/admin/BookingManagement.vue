@@ -8,7 +8,7 @@
             <div class="mx-auto mt-5 px-2 py-1">
                 <v-row>
                     <v-col cols="12" sm="12" md="3" xl="3">
-                        <v-card class="mx-0" height="450">
+                        <v-card class="mx-0 card-opacity" height="450">
                             <v-list-item class="header-card">
                                 <div>View class booking by date</div>
                             </v-list-item>
@@ -21,7 +21,7 @@
                     </v-col>
                     <v-col cols="12" sm="12" md="9" xl="9">
                         <Transition name="fade" mode="out-in">
-                            <v-card flatclass="mx-0" v-if="state == 'bookinglist'" min-height="400">
+                            <v-card flatclass="mx-0" class="card-opacity" v-if="state == 'bookinglist'" min-height="400">
                                 <v-card-title class="d-flex align-center pe-2">
                                     <v-icon icon="mdi-magnify"></v-icon> &nbsp; Find a Booking
 
