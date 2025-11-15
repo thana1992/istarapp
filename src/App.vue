@@ -76,17 +76,17 @@
         </template>
       </v-app-bar>
       <!-- Floating Halloween toggle (always visible) -->
-    <div class="halo-toggle-global">
+    <v-div class="theme-toggle-global" v-if="haveThemeToggle">
       <v-btn
         size="small"
         variant="tonal"
         color="orange-darken-2"
-        @click="toggleHalloween"
+        @click="toggleTheme"
         :prepend-icon="isHalloweenOn ? 'mdi-ghost' : 'mdi-ghost-outline'"
       >
         {{ isHalloweenOn ? 'Disable Theme' : 'Enable Theme' }}
       </v-btn>
-    </div>
+    </v-div>
       <v-main class="root-container">
         <Transition name="fade" mode="out-in">
         <Login v-if="state == 'login'" @onAffterLogin="AffterLogin($event)" :user_details="user_details"
@@ -242,7 +242,8 @@ export default {
       loadingDialog: false,
       isLoading: false,
       isLoading: false,
-      isHalloweenOn: true,
+      isHalloweenOn: false,
+      haveThemeToggle: true,
     }
   },
   name: 'App',
@@ -373,8 +374,12 @@ export default {
       //this.loadingDialog = loading
       this.isLoading = loading;
     },
-    toggleHalloween() {
-      this.setHalloween(!this.isHalloweenOn);
+    toggleTheme() {
+      const now = new Date();
+      const monthNumber = now.toLocaleString('en-US', { month: 'numeric' });
+      if((monthNumber == 10)) {
+        this.setHalloween(!this.isHalloweenOn);
+      }
     },
     setHalloween(v) {
       this.isHalloweenOn = v;
@@ -389,16 +394,17 @@ export default {
   },
   mounted() {
     // อ่านค่าที่ผู้ใช้เคยเลือกไว้ก่อน
-    const saved = localStorage.getItem('isHalloweenOn');
-    if (saved === 'true') this.isHalloweenOn = true;
-    else if (saved === 'false') this.isHalloweenOn = false;
-    else {
-      // ค่าเริ่มต้น: เปิดอัตโนมัติในเดือนตุลาคม
-      const now = new Date();
-      this.isHalloweenOn = (now.getMonth() === 9);
+    // ค่าเริ่มต้น: เปิดอัตโนมัติในเดือนตุลาคม
+    const now = new Date();
+    const monthNumber = now.toLocaleString('en-US', { month: 'numeric' });
+    console.log(now +" Month:", monthNumber);
+    if (monthNumber == 10) {
+      this.isHalloweenOn = true;
+      // sync การมองเห็นของ Overlay และคลาสธีม
+      this.$nextTick(() => this.setHalloween(this.isHalloweenOn));
+    } else {
+      this.haveThemeToggle = false;
     }
-    // sync การมองเห็นของ Overlay และคลาสธีม
-    this.$nextTick(() => this.setHalloween(this.isHalloweenOn));
   },
   created() {
     //this.onLoading(true)
@@ -456,7 +462,7 @@ export default {
 .fade-leave-to {
   opacity: 0;
 }
-.halo-toggle-global{
+.theme-toggle-global{
   position: fixed;
   left: max(12px, env(safe-area-inset-left));
   bottom: max(12px, env(safe-area-inset-bottom));
