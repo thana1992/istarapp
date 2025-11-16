@@ -1,8 +1,37 @@
 @import url('https://fonts.googleapis.com/css2?family=Kodchasan:wght@600&family=Mali:wght@500&display=swap');
+
+/* Universal box-sizing fix */
+*,
+*::before,
+*::after {
+  box-sizing: border-box !important;
+}
+
+/* Force scrollbar to prevent layout shift */
+html {
+  overflow-y: scroll;
+  overflow-x: hidden;
+}
+
+/* ตั้ง background สำหรับ html เมื่อเปิดธีมคริสมาสต์ */
+html.theme-christmas {
+  background: #e1f5fe;
+}
+
 body {
   background: whitesmoke;
-  margin: 0; /* Reset default margin */
+  margin: 0;
+  padding: 0;
   font-family: 'Mali', cursive;
+  /* บังคับให้มี scrollbar เสมอด้วย padding-bottom */
+  padding-bottom: 1px;
+  min-height: 100vh;
+}
+
+/* บังคับ #app ให้สูงเกิน viewport เพื่อมี scrollbar ตลอดเวลา */
+#app {
+  min-height: calc(100vh + 1px);
+  padding-bottom: 1px;
 }
 
 .v-app-bar {
@@ -26,7 +55,10 @@ body {
   align-items: center;
   min-height: 100vh;
   height: auto;
-  width: 100vw;
+  width: 100%; /* ใช้ 100% แทน 100vw เพื่อหลีกเลี่ยง scrollbar shift */
+  max-width: 100%;
+  position: relative;
+  overflow-x: hidden !important; /* ป้องกัน horizontal scroll */
 }
 
 .container {
@@ -186,14 +218,82 @@ body {
 .booking-card-red {
     background-color: #ffb3b3 !important;
 }
-/* ---- สร้างชั้นให้คอนเทนต์หลักสูงกว่า overlay เสมอ ---- */
-.v-application,
-.v-main,
-.root-container,
-.v-card {
-  position: relative;   /* สร้าง stacking context ให้ตัวเอง */
-  z-index: 2;           /* ให้อยู่เหนือ overlay */
+/* ---- สร้างชั้นให้คอนเทนต์อยู่เหนือ overlay ---- */
+.v-overlay,
+.v-dialog,
+.v-menu {
+  z-index: 2000 !important;  /* Dialog และ overlay ต้องสูงสุด */
 }
+
+.v-app-bar {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  z-index: 1000 !important;
+}
+
+/* Navigation Drawer - ต้องทับ App Bar */
+.v-navigation-drawer {
+  position: fixed !important;
+  top: 0 !important;
+  bottom: 0 !important;
+  z-index: 2000 !important;  /* สูงกว่า app bar */
+  height: 100vh !important;
+}
+
+/* Overlay/Scrim ของ drawer */
+.v-navigation-drawer__scrim {
+  position: fixed !important;
+  z-index: 1999 !important;  /* อยู่หลัง drawer แต่หน้า app bar */
+  opacity: 0.5 !important;
+}
+
+/* Backdrop overlay */
+.v-overlay {
+  z-index: 1999 !important;
+}
+
+.v-overlay__scrim {
+  background: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* เนื้อหาใน drawer ต้องคลิกได้ */
+.v-navigation-drawer__content {
+  position: relative;
+  z-index: 2001 !important;
+  pointer-events: auto !important;
+  overflow-y: auto !important;
+  height: 100% !important;
+}
+
+/* v-list-item ใน drawer ต้องคลิกได้ */
+.v-navigation-drawer .v-list-item {
+  pointer-events: auto !important;
+  cursor: pointer !important;
+  position: relative;
+  z-index: 2002 !important;
+}
+
+.v-navigation-drawer .v-list {
+  pointer-events: auto !important;
+}
+
+.v-card,
+.v-table,
+.v-data-table,
+.v-data-table__wrapper {
+  position: relative;
+  z-index: 10 !important;  /* Cards และ tables อยู่เหนือ effect */
+  background: inherit;
+}
+
+.v-main {
+  position: relative;
+  z-index: 1;  /* Main content */
+}
+
+/* ---- Halloween Theme ---- */
 .theme-halloween .v-application,
 .theme-halloween .v-main,
 .theme-halloween .root-container {
@@ -202,3 +302,6 @@ body {
 .theme-halloween a {
   color: #ffb347; /* เปลี่ยนให้เห็นชัดขึ้น */
 }
+
+/* ---- Christmas Theme ---- */
+/* Christmas theme styles moved to ChristmasOverlay.vue component */
