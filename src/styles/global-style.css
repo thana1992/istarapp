@@ -285,7 +285,7 @@ body {
 .v-data-table__wrapper {
   position: relative;
   z-index: 10 !important;  /* Cards และ tables อยู่เหนือ effect */
-  background: inherit;
+  /*background: inherit;*/
 }
 
 .v-main {

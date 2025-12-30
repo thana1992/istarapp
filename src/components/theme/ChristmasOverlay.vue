@@ -770,7 +770,7 @@ body.theme-christmas > #app > .v-application > .v-card {
 
 .theme-christmas .v-dialog > .v-overlay__content > .v-card,
 .theme-christmas .v-dialog .v-card {
-  background: rgb(255, 255, 255) !important;
+  /*background: rgb(252, 136, 136) !important;*/
   opacity: 1 !important;
 }
 
