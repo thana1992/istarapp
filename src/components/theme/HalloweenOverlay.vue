@@ -1,6 +1,5 @@
 <template>
   <div
-    v-show="visible"
     class="halloween-overlay"
     :class="[{ 'is-backdrop': behind }]"
     aria-hidden="true"
@@ -167,7 +166,7 @@ export default {
       else if (d.kind === 'ghost') d.imgIndex = 0;
     });
 
-    return { visible: false, bats, decor, imageSets, rafId: null };
+    return { bats, decor, imageSets, rafId: null };
   },
   computed: {
     // Halloween theme ไม่มีเพลง
@@ -178,8 +177,6 @@ export default {
   mounted() { this.loop(); },
   beforeUnmount() { if (this.rafId) cancelAnimationFrame(this.rafId); },
   methods: {
-    setVisible(v){ this.visible = v; },
-
     loop() {
       this.bats.forEach(b => {
         b.phase       += 0.02 * b.speed;

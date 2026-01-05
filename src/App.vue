@@ -190,7 +190,7 @@
     </v-layout>
 
     <HalloweenOverlay
-      v-show="isHalloweenOn"
+      v-if="isHalloweenOn"
       ref="halo"
       :behind="true"
       :minDecor="8"
@@ -199,7 +199,7 @@
     />
 
     <ChristmasOverlay
-      v-show="isChristmasOn"
+      v-if="isChristmasOn"
       ref="xmas"
       :behind="true"
       :minDecor="6"
@@ -488,13 +488,6 @@ export default {
       // อัปเดตสถานะเพลงตามการเปิด/ปิดธีม
       if (!v) {
         this.christmasMusicPlaying = false;
-        // หยุดเพลงให้แน่ใจเมื่อปิดธีม
-        if (this.$refs.xmas && this.$refs.xmas.stopAudio) {
-          this.$refs.xmas.stopAudio();
-        } else if (this.$refs.xmas && this.$refs.xmas.toggleAudio && this.christmasMusicPlaying) {
-          // ถ้าไม่มี stopAudio ใช้ toggleAudio แทน
-          this.$refs.xmas.toggleAudio();
-        }
       } else {
         // เมื่อเปิดธีม รอ audioStateChanged event จาก overlay
         // หรือตรวจสอบ state หลังจาก setVisible เรียก playAudio()
@@ -533,15 +526,12 @@ export default {
         this.isHalloweenOn = true;
         this.setHalloween(true);
       } else if (monthNumber == 12) {
-        // เดือนพฤศจิกายน-ธันวาคม - ธีมคริสมาสต์ (11 สำหรับทดสอบ, 12 สำหรับจริง)
+        // เดือนธันวาคม - ธีมคริสมาสต์)
         this.currentTheme = 'christmas';
         this.isChristmasOn = true;
         this.setChristmas(true);
       } else {
-        // ปิดธีมทั้งหมดและหยุดเพลงเมื่อไม่ใช่เดือนเทศกาล
         this.haveThemeToggle = false;
-        this.setHalloween(false);
-        this.setChristmas(false);
       }
     });
   },
