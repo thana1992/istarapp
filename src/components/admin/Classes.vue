@@ -1,21 +1,21 @@
 <template>
   <div class="container">
     <div class="container-header">
-      <h1><span class="mdi mdi-view-dashboard-variant-outline"></span> Classes Management</h1>
+      <h1><span class="mdi mdi-view-dashboard-variant-outline"></span> {{ $t('classes.title') }}</h1>
     </div>
     <div class="container-content">
-      <v-card class="mx-auto mt-5 px-2 py-1 card-opacity">
+      <v-card class="mx-auto mt-5 card-opacity">
         <v-data-table :headers="headers" :items="classlist" :sort-by="[{ key: 'coursename', order: 'asc' }]"
           :loading="loadingClasses">
           <template v-slot:top>
             <v-toolbar flat>
-              <v-toolbar-title>Our Classes</v-toolbar-title>
+              <v-toolbar-title>{{ $t('classes.ourClasses') }}</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-spacer></v-spacer>
               <v-dialog v-model="dialog" max-width="500px">
                 <template v-slot:activator="{ props }">
                   <v-btn color="primary" dark v-bind="props">
-                    New Class
+                    {{ $t('classes.newClass') }}
                   </v-btn>
                 </template>
                 <v-card>
@@ -27,24 +27,24 @@
                     <v-container>
                       <v-row>
                         <v-col cols="12" sm="6" md="50">
-                          <v-select v-model="editedItem.courseid" label="Course Name" item-title="coursename"
+                          <v-select v-model="editedItem.courseid" :label="$t('table.courseName')" item-title="coursename"
                             item-value="courseid" :items="courseLookup" variant="solo-filled"
                             no-data-text="No course data" required></v-select>
                         </v-col>
                         <v-col cols="12" sm="6" md="50">
-                          <v-text-field v-model="editedItem.classday" label="Class Day"
+                          <v-text-field v-model="editedItem.classday" :label="$t('table.classDay')"
                             variant="solo-filled"></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="50">
-                          <v-text-field v-model="editedItem.classtime" label="Class Time"
+                          <v-text-field v-model="editedItem.classtime" :label="$t('table.classTime')"
                             variant="solo-filled"></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="50">
-                          <v-text-field v-model="editedItem.maxperson" label="Max Student"
+                          <v-text-field v-model="editedItem.maxperson" :label="$t('table.maxStudent')"
                             variant="solo-filled"></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="50">
-                          <v-text-field v-model="editedItem.adminflag" label="Admin Flag"
+                          <v-text-field v-model="editedItem.adminflag" :label="$t('table.adminFlag')"
                             variant="solo-filled"></v-text-field>
                         </v-col>
                       </v-row>
@@ -54,10 +54,10 @@
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="blue-darken-1" variant="text" @click="close">
-                      Cancel
+                      {{ $t('btn.cancel') }}
                     </v-btn>
                     <v-btn color="blue-darken-1" variant="text" @click="save">
-                      Save
+                      {{ $t('btn.save') }}
                     </v-btn>
                   </v-card-actions>
                 </v-card>
@@ -65,12 +65,11 @@
               <v-dialog v-model="dialogDelete" persistent width="auto">
                 <v-card>
                   <v-card-title></v-card-title>
-                  <v-card-text>ต้องการลบคลาสเรียนนี้จริงๆหรอ ?
-                    การจองทั้งหมดที่มีอยู่ในคลาสนี้ก็จะถูกยกเลิกด้วยนะ</v-card-text>
+                  <v-card-text>{{ $t('classes.confirmDelete') }}</v-card-text>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">ใช่! ลบเลย</v-btn>
-                    <v-btn color="#F44336" variant="tonal" @click="closeDelete">ไม่ลบละ เปลี่ยนใจ</v-btn>
+                    <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">{{ $t('btn.ok') }}</v-btn>
+                    <v-btn color="#F44336" variant="tonal" @click="closeDelete">{{ $t('btn.cancel') }}</v-btn>
 
                     <v-spacer></v-spacer>
                   </v-card-actions>
@@ -105,18 +104,6 @@ export default {
     dialog: false,
     dialogDelete: false,
     loadingClasses: false,
-    headers: [
-      {
-        title: 'Course Name',
-        align: 'start',
-        key: 'coursename',
-      },
-      { title: 'Class Day', key: 'classday' },
-      { title: 'Class Time', key: 'classtime' },
-      { title: 'Max student', key: 'maxperson' },
-      { title: 'Admin Flag', key: 'adminflag' },
-      { title: 'Actions', key: 'actions', sortable: false },
-    ],
     editedIndex: -1,
     editedItem: {
       classday: '',
@@ -139,7 +126,17 @@ export default {
       token: 'getToken',
     }),
     formTitle() {
-      return this.editedIndex === -1 ? 'New Class' : 'Edit Class'
+      return this.editedIndex === -1 ? this.$t('classes.newClass') : this.$t('classes.editClass')
+    },
+    headers() {
+      return [
+        { title: this.$t('table.courseName'), align: 'start', key: 'coursename' },
+        { title: this.$t('table.classDay'), key: 'classday' },
+        { title: this.$t('table.classTime'), key: 'classtime' },
+        { title: this.$t('table.maxStudent'), key: 'maxperson' },
+        { title: this.$t('table.adminFlag'), key: 'adminflag' },
+        { title: this.$t('table.actions'), key: 'actions', sortable: false },
+      ]
     },
   },
 
@@ -227,9 +224,9 @@ export default {
         .then(response => {
           //console.dir(response);
           if (response.data.success) {
-            this.$emit('onInfoHandler', 'สำเร็จ ระเบิดคลาสนี้สมดั่งใจคุณแล้ว');
+            this.$emit('onInfoHandler', this.$t('msg.classDeleted'));
           } else {
-            this.$emit('onErrorHandler', response.data.message || 'เสียใจ ลบไม่ได้ ลองใหม่อีกครั้งนะ');
+            this.$emit('onErrorHandler', response.data.message || this.$t('msg.updateFail'));
           }
           this.initialize()
         })
@@ -276,9 +273,9 @@ export default {
           .then(response => {
             //console.dir(response);
             if (response.data.success) {
-              this.$emit('onInfoHandler', 'สำเร็จ แก้ไขข้อมูลคลาสแล้ว');
+              this.$emit('onInfoHandler', this.$t('msg.classUpdated'));
             } else {
-              this.$emit('onErrorHandler', response.data.message || 'เสียใจ แก้ไขไม่ได้ ลองใหม่อีกครั้งนะ');
+              this.$emit('onErrorHandler', response.data.message || this.$t('msg.updateFail'));
             }
             this.initialize()
           })
@@ -298,9 +295,9 @@ export default {
           .then(response => {
             //console.dir(response);
             if (response.data.success) {
-              this.$emit('onInfoHandler', 'สำเร็จ สร้างคลาสใหม่แล้ว');
+              this.$emit('onInfoHandler', this.$t('msg.classCreated'));
             } else {
-              this.$emit('onErrorHandler', response.data.message || 'เสียใจ สร้างคลาสไม่ได้ ลองใหม่อีกครั้งนะ');
+              this.$emit('onErrorHandler', response.data.message || this.$t('msg.addFail'));
             }
             this.initialize()
           })

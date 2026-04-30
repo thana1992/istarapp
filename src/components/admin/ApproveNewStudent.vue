@@ -4,21 +4,21 @@
     show-select :loading="loadingNewStudentList" loading-text="Loading... Please wait">
     <template v-slot:top>
       <v-toolbar flat>
-        <v-toolbar-title>New Student Request</v-toolbar-title>
+        <v-toolbar-title>{{ $t('approve.title') }}</v-toolbar-title>
         <!-- ปุ่ม Approve ที่คุณคุมเอง -->
 <v-btn color="primary" dark @click="openConfirmApprove">
-  <span class="mdi mdi-emoticon-plus-outline"></span> Approve
+  <span class="mdi mdi-emoticon-plus-outline"></span> {{ $t('btn.approve') }}
 </v-btn>
 
 <!-- v-dialog ไม่ต้องมี activator slot -->
 <v-dialog v-model="dialogConfirmApprove" persistent width="auto">
   <v-card>
     <v-card-title></v-card-title>
-    <v-card-text>ยอมรับการเพิ่มเด็กทั้งหมด {{ confirmStudentList.length }} คน ?</v-card-text>
+    <v-card-text>{{ $t('approve.confirmApprove', { count: confirmStudentList.length }) }}</v-card-text>
     <v-card-actions>
       <v-spacer></v-spacer>
-      <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmApprove">ตกลง</v-btn>
-      <v-btn color="#F44336" variant="tonal" @click="clickCancelApprove">ยกเลิก</v-btn>
+      <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmApprove">{{ $t('btn.ok') }}</v-btn>
+      <v-btn color="#F44336" variant="tonal" @click="clickCancelApprove">{{ $t('btn.cancel') }}</v-btn>
       <v-spacer></v-spacer>
     </v-card-actions>
   </v-card>
@@ -26,11 +26,11 @@
         <v-dialog v-model="dialogStudentNewDelete" persistent width="auto">
           <v-card>
             <v-card-title></v-card-title>
-            <v-card-text>ต้องการลบเด็กคนนี้ใช่มั้ย ?</v-card-text>
+            <v-card-text>{{ $t('approve.confirmDelete') }}</v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
-              <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteStd">ใช่! ลบเลย</v-btn>
-              <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteStd">ยกเลิก</v-btn>
+              <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteStd">{{ $t('btn.ok') }}</v-btn>
+              <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteStd">{{ $t('btn.cancel') }}</v-btn>
               <v-spacer></v-spacer>
             </v-card-actions>
           </v-card>
@@ -44,7 +44,7 @@
       <v-icon size="large" color="error" @click="clickDeleteNewStudent(item)">mdi-delete-forever</v-icon>
     </template>
     <template v-slot:loading><v-skeleton-loader type="table-row@5"></v-skeleton-loader></template>
-    <template v-slot:no-data> No New Student waiting for approve </template>
+    <template v-slot:no-data> {{ $t('approve.noData') }} </template>
   </v-data-table>
 </v-div>
 </template>
@@ -67,15 +67,7 @@ export default {
       dialogConfirmApprove: false,
       dialogStudentNewDelete: false,
       studentNewDeleteObj: null,
-      newStudentlistHeaders: [
-        { title: 'ชื่อ', key: 'fullname', },
-        { title: 'เพศ', key: 'gender', align: 'left' },
-        { title: 'อายุ', key: 'dateofbirth', align: 'left' },
-        { title: 'โรงเรียน', key: 'school', align: 'left' },
-        { title: 'Username ผปค.', key: 'username', align: 'center' },
-        { title: 'เบอร์โทร', key: 'mobileno', align: 'center' },
-        { title: 'ลบ', key: 'delete', align: 'center', sortable: false }
-      ]
+      newStudentlistHeadersData: []
     }
   },
   methods: {
@@ -210,13 +202,13 @@ export default {
       let months = Math.floor((totalDays % 365.25) / 30.4375);
       let days = Math.floor((totalDays % 365.25) % 30.4375);
       return {
-          text : years + " ปี " + months + " เดือน ",
+          text : years + " " + this.$t('table.yearAbbr') + " " + months + " " + this.$t('table.monthAbbr'),
           int : years+'.'+months
       }
     },
     openConfirmApprove() {
       if (this.confirmStudentList.length === 0) {
-        this.$emit('onErrorHandler', 'เลือกนักเรียบนที่ต้องการอนุมัติอย่างน้อย 1 คน');
+        this.$emit('onErrorHandler', this.$t('approve.selectAtLeastOne'));
         return;
       }
       this.dialogConfirmApprove = true;
@@ -231,6 +223,17 @@ export default {
     ...mapGetters({
       token: 'getToken',
     }),
+    newStudentlistHeaders() {
+      return [
+        { title: this.$t('table.name'), key: 'fullname' },
+        { title: this.$t('table.gender'), key: 'gender', align: 'left' },
+        { title: this.$t('table.age'), key: 'dateofbirth', align: 'left' },
+        { title: this.$t('table.school'), key: 'school', align: 'left' },
+        { title: this.$t('table.parentUsername'), key: 'username', align: 'center' },
+        { title: this.$t('table.phone'), key: 'mobileno', align: 'center' },
+        { title: this.$t('table.delete'), key: 'delete', align: 'center', sortable: false },
+      ]
+    },
   },
 }
 </script>

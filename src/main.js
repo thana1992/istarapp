@@ -2,11 +2,13 @@
 import { createApp } from 'vue';
 import App from './App.vue';
 import store from './store';
+import { i18nState, t, setLocale } from './i18n';
 
 import 'vuetify/styles';
 import { createVuetify } from 'vuetify';
 import * as components from 'vuetify/components';
 import * as directives from 'vuetify/directives';
+import { th, en } from 'vuetify/locale';
 import Vue3Autocounter from 'vue3-autocounter';
 
 import VueDatePicker from '@vuepic/vue-datepicker';
@@ -16,6 +18,11 @@ const vuetify = createVuetify({
   components,
   directives,
   defaultTheme: 'dark',
+  locale: {
+    locale: localStorage.getItem('istar_locale') || 'th',
+    fallback: 'en',
+    messages: { th, en },
+  },
   themes: {
     dark: {
       dark: true,
@@ -25,7 +32,6 @@ const vuetify = createVuetify({
         primary: '#BB86FC',
         secondary: '#03DAC6',
         error: '#CF6679',
-        // เพิ่มสีอื่น ๆ ตามต้องการ
       },
     },
   },
@@ -41,6 +47,9 @@ if (token) {
 
 //console.log("env.SERVER_URL ", env.SERVER_URL);
 app.config.globalProperties.baseURL = env.SERVER_URL;
+app.config.globalProperties.$t = t;
+app.config.globalProperties.$setLocale = setLocale;
+app.config.globalProperties.$i18n = i18nState;
 
 app
   .component('VueDatePicker', VueDatePicker)

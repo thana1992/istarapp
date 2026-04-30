@@ -2,21 +2,17 @@
   <v-div class="main-container">
     <img src="../assets/logo/logo-2.png" alt="iStar Logo" class="istar-logo">
     <div class="main-greeting">
-      <h1>Forgot Password</h1>
-      <p>Enter your registered username</p>
-      <p>and phone number</p>
-
-      <p>กรอก username และเบอร์โทรศัพท์</p>
-      <p>ที่ท่านเคยลงทะเบียนไว้</p>
+      <h1>{{ $t('forgot.title') }}</h1>
+      <p>{{ $t('forgot.subtitle') }}</p>
     </div>
     <v-card class="main-form px-3 py-3 mb-12">
       <v-form ref="forgotpassword_form" v-model="forgotpassword_form" v-if="firstProcess">
         <v-row justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="username" label="Username" 
+          <v-text-field variant="solo-filled" v-model="username" :label="$t('forgot.username')"
           :rules="nameRules" @input="removeSpaces('username')" :readonly="verifyBtn" required></v-text-field>
         </v-row>
         <v-row justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="phonenumber" @input="debouncedAcceptNumber" label="Phone number" 
+          <v-text-field variant="solo-filled" v-model="phonenumber" @input="debouncedAcceptNumber" :label="$t('forgot.phone')"
             :rules="phonenumberRules" :readonly="verifyBtn" required></v-text-field>
         </v-row>
         <transition>
@@ -29,39 +25,39 @@
 
         <transition>
         <v-row v-if="!requestOTPBtn" justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="otppassword" ref="otpField" type="number" counter="6" @input="onInputOTP" label="OTP Password" 
+          <v-text-field variant="solo-filled" v-model="otppassword" ref="otpField" type="number" counter="6" @input="onInputOTP" :label="$t('forgot.otp')"
             :rules="otpRules" :disabled="requestOTPBtn" required></v-text-field>
         </v-row>
       </transition>
 
         <v-row justify="space-around" class="ma-3 pa-3">
           <v-btn v-show="verifyBtn" id="verrify" color="success" class="mt-4" block @click="doVerify">
-            Submit
+            {{ $t('forgot.submit') }}
           </v-btn>
           <v-btn v-show="requestOTPBtn" id="request-otp" color="info" class="mt-4" block @click="doRequestOTP" :disabled="!isPhoneMatched">
-            Request OTP
+            {{ $t('forgot.requestOTP') }}
           </v-btn>
           <v-btn color="grey" class="mt-4" block @click="cancel">
-            Cancel
+            {{ $t('forgot.cancel') }}
           </v-btn>
         </v-row>
       </v-form>
       <v-form ref="changepassword_form" v-model="changepassword_form" v-else>
         <v-row justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="newPassword" ref="newPassword" :type="show1 ? 'text' : 'password'" label="New Password" 
+          <v-text-field variant="solo-filled" v-model="newPassword" ref="newPassword" :type="show1 ? 'text' : 'password'" :label="$t('forgot.newPassword')"
           :rules="newPassRules" :append-inner-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="show1 = !show1" required></v-text-field>
         </v-row>
         <v-row justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="confirmNewPassword" :type="show2 ? 'text' : 'password'" label="Confirm New Password" 
+          <v-text-field variant="solo-filled" v-model="confirmNewPassword" :type="show2 ? 'text' : 'password'" :label="$t('forgot.confirmPassword')"
             :rules="newPassRules" :append-inner-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="show2 = !show2" required></v-text-field>
         </v-row>
 
         <v-row justify="space-around" class="ma-3 pa-3">
           <v-btn color="success" class="mt-4" block @click="doChangePassword">
-            Submit
+            {{ $t('forgot.submit') }}
           </v-btn>
           <v-btn color="grey" class="mt-4" block @click="cancel">
-            Cancel
+            {{ $t('forgot.cancel') }}
           </v-btn>
         </v-row>
       </v-form>

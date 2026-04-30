@@ -1,39 +1,30 @@
 <template>
-  <div v-if="showLogin" class="main-container">
-    <img src="../assets/logo/logo-2.png" alt="iStar Logo" class="istar-logo">
-    <div class="main-greeting">
-      <h1>Login</h1>
-      <p>Welcome to the iStar Gymnastics,</p>
-      <p>Have a wonderful day :D...</p>
+  <div v-if="showLogin" class="login-page">
+    <div class="login-inner">
+      <img src="../assets/logo/logo-2.png" alt="iStar Logo" class="istar-logo">
+      <div class="login-greeting">
+        <h1>{{ $t('auth.loginTitle') }}</h1>
+        <p>{{ $t('auth.welcome') }}</p>
+        <p>{{ $t('auth.welcomeSub') }}</p>
+      </div>
+      <v-card class="login-card card-opacity px-6 py-4">
+        <v-form ref="login_form" v-model="login_form" @submit.prevent="doLogin">
+          <v-text-field class="mb-3" variant="solo-filled" v-model="username" :label="$t('auth.username')" :rules="nameRules"
+            @input="removeSpaces('username')" :placeholder="$t('auth.username')" name="username"
+            autocomplete="username" required></v-text-field>
+          <v-text-field class="mb-4" variant="solo-filled" v-model="password" :label="$t('auth.password')"
+            :type="showpassword ? 'text' : 'password'" :rules="passwordRules" :placeholder="$t('auth.password')"
+            :append-inner-icon="showpassword ? 'mdi-eye' : 'mdi-eye-off'"
+            @click:append-inner="showpassword = !showpassword" name="password" autocomplete="current-password"
+            required></v-text-field>
+          <v-btn color="success" block type="submit" size="large" class="mb-3">{{ $t('auth.loginBtn') }}</v-btn>
+          <v-btn color="blue" block @click="registerClick" class="mb-3">{{ $t('auth.registerBtn') }}</v-btn>
+          <v-btn color="error" block @click="forgotpassword">{{ $t('auth.forgotBtn') }}</v-btn>
+        </v-form>
+      </v-card>
     </div>
-    <v-card class="main-form px-3 py-3 mb-12 card-opacity">
-      <v-form ref="login_form" v-model="login_form" @submit.prevent="doLogin">
-        <v-row justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="username" label="Username" :rules="nameRules" @input="removeSpaces('username')"
-            placeholder="Enter your username" name="username" autocomplete="username" required></v-text-field>
-        </v-row>
-        <v-row justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="password" label="Password" :type="showpassword ? 'text' : 'password'"
-            :rules="passwordRules" placeholder="Enter your password" :append-inner-icon="showpassword ? 'mdi-eye' : 'mdi-eye-off'" 
-            @click:append-inner="showpassword = !showpassword" name="password" autocomplete="current-password" required></v-text-field>
-        </v-row>
-
-        <v-row justify="space-around" class="ma-2 pa-2">
-          <v-btn color="success" class="" block type="submit">
-            Login
-          </v-btn>
-          <v-btn color="blue" class="mt-8" block @click="registerClick">
-            Register
-          </v-btn>
-          <v-btn color="error" class="mt-4" block @click="forgotpassword">
-            Forgot Password ?
-          </v-btn>
-        </v-row>
-      </v-form>
-    </v-card>
   </div>
-  <div v-else>
-  </div>
+  <div v-else></div>
 </template>
 
 <script>
@@ -173,3 +164,53 @@ export default {
     },
 }
 </script>
+
+<style scoped>
+.login-page {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #e8ebf1 0%, #cfd6e4 50%, #e8ebf1 100%);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-y: auto;
+  padding: 5vh 20px 5vh;
+}
+
+.login-inner {
+  width: 90vw;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.login-greeting {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.login-greeting h1 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 4px;
+}
+
+.login-greeting p {
+  color: #64748b;
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.login-card {
+  width: 100%;
+}
+
+.istar-logo {
+  width: 300px;
+  margin-bottom: 20px;
+}
+</style>

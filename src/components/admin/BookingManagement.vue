@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <div class="container-header">
-            <h1><span class="mdi mdi-calendar-edit"></span> Booking Management / จัดการข้อมูลการจองคลาสเรียน</h1>
+            <h1><span class="mdi mdi-calendar-edit"></span> {{ $t('bookingMgmt.title') }}</h1>
         </div>
         <div class="container-content">
             <v-divider color="#fffff" thickness="3"></v-divider>
@@ -10,7 +10,7 @@
                     <v-col cols="12" sm="12" md="3" xl="3">
                         <v-card class="mx-0 card-opacity" height="475">
                             <v-list-item class="header-card">
-                                <div>View class booking by date</div>
+                                <div>{{ $t('bookingMgmt.viewByDate') }}</div>
                             </v-list-item>
                             <v-container>
                                 <v-row justify="space-around">
@@ -22,32 +22,22 @@
                     <v-col cols="12" sm="12" md="9" xl="9">
                         <Transition name="fade" mode="out-in">
                             <v-card flatclass="mx-0" class="card-opacity" v-if="state == 'bookinglist'" min-height="400">
-                                <v-card-title class="d-flex align-center pe-2">
-                                    <v-icon icon="mdi-magnify"></v-icon> &nbsp; Find a Booking
-
-                                    <v-spacer></v-spacer>
-
-                                    <v-text-field v-model="search" density="compact" label="Search"
-                                        prepend-inner-icon="mdi-magnify" variant="solo-filled" flat hide-details
-                                        single-line></v-text-field>
-                                </v-card-title>
-
-                                <v-divider></v-divider>
                                 <v-data-table fixed-header height="auto" :loading="loadingBooking"
                                     loading-text="Loading... Please wait" :headers="BookingListHeaders"
                                     :items="BookingList" :sort-by="[{ key: 'classtime', order: 'asc' }]"
                                     :search="search" >
                                     <template v-slot:top>
                                         <v-toolbar flat>
-                                            <v-toolbar-title>All class bookings today</v-toolbar-title>
+                                            <v-toolbar-title>{{ $t('bookingMgmt.allBookingsToday') }}</v-toolbar-title>
+                                            <v-spacer></v-spacer>
                                             <v-btn color="primary" @click="initialize">
                                                 <v-icon left>mdi-refresh</v-icon>
-                                                รีเฟรช
+                                                {{ $t('btn.refresh') }}
                                             </v-btn>
                                             <v-dialog v-model="dialogBookingEdit" max-width="800px">
                                                 <template v-slot:activator="{ props }">
                                                     <v-btn color="primary" dark v-bind="props"><span
-                                                            class="mdi mdi-emoticon-plus-outline"></span> เพิ่มการจอง</v-btn>
+                                                            class="mdi mdi-emoticon-plus-outline"></span> {{ $t('btn.newBooking') }}</v-btn>
                                                 </template>
                                                 <v-card>
                                                     <v-card-title class="sticky-header">
@@ -106,7 +96,7 @@
                                                                     <v-col cols="4" sm="4" md="4">
                                                                         <v-checkbox
                                                                         v-model="editedBookingItem.freeflag"
-                                                                        label="ทดลองเรียนฟรี"
+                                                                        :label="$t('bookingMgmt.freeClass')"
                                                                         color="success"
                                                                         class="ma-2"
                                                                         :disabled="editedBookingIndex != -1"
@@ -122,11 +112,11 @@
                                                         <v-spacer></v-spacer>
                                                         <v-btn color="red-darken-1" variant="flat"
                                                             @click="closeEditBooking">
-                                                            Cancel
+                                                            {{ $t('btn.cancel') }}
                                                         </v-btn>
                                                         <v-btn color="blue-darken-1" variant="flat"
                                                             @click="doSaveNewBooking">
-                                                            Save
+                                                            {{ $t('btn.save') }}
                                                         </v-btn>
                                                     </v-card-actions>
                                                 </v-card>
@@ -134,14 +124,13 @@
                                             <v-dialog v-model="dialogBookingDelete" persistent width="auto">
                                                 <v-card>
                                                     <v-card-title></v-card-title>
-                                                    <v-card-text>ต้องการลบการจองของ {{ editedBookingItem.fullname }}
-                                                        ?</v-card-text>
+                                                    <v-card-text>{{ $t('bookingMgmt.confirmDelete', { name: editedBookingItem.fullname }) }}</v-card-text>
                                                     <v-card-actions>
                                                         <v-spacer></v-spacer>
                                                         <v-btn color="#4CAF50" variant="tonal"
-                                                            @click="clickConfirmDeleteBooking">ใช่! ลบเลย</v-btn>
+                                                            @click="clickConfirmDeleteBooking">{{ $t('btn.ok') }}</v-btn>
                                                         <v-btn color="#F44336" variant="tonal"
-                                                            @click="clickCancelDeleteBooking">ไม่ลบละ เปลี่ยนใจ</v-btn>
+                                                            @click="clickCancelDeleteBooking">{{ $t('btn.cancel') }}</v-btn>
 
                                                         <v-spacer></v-spacer>
                                                     </v-card-actions>
@@ -150,14 +139,13 @@
                                             <v-dialog v-model="dialogCheckin" persistent width="auto">
                                                 <v-card>
                                                     <v-card-title></v-card-title>
-                                                    <v-card-text>ต้องการ Check-in สำหรับ {{ editedBookingItem.fullname
-                                                        }} ?</v-card-text>
+                                                    <v-card-text>{{ $t('bookingMgmt.confirmCheckin', { name: editedBookingItem.fullname }) }}</v-card-text>
                                                     <v-card-actions>
                                                         <v-spacer></v-spacer>
                                                         <v-btn color="#4CAF50" variant="tonal"
-                                                            @click="clickConfirmCheckinDialog">Yes</v-btn>
+                                                            @click="clickConfirmCheckinDialog">{{ $t('btn.ok') }}</v-btn>
                                                         <v-btn color="#F44336" variant="tonal"
-                                                            @click="clickCancelCheckinDialog">Cancel</v-btn>
+                                                            @click="clickCancelCheckinDialog">{{ $t('btn.cancel') }}</v-btn>
 
                                                         <v-spacer></v-spacer>
                                                     </v-card-actions>
@@ -166,20 +154,24 @@
                                             <v-dialog v-model="dialogUndoCheckin" persistent width="auto">
                                                 <v-card>
                                                     <v-card-title></v-card-title>
-                                                    <v-card-text>ต้องการ ยกเลิก Check-in สำหรับ {{ editedBookingItem.fullname
-                                                        }} ?</v-card-text>
+                                                    <v-card-text>{{ $t('bookingMgmt.confirmUndoCheckin', { name: editedBookingItem.fullname }) }}</v-card-text>
                                                     <v-card-actions>
                                                         <v-spacer></v-spacer>
                                                         <v-btn color="#4CAF50" variant="tonal"
-                                                            @click="clickConfirmUndoCheckinDialog">Yes</v-btn>
+                                                            @click="clickConfirmUndoCheckinDialog">{{ $t('btn.ok') }}</v-btn>
                                                         <v-btn color="#F44336" variant="tonal"
-                                                            @click="clickCancelUndoCheckinDialog">Cancel</v-btn>
+                                                            @click="clickCancelUndoCheckinDialog">{{ $t('btn.cancel') }}</v-btn>
 
                                                         <v-spacer></v-spacer>
                                                     </v-card-actions>
                                                 </v-card>
                                             </v-dialog>
                                         </v-toolbar>
+                                        <div class="table-search-row">
+                                            <v-text-field v-model="search" density="compact" label="Search"
+                                                prepend-inner-icon="mdi-magnify" variant="solo-filled"
+                                                flat hide-details single-line></v-text-field>
+                                        </div>
                                     </template>
                                     <template v-slot:item.edit="{ item }">
                                         <v-icon size="large" color="info"
@@ -197,7 +189,7 @@
                                     </template>
                                     <template v-slot:loading><v-skeleton-loader
                                             type="table-row@5"></v-skeleton-loader></template>
-                                    <template v-slot:no-data> No booking class </template>
+                                    <template v-slot:no-data> {{ $t('bookingMgmt.noBooking') }} </template>
                                 </v-data-table>
                             </v-card>
                         </Transition>
@@ -209,12 +201,12 @@
         </div>
     <v-dialog width="500" v-model="errorDialog">
         <template v-slot:default="{ isActive }">
-            <v-card title="ผิดพลาด!!" color="#F44336">
+            <v-card :title="$t('dialog.error')" color="#F44336">
                 <v-card-text>
                     {{ errorMsg }}
                 </v-card-text>
                 <v-card-actions>
-                    <v-btn color="primary" variant="tonal" block @click="errorDialog = false">ปิด</v-btn>
+                    <v-btn color="primary" variant="tonal" block @click="errorDialog = false">{{ $t('btn.close') }}</v-btn>
                 </v-card-actions>
             </v-card>
         </template>
@@ -222,12 +214,12 @@
 
     <v-dialog width="500" v-model="infoDialog">
         <template v-slot:default="{ isActive }">
-            <v-card title="สำเร็จ!!" color="#98FB98">
+            <v-card :title="$t('dialog.success')" color="#98FB98">
                 <v-card-text>
                     {{ infoMsg }}
                 </v-card-text>
                 <v-card-actions>
-                    <v-btn color="primary" variant="tonal" block @click="infoDialog = false">โอเค</v-btn>
+                    <v-btn color="primary" variant="tonal" block @click="infoDialog = false">{{ $t('btn.ok') }}</v-btn>
                 </v-card-actions>
             </v-card>
         </template>
@@ -268,14 +260,7 @@ export default ({
             loadingCourse: false,
             loadingClassTime: false,
             BookingList: [],
-            BookingListHeaders: [
-                { title: 'ชื่อ', key: 'fullname' },
-                { title: 'ชื่อคอร์ส', key: 'coursename' },
-                { title: 'เวลา', key: 'classtime' },
-                { title: 'เช็คชื่อ', key: 'checkin', align: 'center', sortable: false },
-                { title: 'แก้ไข', key: 'edit', align: 'center', sortable: false },
-                { title: 'ลบ', key: 'delete', align: 'center', sortable: false },
-            ],
+            BookingListHeadersData: [],
             editedBookingItem: {
                 fullname: null,
                 reservationid: null,
@@ -364,13 +349,13 @@ export default ({
                             this.courseinfoColor = 'courseinfoColorGreen'
                             this.editedBookingItem.courseid = res.courseid
                             if (res.coursetype == 'Monthly') {
-                                this.editedBookingItem.courseinfo = 'หมายเลขคอร์ส: ' + res.courserefer + ' วันหมดอายุ: ' + this.format_date(res.expiredate) + ' รายเดือน'
+                                this.editedBookingItem.courseinfo = this.$t('bookingMgmt.courseInfoMonthly', { ref: res.courserefer, expiry: this.format_date(res.expiredate) })
                             } else {
-                                this.editedBookingItem.courseinfo = 'หมายเลขคอร์ส: ' + res.courserefer + ' วันหมดอายุ: ' + this.format_date(res.expiredate) + ' เหลือ: ' + res.remaining + ' ครั้ง'
+                                this.editedBookingItem.courseinfo = this.$t('bookingMgmt.courseInfoLimited', { ref: res.courserefer, expiry: this.format_date(res.expiredate), remaining: res.remaining })
                             }
                         } else {
                             this.courseinfoColor = 'courseinfoColorRed'
-                            this.editedBookingItem.courseinfo = 'นักเรียนคนนี้ยังไม่มี Course ที่สมัครเรียน'
+                            this.editedBookingItem.courseinfo = this.$t('bookingMgmt.noCourse')
                         }
                     } else {
                         this.$emit('onErrorHandler', 'getCustomerCourseInfo failed');
@@ -516,11 +501,11 @@ export default ({
                         .post(this.baseURL + '/updateBookingByAdmin', BookingObj, { headers: { Authorization: `Bearer ${token}`, } })
                         .then(response => {
                             if (response.data.success) {
-                                this.$emit('onInfoHandler', 'แก้ไขข้อมูลสำเร็จแล้ว');
+                                this.$emit('onInfoHandler', this.$t('msg.updated'));
                                 this.getReservationList()
                                 this.dialogBookingEdit = false
                             } else {
-                                this.$emit('onErrorHandler', response.data.message || 'แก้ไขข้อมูลไม่สำเร็จ ลองใหม่อีกครั้งนะ');
+                                this.$emit('onErrorHandler', response.data.message || this.$t('msg.updateFail'));
                             }
                         })
                         .catch(error => {
@@ -536,11 +521,11 @@ export default ({
                         .post(this.baseURL + '/addBookingByAdmin', BookingObj, { headers: { Authorization: `Bearer ${token}`, } })
                         .then(response => {
                             if (response.data.success) {
-                                this.$emit('onInfoHandler', 'เพิ่มการจองคลาสสำเร็จแล้ว');
+                                this.$emit('onInfoHandler', this.$t('msg.bookingAdded'));
                                 this.getReservationList()
                                 this.dialogBookingEdit = false
                             } else {
-                                this.$emit('onErrorHandler', response.data.message || 'เพิ่มการจองคลาสไม่สำเร็จ ลองใหม่อีกครั้งนะ');
+                                this.$emit('onErrorHandler', response.data.message || this.$t('msg.bookingAddFail'));
                             }
                             this.$emit('onUpdateDataSuccess')
                         })
@@ -555,7 +540,7 @@ export default ({
                 }
                 this.$emit('onLoading', false)
             } else {
-                this.$emit('onErrorHandler', 'กรุณากรอกข้อมูลให้ครบถ้วน')
+                this.$emit('onErrorHandler', this.$t('msg.required'))
                 this.$emit('onLoading', false)
                 return
             }
@@ -841,7 +826,17 @@ export default ({
             return new Date()
         },
         formBookingTitle() {
-            return this.editedBookingIndex === -1 ? 'Add a new booking' : 'Edit booking information'
+            return this.editedBookingIndex === -1 ? this.$t('btn.newBooking') : this.$t('btn.edit')
+        },
+        BookingListHeaders() {
+            return [
+                { title: this.$t('table.name'), key: 'fullname' },
+                { title: this.$t('table.courseName'), key: 'coursename' },
+                { title: this.$t('table.time'), key: 'classtime' },
+                { title: this.$t('table.checkin'), key: 'checkin', align: 'center', sortable: false },
+                { title: this.$t('table.edit'), key: 'edit', align: 'center', sortable: false },
+                { title: this.$t('table.delete'), key: 'delete', align: 'center', sortable: false },
+            ]
         },
     }
 

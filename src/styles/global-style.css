@@ -15,7 +15,7 @@ html {
 
 /* ตั้ง background สำหรับ html เมื่อเปิดธีมคริสมาสต์ */
 html.theme-christmas {
-  background: #e1f5fe;
+  background: #0a1f0a;
 }
 
 body {
@@ -32,10 +32,6 @@ body {
 #app {
   min-height: calc(100vh + 1px);
   padding-bottom: 1px;
-}
-
-.v-app-bar {
-    opacity: 0.7;
 }
 
 .menu-icon {
@@ -179,9 +175,17 @@ body {
   color: red;
 }
 
+/* RULE: thead tr MUST stay transparent — any background creates a floating "card on card" look.
+   Differentiate column headers through text styling + border only. Never revert this. */
+.v-table__wrapper > table > thead > tr {
+  background: transparent !important;
+}
+
 .v-table__wrapper > table > thead > tr > th {
-  background-color: #cacaca;
-  font: bold 14px 'Kodchasan', sans-serif;
+  background: transparent !important;
+  font: bold 13px 'Kodchasan', sans-serif;
+  color: #334155 !important;
+  border-bottom: 2px solid rgba(163, 177, 198, 0.4) !important;
 }
 
 .double-booking-highlight {
@@ -191,13 +195,42 @@ body {
 }
 
 .header-card {
-  background-color: #eee !important;
-  color: #000;
-  opacity: 0.8 !important;
+  background: linear-gradient(145deg, #eef0f5, #dde2eb) !important;
+  color: #334155 !important;
+  opacity: 1 !important;
+  font-weight: 600;
+  border-radius: 0 !important;
+}
+
+/* v-list-item used as a header band — strip Vuetify's inline padding so bg fills edge-to-edge */
+.v-list-item.header-card {
+  padding-inline: 0 !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
 .card-opacity {
-  opacity: 0.9;
+  background: linear-gradient(145deg, #ffffff, #e8ebf1) !important;
+  box-shadow: 5px 5px 14px rgba(163, 177, 198, 0.45), -5px -5px 14px rgba(255, 255, 255, 0.65) !important;
+  border-radius: 18px !important;
+  opacity: 1 !important;
+}
+
+/* Clip content to border-radius — eliminates "card on card" toolbar look */
+.v-card.card-opacity,
+div.card-opacity,
+.v-table.card-opacity {
+  overflow: hidden !important;
+}
+
+/* Section headers (group-header) — consistent across all user pages */
+.group-header {
+  font-size: 14px;
+  font-weight: 700;
+  color: #475569;
+  letter-spacing: 0.4px;
+  text-transform: uppercase;
+  margin: 0 0 4px 0;
 }
 
 .active-student-card {
@@ -225,27 +258,138 @@ body {
   z-index: 2000 !important;  /* Dialog และ overlay ต้องสูงสุด */
 }
 
+/* App Bar - Neumorphic style, ต้องอยู่เหนือ drawer เสมอ */
 .v-app-bar {
   position: fixed !important;
   top: 0 !important;
   left: 0 !important;
   right: 0 !important;
-  z-index: 1000 !important;
+  z-index: 1100 !important;
+  background: linear-gradient(145deg, #ffffff, #e8ebf1) !important;
+  border-bottom: none !important;
+  box-shadow:
+    0 6px 16px rgba(163, 177, 198, 0.4),
+    0 -2px 6px rgba(255, 255, 255, 0.6) !important;
 }
 
-/* Navigation Drawer - ต้องทับ App Bar */
+/* App Bar buttons (hamburger, back, logout) — completely flat, seamless */
+.v-app-bar .v-btn {
+  border-radius: 4px !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  transition: color 0.2s ease !important;
+  color: #475569 !important;
+  min-width: auto !important;
+  padding: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 40px !important;
+}
+
+/* Override tonal variant in app bar */
+.v-app-bar .v-btn[variant="tonal"],
+.v-app-bar .v-btn.v-btn--tonal {
+  background: transparent !important;
+  color: #475569 !important;
+}
+
+/* Increase icon size in app bar */
+.v-app-bar .mdi {
+  font-size: 28px !important;
+}
+
+.v-app-bar .v-btn:hover {
+  background: transparent !important;
+  color: #4338ca !important;
+  box-shadow: none !important;
+}
+
+.v-app-bar .v-btn:active {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Navigation Drawer - Neumorphic, z-index ต่ำกว่า app bar */
 .v-navigation-drawer {
   position: fixed !important;
-  top: 0 !important;
-  bottom: 0 !important;
-  z-index: 2000 !important;  /* สูงกว่า app bar */
-  height: 100vh !important;
+  z-index: 1000 !important;
+  background: linear-gradient(145deg, #ffffff, #e8ebf1) !important;
+  border-right: none !important;
+  box-shadow:
+    8px 0 20px rgba(163, 177, 198, 0.35),
+    -2px 0 6px rgba(255, 255, 255, 0.6) !important;
 }
 
-/* Overlay/Scrim ของ drawer */
+/* Avatar list-item (item แรกใน drawer — direct child เท่านั้น) — flat, blend with drawer */
+.v-navigation-drawer > .v-list-item:first-child,
+.v-navigation-drawer__content > .v-list-item:first-child {
+  margin: 8px 12px;
+  border-radius: 14px;
+  background: transparent !important;
+  box-shadow: none !important;
+  border-bottom: 1px solid rgba(163, 177, 198, 0.2);
+  padding-bottom: 12px;
+}
+
+/* Menu list items — flat default, soft hover (no shadow lift) */
+.v-navigation-drawer .v-list .v-list-item {
+  margin: 3px 8px;
+  border-radius: 10px;
+  transition: background 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+  min-height: 40px;
+}
+
+.v-navigation-drawer .v-list .v-list-item:hover {
+  background: rgba(99, 102, 241, 0.08) !important;
+  color: #4338ca !important;
+  box-shadow: none !important;
+}
+
+.v-navigation-drawer .v-list .v-list-item:active {
+  background: rgba(99, 102, 241, 0.12) !important;
+  box-shadow:
+    inset 2px 2px 4px rgba(163, 177, 198, 0.3),
+    inset -2px -2px 4px rgba(255, 255, 255, 0.7) !important;
+}
+
+.v-navigation-drawer .v-list .v-list-item--active {
+  background: linear-gradient(145deg, #6366f1, #8b5cf6) !important;
+  color: #ffffff !important;
+  box-shadow:
+    inset 2px 2px 5px rgba(67, 56, 202, 0.4),
+    inset -2px -2px 5px rgba(255, 255, 255, 0.15) !important;
+}
+
+.v-navigation-drawer .v-list .v-list-item--active .v-list-item__prepend .v-icon,
+.v-navigation-drawer .v-list .v-list-item--active .v-list-item-title {
+  color: #ffffff !important;
+}
+
+/* Section labels (Main menu, Admin menu, etc.) */
+.v-navigation-drawer .v-list .v-label {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #94a3b8 !important;
+  padding: 10px 18px 4px;
+  opacity: 1 !important;
+}
+
+/* Divider in drawer */
+.v-navigation-drawer .v-divider,
+.v-navigation-drawer hr {
+  margin: 8px 16px !important;
+  border-color: rgba(163, 177, 198, 0.25) !important;
+  opacity: 1 !important;
+}
+
+/* Drawer Scrim - ต่ำกว่า drawer และ app bar */
 .v-navigation-drawer__scrim {
   position: fixed !important;
-  z-index: 1999 !important;  /* อยู่หลัง drawer แต่หน้า app bar */
+  z-index: 999 !important;
   opacity: 0.5 !important;
 }
 
@@ -258,13 +402,178 @@ body {
   background: rgba(0, 0, 0, 0.5) !important;
 }
 
-/* เนื้อหาใน drawer ต้องคลิกได้ */
+/* Dialog cards — Neumorphic styling, reduced glow */
+.v-dialog .v-card:not(.v-alert) {
+  background: linear-gradient(160deg, #f8f9fb, #edf0f5) !important;
+  box-shadow: 0 8px 32px rgba(100, 116, 139, 0.2), 0 2px 8px rgba(0, 0, 0, 0.08) !important;
+  border-radius: 18px !important;
+  overflow: hidden !important;
+}
+
+/* Dialog header bands */
+.app-dialog-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  font-weight: 700;
+  font-size: 15px;
+  border-bottom: 1px solid rgba(163, 177, 198, 0.2);
+}
+
+.app-dialog-header--error {
+  background: linear-gradient(to right, #fff1f2, #ffe4e6);
+  color: #dc2626;
+}
+
+.app-dialog-header--success {
+  background: linear-gradient(to right, #f0fdf4, #dcfce7);
+  color: #16a34a;
+}
+
+/* Dialog body text — always dark, readable */
+.app-dialog-body {
+  color: #1e293b !important;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 16px 20px !important;
+}
+
+/* Sticky table headers — Neumorphic */
+.sticky-header {
+  background: linear-gradient(145deg, #e0e5ec, #cfd6df) !important;
+  color: #334155 !important;
+}
+
+.sticky-footer {
+  background: linear-gradient(180deg, rgba(224, 229, 236, 0.8), rgba(207, 214, 223, 0.8)) !important;
+}
+
+/* Neumorphic primary action button — used on Home / Family pages */
+.neu-action-btn {
+  background: linear-gradient(145deg, #7c83fb 0%, #8b5cf6 100%) !important;
+  box-shadow:
+    5px 5px 14px rgba(99, 102, 241, 0.4),
+    -4px -4px 10px rgba(255, 255, 255, 0.75) !important;
+  color: #ffffff !important;
+  border-radius: 14px !important;
+  font-weight: 700 !important;
+  letter-spacing: 0.5px;
+  border: none !important;
+}
+
+.neu-action-btn:hover {
+  box-shadow:
+    7px 7px 18px rgba(99, 102, 241, 0.45),
+    -5px -5px 12px rgba(255, 255, 255, 0.8) !important;
+}
+
+.neu-action-btn:active {
+  box-shadow:
+    inset 3px 3px 7px rgba(67, 56, 202, 0.4),
+    inset -3px -3px 7px rgba(255, 255, 255, 0.2) !important;
+}
+
+/* Search row below toolbar — admin pages */
+.table-search-row {
+  padding: 8px 16px 6px;
+  background: transparent;
+  border-bottom: 1px solid rgba(163, 177, 198, 0.15);
+}
+
+/* ---- Neumorphic Card System — inner element fixes ---- */
+
+/* ALL toolbars inside card-opacity — seamless header, no radius (clipped by parent overflow) */
+.card-opacity .v-toolbar,
+div.card-opacity .v-toolbar {
+  background: linear-gradient(to right, #eef0f5, #e5e9f0) !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  border-bottom: 1px solid rgba(163, 177, 198, 0.18) !important;
+}
+
+/* v-card-title inside card-opacity — header band, no radius (clipped by parent) */
+.v-card.card-opacity > .v-card-title,
+div.card-opacity .v-card-title {
+  color: #334155 !important;
+  font-weight: 600;
+  border-radius: 0 !important;
+  padding: 14px 20px;
+}
+
+/* v-data-table and v-table inside card-opacity — transparent */
+.card-opacity .v-data-table,
+.card-opacity .v-table {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+}
+
+/* Data table footer inside card */
+.card-opacity .v-data-table-footer {
+  background: linear-gradient(to right, #f0f3f7, #e8ecf1) !important;
+  border-top: 1px solid rgba(163, 177, 198, 0.15);
+}
+
+/* Date picker inside card-opacity — transparent to blend */
+.card-opacity .v-date-picker,
+.card-opacity .v-picker {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.card-opacity .v-date-picker-header,
+.card-opacity .v-picker__header {
+  background: transparent !important;
+}
+
+/* Inner flat v-card inside a div.card-opacity — passthrough */
+div.card-opacity > .v-card,
+div.card-opacity .v-card--flat {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+}
+
+/* Container-header h1 — consistent with Dashboard style */
+.container-header h1 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #334155;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  letter-spacing: -0.3px;
+}
+
+/* Icon box — matches Dashboard .dashboard-header-icon style */
+.container-header h1 .mdi {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #7c83fb 0%, #8b5cf6 100%);
+  color: #ffffff !important;
+  font-size: 24px;
+  flex-shrink: 0;
+  box-shadow:
+    5px 5px 12px rgba(99, 102, 241, 0.35),
+    -3px -3px 8px rgba(255, 255, 255, 0.7),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.25);
+}
+
+/* เนื้อหาใน drawer ต้องคลิกได้ + เลื่อนเริ่มต้นใต้ app bar เพื่อไม่ให้ avatar ถูกบัง */
 .v-navigation-drawer__content {
   position: relative;
   z-index: 2001 !important;
   pointer-events: auto !important;
   overflow-y: auto !important;
   height: 100% !important;
+  padding-top: 64px !important;
 }
 
 /* v-list-item ใน drawer ต้องคลิกได้ */
@@ -293,15 +602,1034 @@ body {
   z-index: 1;  /* Main content */
 }
 
-/* ---- Halloween Theme ---- */
-.theme-halloween .v-application,
-.theme-halloween .v-main,
-.theme-halloween .root-container {
-  background: #0e0e1027 !important;
-}
-.theme-halloween a {
-  color: #ffb347; /* เปลี่ยนให้เห็นชัดขึ้น */
+/* Dialog card title — consistent gradient header (for dialogs without sticky-header) */
+.v-dialog .v-card:not(.v-alert) > .v-card-title:not(.sticky-header):not(:empty) {
+  background: linear-gradient(to right, #eef0f5, #e5e9f0) !important;
+  color: #334155 !important;
+  font-weight: 600;
+  border-bottom: 1px solid rgba(163, 177, 198, 0.18);
+  padding: 14px 20px;
 }
 
-/* ---- Christmas Theme ---- */
-/* Christmas theme styles moved to ChristmasOverlay.vue component */
+/* Dark theme card-opacity */
+.v-theme--dark .card-opacity {
+  background: linear-gradient(145deg, #2a3447, #1e2536) !important;
+  box-shadow: 5px 5px 14px rgba(0, 0, 0, 0.5), -3px -3px 10px rgba(60, 72, 95, 0.3) !important;
+}
+
+/* Dark theme toolbar inside card */
+.v-theme--dark .card-opacity .v-toolbar,
+.v-theme--dark div.card-opacity .v-toolbar {
+  background: linear-gradient(to right, #1f2937, #1a2333) !important;
+  border-bottom-color: rgba(60, 72, 95, 0.35) !important;
+}
+
+.v-theme--dark .v-card.card-opacity > .v-card-title,
+.v-theme--dark div.card-opacity .v-card-title {
+  background: linear-gradient(to right, #1f2937, #1a2333) !important;
+  color: #cbd5e1 !important;
+  border-bottom-color: rgba(60, 72, 95, 0.35);
+}
+
+/* Dark theme dialog cards */
+.v-theme--dark .v-dialog .v-card:not(.v-alert) {
+  background: linear-gradient(160deg, #2a3447, #1e2536) !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Dark theme sticky headers */
+.v-theme--dark .sticky-header {
+  background: linear-gradient(145deg, #1f2937, #161e2e) !important;
+  color: #cbd5e1 !important;
+}
+
+/* Dark theme table headers — MUST stay transparent (same rule as light theme) */
+.v-theme--dark .v-table__wrapper > table > thead > tr {
+  background: transparent !important;
+}
+
+.v-theme--dark .v-table__wrapper > table > thead > tr > th {
+  background: transparent !important;
+  color: #94a3b8 !important;
+  border-bottom: 2px solid rgba(71, 85, 105, 0.5) !important;
+}
+
+/* Dark theme inner elements */
+.v-theme--dark .card-opacity .v-toolbar {
+  background: linear-gradient(145deg, #1f2937, #161e2e) !important;
+}
+
+.v-theme--dark .v-card.card-opacity > .v-card-title {
+  background: linear-gradient(145deg, #1f2937, #161e2e) !important;
+  color: #cbd5e1 !important;
+}
+
+.v-theme--dark .header-card {
+  background: linear-gradient(145deg, #1f2937, #161e2e) !important;
+  color: #cbd5e1 !important;
+}
+
+.v-theme--dark .container-header h1 {
+  color: #e2e8f0;
+}
+
+.v-theme--dark .card-opacity .v-data-table-footer {
+  background: linear-gradient(180deg, rgba(31, 41, 55, 0.8), rgba(22, 30, 46, 0.6)) !important;
+}
+
+/* ---- Dark theme overrides for App Bar & Drawer (Neumorphic) ---- */
+.v-theme--dark .v-app-bar {
+  background: linear-gradient(145deg, #2a3447, #1e2536) !important;
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.45),
+    0 -2px 6px rgba(60, 72, 95, 0.3) !important;
+}
+
+.v-theme--dark .v-app-bar .v-btn {
+  background: transparent !important;
+  box-shadow: none !important;
+  color: #cbd5e1 !important;
+  min-width: auto !important;
+  padding: 8px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  height: 40px !important;
+}
+
+/* Override tonal variant in dark app bar */
+.v-theme--dark .v-app-bar .v-btn[variant="tonal"],
+.v-theme--dark .v-app-bar .v-btn.v-btn--tonal {
+  background: transparent !important;
+  color: #cbd5e1 !important;
+}
+
+.v-theme--dark .v-app-bar .v-btn:hover {
+  background: transparent !important;
+  color: #e0aeff !important;
+  box-shadow: none !important;
+}
+
+.v-theme--dark .v-app-bar .v-btn:active {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.v-theme--dark .v-navigation-drawer {
+  background: linear-gradient(145deg, #2a3447, #1e2536) !important;
+  box-shadow:
+    8px 0 20px rgba(0, 0, 0, 0.4),
+    -2px 0 6px rgba(60, 72, 95, 0.3) !important;
+}
+
+.v-theme--dark .v-navigation-drawer > .v-list-item:first-child,
+.v-theme--dark .v-navigation-drawer__content > .v-list-item:first-child {
+  background: transparent !important;
+  box-shadow: none !important;
+  border-bottom-color: rgba(60, 72, 95, 0.4);
+}
+
+.v-theme--dark .v-navigation-drawer .v-list .v-list-item:hover {
+  background: rgba(139, 92, 246, 0.15) !important;
+  color: #c4b5fd !important;
+  box-shadow: none !important;
+}
+
+.v-theme--dark .v-navigation-drawer .v-list .v-label {
+  color: #64748b !important;
+}
+
+.v-theme--dark .v-navigation-drawer .v-divider,
+.v-theme--dark .v-navigation-drawer hr {
+  border-color: rgba(60, 72, 95, 0.4) !important;
+}
+
+/* ================================================================
+   PLAYFUL THEME — สไตล์สดใส เหมาะสำหรับเด็ก
+   Color palette: Rose-Pink + Violet + Amber
+   ================================================================ */
+
+html.theme-playful body {
+  background: linear-gradient(135deg, #fff0f8 0%, #f5f0ff 50%, #fff8f0 100%) !important;
+}
+
+html.theme-playful .login-page {
+  background: linear-gradient(135deg, #fce7f3 0%, #ede9fe 50%, #fce7f3 100%) !important;
+}
+
+/* ── Cards ── */
+html.theme-playful .card-opacity {
+  background: linear-gradient(135deg, #ffffff 0%, #fff5fb 100%) !important;
+  box-shadow:
+    6px 6px 18px rgba(244, 63, 94, 0.18),
+    -4px -4px 12px rgba(167, 139, 250, 0.15),
+    0 0 0 1.5px rgba(251, 113, 133, 0.2) !important;
+  border-radius: 26px !important;
+}
+
+/* ── Toolbar inside cards ── */
+html.theme-playful .card-opacity .v-toolbar,
+html.theme-playful div.card-opacity .v-toolbar {
+  background: linear-gradient(to right, #fce7f3, #ede9fe) !important;
+  border-bottom: 1px solid rgba(251, 113, 133, 0.25) !important;
+}
+
+/* ── v-card-title inside cards ── */
+html.theme-playful .v-card.card-opacity > .v-card-title,
+html.theme-playful div.card-opacity .v-card-title {
+  background: linear-gradient(to right, #fce7f3, #ede9fe) !important;
+  color: #9d174d !important;
+  border-bottom-color: rgba(251, 113, 133, 0.25) !important;
+}
+
+/* ── Section header bands (Home, Family) ── */
+html.theme-playful .home-section-header {
+  background: linear-gradient(to right, #fce7f3, #ede9fe) !important;
+  color: #9d174d !important;
+  border-bottom-color: rgba(251, 113, 133, 0.25) !important;
+}
+html.theme-playful .home-section-header .mdi {
+  color: #f43f5e !important;
+}
+
+html.theme-playful .section-header {
+  background: linear-gradient(to right, #fce7f3, #ede9fe) !important;
+  color: #9d174d !important;
+  border-bottom-color: rgba(251, 113, 133, 0.25) !important;
+}
+html.theme-playful .section-header .mdi {
+  color: #f43f5e !important;
+}
+
+/* ── Container header h1 ── */
+html.theme-playful .container-header h1 {
+  color: #9d174d !important;
+}
+html.theme-playful .container-header h1 .mdi {
+  background: linear-gradient(145deg, #fb7185 0%, #f43f5e 100%) !important;
+  box-shadow:
+    5px 5px 12px rgba(244, 63, 94, 0.35),
+    -3px -3px 8px rgba(255, 255, 255, 0.75),
+    inset 1px 1px 2px rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ── App bar ── */
+html.theme-playful .v-app-bar {
+  background: linear-gradient(to right, #fce7f3 0%, #ede9fe 100%) !important;
+  box-shadow:
+    0 6px 16px rgba(244, 63, 94, 0.2),
+    0 -2px 6px rgba(255, 255, 255, 0.6) !important;
+}
+html.theme-playful .v-app-bar .v-btn {
+  color: #9d174d !important;
+}
+html.theme-playful .v-app-bar .v-btn:hover {
+  color: #f43f5e !important;
+}
+
+/* ── Navigation drawer ── */
+html.theme-playful .v-navigation-drawer {
+  background: linear-gradient(to bottom, #fff5fb 0%, #f5f0ff 100%) !important;
+  box-shadow:
+    8px 0 20px rgba(244, 63, 94, 0.15),
+    -2px 0 6px rgba(255, 255, 255, 0.6) !important;
+}
+html.theme-playful .v-navigation-drawer .v-list .v-list-item--active {
+  background: linear-gradient(145deg, #fb7185, #f43f5e) !important;
+  color: #ffffff !important;
+}
+html.theme-playful .v-navigation-drawer .v-list .v-list-item:hover {
+  background: rgba(244, 63, 94, 0.08) !important;
+  color: #9d174d !important;
+}
+html.theme-playful .v-navigation-drawer .v-list .v-list-item--active .v-list-item__prepend .v-icon,
+html.theme-playful .v-navigation-drawer .v-list .v-list-item--active .v-list-item-title {
+  color: #ffffff !important;
+}
+html.theme-playful .v-navigation-drawer .v-label {
+  color: #f9a8d4 !important;
+}
+html.theme-playful .v-navigation-drawer .v-divider,
+html.theme-playful .v-navigation-drawer hr {
+  border-color: rgba(251, 113, 133, 0.25) !important;
+}
+
+/* ── Sticky headers ── */
+html.theme-playful .sticky-header {
+  background: linear-gradient(145deg, #fce7f3, #ede9fe) !important;
+  color: #9d174d !important;
+}
+
+/* ── Table footer ── */
+html.theme-playful .card-opacity .v-data-table-footer {
+  background: linear-gradient(to right, #fdf2f8, #f5f3ff) !important;
+}
+
+/* ── group-header ── */
+html.theme-playful .group-header {
+  color: #9d174d !important;
+}
+
+/* ── header-card (ViewClasses date picker card) ── */
+html.theme-playful .header-card {
+  background: linear-gradient(145deg, #fce7f3, #ede9fe) !important;
+  color: #9d174d !important;
+}
+
+/* ── Primary action buttons ── */
+html.theme-playful .neu-action-btn {
+  background: linear-gradient(145deg, #fb7185 0%, #f43f5e 100%) !important;
+  box-shadow:
+    5px 5px 14px rgba(244, 63, 94, 0.4),
+    -4px -4px 10px rgba(255, 255, 255, 0.8) !important;
+}
+html.theme-playful .neu-action-btn:hover {
+  box-shadow:
+    7px 7px 18px rgba(244, 63, 94, 0.5),
+    -5px -5px 14px rgba(255, 255, 255, 0.85) !important;
+}
+
+/* ── Family row active state ── */
+html.theme-playful .family-row--active {
+  border-left-color: #f43f5e !important;
+  background: rgba(244, 63, 94, 0.06) !important;
+}
+
+/* ── res-time pill ── */
+html.theme-playful .res-time {
+  color: #f43f5e !important;
+  background: rgba(244, 63, 94, 0.1) !important;
+}
+
+/* ── course chip ── */
+html.theme-playful .course-chip {
+  background: linear-gradient(145deg, #fce7f3, #ede9fe) !important;
+  color: #9d174d !important;
+}
+
+/* ── Dialog headers in playful mode ── */
+html.theme-playful .app-dialog-header--error {
+  background: linear-gradient(to right, #fff1f2, #ffe4e6) !important;
+}
+html.theme-playful .app-dialog-header--success {
+  background: linear-gradient(to right, #f0fdf4, #dcfce7) !important;
+}
+
+/* ── Pulse animation override ── */
+html.theme-playful .pulse-button {
+  animation: playful-pulse 1.2s infinite !important;
+}
+@keyframes playful-pulse {
+  0%   { transform: scale(1);    box-shadow: 5px 5px 14px rgba(244,63,94,0.4), -4px -4px 10px rgba(255,255,255,0.8); }
+  50%  { transform: scale(1.04); box-shadow: 7px 7px 18px rgba(244,63,94,0.55), -5px -5px 14px rgba(255,255,255,0.9); }
+  100% { transform: scale(1);    box-shadow: 5px 5px 14px rgba(244,63,94,0.4), -4px -4px 10px rgba(255,255,255,0.8); }
+}
+
+/* ── Theme switcher row in drawer ── */
+.theme-switcher-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px;
+  margin: 4px 8px;
+  border-radius: 12px;
+  background: rgba(163, 177, 198, 0.08);
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  cursor: pointer;
+}
+html.theme-playful .theme-switcher-row {
+  background: rgba(244, 63, 94, 0.07) !important;
+  color: #9d174d !important;
+}
+.theme-switcher-row .mdi {
+  font-size: 18px;
+  color: #6366f1;
+}
+html.theme-playful .theme-switcher-row .mdi {
+  color: #f43f5e !important;
+}
+.theme-switcher-label {
+  flex: 1;
+}
+
+/* ================================================================
+   HALLOWEEN THEME
+   Color palette: Deep Purple + Bright Orange + Near-black
+   Base text: #f0e6ff (light lavender) — readable on all dark purple surfaces
+   Accent: #ff8c00 (orange) / #ffb347 (amber)
+   ================================================================ */
+
+/* ── Page background + default text ── */
+html.theme-halloween body {
+  background: #0d0114 !important;
+  color: #f0e6ff !important;
+}
+
+/* ── Login page ── */
+html.theme-halloween .login-page {
+  background: radial-gradient(ellipse at 30% 20%, #2d0a50 0%, #0d0114 60%, #3d1800 100%) !important;
+}
+html.theme-halloween .login-greeting h1 { color: #ffb347 !important; }
+html.theme-halloween .login-greeting p  { color: #c4a8e8 !important; }
+
+/* ── Cards ── */
+html.theme-halloween .card-opacity {
+  background: linear-gradient(145deg, #1e0a38, #150824) !important;
+  box-shadow:
+    6px 6px 18px rgba(0, 0, 0, 0.7),
+    -3px -3px 8px rgba(255, 140, 0, 0.06),
+    0 0 0 1px rgba(255, 140, 0, 0.15) !important;
+  border-radius: 18px !important;
+  color: #f0e6ff !important;
+}
+
+/* ── Toolbar inside cards ── */
+html.theme-halloween .card-opacity .v-toolbar,
+html.theme-halloween div.card-opacity .v-toolbar {
+  background: linear-gradient(to right, #2d0a50, #3d1200) !important;
+  border-bottom: 1px solid rgba(255, 140, 0, 0.25) !important;
+}
+
+/* ── v-card-title inside cards ── */
+html.theme-halloween .v-card.card-opacity > .v-card-title,
+html.theme-halloween div.card-opacity .v-card-title {
+  background: linear-gradient(to right, #2d0a50, #3d1200) !important;
+  color: #ff8c00 !important;
+  border-bottom-color: rgba(255, 140, 0, 0.25) !important;
+}
+
+/* ── Section headers ── */
+html.theme-halloween .home-section-header,
+html.theme-halloween .section-header {
+  background: linear-gradient(to right, #2d0a50, #3d1200) !important;
+  color: #ff8c00 !important;
+  border-bottom-color: rgba(255, 140, 0, 0.25) !important;
+}
+html.theme-halloween .home-section-header .mdi,
+html.theme-halloween .section-header .mdi { color: #ff8c00 !important; }
+
+/* ── Group header + header-card ── */
+html.theme-halloween .group-header { color: #ffb347 !important; }
+html.theme-halloween .header-card {
+  background: linear-gradient(145deg, #2d0a50, #3d1200) !important;
+  color: #ff8c00 !important;
+}
+
+/* ── Container header h1 ── */
+html.theme-halloween .container-header h1 { color: #ffb347 !important; }
+html.theme-halloween .container-header h1 .mdi {
+  background: linear-gradient(145deg, #ff8c00, #e65c00) !important;
+  box-shadow: 5px 5px 12px rgba(255, 140, 0, 0.4), -3px -3px 8px rgba(0,0,0,0.5) !important;
+}
+
+/* ── App bar ── */
+html.theme-halloween .v-app-bar {
+  background: linear-gradient(145deg, #150824, #0d0114) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.7), 0 1px 0 rgba(255, 140, 0, 0.25) !important;
+}
+html.theme-halloween .v-app-bar .v-btn,
+html.theme-halloween .v-app-bar .v-btn[variant="tonal"],
+html.theme-halloween .v-app-bar .v-btn.v-btn--tonal { color: #ff8c00 !important; }
+html.theme-halloween .v-app-bar .v-btn:hover { color: #ffb347 !important; }
+
+/* ── Navigation drawer ── */
+html.theme-halloween .v-navigation-drawer {
+  background: linear-gradient(to bottom, #150824, #0d0114) !important;
+  box-shadow: 8px 0 24px rgba(0, 0, 0, 0.7) !important;
+}
+html.theme-halloween .v-navigation-drawer .v-list .v-list-item--active {
+  background: linear-gradient(145deg, #ff8c00, #e65c00) !important;
+  color: #fff !important;
+}
+html.theme-halloween .v-navigation-drawer .v-list .v-list-item--active .v-list-item__prepend .v-icon,
+html.theme-halloween .v-navigation-drawer .v-list .v-list-item--active .v-list-item-title { color: #fff !important; }
+html.theme-halloween .v-navigation-drawer .v-list .v-list-item:hover {
+  background: rgba(255, 140, 0, 0.1) !important;
+  color: #ff8c00 !important;
+}
+html.theme-halloween .v-navigation-drawer .v-list .v-label { color: rgba(255, 140, 0, 0.5) !important; }
+html.theme-halloween .v-navigation-drawer .v-divider,
+html.theme-halloween .v-navigation-drawer hr { border-color: rgba(255, 140, 0, 0.2) !important; }
+html.theme-halloween .v-navigation-drawer .v-list-item-title { color: #f0e6ff !important; }
+html.theme-halloween .v-navigation-drawer .v-list-item__prepend .v-icon { color: #c4a8e8 !important; }
+
+/* ── Sticky / table headers ── */
+html.theme-halloween .sticky-header {
+  background: linear-gradient(145deg, #2d0a50, #3d1200) !important;
+  color: #ff8c00 !important;
+}
+html.theme-halloween .v-table__wrapper > table > thead > tr > th {
+  color: #ff8c00 !important;
+  border-bottom-color: rgba(255, 140, 0, 0.3) !important;
+}
+
+/* ── Table body cells & row hover ── */
+html.theme-halloween .v-table__wrapper > table > tbody > tr > td { color: #f0e6ff !important; }
+html.theme-halloween .v-data-table__tr:hover { background: rgba(255, 140, 0, 0.06) !important; }
+html.theme-halloween .double-booking-highlight { color: #ffb347 !important; }
+
+/* ── Data table footer ── */
+html.theme-halloween .card-opacity .v-data-table-footer {
+  background: linear-gradient(to right, #1e0a38, #150824) !important;
+  color: #f0e6ff !important;
+}
+
+/* ── Buttons ── */
+html.theme-halloween .neu-action-btn {
+  background: linear-gradient(145deg, #ff8c00, #e65c00) !important;
+  box-shadow: 5px 5px 14px rgba(255, 140, 0, 0.4), -3px -3px 8px rgba(0,0,0,0.5) !important;
+  color: #fff !important;
+}
+
+/* ── Dialogs ── */
+html.theme-halloween .v-dialog .v-card:not(.v-alert) {
+  background: linear-gradient(160deg, #1e0a38, #150824) !important;
+}
+html.theme-halloween .v-dialog .v-card:not(.v-alert) > .v-card-title:not(.sticky-header):not(:empty) {
+  background: linear-gradient(to right, #2d0a50, #3d1200) !important;
+  color: #ff8c00 !important;
+  border-bottom-color: rgba(255, 140, 0, 0.25) !important;
+}
+html.theme-halloween .app-dialog-body { color: #f0e6ff !important; }
+html.theme-halloween .app-dialog-header--error {
+  background: linear-gradient(to right, #3d1200, #2d0a50) !important;
+  color: #ffb347 !important;
+}
+html.theme-halloween .app-dialog-header--success {
+  background: linear-gradient(to right, #1a3800, #0d2d10) !important;
+  color: #86efac !important;
+}
+
+/* ── Tables inside dialogs (e.g. course history, booking list) ── */
+html.theme-halloween .v-dialog .v-data-table,
+html.theme-halloween .v-dialog .v-table,
+html.theme-halloween .v-dialog .v-table__wrapper {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+html.theme-halloween .v-dialog .v-table__wrapper > table > thead > tr {
+  background: transparent !important;
+}
+html.theme-halloween .v-dialog .v-table__wrapper > table > thead > tr > th {
+  background: transparent !important;
+  color: #ff8c00 !important;
+  border-bottom-color: rgba(255, 140, 0, 0.35) !important;
+}
+html.theme-halloween .v-dialog .v-table__wrapper > table > tbody > tr > td {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #f0e6ff !important;
+}
+html.theme-halloween .v-dialog .v-data-table__tr:hover td {
+  background: rgba(255, 140, 0, 0.08) !important;
+}
+html.theme-halloween .v-dialog .v-data-table-footer {
+  background: transparent !important;
+  color: #f0e6ff !important;
+}
+
+/* ── Misc text ── */
+html.theme-halloween .main-greeting p,
+html.theme-halloween .program-description { color: #c4a8e8 !important; }
+html.theme-halloween .text-forgot { color: #ff8c00 !important; }
+
+/* ── Theme picker tile label (inside dark dialog) ── */
+html.theme-halloween .theme-tile-label {
+  background: rgba(30, 10, 56, 0.92) !important;
+  color: #f0e6ff !important;
+}
+
+/* ── Vuetify application wrapper — makes page background dark ── */
+html.theme-halloween .v-application,
+html.theme-halloween .v-application__wrap,
+html.theme-halloween .v-layout {
+  background: #0d0114 !important;
+}
+
+/* ── Date picker — full Vuetify 3 override ── */
+html.theme-halloween .v-date-picker,
+html.theme-halloween .v-picker {
+  background: transparent !important;
+}
+
+/* "SELECT DATE" picker title */
+html.theme-halloween .v-picker-title,
+html.theme-halloween .v-date-picker-header__title {
+  color: rgba(255, 140, 0, 0.65) !important;
+  font-size: 12px !important;
+}
+
+/* "Fri, May 1" big date display */
+html.theme-halloween .v-date-picker-header,
+html.theme-halloween .v-date-picker-header .v-date-picker-header__content,
+html.theme-halloween .v-date-picker-header .v-btn {
+  color: #f0e6ff !important;
+}
+
+/* "May 2026" month/year row and nav arrows */
+html.theme-halloween .v-date-picker-controls,
+html.theme-halloween .v-date-picker-controls .v-btn,
+html.theme-halloween .v-date-picker-controls__month,
+html.theme-halloween .v-date-picker-controls__year {
+  color: #ffb347 !important;
+}
+
+/* Day-of-week labels (S M T W T F S) */
+html.theme-halloween .v-date-picker-month__weekday {
+  color: rgba(255, 140, 0, 0.6) !important;
+}
+
+/* Available day buttons */
+html.theme-halloween .v-date-picker-month__day .v-btn {
+  background: rgba(255, 140, 0, 0.12) !important;
+  color: #f0e6ff !important;
+  box-shadow: none !important;
+}
+html.theme-halloween .v-date-picker-month__day .v-btn:hover {
+  background: rgba(255, 140, 0, 0.25) !important;
+}
+
+/* Selected day */
+html.theme-halloween .v-date-picker-month__day--selected .v-btn,
+html.theme-halloween .v-date-picker-month__day .v-btn.v-btn--active,
+html.theme-halloween .v-date-picker-month__day .v-btn[aria-selected="true"] {
+  background: #ff8c00 !important;
+  color: #fff !important;
+}
+
+/* Disabled / greyed out days */
+html.theme-halloween .v-date-picker-month__day--disabled .v-btn {
+  background: transparent !important;
+  color: rgba(240, 230, 255, 0.2) !important;
+}
+
+/* ── Form fields (v-text-field, v-select) inside cards ── */
+html.theme-halloween .v-field .v-label,
+html.theme-halloween .v-field-label { color: #c4a8e8 !important; }
+
+html.theme-halloween .v-field__input,
+html.theme-halloween .v-field__input input,
+html.theme-halloween .v-select__selection { color: #f0e6ff !important; }
+
+/* Outlined field border */
+html.theme-halloween .v-field__outline__start,
+html.theme-halloween .v-field__outline__end,
+html.theme-halloween .v-field__outline__notch {
+  border-color: rgba(255, 140, 0, 0.35) !important;
+}
+
+/* Dropdown chevron / append icon */
+html.theme-halloween .v-field__append-inner .v-icon,
+html.theme-halloween .v-input__append .v-icon { color: rgba(255, 140, 0, 0.7) !important; }
+
+/* Solo-filled variant (login / search fields) */
+html.theme-halloween .v-field--variant-solo-filled {
+  background: rgba(255, 140, 0, 0.08) !important;
+}
+
+/* ── Pulse animation ── */
+html.theme-halloween .pulse-button { animation: halloween-pulse 1.5s infinite !important; }
+@keyframes halloween-pulse {
+  0%   { transform: scale(1);    box-shadow: 5px 5px 14px rgba(255,140,0,0.4); }
+  50%  { transform: scale(1.04); box-shadow: 7px 7px 20px rgba(255,140,0,0.65), 0 0 18px rgba(255,140,0,0.25); }
+  100% { transform: scale(1);    box-shadow: 5px 5px 14px rgba(255,140,0,0.4); }
+}
+
+/* ── Toolbar title (Vuetify overrides color on v-toolbar-title — force orange) ── */
+html.theme-halloween .header-card .v-toolbar-title,
+html.theme-halloween .header-card .v-toolbar-title__placeholder,
+html.theme-halloween .card-opacity .v-toolbar .v-toolbar-title,
+html.theme-halloween .card-opacity .v-toolbar .v-toolbar-title__placeholder,
+html.theme-halloween .card-opacity .v-toolbar__content .v-toolbar-title,
+html.theme-halloween .card-opacity .v-toolbar__content .v-toolbar-title span { color: #ff8c00 !important; }
+
+/* ── Skeleton loader ── */
+html.theme-halloween .v-skeleton-loader { background: transparent !important; }
+html.theme-halloween .v-skeleton-loader__bone {
+  background: rgba(255, 140, 0, 0.12) !important;
+}
+html.theme-halloween .v-skeleton-loader__bone::after {
+  background: linear-gradient(90deg, transparent, rgba(255, 140, 0, 0.10), transparent) !important;
+}
+
+/* ================================================================
+   CHRISTMAS THEME — Snow White Layered Design
+   Layer 1 (base):  Dark forest green background  #0a1f0a
+   Layer 2 (cards): Snow white panels             rgba(242,255,245,0.93)
+   Layer 3 (dialog):Pure snow white elevated      rgba(248,255,250,0.98)
+   Text on white:   Deep forest green             #0d3a0d
+   Accents:         Christmas gold                #ffd700
+   Band headers:    Solid green                   #15803d → #22c55e
+   ================================================================ */
+
+html.theme-christmas body {
+  background: #0a1f0a !important;
+  color: #0d3a0d !important;
+}
+
+html.theme-christmas .login-page {
+  background: radial-gradient(ellipse at 30% 20%, #1a3a1a 0%, #0a1f0a 60%, #3a0d0d 100%) !important;
+}
+
+/* ── LAYER 2: Cards — snow white "snow panel" floating on dark green ── */
+html.theme-christmas .card-opacity {
+  background: rgba(242, 255, 245, 0.93) !important;
+  box-shadow:
+    8px 8px 24px rgba(0, 0, 0, 0.55),
+    -4px -4px 12px rgba(255, 255, 255, 0.15),
+    0 0 0 1px rgba(255, 215, 0, 0.25) !important;
+  border-radius: 18px !important;
+}
+
+/* Default text on snow-white cards */
+html.theme-christmas .card-opacity { color: #0d3a0d !important; }
+
+/* ── Toolbars inside cards — solid Christmas green band ── */
+html.theme-christmas .card-opacity .v-toolbar,
+html.theme-christmas div.card-opacity .v-toolbar {
+  background: linear-gradient(to right, #15803d, #22c55e) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+  border-bottom: none !important;
+}
+
+html.theme-christmas .card-opacity .v-toolbar .v-toolbar-title,
+html.theme-christmas .card-opacity .v-toolbar .v-toolbar-title__placeholder,
+html.theme-christmas .card-opacity .v-toolbar__content .v-toolbar-title,
+html.theme-christmas .card-opacity .v-toolbar__content .v-toolbar-title span { color: #ffffff !important; }
+
+html.theme-christmas .v-card.card-opacity > .v-card-title,
+html.theme-christmas div.card-opacity .v-card-title {
+  background: linear-gradient(to right, #15803d, #22c55e) !important;
+  color: #ffffff !important;
+  border-bottom: none !important;
+}
+
+/* ── Section headers inside cards — Christmas green band ── */
+html.theme-christmas .home-section-header,
+html.theme-christmas .section-header {
+  background: linear-gradient(to right, #15803d, #22c55e) !important;
+  color: #ffffff !important;
+  border-bottom: none !important;
+}
+html.theme-christmas .home-section-header .mdi,
+html.theme-christmas .section-header .mdi { color: rgba(255, 255, 255, 0.85) !important; }
+
+/* ── Header-card band (v-list-item used as card header) ── */
+html.theme-christmas .header-card {
+  background: linear-gradient(to right, #15803d, #22c55e) !important;
+  color: #ffffff !important;
+}
+html.theme-christmas .header-card .v-toolbar-title,
+html.theme-christmas .header-card .v-toolbar-title__placeholder { color: #ffffff !important; }
+
+/* ── Page-level header h1 ── */
+html.theme-christmas .container-header h1 { color: #ffd700 !important; }
+html.theme-christmas .container-header h1 .mdi {
+  background: linear-gradient(145deg, #22c55e, #16a34a) !important;
+  box-shadow: 5px 5px 12px rgba(34, 197, 94, 0.4), -3px -3px 8px rgba(0,0,0,0.4) !important;
+}
+
+/* ── App bar — dark green, always readable ── */
+html.theme-christmas .v-app-bar {
+  background: linear-gradient(145deg, #1a3a1a, #0a1f0a) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 215, 0, 0.2) !important;
+}
+html.theme-christmas .v-app-bar .v-btn { color: #ffd700 !important; }
+html.theme-christmas .v-app-bar .v-btn:hover { color: #ffeaa7 !important; }
+html.theme-christmas .v-app-bar .v-btn[variant="tonal"],
+html.theme-christmas .v-app-bar .v-btn.v-btn--tonal { color: #ffd700 !important; }
+
+/* ── Navigation drawer — dark green panel ── */
+html.theme-christmas .v-navigation-drawer {
+  background: linear-gradient(to bottom, #1a3a1a, #0a1f0a) !important;
+  box-shadow: 8px 0 24px rgba(0, 0, 0, 0.6) !important;
+}
+html.theme-christmas .v-navigation-drawer .v-list .v-list-item--active {
+  background: linear-gradient(145deg, #22c55e, #16a34a) !important;
+  color: #fff !important;
+}
+html.theme-christmas .v-navigation-drawer .v-list .v-list-item--active .v-list-item__prepend .v-icon,
+html.theme-christmas .v-navigation-drawer .v-list .v-list-item--active .v-list-item-title { color: #fff !important; }
+html.theme-christmas .v-navigation-drawer .v-list .v-list-item:hover {
+  background: rgba(34, 197, 94, 0.12) !important;
+}
+html.theme-christmas .v-navigation-drawer .v-list .v-label { color: rgba(255, 215, 0, 0.5) !important; }
+html.theme-christmas .v-navigation-drawer .v-divider,
+html.theme-christmas .v-navigation-drawer hr { border-color: rgba(255, 215, 0, 0.2) !important; }
+html.theme-christmas .v-navigation-drawer .v-list-item-title { color: #f0ffe0 !important; }
+html.theme-christmas .v-navigation-drawer .v-list-item__prepend .v-icon { color: #a7f3d0 !important; }
+
+/* ── Sticky table headers ── */
+html.theme-christmas .sticky-header {
+  background: linear-gradient(to right, #15803d, #22c55e) !important;
+  color: #ffffff !important;
+}
+
+/* ── Table header cells — dark green text on white ── */
+html.theme-christmas .v-table__wrapper > table > thead > tr > th {
+  color: #15803d !important;
+  font-weight: 700 !important;
+  border-bottom-color: rgba(21, 128, 61, 0.25) !important;
+}
+
+/* ── Table body cells — dark green text on white card ── */
+html.theme-christmas .v-table__wrapper > table > tbody > tr > td { color: #0d3a0d !important; }
+html.theme-christmas .v-data-table__tr:hover { background: rgba(34, 197, 94, 0.07) !important; }
+html.theme-christmas .double-booking-highlight { color: #15803d !important; font-weight: 700; }
+
+/* ── Data table footer ── */
+html.theme-christmas .card-opacity .v-data-table-footer {
+  background: rgba(34, 197, 94, 0.08) !important;
+  color: #0d3a0d !important;
+  border-top: 1px solid rgba(21, 128, 61, 0.15) !important;
+}
+
+/* ── Action button ── */
+html.theme-christmas .neu-action-btn {
+  background: linear-gradient(145deg, #22c55e, #16a34a) !important;
+  box-shadow: 5px 5px 14px rgba(34, 197, 94, 0.4), -3px -3px 8px rgba(0,0,0,0.3) !important;
+  color: #ffffff !important;
+}
+
+/* ── LAYER 3: Dialogs — pure snow white, clearly elevated above cards ── */
+html.theme-christmas .v-dialog .v-card:not(.v-alert) {
+  background: rgba(248, 255, 250, 0.98) !important;
+  box-shadow:
+    0 28px 56px rgba(0, 0, 0, 0.7),
+    0 0 0 1.5px rgba(255, 215, 0, 0.35) !important;
+  border-radius: 18px !important;
+}
+
+html.theme-christmas .v-dialog .v-card:not(.v-alert) > .v-card-title:not(.sticky-header):not(:empty) {
+  background: linear-gradient(to right, #15803d, #22c55e) !important;
+  color: #ffffff !important;
+  border-bottom: none !important;
+}
+html.theme-christmas .app-dialog-body { color: #0d3a0d !important; }
+html.theme-christmas .app-dialog-body * { color: #0d3a0d !important; }
+
+html.theme-christmas .app-dialog-header--error {
+  background: linear-gradient(to right, #dc2626, #b91c1c) !important;
+  color: #ffffff !important;
+}
+html.theme-christmas .app-dialog-header--success {
+  background: linear-gradient(to right, #15803d, #22c55e) !important;
+  color: #ffffff !important;
+}
+
+/* ── Pulse animation ── */
+html.theme-christmas .pulse-button { animation: christmas-pulse 1.5s infinite !important; }
+@keyframes christmas-pulse {
+  0%   { transform: scale(1);    box-shadow: 5px 5px 14px rgba(34,197,94,0.4); }
+  50%  { transform: scale(1.04); box-shadow: 7px 7px 20px rgba(34,197,94,0.55), 0 0 16px rgba(255,215,0,0.2); }
+  100% { transform: scale(1);    box-shadow: 5px 5px 14px rgba(34,197,94,0.4); }
+}
+
+/* ── Login page text (on dark bg) ── */
+html.theme-christmas .login-greeting h1 { color: #ffd700 !important; }
+html.theme-christmas .login-greeting p  { color: #a7f3d0 !important; }
+
+/* ── Group header ── */
+html.theme-christmas .group-header { color: #15803d !important; }
+
+/* ── Misc text on dark backgrounds (outside cards) ── */
+html.theme-christmas .main-greeting p,
+html.theme-christmas .program-description { color: #a7f3d0 !important; }
+html.theme-christmas .text-forgot { color: #fca5a5 !important; }
+
+/* ── Theme picker tile label ── */
+html.theme-christmas .theme-tile-label {
+  background: rgba(10, 31, 10, 0.92) !important;
+  color: #f0ffe0 !important;
+}
+
+/* ── Vuetify application wrapper background ── */
+html.theme-christmas .v-application,
+html.theme-christmas .v-application__wrap,
+html.theme-christmas .v-layout {
+  background: #0a1f0a !important;
+}
+
+/* ── Tables: transparent so snow-white card shows through ── */
+html.theme-christmas .v-data-table,
+html.theme-christmas .v-data-table.v-theme--dark,
+html.theme-christmas .v-data-table.v-theme--light,
+html.theme-christmas .v-table,
+html.theme-christmas .v-table.v-theme--dark,
+html.theme-christmas .v-table.v-theme--light,
+html.theme-christmas .v-theme--dark .v-table,
+html.theme-christmas .v-theme--light .v-table {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+html.theme-christmas .v-table__wrapper,
+html.theme-christmas .v-data-table__tr,
+html.theme-christmas .v-table__wrapper > table,
+html.theme-christmas .v-table__wrapper > table > tbody > tr,
+html.theme-christmas .v-table__wrapper > table > thead > tr,
+html.theme-christmas .v-table__wrapper > table > tbody > tr > td,
+html.theme-christmas .v-table__wrapper > table > thead > tr > th {
+  background: transparent !important;
+  background-color: transparent !important;
+}
+
+/* ── Date picker — adapted for snow-white card ── */
+html.theme-christmas .v-date-picker,
+html.theme-christmas .v-picker { background: transparent !important; }
+
+html.theme-christmas .v-picker-title,
+html.theme-christmas .v-date-picker-header__title {
+  color: rgba(21, 128, 61, 0.75) !important;
+  font-size: 12px !important;
+}
+
+html.theme-christmas .v-date-picker-header,
+html.theme-christmas .v-date-picker-header .v-date-picker-header__content,
+html.theme-christmas .v-date-picker-header .v-btn { color: #0d3a0d !important; }
+
+html.theme-christmas .v-date-picker-controls,
+html.theme-christmas .v-date-picker-controls .v-btn,
+html.theme-christmas .v-date-picker-controls__month,
+html.theme-christmas .v-date-picker-controls__year { color: #15803d !important; }
+
+html.theme-christmas .v-date-picker-month__weekday { color: rgba(21, 128, 61, 0.65) !important; }
+
+html.theme-christmas .v-date-picker-month__day .v-btn {
+  background: rgba(34, 197, 94, 0.10) !important;
+  color: #0d3a0d !important;
+  box-shadow: none !important;
+}
+html.theme-christmas .v-date-picker-month__day .v-btn:hover {
+  background: rgba(34, 197, 94, 0.22) !important;
+}
+html.theme-christmas .v-date-picker-month__day--selected .v-btn,
+html.theme-christmas .v-date-picker-month__day .v-btn.v-btn--active,
+html.theme-christmas .v-date-picker-month__day .v-btn[aria-selected="true"] {
+  background: #16a34a !important;
+  color: #fff !important;
+}
+html.theme-christmas .v-date-picker-month__day--disabled .v-btn {
+  background: transparent !important;
+  color: rgba(13, 58, 13, 0.25) !important;
+}
+
+/* ── Form fields — adapted for snow-white card ── */
+html.theme-christmas .v-field .v-label,
+html.theme-christmas .v-field-label { color: #15803d !important; }
+
+html.theme-christmas .v-field__input,
+html.theme-christmas .v-field__input input,
+html.theme-christmas .v-select__selection { color: #0d3a0d !important; }
+
+html.theme-christmas .v-field__outline__start,
+html.theme-christmas .v-field__outline__end,
+html.theme-christmas .v-field__outline__notch { border-color: rgba(21, 128, 61, 0.4) !important; }
+
+html.theme-christmas .v-field__append-inner .v-icon,
+html.theme-christmas .v-input__append .v-icon { color: #15803d !important; }
+
+html.theme-christmas .v-field--variant-solo-filled { background: rgba(34, 197, 94, 0.06) !important; }
+
+/* ── Vuetify CSS variable override ── */
+html.theme-christmas .v-theme--dark,
+html.theme-christmas .v-theme--light {
+  --v-theme-surface: 242, 255, 245 !important;
+}
+
+/* ── Skeleton loader ── */
+html.theme-christmas .v-skeleton-loader { background: transparent !important; }
+html.theme-christmas .v-skeleton-loader__bone {
+  background: rgba(34, 197, 94, 0.10) !important;
+}
+html.theme-christmas .v-skeleton-loader__bone::after {
+  background: linear-gradient(90deg, transparent, rgba(34, 197, 94, 0.12), transparent) !important;
+}
+
+/* ── Sticky dialog footer — match snow-white card ── */
+html.theme-christmas .sticky-footer {
+  background: rgba(242, 255, 245, 0.97) !important;
+  border-top: 1px solid rgba(21, 128, 61, 0.15) !important;
+}
+
+/* ── BookingListAdmin plain-div header in Christmas theme ── */
+html.theme-christmas .booking-admin-wrap .header-card {
+  background: linear-gradient(to right, #15803d, #22c55e) !important;
+  color: #ffffff !important;
+  border-bottom: none !important;
+}
+html.theme-christmas .booking-admin-wrap .booking-date-title { color: #ffffff !important; }
+html.theme-christmas .booking-admin-wrap .booking-date-sub { color: rgba(255,255,255,0.8) !important; }
+html.theme-christmas .booking-admin-wrap .header-cell {
+  background: rgba(34,197,94,0.06) !important;
+  border-bottom: 1px solid rgba(21,128,61,0.12) !important;
+}
+
+/* ── Checkbox / selection control labels ── */
+html.theme-christmas .v-selection-control .v-label { color: #0d3a0d !important; }
+
+/* ── Select / Autocomplete dropdown list (v-menu overlay) ── */
+html.theme-christmas .v-overlay__content .v-list {
+  background: rgba(248, 255, 250, 0.98) !important;
+  color: #0d3a0d !important;
+}
+html.theme-christmas .v-overlay__content .v-list .v-list-item { color: #0d3a0d !important; }
+html.theme-christmas .v-overlay__content .v-list .v-list-item:hover {
+  background: rgba(34, 197, 94, 0.1) !important;
+}
+html.theme-christmas .v-overlay__content .v-list .v-list-item--active { color: #15803d !important; }
+
+/* ================================================================
+   BOOKING-CARD STATUS CELLS — dark text in dark themes
+   These cells get light bg (green / white / red / orange) from
+   getClass(), but dark-theme td color overrides make text invisible.
+   Force readable dark text on all light-bg booking cells.
+   ================================================================ */
+
+html.theme-halloween td.booking-card-green,
+html.theme-halloween td.booking-card-white,
+html.theme-halloween td.booking-card-red,
+html.theme-halloween td.booking-card-orange,
+html.theme-halloween .booking-card-green,
+html.theme-halloween .booking-card-white,
+html.theme-halloween .booking-card-red,
+html.theme-halloween .booking-card-orange { color: #2d1800 !important; }
+
+html.theme-halloween td.booking-card-green label,
+html.theme-halloween td.booking-card-white label,
+html.theme-halloween td.booking-card-red label,
+html.theme-halloween td.booking-card-orange label { color: #2d1800 !important; }
+
+html.theme-christmas td.booking-card-green,
+html.theme-christmas td.booking-card-white,
+html.theme-christmas td.booking-card-red,
+html.theme-christmas td.booking-card-orange,
+html.theme-christmas .booking-card-green,
+html.theme-christmas .booking-card-white,
+html.theme-christmas .booking-card-red,
+html.theme-christmas .booking-card-orange { color: #0a2a0a !important; }
+
+html.theme-christmas td.booking-card-green label,
+html.theme-christmas td.booking-card-white label,
+html.theme-christmas td.booking-card-red label,
+html.theme-christmas td.booking-card-orange label { color: #0a2a0a !important; }
+
+/* ================================================================
+   STAT-CARD BACKGROUND — global backup for Dashboard.vue scoped CSS
+   Specificity: html(001) + .theme-xxx(010) + .stat-card(010) = 021
+   Beats scoped base .stat-card[data-v-*] (020) when both have !important.
+   ================================================================ */
+
+html.theme-halloween .stat-card,
+html.theme-halloween .stat-card-dynamic {
+  background: linear-gradient(145deg, #1e0a38, #150824) !important;
+  color: #f0e6ff !important;
+}
+
+html.theme-christmas .stat-card,
+html.theme-christmas .stat-card-dynamic {
+  background: rgba(242, 255, 245, 0.93) !important;
+  color: #0d3a0d !important;
+  box-shadow: 8px 8px 24px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,215,0,0.22) !important;
+}

@@ -2,33 +2,29 @@
   <div class="text-center">
     <v-row>
       <v-col cols="12" sm="12" md="12" xl="12">
-        <v-card class="mx-auto card-opacity">
-          <v-list-item class="header-card">
-            <v-card-title>Booking class on {{ classdate.toLocaleDateString('en-US', options) }} </v-card-title>
-            <v-card-text>การจองคลาส{{ classdate.toLocaleDateString('th-TH', options) }} </v-card-text>
-            
-          </v-list-item>
-          <v-list-item class="header-cell">
-            <v-card-text >
-              <div class="description-cell">
-                
-                <div><v-icon class="blue-icon">mdi-circle-slice-8</v-icon> ทดลองเรียน</div>
-                <div><v-icon class="pink-icon">mdi-circle-slice-8</v-icon> รายครั้ง</div>
-                <div><v-icon class="bell-icon">mdi-bell-ring</v-icon> ต้องชำระเงิน / คอร์สหมด</div>
-              </div>
-            </v-card-text>
-          </v-list-item>
+        <div class="booking-admin-wrap">
+          <div class="header-card">
+            <div class="booking-date-title">{{ $t('bookingList.classBooking') }} {{ classdate.toLocaleDateString('en-US', options) }}</div>
+            <div class="booking-date-sub">{{ $t('bookingList.classBooking') }} {{ classdate.toLocaleDateString('th-TH', options) }}</div>
+          </div>
+          <div class="header-cell">
+            <div class="description-cell">
+              <div><v-icon class="blue-icon">mdi-circle-slice-8</v-icon> ทดลองเรียน</div>
+              <div><v-icon class="pink-icon">mdi-circle-slice-8</v-icon> รายครั้ง</div>
+              <div><v-icon class="bell-icon">mdi-bell-ring</v-icon> ต้องชำระเงิน / คอร์สหมด</div>
+            </div>
+          </div>
           <v-data-table :loading="loadingBooking" :headers="bookingHeaders" :items="bookingData" items-per-page="20" class="elevation-1">
             <template v-slot:loading>
               <v-skeleton-loader type="table-row@20"></v-skeleton-loader>
             </template>
             <template v-slot:no-data>
-              No booking class
+              {{ $t('bookingMgmt.noBooking') }}
             </template>
-            <template v-for="(header, index) in bookingHeaders" v-slot:[`item.${header.key}`]="{ item }" >
-              <td :key="index" :class="getClass(item[header.key])">
-                
-                <label :class="[getClass(item[header.key]), { 'no-hover': !item[header.key] || typeof item[header.key] ==='number' }]" 
+            <template v-for="(header, index) in bookingHeaders" :key="`booking-col-${index}`" v-slot:[`item.${header.key}`]="{ item }" >
+              <td :class="getClass(item[header.key])">
+
+                <label :class="[getClass(item[header.key]), { 'no-hover': !item[header.key] || typeof item[header.key] ==='number' }]"
                 name="col-center"
                 @click="handleCellClick(item[header.key], header.key)">
                 {{
@@ -51,7 +47,7 @@
             </template>
           </v-data-table>
 
-        </v-card>
+        </div>
       </v-col>
     </v-row>
   </div>
@@ -205,6 +201,69 @@ const BookingListAPI = {
 </script>
 
 <style scoped>
+/* ===== Neumorphic theme integration — blend with parent content-card ===== */
+/* Outer wrap — transparent, inherits parent card styling */
+.booking-admin-wrap {
+  background: transparent;
+}
+
+/* Header date band */
+.header-card {
+  background: linear-gradient(145deg, #eef0f5, #dde2eb);
+  color: #334155;
+  padding: 12px 16px 8px;
+  border-bottom: 1px solid rgba(163, 177, 198, 0.18);
+}
+
+.booking-date-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.booking-date-sub {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* Legend row */
+.header-cell {
+  background: linear-gradient(180deg, rgba(255,255,255,0.4), rgba(238,240,245,0.3));
+  font-weight: bold;
+  padding: 8px 16px;
+  border-bottom: 1px solid rgba(163, 177, 198, 0.1);
+}
+
+:deep(.v-data-table),
+:deep(.v-data-table__wrapper),
+:deep(.v-table) {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* RULE: thead tr MUST stay transparent — any background creates a floating "card on card" look */
+:deep(.v-table > .v-table__wrapper > table > thead > tr) {
+  background: transparent !important;
+}
+
+:deep(.v-table > .v-table__wrapper > table > thead > tr > th) {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #334155 !important;
+  font: bold 13px 'Kodchasan', sans-serif;
+  border-bottom: 2px solid rgba(163, 177, 198, 0.4) !important;
+}
+
+:deep(.v-table > .v-table__wrapper > table > tbody > tr > td) {
+  background: transparent !important;
+}
+
+:deep(.v-data-table-footer) {
+  background: transparent !important;
+  box-shadow: inset 0 1px 2px rgba(163, 177, 198, 0.1);
+}
+
 .v-progress-circular {
   margin: 1rem;
 }
@@ -217,7 +276,7 @@ const BookingListAPI = {
 .highlighted-blackground {
   font-weight: bold;
   background-color: rgb(128, 233, 128);
-  
+
 }
 
 .highlighted-cell-green {
@@ -241,9 +300,9 @@ const BookingListAPI = {
 }
 
 .cell-nickname {
-  white-space: normal; 
-  padding: 0.75em 0.25em; 
-  border-radius: 0.25em 0.75em; 
+  white-space: normal;
+  padding: 0.75em 0.25em;
+  border-radius: 0.25em 0.75em;
   min-width: 150px;
 }
 
@@ -313,7 +372,7 @@ const BookingListAPI = {
   text-align: center;
   border-radius: 6px;
   padding: 5px 0;
-  
+
   /* Position the tooltip */
   position: absolute;
   z-index: 1;
@@ -336,6 +395,14 @@ const BookingListAPI = {
   100% { transform: rotate(15deg); }
 }
 
+</style>
+
+<style lang="scss">
+  tbody {
+     tr:hover {
+        background-color: transparent !important;
+     }
+  }
 </style>
 
 <style lang="scss">  

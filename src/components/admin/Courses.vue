@@ -1,21 +1,21 @@
 <template>
   <div class="container">
     <div class="container-header">
-      <h1><span class="mdi mdi-star-shooting-outline"></span> Courses Management</h1>
+      <h1><span class="mdi mdi-star-shooting-outline"></span> {{ $t('courses.title') }}</h1>
     </div>
     <div class="container-content">
-      <v-card class="mx-auto mt-5 px-2 py-1 card-opacity">
+      <v-card class="mx-auto mt-5 card-opacity">
         <v-data-table :headers="headers" :items="courselist" :sort-by="[{ key: 'coursename', order: 'asc' }]"
           :loading="loadingCourses">
           <template v-slot:top>
             <v-toolbar flat>
-              <v-toolbar-title>Our Courses</v-toolbar-title>
+              <v-toolbar-title>{{ $t('courses.ourCourses') }}</v-toolbar-title>
               <v-divider class="mx-4" inset vertical></v-divider>
               <v-spacer></v-spacer>
               <v-dialog v-model="dialog" max-width="500px">
                 <template v-slot:activator="{ props }">
                   <v-btn color="primary" dark v-bind="props">
-                    New Course
+                    {{ $t('courses.newCourse') }}
                   </v-btn>
                 </template>
                 <v-card>
@@ -26,11 +26,11 @@
                     <v-container>
                       <v-row>
                         <v-col cols="12" sm="6" md="50">
-                          <v-text-field v-model="editedItem.coursename" label="Course Name"
+                          <v-text-field v-model="editedItem.coursename" :label="$t('table.courseName')"
                             variant="solo-filled"></v-text-field>
                         </v-col>
                         <v-col cols="12" sm="6" md="50">
-                          <v-text-field v-model="editedItem.course_shortname" label="Course Short Name"
+                          <v-text-field v-model="editedItem.course_shortname" :label="$t('table.courseShortName')"
                             variant="solo-filled"></v-text-field>
                         </v-col>
                       </v-row>
@@ -40,10 +40,10 @@
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="blue-darken-1" variant="text" @click="close">
-                      Cancel
+                      {{ $t('btn.cancel') }}
                     </v-btn>
                     <v-btn color="blue-darken-1" variant="text" @click="save">
-                      Save
+                      {{ $t('btn.save') }}
                     </v-btn>
                   </v-card-actions>
                 </v-card>
@@ -51,11 +51,11 @@
               <v-dialog v-model="dialogDelete" persistent width="auto">
                 <v-card>
                   <v-card-title></v-card-title>
-                  <v-card-text>ต้องการลบคอร์สเรียนนี้จริงๆหรอ ?</v-card-text>
+                  <v-card-text>{{ $t('courses.confirmDelete') }}</v-card-text>
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">ใช่! ลบเลย</v-btn>
-                    <v-btn color="#F44336" variant="tonal" @click="closeDelete">ไม่ลบละ เปลี่ยนใจ</v-btn>
+                    <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">{{ $t('btn.ok') }}</v-btn>
+                    <v-btn color="#F44336" variant="tonal" @click="closeDelete">{{ $t('btn.cancel') }}</v-btn>
 
                     <v-spacer></v-spacer>
                   </v-card-actions>
@@ -90,11 +90,6 @@ export default {
     dialog: false,
     dialogDelete: false,
     loadingCourses: false,
-    headers: [
-      { title: 'Course Name', align: 'start', key: 'coursename' },
-      { title: 'Course Short Name', key: 'course_shortname' },
-      { title: 'Actions', key: 'actions', sortable: false },
-    ],
     editedIndex: -1,
     editedItem: {
       coursename: '',
@@ -112,7 +107,14 @@ export default {
       token: 'getToken',
     }),
     formTitle() {
-      return this.editedIndex === -1 ? 'New Course' : 'Edit Course'
+      return this.editedIndex === -1 ? this.$t('courses.newCourse') : this.$t('courses.editCourse')
+    },
+    headers() {
+      return [
+        { title: this.$t('table.courseName'), align: 'start', key: 'coursename' },
+        { title: this.$t('table.courseShortName'), key: 'course_shortname' },
+        { title: this.$t('table.actions'), key: 'actions', sortable: false },
+      ]
     },
   },
 
@@ -178,9 +180,9 @@ export default {
         .then(response => {
           //console.dir(response);
           if (response.data.success) {
-            this.$emit('onInfoHandler', 'สำเร็จ ระเบิดคลาสนี้สมดั่งใจคุณแล้ว');
+            this.$emit('onInfoHandler', this.$t('msg.deleted'));
           } else {
-            this.$emit('onErrorHandler', response.data.message || 'เสียใจ ลบไม่ได้ ลองใหม่อีกครั้งนะ');
+            this.$emit('onErrorHandler', response.data.message || this.$t('msg.updateFail'));
           }
           this.initialize()
         })
@@ -224,9 +226,9 @@ export default {
           .then(response => {
             //console.dir(response);
             if (response.data.success) {
-              this.$emit('onInfoHandler', 'สำเร็จ แก้ไขข้อมูลคอร์สแล้ว');
+              this.$emit('onInfoHandler', this.$t('msg.courseUpdated'));
             } else {
-              this.$emit('onErrorHandler', response.data.message || 'เสียใจ แก้ไขไม่ได้ ลองใหม่อีกครั้งนะ');
+              this.$emit('onErrorHandler', response.data.message || this.$t('msg.updateFail'));
             }
             this.initialize()
           })
@@ -243,9 +245,9 @@ export default {
           .then(response => {
             //console.dir(response);
             if (response.data.success) {
-              this.$emit('onInfoHandler', 'สำเร็จ สร้างคอร์สใหม่แล้ว');
+              this.$emit('onInfoHandler', this.$t('msg.courseCreated'));
             } else {
-              this.$emit('onErrorHandler', response.data.message || 'เสียใจ สร้างคอร์สไม่ได้ ลองใหม่อีกครั้งนะ');
+              this.$emit('onErrorHandler', response.data.message || this.$t('msg.addFail'));
             }
             this.initialize()
           })

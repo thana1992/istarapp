@@ -1,44 +1,40 @@
 <template>
     <div class="container">
         <div class="container-header">
-            <h1><span class="mdi mdi-face-man-shimmer"></span> Add Member</h1>
+            <h1><span class="mdi mdi-face-man-shimmer"></span> {{ $t('addFamily.title') }}</h1>
         </div>
         <div class="container-content">
-            <v-divider color="#fffff" thickness="3"></v-divider>
-            <br>
-            <div class="mx-auto px-2 py-1">
+            <v-card class="card-opacity mx-auto mt-4 px-6 py-6">
                 <v-form ref="form">
-                    <v-text-field variant="solo-filled" v-model="firstname" label="Firstname / ชื่อ" type="text"
+                    <v-text-field variant="solo-filled" v-model="firstname" :label="$t('addFamily.firstname')" type="text"
                         :rules="requireRules" required></v-text-field>
 
-                    <v-text-field variant="solo-filled" v-model="middlename" label="Middlename / ชื่อกลาง"
+                    <v-text-field variant="solo-filled" v-model="middlename" :label="$t('addFamily.middlename')"
                         type="text"></v-text-field>
 
-                    <v-text-field variant="solo-filled" v-model="lastname" label="Lastname / นามสกุล" type="text"
+                    <v-text-field variant="solo-filled" v-model="lastname" :label="$t('addFamily.lastname')" type="text"
                         :rules="requireRules" required></v-text-field>
 
-                    <v-text-field variant="solo-filled" v-model="nickname" label="Nick Name / ชื่อเล่น " type="text"
+                    <v-text-field variant="solo-filled" v-model="nickname" :label="$t('addFamily.nickname')" type="text"
                         :rules="requireRules" required></v-text-field>
 
-                    <v-text-field variant="solo-filled" v-model="school" label="School / โรงเรียน"
+                    <v-text-field variant="solo-filled" v-model="school" :label="$t('addFamily.school')"
                         type="text"></v-text-field>
 
-                    <v-select v-model="gender" label="Gender / เพศ" :items="['ชาย', 'หญิง']" variant="solo-filled"
+                    <v-select v-model="gender" :label="$t('addFamily.gender')" :items="['ชาย', 'หญิง']" variant="solo-filled"
                     :rules="requireRules" required></v-select>
 
-                    <DatePicker label="Date of Birth / วันเกิด" v-model="dateofbirth" :maxdate="new Date()" :rules="requireRules" >
+                    <DatePicker :label="$t('addFamily.dob')" v-model="dateofbirth" :maxdate="new Date()" :rules="requireRules">
                     </DatePicker>
-                    <br>
-                    <v-divider color="#fffff" thickness="3"></v-divider>
-                    
-                    <v-btn color="success" class="mt-4" block @click="doSave">
-                        Submit
+
+                    <v-btn color="success" class="mt-6" block @click="doSave">
+                        {{ $t('addFamily.submit') }}
                     </v-btn>
-                    <v-btn color="pink" class="mt-4" block @click="reset">
-                        Clear
+                    <v-btn color="pink" class="mt-3" block @click="reset">
+                        {{ $t('addFamily.clear') }}
                     </v-btn>
                 </v-form>
-            </div>
+            </v-card>
         </div>
     </div>
 </template>
@@ -73,7 +69,7 @@ export default {
             this.$emit('onLoading', true)
             const { valid } = await this.$refs.form.validate()
             if(!valid) {
-                this.$emit('onErrorHandler', 'กรุณากรอกข้อมูลให้ครบถ้วน')
+                this.$emit('onErrorHandler', this.$t('addFamily.errorRequired'))
                 this.$emit('onLoading', false)
                 return
             }
@@ -101,10 +97,10 @@ export default {
                         //console.log(response)
                         if (response.data.success) {
                             this.$emit('onLoading', false)
-                            this.$emit('onInfoHandler', response.data.message || 'เพิ่มสมาชิกครอบครัวสำเร็จแล้ว');
+                            this.$emit('onInfoHandler', response.data.message || this.$t('msg.familyAdded'));
                             this.$emit('onClickChangeState', 'familylist')
                         } else {
-                            this.$emit('onErrorHandler', response.data.message || 'เพิ่มสมาชิกครอบครัวไม่สำเร็จ');
+                            this.$emit('onErrorHandler', response.data.message || this.$t('msg.familyAddFail'));
                         }
                     })
                     .catch(error => {

@@ -1,20 +1,20 @@
 <template>
     <div class="container">
       <div class="container-header">
-        <h1><span class="mdi mdi-calendar-remove"></span> Holiday Management</h1>
-        <h3 class="program-description">เมื่อเพิ่มวันหยุดแล้ว ผู้ปกครองจะไม่สามารถ กดจองคลาสในวันหยุดได้ หากต้องการปิดยิมเพื่อพาเด็กไปแข่ง ก็ให้เพิ่มเป็นวันหยุดด้วยนะ</h3>
+        <h1><span class="mdi mdi-calendar-remove"></span> {{ $t('holidays.title') }}</h1>
+        <h3 class="program-description">{{ $t('holidays.description') }}</h3>
       </div>
       <div class="container-content">
-        <v-card class="mx-auto mt-5 px-2 py-1 card-opacity">
+        <v-card class="mx-auto mt-5 card-opacity">
           <v-data-table :headers="headers" :items="holidayList" :loading="loadingHolidays">
             <template v-slot:top>
               <v-toolbar flat>
-                <v-toolbar-title>Our Holidays</v-toolbar-title>
+                <v-toolbar-title>{{ $t('holidays.ourHolidays') }}</v-toolbar-title>
                 <v-spacer></v-spacer>
                 <v-dialog v-model="dialog" max-width="500px">
                   <template v-slot:activator="{ props }">
                     <v-btn color="primary" dark v-bind="props">
-                      New Holiday
+                      {{ $t('holidays.newHoliday') }}
                     </v-btn>
                   </template>
                   <v-card>
@@ -31,7 +31,7 @@
                         </v-row> 
                         <v-row>
                           <v-col cols="12">
-                            <v-text-field v-model="editedItem.description" label="Description" variant="solo-filled" required></v-text-field>
+                            <v-text-field v-model="editedItem.description" :label="$t('table.description')" variant="solo-filled" required></v-text-field>
                           </v-col>
                         </v-row>
                       </v-container>
@@ -40,10 +40,10 @@
                     <v-card-actions>
                       <v-spacer></v-spacer>
                       <v-btn color="blue-darken-1" variant="text" @click="close">
-                        Cancel
+                        {{ $t('btn.cancel') }}
                       </v-btn>
                       <v-btn color="blue-darken-1" variant="text" @click="save">
-                        Save
+                        {{ $t('btn.save') }}
                       </v-btn>
                     </v-card-actions>
                   </v-card>
@@ -51,12 +51,11 @@
                 <v-dialog v-model="dialogHolidayDelete" persistent width="auto">
                   <v-card>
                       <v-card-title></v-card-title>
-                      <v-card-text>ต้องการลบวันหยุดนี้ใช่มั้ย {{ this.editedItem.holidaydate }} ?</v-card-text>
+                      <v-card-text>{{ $t('holidays.confirmDelete', { date: editedItem.holidaydate }) }}</v-card-text>
                       <v-card-actions>
                           <v-spacer></v-spacer>
-                          <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteHoliday">ใช่! ลบเลย</v-btn>
-                          <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteHoliday">เดี๋ยวก่อน
-                              รอแปบ</v-btn>
+                          <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteHoliday">{{ $t('btn.ok') }}</v-btn>
+                          <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteHoliday">{{ $t('btn.cancel') }}</v-btn>
                           <v-spacer></v-spacer>
                       </v-card-actions>
                   </v-card>
@@ -87,11 +86,6 @@
       dialog: false,
       dialogHolidayDelete: false,
       loadingHolidays: false,
-      headers: [
-        { title: 'Holiday Date', key: 'holidaydate', sortable: true },
-        { title: 'Description', key: 'description', sortable: false, align: 'start' },
-        { title: 'Delete', key: 'actions', sortable: false, align: 'center' },
-      ],
       holidayList: [],
       editedItem: {
         holidaydate: null,
@@ -104,7 +98,14 @@
     }),
     computed: {
         formTitle() {
-        return this.editedIndex === -1 ? 'New Holiday' : 'Edit Holiday';
+          return this.editedIndex === -1 ? this.$t('holidays.newHoliday') : this.$t('holidays.editHoliday')
+        },
+        headers() {
+          return [
+            { title: this.$t('table.holidayDate'), key: 'holidaydate', sortable: true },
+            { title: this.$t('table.description'), key: 'description', sortable: false, align: 'start' },
+            { title: this.$t('table.delete'), key: 'actions', sortable: false, align: 'center' },
+          ]
         },
         ...mapGetters({
             token: 'getToken',

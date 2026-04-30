@@ -4,9 +4,9 @@
     
     <!-- App Bar - ต้องอยู่นอก v-card เพื่อให้ fixed ได้ -->
     <v-app-bar :elevation="20" app v-if="isLoggedIn" style="position: fixed !important;">
-      <v-btn v-if="!black" @click.stop="drawer = !drawer" variant="tonal"><span class="mdi mdi-menu"
+      <v-btn v-if="!black" @click.stop="drawer = !drawer" variant="plain"><span class="mdi mdi-menu"
           style="font-size: large;"></span></v-btn>
-      <v-btn v-if="black" @click="onClickBack(recentState)" variant="tonal"><span class="mdi mdi-arrow-left"
+      <v-btn v-if="black" @click="onClickBack(recentState)" variant="plain"><span class="mdi mdi-arrow-left"
           style="font-size: large;"></span></v-btn>
       <template v-slot:append v-if="isLoggedIn">
         <v-dialog 
@@ -20,14 +20,14 @@
             <v-btn icon="mdi-logout" @click="onClickLogout()"></v-btn>
           </template>
           <v-card>
-            <v-card-text>Do you want to logout ?</v-card-text>
+            <v-card-text>{{ $t('auth.logoutConfirm') }}</v-card-text>
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="green-darken-1" variant="text" @click="logout()">
-                Yes
+                {{ $t('common.yes') }}
               </v-btn>
               <v-btn color="green-darken-1" variant="text" @click="ConfirmLogoutDialog = false">
-                No
+                {{ $t('common.no') }}
               </v-btn>
             </v-card-actions>
           </v-card>
@@ -46,81 +46,79 @@
     >
     <v-list-item :prepend-avatar="iconUrl" :title="parent"></v-list-item>
     <v-divider></v-divider>
-    <v-list density="compact" nav @click="handleListClick">
-      <v-label v-if="managerflag || customerflag">Main menu</v-label>
-      <v-list-item v-if="managerflag || customerflag" prepend-icon="mdi-home-account" title="HOME" value="home"
+    <v-list density="compact" nav v-model:selected="selectedMenu" @click="handleListClick">
+      <v-label v-if="managerflag || customerflag">{{ $t('nav.mainMenu') }}</v-label>
+      <v-list-item v-if="managerflag || customerflag" prepend-icon="mdi-home-account" :title="$t('nav.home')" value="home"
         @click.stop.prevent="onClickChangeState('home')">
       </v-list-item>
-      <v-list-item v-if="managerflag || customerflag" prepend-icon="mdi-account-multiple" title="FAMILY"
+      <v-list-item v-if="managerflag || customerflag" prepend-icon="mdi-account-multiple" :title="$t('nav.family')"
         value="familylist" @click.stop.prevent="onClickChangeState('familylist')">
       </v-list-item>
-      <v-label v-if="managerflag || customerflag || coachflag">Checking menu</v-label>
-      <v-list-item v-if="managerflag || customerflag || coachflag" prepend-icon="mdi-table-eye" title="VIEW CLASSES"
+      <v-label v-if="managerflag || customerflag || coachflag">{{ $t('nav.checkingMenu') }}</v-label>
+      <v-list-item v-if="managerflag || customerflag || coachflag" prepend-icon="mdi-table-eye" :title="$t('nav.viewClasses')"
         value="viewclasses" @click.stop.prevent="onClickChangeState('viewclasses')">
       </v-list-item>
-      <v-label v-if="managerflag || adminflag">Admin menu</v-label>
-      <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-view-dashboard" title="DASHBOARD"
+      <v-label v-if="managerflag || adminflag">{{ $t('nav.adminMenu') }}</v-label>
+      <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-view-dashboard" :title="$t('nav.dashboard')"
         value="dashboard" @click.stop.prevent="onClickChangeState('dashboard')">
       </v-list-item>
-      <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-gymnastics" title="รายชื่อเด็ก"
-        value="studentmanager" @click.stop.prevent="onClickChangeState('gymnastmanager')">
+      <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-gymnastics" :title="$t('nav.gymnasts')"
+        value="gymnastmanager" @click.stop.prevent="onClickChangeState('gymnastmanager')">
       </v-list-item>
-      <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-calendar-edit" title="จัดการข้อมูลการจอง"
+      <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-calendar-edit" :title="$t('nav.bookingManagement')"
         value="bookingmanager" @click.stop.prevent="onClickChangeState('bookingmanager')">
       </v-list-item>
-      <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-book-account" title="คอร์สของลูกค้า"
+      <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-book-account" :title="$t('nav.customerCourse')"
         value="customercourse" @click.stop.prevent="onClickChangeState('customercourse')">
       </v-list-item>
-      <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-clipboard-text-clock" title="ประวัติคอร์สของลูกค้า"
+      <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-clipboard-text-clock" :title="$t('nav.courseHistory')"
         value="customercoursefinished" @click.stop.prevent="onClickChangeState('customercoursefinished')">
       </v-list-item>
-      
-      <v-label v-if="managerflag || adminflag">Management menu</v-label>
-      <v-list-item v-if="managerflag" prepend-icon="mdi-star-shooting-outline" title="จัดการคอร์ส" value="course"
+
+      <v-label v-if="managerflag || adminflag">{{ $t('nav.managementMenu') }}</v-label>
+      <v-list-item v-if="managerflag" prepend-icon="mdi-star-shooting-outline" :title="$t('nav.courses')" value="course"
         @click.stop.prevent="onClickChangeState('course')">
       </v-list-item>
-      <v-list-item v-if="managerflag" prepend-icon="mdi-view-dashboard-variant-outline" title="จัดการคลาสเรียน"
+      <v-list-item v-if="managerflag" prepend-icon="mdi-view-dashboard-variant-outline" :title="$t('nav.classes')"
         value="classes" @click.stop.prevent="onClickChangeState('classes')">
       </v-list-item>
-      <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-calendar-remove" title="จัดการวันหยุด"
+      <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-calendar-remove" :title="$t('nav.holidays')"
         value="holidaymanager" @click.stop.prevent="onClickChangeState('holidaymanager')">
       </v-list-item>
       <br>
       <hr>
-      <v-list-item v-if="isLoggedIn" prepend-icon="mdi-logout" title="LOGOUT" @click="onClickLogout()">
+      <!-- UI Theme Picker — admin only -->
+      <v-list-item
+        v-if="managerflag || adminflag"
+        prepend-icon="mdi-palette"
+        :title="$t('nav.theme') + ': ' + currentThemeLabel"
+        @click.stop.prevent="openThemePicker"
+      ></v-list-item>
+      <!-- Language Toggle -->
+      <v-list-item
+        prepend-icon="mdi-translate"
+        :title="$t('nav.language')"
+        @click.stop.prevent="toggleLocale"
+      ></v-list-item>
+      <v-list-item v-if="isLoggedIn" prepend-icon="mdi-logout" :title="$t('nav.logout')" @click="onClickLogout()">
       </v-list-item>
     </v-list>
   </v-navigation-drawer>
 
   <v-card style="width: 100%; max-width: 100%; overflow-x: hidden;">
     <v-layout style="width: 100%; max-width: 100%; overflow-x: hidden;">
-      <!-- Floating Theme toggle -->
-    <v-div class="theme-toggle-global" v-if="haveThemeToggle">
-      <!-- Theme Toggle Button - กำหนดความกว้างคงที่ -->
-      <v-btn
-        size="small"
-        variant="tonal"
-        :color="(isHalloweenOn || isChristmasOn) ? 'orange-darken-2' : 'grey'"
-        @click="toggleTheme"
-        :icon="(isHalloweenOn || isChristmasOn) ? 'mdi-eye-off' : 'mdi-eye'"
-        class="theme-toggle-btn"
-        :title="(isHalloweenOn || isChristmasOn) ? 'ปิดธีม' : 'เปิดธีม'"
-      >
-      </v-btn>
-      
-      <!-- Music Control Button - แสดงเฉพาะเมื่อธีมปัจจุบันมีเพลง -->
-      <v-btn
-        v-if="currentThemeHasMusic"
-        size="small"
-        variant="tonal"
-        color="red-darken-2"
-        @click="toggleChristmasMusic"
-        :icon="currentThemeMusicPlaying ? 'mdi-volume-high' : 'mdi-volume-off'"
-        class="christmas-music-btn"
-        :title="currentThemeMusicPlaying ? 'หยุดเพลง' : 'เล่นเพลง'"
-      >
-      </v-btn>
-    </v-div>
+      <!-- Floating Christmas Music Control -->
+      <v-div class="theme-toggle-global" v-if="isChristmasOn">
+        <v-btn
+          size="small"
+          variant="tonal"
+          color="red-darken-2"
+          @click="toggleChristmasMusic"
+          :icon="currentThemeMusicPlaying ? 'mdi-volume-high' : 'mdi-volume-off'"
+          class="christmas-music-btn"
+          :title="currentThemeMusicPlaying ? 'หยุดเพลง' : 'เล่นเพลง'"
+        ></v-btn>
+      </v-div>
       <v-main class="root-container" :style="isLoggedIn ? 'padding-top: 64px; width: 100%; max-width: 100%; overflow-x: hidden;' : 'width: 100%; max-width: 100%; overflow-x: hidden;'">
         <Transition name="fade" mode="out-in">
         <Login v-if="state == 'login'" @onAffterLogin="AffterLogin($event)" :user_details="user_details"
@@ -208,37 +206,80 @@
     />
   </v-card>
 
-  <v-dialog 
-    width="500" 
+  <!-- Theme Picker Dialog — admin only -->
+  <v-dialog
+    v-model="themePickerDialog"
+    max-width="400"
+    :z-index="2400"
+    scrim="rgba(0,0,0,0.5)"
+  >
+    <v-card class="card-opacity theme-picker-card">
+      <div class="app-dialog-header" style="background: linear-gradient(to right, #eef0f5, #e5e9f0); color: #334155;">
+        <v-icon size="20" color="#6366f1">mdi-palette</v-icon>
+        <span>{{ $t('dialog.selectTheme') }}</span>
+      </div>
+      <v-card-text class="pa-4">
+        <div class="theme-grid">
+          <div
+            v-for="theme in availableThemes"
+            :key="theme.id"
+            class="theme-tile"
+            :class="{ 'theme-tile--active': uiTheme === theme.id }"
+            @click="setUITheme(theme.id)"
+          >
+            <div class="theme-tile-preview" :style="{ background: theme.gradient }">
+              <v-icon size="30" :color="theme.previewIconColor" class="theme-tile-icon">{{ theme.icon }}</v-icon>
+            </div>
+            <div class="theme-tile-label">
+              <span>{{ theme.name }}</span>
+              <v-icon v-if="uiTheme === theme.id" size="16" color="success">mdi-check-circle</v-icon>
+            </div>
+          </div>
+        </div>
+        <p class="theme-note mt-3">{{ $t('dialog.themeNote') }}</p>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
+
+  <v-dialog
+    width="500"
     v-model="errorDialog"
     :z-index="2400"
     scrim="rgba(0,0,0,0.5)"
   >
     <template v-slot:default="{ isActive }">
-      <v-card title="ผิดพลาด!!" color="#F44336">
-        <v-card-text>
+      <v-card>
+        <div class="app-dialog-header app-dialog-header--error">
+          <v-icon size="22" color="#dc2626">mdi-alert-circle</v-icon>
+          <span>{{ $t('dialog.error') }}</span>
+        </div>
+        <v-card-text class="app-dialog-body">
           {{ errorMsg }}
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" variant="tonal" block @click="errorDialog = false">ปิด</v-btn>
+          <v-btn color="#dc2626" variant="tonal" block @click="errorDialog = false">{{ $t('common.close') }}</v-btn>
         </v-card-actions>
       </v-card>
     </template>
   </v-dialog>
 
-  <v-dialog 
-    width="500" 
+  <v-dialog
+    width="500"
     v-model="successDialog"
     :z-index="2400"
     scrim="rgba(0,0,0,0.5)"
   >
     <template v-slot:default="{ isActive }">
-      <v-card title="สำเร็จ!!" color="#98FB98">
-        <v-card-text>
+      <v-card>
+        <div class="app-dialog-header app-dialog-header--success">
+          <v-icon size="22" color="#16a34a">mdi-check-circle</v-icon>
+          <span>{{ $t('dialog.success') }}</span>
+        </div>
+        <v-card-text class="app-dialog-body">
           {{ infoMsg }}
         </v-card-text>
         <v-card-actions>
-          <v-btn color="primary" variant="tonal" block @click="successDialog = false">โอเค</v-btn>
+          <v-btn color="#16a34a" variant="tonal" block @click="successDialog = false">{{ $t('common.ok') }}</v-btn>
         </v-card-actions>
       </v-card>
     </template>
@@ -294,12 +335,42 @@ export default {
       ConfirmLogoutDialog: false,
       loadingDialog: false,
       isLoading: false,
-      isLoading: false,
       isHalloweenOn: false,
       isChristmasOn: false,
-      haveThemeToggle: true,
-      currentTheme: 'none', // 'none', 'halloween', 'christmas'
-      christmasMusicPlaying: false, // สถานะเพลงคริสมาสต์
+      currentTheme: 'none',
+      christmasMusicPlaying: false,
+      uiTheme: 'neumorphic',
+      themePickerDialog: false,
+      availableThemes: [
+        {
+          id: 'neumorphic',
+          name: 'Neumorphic',
+          icon: 'mdi-diamond-stone',
+          previewIconColor: '#6366f1',
+          gradient: 'linear-gradient(145deg, #ffffff 0%, #e8ebf1 100%)',
+        },
+        {
+          id: 'playful',
+          name: 'Playful',
+          icon: 'mdi-creation',
+          previewIconColor: '#f43f5e',
+          gradient: 'linear-gradient(135deg, #fce7f3 0%, #ede9fe 60%, #fff8f0 100%)',
+        },
+        {
+          id: 'halloween',
+          name: 'Halloween',
+          icon: 'mdi-ghost',
+          previewIconColor: '#ff8c00',
+          gradient: 'linear-gradient(145deg, #0d0114 0%, #2d0a50 60%, #3d1800 100%)',
+        },
+        {
+          id: 'christmas',
+          name: 'Christmas',
+          icon: 'mdi-pine-tree',
+          previewIconColor: '#4ade80',
+          gradient: 'linear-gradient(145deg, #0a1f0a 0%, #1a3a1a 50%, #4a0d0d 100%)',
+        },
+      ],
     }
   },
   watch: {
@@ -330,7 +401,8 @@ export default {
     ChristmasOverlay,
   },
   methods: {
-    AffterLogin() {
+    async AffterLogin() {
+      await this.loadAppTheme();
       this.userdata = JSON.parse(localStorage.getItem('userdata'))
       //console.log("userdata", this.userdata);
       if(this.userdata) {
@@ -511,29 +583,65 @@ export default {
       console.log('🎵 Music state changed:', isPlaying);
       this.christmasMusicPlaying = isPlaying;
     },
+    toggleLocale() {
+      const next = this.$i18n.locale === 'th' ? 'en' : 'th';
+      this.$setLocale(next);
+      this.$vuetify.locale.current = next;
+    },
+    openThemePicker() {
+      this.drawer = false;
+      this.$nextTick(() => { this.themePickerDialog = true; });
+    },
+    setUITheme(theme) {
+      this.uiTheme = theme;
+      this.applyUITheme(theme);
+      this.saveAppTheme(theme);
+      this.themePickerDialog = false;
+    },
+    applyUITheme(theme) {
+      localStorage.setItem('uiTheme', theme);
+      document.documentElement.classList.remove('theme-playful', 'theme-halloween', 'theme-christmas');
+      document.body.classList.remove('theme-playful', 'theme-halloween', 'theme-christmas');
+      if (theme !== 'neumorphic') {
+        document.documentElement.classList.add(`theme-${theme}`);
+        document.body.classList.add(`theme-${theme}`);
+      }
+      this.isHalloweenOn = theme === 'halloween';
+      this.isChristmasOn = theme === 'christmas';
+    },
+    async saveAppTheme(theme) {
+      try {
+        const token = this.$store.getters.getToken;
+        await axios.post(this.baseURL + '/saveAppSettings', { uiTheme: theme }, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+      } catch (e) {
+        // backend ยังไม่รองรับ — ใช้ localStorage ไปก่อน
+      }
+    },
+    async loadAppTheme() {
+      try {
+        const token = this.$store.getters.getToken;
+        const res = await axios.post(this.baseURL + '/getAppSettings', {}, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.data.success && res.data.uiTheme) {
+          this.uiTheme = res.data.uiTheme;
+          this.applyUITheme(res.data.uiTheme);
+          return;
+        }
+      } catch (e) {
+        // backend ยังไม่รองรับ — fallback ใช้ localStorage
+      }
+      const saved = localStorage.getItem('uiTheme') || 'neumorphic';
+      this.uiTheme = saved;
+      this.applyUITheme(saved);
+    },
   },
   mounted() {
-    // ตรวจสอบเดือนปัจจุบันและเปิดธีมอัตโนมัติ
-    const now = new Date();
-    const monthNumber = parseInt(now.toLocaleString('en-US', { month: 'numeric' }));
-    console.log(now + " Month:", monthNumber);
-    
-    // รอให้ refs พร้อมก่อนเรียก setVisible
-    this.$nextTick(() => {
-      if (monthNumber == 10) {
-        // เดือนตุลาคม - ธีม Halloween
-        this.currentTheme = 'halloween';
-        this.isHalloweenOn = true;
-        this.setHalloween(true);
-      } else if (monthNumber == 12) {
-        // เดือนธันวาคม - ธีมคริสมาสต์)
-        this.currentTheme = 'christmas';
-        this.isChristmasOn = true;
-        this.setChristmas(true);
-      } else {
-        this.haveThemeToggle = false;
-      }
-    });
+    const savedTheme = localStorage.getItem('uiTheme') || 'neumorphic';
+    this.uiTheme = savedTheme;
+    this.applyUITheme(savedTheme);
   },
   created() {
     //this.onLoading(true)
@@ -557,6 +665,9 @@ export default {
     ...mapGetters({
       isLoggedIn: 'isLoggedIn',
     }),
+    selectedMenu() {
+      return [this.state];
+    },
     iconUrl() {
       return require('./assets/avatar/1.png')
       // The path could be '../assets/img.png', etc., which depends on where your vue file is
@@ -578,8 +689,11 @@ export default {
       if (this.isChristmasOn) {
         return this.christmasMusicPlaying;
       }
-      // เพิ่มธีมอื่นๆ ในอนาคตที่นี่
       return false;
+    },
+    currentThemeLabel() {
+      const map = { neumorphic: 'Neumorphic', playful: 'Playful', halloween: 'Halloween', christmas: 'Christmas' };
+      return map[this.uiTheme] || 'Neumorphic';
     },
   }
 }
@@ -635,6 +749,57 @@ export default {
 .theme-music-btn.btn-hidden {
   visibility: hidden;
   pointer-events: none;
+}
+
+/* Theme Picker Grid */
+.theme-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.theme-tile {
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2.5px solid transparent;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.theme-tile:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.theme-tile--active {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+}
+
+.theme-tile-preview {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.theme-tile-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.theme-note {
+  font-size: 12px;
+  color: #94a3b8;
+  text-align: center;
+  margin-bottom: 0;
 }
 
 /* Force navigation drawer to be overlay style */

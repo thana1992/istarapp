@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node -e \"const v = require\\('c:/iStarApp/istarapp_dev/node_modules/vuetify/lib/locale/th.mjs'\\); console.log\\(JSON.stringify\\(Object.keys\\(v.default || v\\).slice\\(0,20\\)\\)\\)\")"
+    ]
+  }
+}

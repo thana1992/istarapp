@@ -1,46 +1,47 @@
 <template>
     <div class="container">
         <div class="container-header">
-            <h1><span class="mdi mdi-account-plus"></span> Reservation</h1>
+            <h1><span class="mdi mdi-account-plus"></span> {{ $t('reservation.title') }}</h1>
         </div>
         <div class="container-content">
             <v-divider color="#fffff" thickness="3"></v-divider>
 
-            <div class="d-flex justify-center mb-3">
+            <v-card class="res-card card-opacity mx-auto mt-4 px-6 py-6">
                 <v-form ref="reserveForm">
                     <v-row justify="space-around" class="ma-2 pa-2">
-                        <p>การจองคลาสของ {{ student.firstname + ' ' + student.lastname }}</p>
+                        <p>{{ $t('reservation.bookingFor', { name: student.firstname + ' ' + student.lastname }) }}</p>
                     </v-row>
                     <v-row justify="space-around" class="ma-2 pa-2">
                         <v-date-picker v-model="date" :min="minDate" :allowed-dates="isDateAllowed" @update:month="handleMonthChange" @click="selectDate"></v-date-picker>
                     </v-row>
                     <v-row justify="space-around" class="ma-2 pa-2">
-                        <v-select v-model="classtimeSelect" label="Class time" class="ma-2 pa-2" item-title="text"
+                        <v-select v-model="classtimeSelect" :label="$t('home.classTime')" class="ma-2 pa-2" item-title="text"
                             item-value="classid" :items="classtimesData" variant="outlined" :rules="classTimeRules"
-                            no-data-text="No class time available" return-object required></v-select>
+                            :no-data-text="$t('reservation.noClassTime')" return-object required></v-select>
                     </v-row>
 
                     <v-row justify="space-around" class="ma-2 pa-2">
-                        <v-btn color="success" class="mt-4" block @click="validate" required>
-                            Book a class
+                        <v-btn class="mt-4 neu-action-btn" size="large" block @click="validate" required>
+                            <v-icon>mdi-emoticon-plus</v-icon>
+                            &nbsp;{{ $t('home.bookClass') }}
                         </v-btn>
                     </v-row>
                 </v-form>
-            </div>
+            </v-card>
         </div>
     
         <v-dialog v-model="questionDialog" persistent width="auto">
             <v-card>
                 <v-card-title class="text-h5">
                 </v-card-title>
-                <v-card-text><center>ต้องการจองคลาส {{ student.nickname }} <br> {{ format_date(date) }} <br> เวลา {{ classtimeSelect.classtime }}</center></v-card-text>
+                <v-card-text><center>{{ $t('reservation.confirmBooking', { name: student.nickname, date: format_date(date), time: classtimeSelect.classtime }) }}</center></v-card-text>
                 <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn color="#4CAF50" size="large" variant="tonal" @click="submitReservation">
-                        แน่นอน จองเลย!
+                        {{ $t('reservation.confirmBtn') }}
                     </v-btn>
                     <v-btn color="#F44336" size="large" variant="tonal" @click="questionDialog = false">
-                        ยกเลิก
+                        {{ $t('btn.cancel') }}
                     </v-btn>
                 </v-card-actions>
             </v-card>
@@ -71,7 +72,7 @@ export default {
             people: '',
             classTimeRules: [
                 v => !!v || 'Class time is required',
-                v => !v || (v.available > 0) || 'ไม่สามารถจองคลาสที่ท่านเลือก' // ตรวจสอบ available
+                v => !v || (v.available > 0) || this.$t('home.errorNoRemaining')
             ],
             //weekday:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
             questionDialog: false,
@@ -132,7 +133,7 @@ export default {
             let { valid } = await this.$refs.reserveForm.validate()
             if (!valid) return;
             if (this.people.remaining <= 0) {
-                this.$emit('onErrorHandler', 'ไม่สามารถจองคลาสได้ จำนวนคลาสของท่านหมดแล้ว T-T')
+                this.$emit('onErrorHandler', this.$t('msg.noRemaining'))
                 return;
             }
             this.questionDialog = true
@@ -209,7 +210,7 @@ export default {
                 .then(response => {
                     //console.dir(response);
                     if (!response.data.success) {
-                        this.$emit('onErrorHandler', 'คุณได้จองคลาสในวันที่ ' + this.format_date(this.date) + ' ไปแล้ว กรุณาเลือกวันอื่น')
+                        this.$emit('onErrorHandler', this.$t('msg.bookingDuplicate', { date: this.format_date(this.date) }))
                         isDuplicate = true;
                     }
                 });
@@ -224,7 +225,7 @@ export default {
                     .then(response => {
                         //console.dir(response);
                         if (response.data.success) {
-                            this.$emit('onInfoHandler', 'จองคลาสสำเร็จ แล้วพบกัน :)')
+                            this.$emit('onInfoHandler', this.$t('msg.bookingSuccess'))
                             this.$emit('onSuccessHandler', 'home')
                         } else {
                             this.$emit('onErrorHandler', response.data.message || 'Reservation failed')

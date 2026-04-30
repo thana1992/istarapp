@@ -1,39 +1,31 @@
 <template>
     <div>
     <v-card flat>
-        <v-card-title class="d-flex align-center pe-2">
-            <v-icon icon="mdi-magnify"></v-icon> &nbsp; Find a Gymnast
-
-            <v-spacer></v-spacer>
-
-            <v-text-field v-model="search" density="compact" label="Search" prepend-inner-icon="mdi-magnify"
-                variant="solo-filled" flat hide-details single-line></v-text-field>
-        </v-card-title>
-
-        <v-divider></v-divider>
-        
-        <v-data-table :loading="loadingStudent" :headers="StudentListHeaders" :items="StudentList" 
-            :sort-by="[{ key: 'studentid', order: 'asc' }]" :search="search">
+        <v-data-table-server :loading="loadingStudent" :headers="StudentListHeaders" :items="StudentList"
+            :sort-by="[{ key: 'studentid', order: 'asc' }]"
+            :items-length="totalStudents"
+            @update:options="onTableOptions">
             <template v-slot:top>
                 <v-toolbar flat>
-                    <v-toolbar-title>Gymnasts' List</v-toolbar-title>
+                    <v-toolbar-title>{{ $t('gymnasts.listTitle') }}</v-toolbar-title>
+                    <v-spacer></v-spacer>
                     <v-btn color="primary" @click="initialize">
                         <v-icon left>mdi-refresh</v-icon>
-                        รีเฟรช
+                        {{ $t('btn.refresh') }}
                     </v-btn>
                     <v-dialog v-model="dialogStudent" max-width="1080px" style="z-index: 999">
                         <template v-slot:activator="{ props }">
                             <v-btn color="primary" dark v-bind="props"><span
-                                    class="mdi mdi-emoticon-plus-outline"></span> เพิ่มนักเรียนใหม่</v-btn>
+                                    class="mdi mdi-emoticon-plus-outline"></span> {{ $t('gymnasts.addStudent') }}</v-btn>
                         </template>
                         <v-dialog v-model="dialogFinish" persistent width="auto">
                             <v-card>
                             <v-card-title></v-card-title>
-                            <v-card-text>ยืนยันการจบคอร์ส และเก็บประวัติ ?</v-card-text>
+                            <v-card-text>{{ $t('gymnasts.confirmFinish') }}</v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="#4CAF50" variant="tonal" @click="finishCourseConfirm">ยืนยัน</v-btn>
-                                <v-btn color="#F44336" variant="tonal" @click="closeFinish">ยกเลิก</v-btn>
+                                <v-btn color="#4CAF50" variant="tonal" @click="finishCourseConfirm">{{ $t('btn.confirm') }}</v-btn>
+                                <v-btn color="#F44336" variant="tonal" @click="closeFinish">{{ $t('btn.cancel') }}</v-btn>
 
                                 <v-spacer></v-spacer>
                             </v-card-actions>
@@ -64,7 +56,7 @@
                                         </v-row>
                                         <v-row>
                                             <v-col cols="12" sm="12" md="12">
-                                                <h3 class="group-header">Student Infomation</h3>
+                                                <h3 class="group-header">{{ $t('table.studentInfo') }}</h3>
                                                 <v-divider class="border-opacity-100" color="success" thickness="3"></v-divider>
                                                 <v-divider color="#fffff" thickness="3"></v-divider>
                                             </v-col>
@@ -125,7 +117,7 @@
                                                 </v-autocomplete>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="7">
-                                                <v-file-input v-model="editedStudentItem.profile_image" label="รูปโปรไฟล์"
+                                                <v-file-input v-model="editedStudentItem.profile_image" :label="$t('table.profileImage')"
                                                     accept="image/*" show-size outlined prepend-icon="mdi-camera"
                                                     :loading="uploadLoading" @change="onFileChange"
                                                     @click:clear="onFileClear" style="display: none" ref="fileInput">
@@ -168,7 +160,7 @@
                                         </v-row>
                                         <v-row>
                                             <v-col cols="12" sm="12" md="12">
-                                            <h3 class="group-header">Course usage history</h3>
+                                            <h3 class="group-header">{{ $t('table.courseUsageHistory') }}</h3>
                                             <v-divider class="border-opacity-100" color="success" thickness="3"></v-divider>
                                             <v-divider color="#fffff" thickness="3"></v-divider>
                                             </v-col>
@@ -202,10 +194,10 @@
                             <v-card-actions class="sticky-footer">
                                 <v-spacer></v-spacer>
                                 <v-btn color="red-darken-1" variant="flat" @click="closeStudent">
-                                    Cancel
+                                    {{ $t('btn.cancel') }}
                                 </v-btn>
                                 <v-btn color="blue-darken-1" variant="flat" @click="doSaveNewStudent">
-                                    Save
+                                    {{ $t('btn.save') }}
                                 </v-btn>
                             </v-card-actions>
                         </v-card>
@@ -213,17 +205,20 @@
                     <v-dialog v-model="dialogStudentDelete" persistent width="auto">
                         <v-card>
                             <v-card-title></v-card-title>
-                            <v-card-text>ต้องการลบเด็กคนนี้ใช่มั้ย ?</v-card-text>
+                            <v-card-text>{{ $t('gymnasts.confirmDelete') }}</v-card-text>
                             <v-card-actions>
                                 <v-spacer></v-spacer>
-                                <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteStd">ใช่! ลบเลย</v-btn>
-                                <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteStd">เดี๋ยวก่อน
-                                    รอแปบ</v-btn>
+                                <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteStd">{{ $t('btn.ok') }}</v-btn>
+                                <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteStd">{{ $t('btn.cancel') }}</v-btn>
                                 <v-spacer></v-spacer>
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
                 </v-toolbar>
+                <div class="table-search-row">
+                    <v-text-field v-model="search" density="compact" :label="$t('btn.search')" prepend-inner-icon="mdi-magnify"
+                        variant="solo-filled" flat hide-details single-line></v-text-field>
+                </div>
             </template>
             <template v-slot:item.index="{ item }">
                 {{ StudentList.indexOf(item) + 1 }}
@@ -232,7 +227,7 @@
                 {{ calculateAge(item.dateofbirth).int }}
             </template>
             <template v-slot:item.expiredate="{ item }">
-                <p :class="{ 'highlighted-red': item.expiredate != null && expireDateLeft(item.expiredate).indexOf('หมดอายุ') > -1 }">
+                <p :class="{ 'highlighted-red': item.expiredate != null && isExpiredDate(item.expiredate) }">
                     {{ expireDateLeft(item.expiredate) }}
                 </p>
             </template>
@@ -244,7 +239,7 @@
             </template>
             <template v-slot:loadingStudent><v-skeleton-loader type="table-row@5"></v-skeleton-loader></template>
             <template v-slot:no-data> No Student list </template>
-        </v-data-table>
+        </v-data-table-server>
     </v-card>
 </div>
 </template>
@@ -264,22 +259,7 @@ export default {
             uploadLoading: false,
             StudentList: [],
             imagePreview: require("@/assets/avatar/2.png"),
-            StudentListHeaders: [
-                //{ title: "No.", key: "index", align: "center" },
-                { title: "ชื่อ", key: "fullname" },
-                { title: "ชื่อเล่น", key: "nickname", align: "left" },
-                //{ title: 'Date of Birth', key: 'dateofbirthshow' },
-                { title: "เพศ", key: "gender", align: "left" },
-                { title: "อายุ", key: "dateofbirth", align: "end"},
-                { title: "Level", key: "level", align: "center" },
-                //{ title: "Course Start", key: "startdate", align: "center" },
-                { title: 'ชื่อคอร์ส', key: 'coursename', align: 'left' },
-                { title: "คงเหลือ", key: "remaining_label", align: "center" },
-                { title: "วันหมดอายุ", key: "expiredate", align: "left"},
-                { title: "หมายเลขโทรศัพท์", key: "mobileno", align: "center", sortable: false },
-                { title: "แก้ไข", key: "edit", align: "center", sortable: false },
-                { title: "ลบ", key: "delete", align: "center", sortable: false },
-            ],
+            StudentListHeadersData: [],
             editedStudentItem: {
                 studentid: null,
                 familyid: null,
@@ -318,14 +298,7 @@ export default {
                 profile_image_url: null,
                 shortnote: null,
             },
-            CourseUsingHeaders: [
-                { text: 'No.', value: 'index' },
-                { title: 'Name', value: 'fullname' },
-                { title: 'Class Date', value: 'classdate' },
-                { title: 'Classtime', value: 'classtime'},
-                { title: 'CreateBy', value: 'createby' },
-                { title: 'UpdateBy', value: 'updateby' },
-            ],
+            CourseUsingHeadersData: [],
             CourseUsingtList: [],
             base64Image: null,
             editedStudentIndex: -1,
@@ -334,6 +307,10 @@ export default {
             loadingStudent: false,
             dialogFinish: false,
             notNullRules: [(v) => !!v || "field is required"],
+            totalStudents: 0,
+            tableOptions: { page: 1, itemsPerPage: 20 },
+            searchDebounceTimer: null,
+            currentActive: false,
         };
     },
     async created() {
@@ -390,27 +367,34 @@ export default {
             this.$emit("onLoading", false);
         },
         async getStudentList(active) {
+            this.currentActive = active;
             this.loadingStudent = true;
             const token = this.$store.getters.getToken;
-            await ComponentAPI.fetchDataStudent({ token, active })
-                .then(({ success, results, message }) => {
+            const { page, itemsPerPage } = this.tableOptions;
+            await ComponentAPI.fetchDataStudent({ token, active, page, itemsPerPage, search: this.search })
+                .then(({ success, results, total, message }) => {
                     if (success) {
                         this.StudentList = results;
-                        //console.log("StudentList : ", this.StudentList);
-                        this.loadingStudent = false;
+                        this.totalStudents = total ?? results.length;
                     } else {
                         this.$emit("onErrorHandler", message || "Get Student list failed");
-                        this.loadingStudent = false;
                     }
+                    this.loadingStudent = false;
                 })
                 .catch((error) => {
-                    if (error.response.status && error.response.status == 401) {
+                    this.loadingStudent = false;
+                    if (error.response && error.response.status == 401) {
                         this.$emit("onErrorHandler", error.response.data.message);
                         this.$emit("onClickChangeState", "login");
                     } else {
                         this.$emit("onErrorHandler", error.message);
                     }
                 });
+        },
+        onTableOptions(options) {
+            if (options.page === this.tableOptions.page && options.itemsPerPage === this.tableOptions.itemsPerPage) return;
+            this.tableOptions = { ...this.tableOptions, ...options };
+            this.getStudentList(this.currentActive);
         },
         async doSaveNewStudent() {
             this.$emit("onLoading", true);
@@ -449,15 +433,14 @@ export default {
                             if (response.data.success) {
                                 this.handleProfileImageUpload(this.editedStudentItem.profile_image, this.editedStudentItem.studentid);
                                 //this.uploadImageProfile(this.editedStudentItem.studentid);
-                                this.$emit("onInfoHandler", "แก้ไขข้อมูลสำเร็จแล้ว");
+                                this.$emit("onInfoHandler", this.$t('msg.updated'));
                                 this.getStudentList();
                                 this.dialogStudent = false;
                                 this.$emit("onUpdateDataSuccess");
                             } else {
                                 this.$emit(
                                     "onErrorHandler",
-                                    response.data.message ||
-                                    "แก้ไขข้อมูลไม่สำเร็จ ลองใหม่อีกครั้งนะ"
+                                    response.data.message || this.$t('msg.updateFail')
                                 );
                             }
                         })
@@ -479,14 +462,13 @@ export default {
                             if (response.data.success) {
                                 this.handleProfileImageUpload(this.editedStudentItem.profile_image, response.data.studentid);
                                 //this.uploadImageProfile(response.data.studentid);
-                                this.$emit("onInfoHandler", "เพิ่มสมาชิกสำเร็จแล้ว");
+                                this.$emit("onInfoHandler", this.$t('msg.memberAdded'));
                                 this.getStudentList();
                                 this.dialogStudent = false;
                             } else {
                                 this.$emit(
                                     "onErrorHandler",
-                                    response.data.message ||
-                                    "เพิ่มสมาชิกไม่สำเร็จ ลองใหม่อีกครั้งนะ"
+                                    response.data.message || this.$t('msg.memberAddFail')
                                 );
                             }
                             this.$emit("onUpdateDataSuccess");
@@ -526,12 +508,12 @@ export default {
                     this.getCustomerCourseLookup();
                     this.editedStudentItem.courserefer = null;
                     this.editedStudentItem.current_course_detail = null;
-                    this.$emit("onInfoHandler", "สำเร็จ จบคอร์สแล้ว");
+                    this.$emit("onInfoHandler", this.$t('msg.courseDone'));
                 } else {
                     this.dialogFinish = false;
                     this.$emit(
                     "onErrorHandler",
-                    response.data.message || "เสียใจ จบคอร์สไม่ได้ ลองใหม่อีกครั้งนะ"
+                    response.data.message || this.$t('msg.updateFail')
                     );
                 }
                 this.initialize();
@@ -875,6 +857,10 @@ export default {
             }
             return result;
         },
+        isExpiredDate(expdate) {
+            if (!expdate) return false;
+            return new Date(expdate) < new Date();
+        },
         calExpireText(expdate) {
             if (!expdate) return '';
             const today = new Date();
@@ -882,38 +868,25 @@ export default {
             let returnText = '';
 
             if (expirationDate < today) {
-                returnText = 'หมดอายุ';
+                returnText = this.$t('table.expired');
             } else {
                 let years = expirationDate.getFullYear() - today.getFullYear();
                 let months = expirationDate.getMonth() - today.getMonth();
                 let days = expirationDate.getDate() - today.getDate();
 
-                // Adjust days if negative
                 if (days < 0) {
                     months -= 1;
-                    days += new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate(); // จำนวนวันในเดือนปัจจุบัน
+                    days += new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
                 }
-
-                // Adjust months if negative
                 if (months < 0) {
                     years -= 1;
                     months += 12;
                 }
 
-                if (years > 0) {
-                    returnText += `${years} ปี `;
-                }
-                if (months > 0) {
-                    returnText += `${months} เดือน `;
-                }
-                if (days > 0) {
-                    returnText += `${days} วัน`;
-                }
+                if (years > 0) returnText += `${years} ${this.$t('table.yearAbbr')} `;
+                if (months > 0) returnText += `${months} ${this.$t('table.monthAbbr')} `;
+                if (days > 0) returnText += `${days} ${this.$t('table.dayAbbr')}`;
             }
-
-            // //console.log('today', this.format_date(today, 'YYYY-MM-DD'));
-            // //console.log('expirationDate', this.format_date(expirationDate, 'YYYY-MM-DD'));
-            // //console.log('returnText', returnText);
             return returnText;
         },
         async showAddNewStudent() {
@@ -932,7 +905,7 @@ export default {
             let studentDetail = await this.getStudentInfo(obj.studentid);
             if(studentDetail[0].delflag == 1) {
                 this.$emit('onLoading', false);
-                this.$emit('onErrorHandler', 'ไม่สามารถแก้ไขข้อมูลเด็กที่ถูกลบไปแล้ว');
+                this.$emit('onErrorHandler', this.$t('msg.cannotEditDeleted'));
                 
                 return;
             }
@@ -978,6 +951,13 @@ export default {
         },
     },
     watch: {
+        search() {
+            clearTimeout(this.searchDebounceTimer);
+            this.searchDebounceTimer = setTimeout(() => {
+                this.tableOptions.page = 1;
+                this.getStudentList(this.currentActive);
+            }, 500);
+        },
         dialogStudent(val) {
             val || this.closeStudent();
         },
@@ -998,9 +978,29 @@ export default {
             return new Date();
         },
         formStudentTitle() {
-            return this.editedStudentIndex === -1
-                ? "Add a new student"
-                : "Edit student information";
+            return this.editedStudentIndex === -1 ? this.$t('gymnasts.addStudent') : this.$t('gymnasts.editStudent')
+        },
+        CourseUsingHeaders() {
+            return [
+                { title: this.$t('table.name'), key: 'fullname' },
+                { title: this.$t('table.date'), key: 'classdate' },
+                { title: this.$t('table.time'), key: 'classtime' },
+            ]
+        },
+        StudentListHeaders() {
+            return [
+                { title: this.$t('table.name'), key: 'fullname' },
+                { title: this.$t('table.nickname'), key: 'nickname', align: 'left' },
+                { title: this.$t('table.gender'), key: 'gender', align: 'left' },
+                { title: this.$t('table.age'), key: 'dateofbirth', align: 'end' },
+                { title: this.$t('table.level'), key: 'level', align: 'center' },
+                { title: this.$t('table.courseName'), key: 'coursename', align: 'left' },
+                { title: this.$t('table.remaining'), key: 'remaining_label', align: 'center' },
+                { title: this.$t('table.expireDate'), key: 'expiredate', align: 'left' },
+                { title: this.$t('table.phone'), key: 'mobileno', align: 'center', sortable: false },
+                { title: this.$t('table.edit'), key: 'edit', align: 'center', sortable: false },
+                { title: this.$t('table.delete'), key: 'delete', align: 'center', sortable: false },
+            ]
         },
         profileAvatar() {
             return this.editedStudentItem.gender == 'ชาย' ? require("@/assets/avatar/4.png") : require("@/assets/avatar/2.png");
@@ -1011,24 +1011,24 @@ export default {
 import { Promise } from "core-js";
 const ComponentAPI = {
     baseURL: env.SERVER_URL,
-    fetchDataStudent({ token, active }) {
+    fetchDataStudent({ token, active, page = 1, itemsPerPage = 20, search = '' }) {
         return new Promise((resolve) => {
             axios
                 .get(this.baseURL + "/getStudentList", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
-                    params: {
-                        active: active, // Default to false, can be changed based on requirements
-                    },
+                    params: { active, page, itemsPerPage, search },
                 })
                 .then((response) => {
-                    //console.log('fetchDataStudent result',response);
                     if (response.data.success) {
-                        const datalist = response.data.results;
-                        resolve({ success: true, results: datalist });
+                        resolve({
+                            success: true,
+                            results: response.data.results,
+                            total: response.data.total ?? response.data.results.length,
+                        });
                     } else {
-                        resolve({ success: true, results: [] });
+                        resolve({ success: true, results: [], total: 0 });
                     }
                 })
                 .catch((error) => {
@@ -1110,11 +1110,28 @@ const ComponentAPI = {
 
 .arrow-text {
   background: #7e7e7e;
-  -webkit-background-clip: text; /* ทำให้พื้นหลังเลือนหายไป */
-  -webkit-text-fill-color: transparent; /* ทำให้สีพื้นหลังแสดงแทนสีตัวอักษร */
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
   font-size: blod 14px;
   position: relative;
   z-index: 1;
   top: -15px;
+}
+
+/* Transparent passthrough — parent (div.card-opacity) provides the card surface */
+:deep(.v-card),
+:deep(.v-card--flat) {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+:deep(.v-data-table),
+:deep(.v-table),
+:deep(.v-table__wrapper),
+:deep(.v-data-table__tr),
+:deep(.v-table__wrapper > table > tbody > tr),
+:deep(.v-table__wrapper > table > tbody > tr > td) {
+  background: transparent !important;
+  background-color: transparent !important;
 }
 </style>

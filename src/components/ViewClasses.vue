@@ -1,16 +1,15 @@
 <template>
     <div class="container">
         <div class="container-header">
-            <h1><span class="mdi mdi-table-eye"></span> View Classes</h1>
+            <h1><span class="mdi mdi-table-eye"></span> {{ $t('viewClasses.title') }}</h1>
         </div>
         <div class="container-content">
-            <v-divider color="#fffff" thickness="3"></v-divider>
-            <div class="mx-auto mt-5 px-2 py-1">
+            <div class="mx-auto mt-4">
                 <v-row>
                     <v-col cols="12" sm="12" md="4" xl="3">
                         <v-card class="mx-0 card-opacity" height="470">
                             <v-list-item class="header-card">
-                                <div>View class booking by date</div>
+                                <div>{{ $t('viewClasses.viewByDate') }}</div>
                             </v-list-item>
                             <v-container>
                                 <v-row justify="space-around">
@@ -216,5 +215,26 @@ button span.mdi,
 .dashboard-card:hover {
     background-color: rgba(187, 187, 187, 0.342);
     cursor: pointer;
+}
+
+/* Neumorphic date picker blending */
+:deep(.v-date-picker) {
+    background: transparent !important;
+}
+
+:deep(.v-date-picker__header) {
+    background: transparent !important;
+}
+
+:deep(.v-date-picker-controls) {
+    background: transparent !important;
+}
+
+:deep(.v-date-picker-month) {
+    background: transparent !important;
+}
+
+:deep(.datepick) {
+    background: transparent !important;
 }
 </style>

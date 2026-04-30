@@ -1,34 +1,34 @@
-<template>
+﻿<template>
   <div class="container">
     <div class="container-header">
-      <h1><span class="mdi mdi-account-plus"></span> Register</h1>
+      <h1><span class="mdi mdi-account-plus"></span> {{ $t('register.title') }}</h1>
     </div>
     <div class="container-content">
       <v-divider color="#fffff" thickness="3"></v-divider>
-      <div class="mx-auto px-2 py-1">
+      <v-card class="reg-card card-opacity mx-auto mt-4 px-6 py-6">
         <v-form ref="form">
-          <v-text-field variant="solo-filled" v-model="username" label="Username" :rules="usernameRules" @input="removeSpaces('username')" required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="username" :label="$t('register.username')" :rules="usernameRules" @input="removeSpaces('username')" required></v-text-field>
 
-          <v-text-field variant="solo-filled" v-model="password" label="Password" type="password" :rules="passwordRules" required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="password" :label="$t('register.password')" type="password" :rules="passwordRules" required></v-text-field>
 
-          <v-text-field variant="solo-filled" v-model="firstname" label="Firstname" :rules="nameRules" required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="firstname" :label="$t('register.firstname')" :rules="nameRules" required></v-text-field>
 
-          <v-text-field variant="solo-filled" v-model="middlename" label="Middlename"></v-text-field>
+          <v-text-field variant="solo-filled" v-model="middlename" :label="$t('register.middlename')"></v-text-field>
 
-          <v-text-field variant="solo-filled" v-model="lastname" label="Lastname" :rules="nameRules" required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="lastname" :label="$t('register.lastname')" :rules="nameRules" required></v-text-field>
 
-          <v-text-field variant="solo-filled" v-model="address" label="Address" type="text" required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="address" :label="$t('register.address')" type="text" required></v-text-field>
 
-          <v-text-field variant="solo-filled" v-model="email" label="E-mail" type="text" :rules="emailRules" @input="removeSpaces('email')" required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="email" :label="$t('register.email')" type="text" :rules="emailRules" @input="removeSpaces('email')" required></v-text-field>
 
-          <v-text-field variant="solo-filled" v-model="mobileno" label="Mobile Number" @input="acceptNumber" type="text" :rules="mobileRules" required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="mobileno" :label="$t('register.mobile')" @input="acceptNumber" type="text" :rules="mobileRules" required></v-text-field>
 
-          <v-text-field variant="solo-filled" v-model="registercode" label="Register Code" type="text" @input="removeSpaces('registercode')" required></v-text-field>
+          <v-text-field variant="solo-filled" v-model="registercode" :label="$t('register.code')" type="text" @input="removeSpaces('registercode')" required></v-text-field>
 
           <v-checkbox v-model="acceptPrivacyPolicy">
             <template v-slot:label>
               <div style="font-size: 12px;">
-                I acknowledge that I have read and agree to iStar Gymnastics’s
+                {{ $t('register.privacyConsent') }}
                 <v-tooltip location="bottom">
                   <template v-slot:activator="{ props }">
                     <a
@@ -37,26 +37,26 @@
                       v-bind="props"
                       @click.stop
                     >
-                      Privacy Policy
+                      {{ $t('register.privacyOf') }} {{ $t('register.privacyPolicy') }}
                     </a>
                   </template>
-                  View Our's Privacy Policy
+                  {{ $t('register.privacyPolicy') }}
                 </v-tooltip>
               </div>
             </template>
           </v-checkbox>
 
           <v-btn color="blue" class="mt-1" :disabled="!acceptPrivacyPolicy" block @click="doRegister">
-            Submit
+            {{ $t('register.submit') }}
           </v-btn>
           <v-btn color="error" class="mt-4" block @click="reset">
-            Clear
+            {{ $t('register.clear') }}
           </v-btn>
           <v-btn color="grey" class="mt-4" block @click="cancel">
-            Cancel
+            {{ $t('register.cancel') }}
           </v-btn>
         </v-form>
-      </div>
+      </v-card>
     </div>
   </div>
 </template>
