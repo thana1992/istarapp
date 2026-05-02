@@ -6,7 +6,8 @@
     <div class="container-content">
       <v-card class="mx-auto mt-5 card-opacity">
         <v-data-table-server :headers="headers" :items="courselist" :loading="loadingCustomerCourse"
-          :items-length="totalItems" @update:options="onTableOptions">
+          :items-length="totalItems" :page="tableOptions.page" :items-per-page="tableOptions.itemsPerPage"
+          @update:options="onTableOptions">
           <template v-slot:top>
             <v-toolbar flat>
               <v-toolbar-title>{{ $t('courseHistory.ourCourses') }}</v-toolbar-title>
@@ -342,8 +343,9 @@ export default {
       v => !!v || 'Field is required',
     ],
     totalItems: 0,
-    tableOptions: { page: 1, itemsPerPage: 20 },
-    searchDebounceTimer: null,
+    tableOptions: { page: 1, itemsPerPage: 10, sortBy: [] },
+    searchTimer: null,
+    isMounted: false,
   }),
 
   computed: {
@@ -370,6 +372,7 @@ export default {
     },
     CourseUsingHeaders() {
       return [
+        { title: '#', key: 'index', width: '50px', sortable: false },
         { title: this.$t('table.name'), key: 'fullname' },
         { title: this.$t('table.date'), key: 'classdate' },
         { title: this.$t('table.time'), key: 'classtime' },
@@ -379,8 +382,8 @@ export default {
 
   watch: {
     search() {
-      clearTimeout(this.searchDebounceTimer);
-      this.searchDebounceTimer = setTimeout(() => {
+      clearTimeout(this.searchTimer);
+      this.searchTimer = setTimeout(() => {
         this.tableOptions.page = 1;
         this.getCustomerCourseList();
       }, 500);
@@ -436,8 +439,13 @@ export default {
     }
   },
 
+  mounted() {
+    this.isMounted = true;
+  },
+
   methods: {
     async initialize() {
+      this.tableOptions.page = 1;
       this.$emit("onLoading", true);
       await this.getCustomerCourseList();
       await this.getCourseLookup();
@@ -929,11 +937,11 @@ export default {
     async getCustomerCourseList() {
       this.loadingCustomerCourse = true;
       const token = this.$store.getters.getToken;
-      const { page, itemsPerPage } = this.tableOptions;
+      const { page, itemsPerPage, sortBy } = this.tableOptions;
       await axios
         .post(
           this.baseURL + "/getCustomerCourseList",
-          { page, itemsPerPage, search: this.search },
+          { page, itemsPerPage, search: this.search, sortBy },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -943,7 +951,7 @@ export default {
         .then((response) => {
           if (response.data.success) {
             this.courselist = response.data.results ?? [];
-            this.totalItems = response.data.total ?? (response.data.results?.length ?? 0);
+            this.totalItems = response.data.total ?? 0;
           }
           this.loadingCustomerCourse = false;
         })
@@ -957,9 +965,9 @@ export default {
           }
         });
     },
-    onTableOptions(options) {
-      if (options.page === this.tableOptions.page && options.itemsPerPage === this.tableOptions.itemsPerPage) return;
-      this.tableOptions = { ...this.tableOptions, ...options };
+    onTableOptions({ page, itemsPerPage, sortBy }) {
+      this.tableOptions = { ...this.tableOptions, page, itemsPerPage, sortBy };
+      if (!this.isMounted) return;
       this.getCustomerCourseList();
     },
     onChangeStartDate() {

@@ -575,15 +575,14 @@ export default ({
         },
         getBookingCardColor(count) {
             const theme = localStorage.getItem('uiTheme') || 'neumorphic';
-            // Dark themes handle color via CSS — return nothing so inline style doesn't conflict
             if (theme === 'halloween' || theme === 'christmas') return {};
-            if (count <= 0) return { backgroundColor: '#fff', color: '#222' };
-            if (count >= 120) return { backgroundColor: '#d50000', color: '#fff' };
+            if (count <= 0) return {};
+            if (count >= 120) return { backgroundColor: '#d50000' };
             const t = Math.min(count / 120, 1);
             const r = Math.round(255 + (213 - 255) * t);
             const g = Math.round(255 + (0 - 255) * t);
             const b = Math.round(255 + (0 - 255) * t);
-            return { backgroundColor: `rgb(${r},${g},${b})`, color: t > 0.5 ? '#fff' : '#222' };
+            return { backgroundColor: `rgb(${r},${g},${b})` };
         },
         animateTomorrow() {
             // รีเซ็ตค่า
@@ -1037,13 +1036,6 @@ const DashboardAPI = {
     font-size: 18px;
     margin-left: 4px;
     opacity: 0.75;
-}
-
-/* Today/Tomorrow cards: dynamic background → children inherit color */
-.stat-card-dynamic .stat-label,
-.stat-card-dynamic .stat-value,
-.stat-card-dynamic .stat-meta {
-    color: inherit !important;
 }
 
 .stat-card-dynamic .stat-icons .mdi {
