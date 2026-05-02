@@ -398,9 +398,9 @@ export default ({
                         this.totalWaitingNewStudents = response.data.datacard.totalWaitingNewStudents
 
                         if (this.totalWaitingNewStudents > 0) {
-                            this.pulse = 'pulse card-opacity'
+                            this.pulse = 'pulse'
                         } else {
-                            this.pulse = 'card-opacity'
+                            this.pulse = ''
                         }
                     }
                 })
@@ -879,10 +879,10 @@ const DashboardAPI = {
 }
 
 .dashboard-header-icon {
-    width: 56px;
-    height: 56px;
-    min-width: 56px;
-    border-radius: 18px;
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    border-radius: 14px;
     background: linear-gradient(145deg, #7c83fb 0%, #8b5cf6 100%);
     display: flex;
     align-items: center;
@@ -896,7 +896,7 @@ const DashboardAPI = {
 }
 
 .dashboard-header-icon .mdi {
-    font-size: 30px;
+    font-size: 24px;
 }
 
 .dashboard-title {
@@ -960,19 +960,10 @@ const DashboardAPI = {
         inset -5px -5px 12px rgba(255, 255, 255, 0.95) !important;
 }
 
-.stat-card-active {
-    background: linear-gradient(145deg, #f0fdf4, #d1fae5) !important;
-    box-shadow:
-        9px 9px 22px rgba(16, 185, 129, 0.25),
-        -9px -9px 22px rgba(255, 255, 255, 0.95),
-        inset 0 0 0 1px rgba(16, 185, 129, 0.1) !important;
-}
-
 .stat-card-active:hover {
     box-shadow:
-        12px 12px 28px rgba(16, 185, 129, 0.32),
-        -12px -12px 28px rgba(255, 255, 255, 1),
-        inset 0 0 0 1px rgba(16, 185, 129, 0.15) !important;
+        12px 12px 28px rgba(163, 177, 198, 0.55),
+        -12px -12px 28px rgba(255, 255, 255, 1) !important;
 }
 
 .stat-accent {
