@@ -2,8 +2,7 @@
     <div>
     <v-card flat>
         <v-data-table-server :loading="loadingStudent" :headers="StudentListHeaders" :items="StudentList"
-            :sort-by="[{ key: 'studentid', order: 'asc' }]"
-            :items-length="totalStudents"
+            :items-length="totalStudents" :page="tableOptions.page" :items-per-page="tableOptions.itemsPerPage"
             @update:options="onTableOptions">
             <template v-slot:top>
                 <v-toolbar flat>
@@ -308,8 +307,9 @@ export default {
             dialogFinish: false,
             notNullRules: [(v) => !!v || "field is required"],
             totalStudents: 0,
-            tableOptions: { page: 1, itemsPerPage: 20 },
-            searchDebounceTimer: null,
+            tableOptions: { page: 1, itemsPerPage: 10, sortBy: [] },
+            searchTimer: null,
+            isMounted: false,
             currentActive: false,
         };
     },
@@ -349,8 +349,12 @@ export default {
             this.$emit("onErrorHandler", error.message);
         }
     },
+    mounted() {
+        this.isMounted = true;
+    },
     methods: {
         async initialize() {
+            this.tableOptions.page = 1;
             this.$emit("onLoading", true);
             await this.getCustomerCourseLookup();
             await this.getFamilyLookup();
@@ -370,12 +374,12 @@ export default {
             this.currentActive = active;
             this.loadingStudent = true;
             const token = this.$store.getters.getToken;
-            const { page, itemsPerPage } = this.tableOptions;
-            await ComponentAPI.fetchDataStudent({ token, active, page, itemsPerPage, search: this.search })
+            const { page, itemsPerPage, sortBy } = this.tableOptions;
+            await ComponentAPI.fetchDataStudent({ token, active, page, itemsPerPage, search: this.search, sortBy })
                 .then(({ success, results, total, message }) => {
                     if (success) {
                         this.StudentList = results;
-                        this.totalStudents = total ?? results.length;
+                        this.totalStudents = total ?? 0;
                     } else {
                         this.$emit("onErrorHandler", message || "Get Student list failed");
                     }
@@ -391,9 +395,9 @@ export default {
                     }
                 });
         },
-        onTableOptions(options) {
-            if (options.page === this.tableOptions.page && options.itemsPerPage === this.tableOptions.itemsPerPage) return;
-            this.tableOptions = { ...this.tableOptions, ...options };
+        onTableOptions({ page, itemsPerPage, sortBy }) {
+            this.tableOptions = { ...this.tableOptions, page, itemsPerPage, sortBy };
+            if (!this.isMounted) return;
             this.getStudentList(this.currentActive);
         },
         async doSaveNewStudent() {
@@ -951,18 +955,18 @@ export default {
         },
     },
     watch: {
-        search() {
-            clearTimeout(this.searchDebounceTimer);
-            this.searchDebounceTimer = setTimeout(() => {
-                this.tableOptions.page = 1;
-                this.getStudentList(this.currentActive);
-            }, 500);
-        },
         dialogStudent(val) {
             val || this.closeStudent();
         },
         dialogStudentDelete(val) {
             val || this.clickCancelDeleteStd();
+        },
+        search() {
+            clearTimeout(this.searchTimer);
+            this.searchTimer = setTimeout(() => {
+                this.tableOptions.page = 1;
+                this.getStudentList(this.currentActive);
+            }, 500);
         },
     },
     computed: {
@@ -982,6 +986,7 @@ export default {
         },
         CourseUsingHeaders() {
             return [
+                { title: '#', key: 'index', width: '50px', sortable: false },
                 { title: this.$t('table.name'), key: 'fullname' },
                 { title: this.$t('table.date'), key: 'classdate' },
                 { title: this.$t('table.time'), key: 'classtime' },
@@ -1011,14 +1016,14 @@ export default {
 import { Promise } from "core-js";
 const ComponentAPI = {
     baseURL: env.SERVER_URL,
-    fetchDataStudent({ token, active, page = 1, itemsPerPage = 20, search = '' }) {
+    fetchDataStudent({ token, active, page, itemsPerPage, search, sortBy }) {
         return new Promise((resolve) => {
             axios
                 .get(this.baseURL + "/getStudentList", {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
-                    params: { active, page, itemsPerPage, search },
+                    params: { active, page, itemsPerPage, search, sortBy: JSON.stringify(sortBy ?? []) },
                 })
                 .then((response) => {
                     if (response.data.success) {
