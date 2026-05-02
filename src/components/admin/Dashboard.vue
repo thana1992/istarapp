@@ -72,6 +72,7 @@
                 <v-col cols="12" sm="4" md="2" lg="2" xl="2">
                     <v-card class="stat-card stat-card-dynamic" :style="getBookingCardColor(totalBookingToday)" link
                         @click="onClickCardToday" elevation="0">
+                        <div class="stat-accent stat-accent-cyan"></div>
                         <div class="stat-body">
                             <div class="stat-label">{{ $t('dashboard.todayBooking') }}</div>
                             <div class="stat-value">
@@ -90,6 +91,7 @@
                 <v-col cols="12" sm="4" md="2" lg="2" xl="2">
                     <v-card class="stat-card stat-card-dynamic" :style="getBookingCardColor(totalBookingTomorrow)" link
                         @click="oncClickCardTomorrow" elevation="0">
+                        <div class="stat-accent stat-accent-violet"></div>
                         <div class="stat-body">
                             <div class="stat-label">{{ $t('dashboard.tomorrowBooking') }}</div>
                             <div class="stat-value">
@@ -125,9 +127,9 @@
                 </v-col>
             </v-row>
 
-            <v-row class="content-row">
-                <v-col cols="12" sm="12" md="4" xl="3">
-                    <v-card class="content-card" elevation="0" height="470">
+            <v-row class="content-row" dense>
+                <v-col cols="12" sm="12" md="3" class="calendar-col">
+                    <v-card class="content-card" elevation="0" height="520">
                         <div class="content-card-header">
                             <span class="mdi mdi-calendar-month-outline"></span>
                             {{ $t('bookingMgmt.viewByDate') }}
@@ -138,7 +140,7 @@
                         </div>
                     </v-card>
                 </v-col>
-                <v-col cols="12" sm="12" md="8" xl="9">
+                <v-col cols="12" sm="12" md="9" class="content-col">
                     <Transition name="fade" mode="out-in">
                         <v-card class="content-card" elevation="0" v-show="state == 'studentlist'">
                             <Student @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
@@ -574,15 +576,27 @@ export default ({
             return new Date()
         },
         getBookingCardColor(count) {
-            const theme = localStorage.getItem('uiTheme') || 'neumorphic';
-            if (theme === 'halloween' || theme === 'christmas') return {};
             if (count <= 0) return {};
-            if (count >= 120) return { backgroundColor: '#d50000' };
-            const t = Math.min(count / 120, 1);
-            const r = Math.round(255 + (213 - 255) * t);
-            const g = Math.round(255 + (0 - 255) * t);
-            const b = Math.round(255 + (0 - 255) * t);
-            return { backgroundColor: `rgb(${r},${g},${b})` };
+            const t = Math.min((count - 1) / (100 - 1), 1);
+            // white → pastel green → pastel yellow → pastel red
+            let r, g, b;
+            if (t <= 0.5) {
+                const p = t / 0.5;
+                r = Math.round(255 + (134 - 255) * p);  // 255 → 134
+                g = Math.round(255 + (239 - 255) * p);  // 255 → 239
+                b = Math.round(255 + (172 - 255) * p);  // 255 → 172
+            } else if (t <= 0.75) {
+                const p = (t - 0.5) / 0.25;
+                r = Math.round(134 + (253 - 134) * p);  // 134 → 253
+                g = Math.round(239 + (224 - 239) * p);  // 239 → 224
+                b = Math.round(172 + (71 - 172) * p);   // 172 → 71
+            } else {
+                const p = (t - 0.75) / 0.25;
+                r = Math.round(253 + (248 - 253) * p);  // 253 → 248
+                g = Math.round(224 + (113 - 224) * p);  // 224 → 113
+                b = Math.round(71 + (113 - 71) * p);    // 71 → 113
+            }
+            return { background: `rgb(${r},${g},${b})` };
         },
         animateTomorrow() {
             // รีเซ็ตค่า
@@ -935,13 +949,14 @@ const DashboardAPI = {
 .stat-card {
     position: relative;
     border-radius: 22px !important;
-    background: linear-gradient(145deg, #ffffff, #e8ebf1) !important;
+    background: linear-gradient(145deg, #ffffff, #e8ebf1);
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
     overflow: hidden !important;
     border: none !important;
     box-shadow:
         9px 9px 22px rgba(163, 177, 198, 0.5),
-        -9px -9px 22px rgba(255, 255, 255, 0.95) !important;
+        -9px -9px 22px rgba(255, 255, 255, 0.95),
+        0 0 0 1px rgba(163, 177, 198, 0.25) !important;
     min-height: 140px;
     cursor: pointer;
 }
@@ -987,6 +1002,14 @@ const DashboardAPI = {
 
 .stat-accent-amber {
     background: linear-gradient(90deg, #f59e0b, #f97316);
+}
+
+.stat-accent-cyan {
+    background: linear-gradient(90deg, #06b6d4, #0284c7);
+}
+
+.stat-accent-violet {
+    background: linear-gradient(90deg, #8b5cf6, #6366f1);
 }
 
 .stat-body {
@@ -1097,13 +1120,24 @@ const DashboardAPI = {
     margin-top: 8px;
 }
 
+.calendar-col {
+    min-width: 0 !important;
+    overflow: hidden !important;
+}
+
+.content-col {
+    min-width: 0 !important;
+}
+
+
 .content-card {
     border-radius: 22px !important;
     background: linear-gradient(145deg, #ffffff, #e8ebf1) !important;
     border: none !important;
     box-shadow:
         9px 9px 22px rgba(163, 177, 198, 0.45),
-        -9px -9px 22px rgba(255, 255, 255, 0.95) !important;
+        -9px -9px 22px rgba(255, 255, 255, 0.95),
+        0 0 0 1px rgba(163, 177, 198, 0.25) !important;
     overflow: hidden !important;
 }
 
@@ -1129,9 +1163,10 @@ const DashboardAPI = {
     padding: 12px;
     display: flex;
     justify-content: center;
+    overflow: hidden;
 }
 
-/* Date picker — blend into neumorphic content-card */
+/* Date picker — blend into neumorphic content-card, force full width */
 .datepick,
 :deep(.datepick),
 :deep(.datepick .v-picker),
@@ -1149,6 +1184,7 @@ const DashboardAPI = {
     box-shadow: none !important;
     border: none !important;
 }
+
 
 /* ===== Pulse animation (Approve New Students card) — Neumorphic glow ===== */
 .pulse {
@@ -1173,6 +1209,36 @@ const DashboardAPI = {
     }
 }
 
+/* ===== Playful theme overrides ===== */
+html.theme-playful .stat-accent-blue,
+html.theme-playful .stat-accent-green,
+html.theme-playful .stat-accent-cyan,
+html.theme-playful .stat-accent-violet {
+    background: linear-gradient(90deg, #fb7185, #f43f5e);
+}
+
+html.theme-playful .stat-card {
+    background:
+        radial-gradient(ellipse at 22% 16%, rgba(255,255,255,0.82) 0%, transparent 52%),
+        radial-gradient(ellipse at 78% 85%, rgba(251, 113, 133, 0.13) 0%, transparent 48%),
+        linear-gradient(140deg, #ffffff 0%, #fff0f6 55%, #fce4ec 100%);
+    box-shadow:
+        6px 6px 18px rgba(244, 63, 94, 0.15),
+        -4px -4px 14px rgba(255, 255, 255, 0.95),
+        0 0 0 1.5px rgba(251, 113, 133, 0.22) !important;
+}
+
+html.theme-playful .content-card {
+    background:
+        radial-gradient(ellipse at 20% 14%, rgba(255,255,255,0.82) 0%, transparent 52%),
+        radial-gradient(ellipse at 80% 86%, rgba(251, 113, 133, 0.11) 0%, transparent 48%),
+        linear-gradient(140deg, #ffffff 0%, #fff0f6 55%, #fce4ec 100%) !important;
+    box-shadow:
+        6px 6px 18px rgba(244, 63, 94, 0.15),
+        -4px -4px 14px rgba(255, 255, 255, 0.95),
+        0 0 0 1.5px rgba(251, 113, 133, 0.22) !important;
+}
+
 /* ===== Fade transition for content area ===== */
 .fade-enter-active,
 .fade-leave-active {
@@ -1190,7 +1256,7 @@ const DashboardAPI = {
    which beats the base .xxx[data-v-*] in specificity.
    ================================================================ */
 
-html.theme-halloween .stat-card {
+html.theme-halloween .stat-card:not(.stat-card-dynamic) {
   background: linear-gradient(145deg, #1e0a38, #150824) !important;
   box-shadow:
     9px 9px 22px rgba(0, 0, 0, 0.7),
@@ -1213,13 +1279,14 @@ html.theme-halloween .stat-card-active {
     9px 9px 22px rgba(0, 0, 0, 0.7),
     0 0 0 1px rgba(255, 140, 0, 0.18) !important;
 }
-/* dynamic booking cards — drop inline color, use theme bg */
-html.theme-halloween .stat-card-dynamic {
-  background: linear-gradient(145deg, #1e0a38, #150824) !important;
+/* dynamic booking cards — let inline style from getBookingCardColor() control background */
+html.theme-halloween .stat-accent-cyan,
+html.theme-halloween .stat-accent-violet {
+  background: linear-gradient(90deg, #ff8c00, #ffb347) !important;
 }
 html.theme-halloween .stat-card-dynamic .stat-label,
 html.theme-halloween .stat-card-dynamic .stat-value,
-html.theme-halloween .stat-card-dynamic .stat-meta { color: inherit !important; }
+html.theme-halloween .stat-card-dynamic .stat-meta { color: #334155 !important; }
 
 html.theme-halloween .stat-label  { color: #c4a8e8 !important; }
 html.theme-halloween .stat-value  { color: #f0e6ff !important; }
@@ -1295,7 +1362,7 @@ html.theme-halloween :deep(.v-date-picker-month__day--disabled .v-btn) {
    ================================================================ */
 
 /* Snow-white stat cards floating on dark green background */
-html.theme-christmas .stat-card {
+html.theme-christmas .stat-card:not(.stat-card-dynamic) {
   background: rgba(242, 255, 245, 0.93) !important;
   box-shadow:
     8px 8px 24px rgba(0, 0, 0, 0.55),
@@ -1311,8 +1378,15 @@ html.theme-christmas .stat-card:hover {
 html.theme-christmas .stat-card-active {
   background: rgba(220, 252, 231, 0.93) !important;
 }
-html.theme-christmas .stat-card-dynamic {
-  background: rgba(242, 255, 245, 0.93) !important;
+/* dynamic cards — let inline style from getBookingCardColor() control background */
+html.theme-christmas .stat-card-dynamic .stat-label,
+html.theme-christmas .stat-card-dynamic .stat-value,
+html.theme-christmas .stat-card-dynamic .stat-meta { color: #334155 !important; }
+html.theme-christmas .stat-accent-cyan {
+  background: linear-gradient(90deg, #dc2626, #ef4444) !important;
+}
+html.theme-christmas .stat-accent-violet {
+  background: linear-gradient(90deg, #d97706, #fbbf24) !important;
 }
 html.theme-christmas .stat-label  { color: #166534 !important; }
 html.theme-christmas .stat-value  { color: #0d3a0d !important; }
@@ -1389,14 +1463,16 @@ html.theme-christmas :deep(.v-date-picker-month__day--disabled .v-btn) {
     border: none !important;
     box-shadow:
         9px 9px 22px rgba(0, 0, 0, 0.45),
-        -9px -9px 22px rgba(60, 72, 95, 0.4) !important;
+        -9px -9px 22px rgba(60, 72, 95, 0.4),
+        0 0 0 1px rgba(99, 102, 241, 0.2) !important;
 }
 
 :deep(.v-theme--dark) .stat-card:hover,
 :deep(.v-theme--dark) .content-card:hover {
     box-shadow:
         12px 12px 28px rgba(0, 0, 0, 0.5),
-        -12px -12px 28px rgba(60, 72, 95, 0.45) !important;
+        -12px -12px 28px rgba(60, 72, 95, 0.45),
+        0 0 0 1px rgba(99, 102, 241, 0.25) !important;
 }
 
 :deep(.v-theme--dark) .stat-card-active {

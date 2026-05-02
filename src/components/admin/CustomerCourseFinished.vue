@@ -201,6 +201,11 @@
                     {{ expireDateLeft(item.expiredate) }}
                 </p>
             </template>
+          <template v-slot:item.remaining="{ item }">
+            <span v-if="item.coursetype === 'Monthly'">รายเดือน</span>
+            <span v-else-if="item.remaining !== null && item.remaining !== ''">{{ item.remaining }} ครั้ง</span>
+            <span v-else>-</span>
+          </template>
           <!-- <template v-slot:item.actions="{ item }">
             <v-icon size="small" class="me-2" @click="editItem(item)">
               mdi-pencil
