@@ -62,6 +62,9 @@
               </v-dialog>
               </v-toolbar>
             </template>
+            <template v-slot:[`item.holidaydate`]="{ item }">
+              {{ format_date(item.holidaydate) }}
+            </template>
             <template v-slot:item.actions="{ item }">
               <v-icon size="large" color="error" @click="deleteItem(item)">mdi-delete-forever</v-icon>
             </template>
@@ -125,9 +128,6 @@
         })
           .then(response => {
             this.holidayList = response.data.data;
-            this.holidayList.forEach(holiday => {
-              holiday.holidaydate = this.format_date(holiday.holidaydate);
-            });
             this.loadingHolidays = false;
           })
           .catch(error => {
