@@ -6,26 +6,25 @@
         <div class="container-content">
             <v-divider color="#fffff" thickness="3"></v-divider>
 
-            <v-card class="res-card card-opacity mx-auto mt-4 px-6 py-6">
+            <v-card class="res-card card-opacity mx-auto mt-4">
                 <v-form ref="reserveForm">
-                    <v-row justify="space-around" class="ma-2 pa-2">
-                        <p>{{ $t('reservation.bookingFor', { name: student.firstname + ' ' + student.lastname }) }}</p>
-                    </v-row>
-                    <v-row justify="space-around" class="ma-2 pa-2">
-                        <v-date-picker v-model="date" :min="minDate" :allowed-dates="isDateAllowed" @update:month="handleMonthChange" @click="selectDate"></v-date-picker>
-                    </v-row>
-                    <v-row justify="space-around" class="ma-2 pa-2">
-                        <v-select v-model="classtimeSelect" :label="$t('home.classTime')" class="ma-2 pa-2" item-title="text"
+                    <div class="px-6 pt-5 pb-1">
+                        <p class="booking-for-text">{{ $t('reservation.bookingFor', { name: student.firstname + ' ' + student.lastname }) }}</p>
+                    </div>
+                    <v-container>
+                        <v-row justify="space-around">
+                            <v-date-picker v-model="date" :min="minDate" :allowed-dates="isDateAllowed" @update:month="handleMonthChange" @click="selectDate"></v-date-picker>
+                        </v-row>
+                    </v-container>
+                    <div class="px-6 pt-4 pb-6">
+                        <v-select v-model="classtimeSelect" :label="$t('home.classTime')" item-title="text"
                             item-value="classid" :items="classtimesData" variant="outlined" :rules="classTimeRules"
                             :no-data-text="$t('reservation.noClassTime')" return-object required></v-select>
-                    </v-row>
-
-                    <v-row justify="space-around" class="ma-2 pa-2">
                         <v-btn class="mt-4 neu-action-btn" size="large" block @click="validate" required>
                             <v-icon>mdi-emoticon-plus</v-icon>
                             &nbsp;{{ $t('home.bookClass') }}
                         </v-btn>
-                    </v-row>
+                    </div>
                 </v-form>
             </v-card>
         </div>
@@ -277,4 +276,12 @@ export default {
 /* .v-date-picker-month__day {
     height: auto !important;
 } */
+</style>
+
+<style scoped>
+.booking-for-text {
+    margin: 0;
+    font-size: 14px;
+    color: #475569;
+}
 </style>

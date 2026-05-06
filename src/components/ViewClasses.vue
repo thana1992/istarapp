@@ -9,7 +9,7 @@
                     <v-col cols="12" sm="12" md="4" xl="3">
                         <v-card class="mx-0 card-opacity" height="470">
                             <v-list-item class="header-card">
-                                <div>{{ $t('viewClasses.viewByDate') }}</div>
+                                <v-card-title class="text-center">{{ $t('viewClasses.viewByDate') }}</v-card-title>
                             </v-list-item>
                             <v-container>
                                 <v-row justify="space-around">

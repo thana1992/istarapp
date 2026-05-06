@@ -4,8 +4,7 @@
       <v-col cols="12" sm="12" md="12" xl="12">
         <v-card class="mx-auto card-opacity">
           <v-list-item class="header-card">
-            <v-card-title>{{ $t('bookingList.classBooking') }} {{ classdate.toLocaleDateString('en-US', options) }}</v-card-title>
-            <v-card-text>{{ $t('bookingList.classBooking') }} {{ classdate.toLocaleDateString('th-TH', options) }}</v-card-text>
+            <v-card-title>{{ $t('bookingList.classBooking') }} {{ classdate.toLocaleDateString('th-TH', options) }}</v-card-title>
           </v-list-item>
           <v-data-table :loading="loadingBooking" :headers="bookingHeaders" :items="bookingData" items-per-page="20" class="elevation-1">
             <template v-slot:loading>

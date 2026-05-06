@@ -23,9 +23,16 @@
                          class="family-row"
                          :class="{ 'family-row--active': p.studentid === studentid }"
                          @click="selectChild(p)">
-                        <div class="avatar-wrap">
-                            <v-img :src="p.gender === 'หญิง' ? profileGirl : profileBoy" cover
-                                   width="46" height="46"></v-img>
+                        <div class="avatar-container">
+                            <div class="avatar-wrap">
+                                <v-img :src="p.profile_image_url || (p.gender === 'หญิง' ? profileGirl : profileBoy)" cover
+                                       width="46" height="46"></v-img>
+                            </div>
+                            <label class="avatar-upload-btn" :for="`upload-${p.studentid}`" @click.stop>
+                                <v-icon size="10">mdi-camera</v-icon>
+                            </label>
+                            <input :id="`upload-${p.studentid}`" type="file" accept="image/*" style="display:none"
+                                   @change="(e) => uploadPhotoFile(e.target.files[0], p.studentid)">
                         </div>
                         <div class="family-row-info">
                             <span class="member-name">{{ p.fullname }}</span>
@@ -52,9 +59,17 @@
 
                     <!-- Profile photo -->
                     <div class="info-photo">
-                        <div class="profile-wrap">
-                            <v-img :src="imagePreview || (studentSelected.gender === 'หญิง' ? profileGirl : profileBoy)"
-                                   cover width="130" height="130"></v-img>
+                        <div class="profile-container">
+                            <div class="profile-wrap">
+                                <v-img :src="imagePreview || (studentSelected.gender === 'หญิง' ? profileGirl : profileBoy)"
+                                       cover width="130" height="130"></v-img>
+                            </div>
+                            <label class="profile-upload-btn" :for="`upload-main-${studentSelected.studentid}`">
+                                <v-icon size="16">mdi-camera</v-icon>
+                            </label>
+                            <input :id="`upload-main-${studentSelected.studentid}`" type="file" accept="image/*"
+                                   style="display:none"
+                                   @change="(e) => uploadPhotoFile(e.target.files[0], studentSelected.studentid)">
                         </div>
                     </div>
 
@@ -189,12 +204,35 @@ export default {
                 .then(response => {
                     if (response.data.success) {
                         this.familylist = response.data.results
+                        this.loadFamilyImages()
                     }
                 })
                 .catch(error => {
                     //console.error(error);
                 });
             this.$emit('onLoading', false)
+        },
+        async loadFamilyImages() {
+            if (!this.familylist || this.familylist.length === 0) return;
+            const token = this.$store.getters.getToken;
+            await Promise.all(
+                this.familylist.map(async (member) => {
+                    if (member.profile_image_url) return;
+                    try {
+                        const response = await axios.get(
+                            this.baseURL + `/student/${member.studentid}/profile-image`,
+                            { headers: { Authorization: `Bearer ${token}` } }
+                        );
+                        if (response.data.imageUrl) {
+                            member.profile_image_url = response.data.imageUrl;
+                        } else if (response.data.image) {
+                            member.profile_image_url = `data:image/*;base64,${response.data.image}`;
+                        }
+                    } catch (e) {
+                        // ไม่มีรูป — ใช้ default
+                    }
+                })
+            );
         },
         async loadProfileImage() {
             try {
@@ -265,6 +303,39 @@ export default {
             const today = new Date();
             const expirationDate = new Date(expdate);
             return expirationDate < today;
+        },
+        async uploadPhotoFile(file, studentid) {
+            if (!file) return;
+            if (file.size > 4 * 1024 * 1024) {
+                this.$emit('onErrorHandler', 'ไฟล์รูปต้องไม่เกิน 4MB');
+                return;
+            }
+            const ext = file.name.split('.').pop();
+            const renamedFile = new File([file], `${studentid}.${ext}`, { type: file.type });
+            const formData = new FormData();
+            formData.append('profileImage', renamedFile);
+            formData.append('studentid', String(studentid));
+            try {
+                this.$emit('onLoading', true);
+                const response = await fetch(this.baseURL + '/uploadProfileImage', {
+                    method: 'POST',
+                    headers: { Authorization: `Bearer ${this.token}` },
+                    body: formData,
+                });
+                const data = await response.json();
+                if (data.url) {
+                    const member = this.familylist.find(p => p.studentid === studentid);
+                    if (member) member.profile_image_url = data.url;
+                    if (this.studentSelected && this.studentSelected.studentid === studentid) {
+                        this.imagePreview = data.url;
+                    }
+                    this.$emit('onSuccessHandler', 'อัพโหลดรูปสำเร็จ');
+                }
+            } catch (e) {
+                this.$emit('onErrorHandler', 'อัพโหลดรูปไม่สำเร็จ');
+            } finally {
+                this.$emit('onLoading', false);
+            }
         },
     },
     props: {
@@ -377,13 +448,36 @@ export default {
     border-left: 3px solid #6366f1;
 }
 
+.avatar-container {
+    position: relative;
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+}
+
 .avatar-wrap {
     width: 46px;
     height: 46px;
     border-radius: 50%;
     overflow: hidden;
-    flex-shrink: 0;
     background: #e0e5ec;
+}
+
+.avatar-upload-btn {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: #f43f5e;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    z-index: 1;
 }
 
 .family-row-info {
@@ -423,12 +517,33 @@ export default {
     justify-content: center;
 }
 
+.profile-container {
+    position: relative;
+    display: inline-block;
+}
+
 .profile-wrap {
     width: 130px;
     height: 130px;
     border-radius: 50%;
     overflow: hidden;
     background: #e0e5ec;
+}
+
+.profile-upload-btn {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: #f43f5e;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(244, 63, 94, 0.45);
 }
 
 /* ── Info text ── */
