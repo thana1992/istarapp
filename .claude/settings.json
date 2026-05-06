@@ -1,7 +1,9 @@
 {
   "permissions": {
     "allow": [
-      "Bash(node -e \"const v = require\\('c:/iStarApp/istarapp_dev/node_modules/vuetify/lib/locale/th.mjs'\\); console.log\\(JSON.stringify\\(Object.keys\\(v.default || v\\).slice\\(0,20\\)\\)\\)\")"
+      "Bash(node -e \"const v = require\\('c:/iStarApp/istarapp_dev/node_modules/vuetify/lib/locale/th.mjs'\\); console.log\\(JSON.stringify\\(Object.keys\\(v.default || v\\).slice\\(0,20\\)\\)\\)\")",
+      "Bash(grep -o \"#[0-9a-fA-F]\\\\{6\\\\}\\\\|rgba\\([0-9, .]*\\)\" \"c:/iStarApp/istarapp_dev/src/styles/global-style.css\")",
+      "Bash(awk 'NR>=250 && NR<=400')"
     ]
   }
 }

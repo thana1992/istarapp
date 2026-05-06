@@ -130,14 +130,18 @@
             <v-row class="content-row" dense>
                 <v-col cols="12" sm="12" md="3" class="calendar-col">
                     <v-card class="content-card" elevation="0" height="520">
-                        <div class="content-card-header">
-                            <span class="mdi mdi-calendar-month-outline"></span>
-                            {{ $t('bookingMgmt.viewByDate') }}
-                        </div>
-                        <div class="datepicker-wrap">
-                            <v-date-picker class="datepick" v-model="datepick"
-                                @update:model-value="selectDate"></v-date-picker>
-                        </div>
+                        <v-list-item class="header-card">
+                            <v-card-title>
+                                <span class="mdi mdi-calendar-month-outline calendar-header-icon"></span>
+                                {{ $t('bookingMgmt.viewByDate') }}
+                            </v-card-title>
+                        </v-list-item>
+                        <v-container>
+                            <v-row justify="space-around">
+                                <v-date-picker class="datepick" v-model="datepick"
+                                    @update:model-value="selectDate"></v-date-picker>
+                            </v-row>
+                        </v-container>
                     </v-card>
                 </v-col>
                 <v-col cols="12" sm="12" md="9" class="content-col">
@@ -1141,50 +1145,23 @@ const DashboardAPI = {
     overflow: hidden !important;
 }
 
-.content-card-header {
-    background: linear-gradient(145deg, #eef0f5, #dde2eb);
-    padding: 16px 20px;
-    font-weight: 600;
-    color: #334155;
-    box-shadow: inset 0 -1px 2px rgba(163, 177, 198, 0.15);
-    font-family: 'Kodchasan', sans-serif;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.content-card-header .mdi {
+.calendar-header-icon {
     font-size: 18px;
     color: #6366f1;
+    margin-right: 8px;
 }
 
-.datepicker-wrap {
-    padding: 12px;
-    display: flex;
-    justify-content: center;
-    overflow: hidden;
-}
-
-/* Date picker — blend into neumorphic content-card, force full width */
-.datepick,
+/* Date picker — blend into neumorphic content-card */
 :deep(.datepick),
-:deep(.datepick .v-picker),
-:deep(.datepick .v-picker__body),
-:deep(.datepick .v-card),
-:deep(.datepick .v-sheet),
-:deep(.datepick > *),
-:deep(.v-date-picker),
-:deep(.v-date-picker > *),
-:deep(.v-date-picker-month),
-:deep(.v-date-picker-controls),
-:deep(.v-date-picker-header) {
+:deep(.v-date-picker) {
     background: transparent !important;
-    background-color: transparent !important;
-    box-shadow: none !important;
-    border: none !important;
 }
 
+:deep(.v-date-picker__header),
+:deep(.v-date-picker-controls),
+:deep(.v-date-picker-month) {
+    background: transparent !important;
+}
 
 /* ===== Pulse animation (Approve New Students card) — Neumorphic glow ===== */
 .pulse {
@@ -1209,34 +1186,44 @@ const DashboardAPI = {
     }
 }
 
-/* ===== Playful theme overrides ===== */
+/* ===== Playful theme overrides — uses tokens from global-style.css ===== */
 html.theme-playful .stat-accent-blue,
 html.theme-playful .stat-accent-green,
 html.theme-playful .stat-accent-cyan,
 html.theme-playful .stat-accent-violet {
-    background: linear-gradient(90deg, #fb7185, #f43f5e);
+    background: linear-gradient(90deg, var(--pf-primary-light), var(--pf-primary));
 }
 
-html.theme-playful .stat-card {
-    background:
-        radial-gradient(ellipse at 22% 16%, rgba(255,255,255,0.82) 0%, transparent 52%),
-        radial-gradient(ellipse at 78% 85%, rgba(251, 113, 133, 0.13) 0%, transparent 48%),
-        linear-gradient(140deg, #ffffff 0%, #fff0f6 55%, #fce4ec 100%);
-    box-shadow:
-        6px 6px 18px rgba(244, 63, 94, 0.15),
-        -4px -4px 14px rgba(255, 255, 255, 0.95),
-        0 0 0 1.5px rgba(251, 113, 133, 0.22) !important;
-}
-
+html.theme-playful .stat-card,
 html.theme-playful .content-card {
     background:
-        radial-gradient(ellipse at 20% 14%, rgba(255,255,255,0.82) 0%, transparent 52%),
-        radial-gradient(ellipse at 80% 86%, rgba(251, 113, 133, 0.11) 0%, transparent 48%),
-        linear-gradient(140deg, #ffffff 0%, #fff0f6 55%, #fce4ec 100%) !important;
+        radial-gradient(ellipse at 22% 16%, rgba(255, 255, 255, 0.82) 0%, transparent 52%),
+        radial-gradient(ellipse at 78% 85%, rgba(251, 113, 133, 0.13) 0%, transparent 48%),
+        var(--pf-gradient-card-deep) !important;
     box-shadow:
-        6px 6px 18px rgba(244, 63, 94, 0.15),
-        -4px -4px 14px rgba(255, 255, 255, 0.95),
-        0 0 0 1.5px rgba(251, 113, 133, 0.22) !important;
+        var(--pf-shadow-rose-md),
+        var(--pf-shadow-light),
+        0 0 0 1.5px var(--pf-border-soft) !important;
+}
+
+/* Stat card label/value text — readable rose tones */
+html.theme-playful .stat-label {
+    color: var(--pf-primary-dark) !important;
+}
+html.theme-playful .stat-value {
+    color: var(--pf-text-heading) !important;
+}
+html.theme-playful .stat-meta {
+    color: var(--pf-primary-dark) !important;
+}
+html.theme-playful .stat-icons .mdi {
+    color: var(--pf-primary) !important;
+    opacity: 0.85;
+}
+
+/* Calendar header icon — rose accent */
+html.theme-playful .calendar-header-icon {
+    color: var(--pf-primary) !important;
 }
 
 /* ===== Fade transition for content area ===== */

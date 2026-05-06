@@ -527,6 +527,48 @@ div.card-opacity .v-card-title {
   background: transparent !important;
 }
 
+/* ===== Compact date picker — uniform across all pages ===== */
+/* Day cells smaller for better fit in cards (was ~40px, now 36px) */
+.v-date-picker-month__day {
+  width: 36px !important;
+  height: 36px !important;
+  min-width: 36px !important;
+}
+
+.v-date-picker-month__day .v-btn {
+  width: 32px !important;
+  height: 32px !important;
+  min-width: 32px !important;
+  font-size: 13px !important;
+}
+
+.v-date-picker-month__weekday {
+  width: 36px !important;
+  font-size: 12px !important;
+}
+
+.v-date-picker-month {
+  padding: 0 4px !important;
+  min-width: 0 !important;
+}
+
+.v-date-picker-controls {
+  padding: 4px 8px !important;
+}
+
+/* Date picker header (the big "Sat, May 2" title) — slightly smaller */
+.v-date-picker__header,
+.v-picker__title {
+  font-size: 16px !important;
+  padding: 8px 16px !important;
+}
+
+/* Hide "SELECT DATE" sub-title — only show the actual date */
+.v-picker-title,
+.v-date-picker-header__append {
+  display: none !important;
+}
+
 /* Inner flat v-card inside a div.card-opacity — passthrough */
 div.card-opacity > .v-card,
 div.card-opacity .v-card--flat {
@@ -749,83 +791,120 @@ div.card-opacity .v-card--flat {
    Color palette: Rose-Pink + Violet + Amber
    ================================================================ */
 
+/* ----------------------------------------------------------------
+   Token system — เปลี่ยนสี/gradient ที่นี่ที่เดียว ทุกจุดในหน้าจะ
+   เปลี่ยนตามอัตโนมัติ (cards, headers, tables, forms, buttons ฯลฯ)
+   ---------------------------------------------------------------- */
+html.theme-playful {
+  /* Brand — ลำดับชั้นความเข้ม */
+  --pf-primary:        #f43f5e;   /* main accent: buttons, icons, active */
+  --pf-primary-light:  #fb7185;   /* gradient pair, lighter */
+  --pf-primary-dark:   #be185d;   /* deeper rose for emphasis */
+  --pf-primary-deeper: #9d174d;   /* darkest — heading text */
+  --pf-secondary:      #a78bfa;   /* violet accent */
+  --pf-accent:         #fbbf24;   /* amber sparkle for fun */
+
+  /* Surfaces (light → deeper) */
+  --pf-surface:        #ffffff;
+  --pf-surface-tint-1: #fff5fb;
+  --pf-surface-tint-2: #fff0f6;
+  --pf-surface-tint-3: #fce4ec;
+  --pf-surface-pink:   #fce7f3;
+  --pf-surface-violet: #ede9fe;
+  --pf-surface-cream:  #fdf2f8;
+
+  /* Text */
+  --pf-text-heading:   var(--pf-primary-deeper);
+  --pf-text-body:      #475569;
+  --pf-text-muted:     #f9a8d4;
+
+  /* Effects */
+  --pf-shadow-rose-sm: 4px 4px 10px rgba(244, 63, 94, 0.15);
+  --pf-shadow-rose-md: 6px 6px 18px rgba(244, 63, 94, 0.18);
+  --pf-shadow-rose-lg: 8px 8px 22px rgba(244, 63, 94, 0.28);
+  --pf-shadow-violet:  -4px -4px 12px rgba(167, 139, 250, 0.15);
+  --pf-shadow-light:   -4px -4px 12px rgba(255, 255, 255, 0.95);
+  --pf-border-soft:    rgba(251, 113, 133, 0.2);
+  --pf-border:         rgba(251, 113, 133, 0.3);
+  --pf-border-strong:  rgba(244, 63, 94, 0.5);
+  --pf-tint-hover:     rgba(244, 63, 94, 0.06);
+  --pf-tint-active:    rgba(244, 63, 94, 0.1);
+
+  /* Pre-built gradients */
+  --pf-gradient-primary:      linear-gradient(145deg, var(--pf-primary-light) 0%, var(--pf-primary) 100%);
+  --pf-gradient-card:         linear-gradient(135deg, var(--pf-surface) 0%, var(--pf-surface-tint-1) 100%);
+  --pf-gradient-card-deep:    linear-gradient(140deg, var(--pf-surface) 0%, var(--pf-surface-tint-2) 55%, var(--pf-surface-tint-3) 100%);
+  --pf-gradient-header:       linear-gradient(to right, var(--pf-surface-pink), var(--pf-surface-violet));
+  --pf-gradient-header-soft:  linear-gradient(145deg, var(--pf-surface-pink), var(--pf-surface-violet));
+  --pf-gradient-bg:           linear-gradient(135deg, #fff0f8 0%, #f5f0ff 50%, #fff8f0 100%);
+  --pf-gradient-text-heading: linear-gradient(135deg, var(--pf-primary-deeper), var(--pf-primary-dark));
+}
+
+/* ── Page background ── */
 html.theme-playful body {
-  background: linear-gradient(135deg, #fff0f8 0%, #f5f0ff 50%, #fff8f0 100%) !important;
+  background: var(--pf-gradient-bg) !important;
 }
 
 html.theme-playful .login-page {
-  background: linear-gradient(135deg, #fce7f3 0%, #ede9fe 50%, #fce7f3 100%) !important;
+  background: linear-gradient(135deg, var(--pf-surface-pink) 0%, var(--pf-surface-violet) 50%, var(--pf-surface-pink) 100%) !important;
 }
 
-/* ── Cards ── */
+/* ── Cards (.card-opacity) ── */
 html.theme-playful .card-opacity {
-  background: linear-gradient(135deg, #ffffff 0%, #fff5fb 100%) !important;
+  background: var(--pf-gradient-card) !important;
   box-shadow:
-    6px 6px 18px rgba(244, 63, 94, 0.18),
-    -4px -4px 12px rgba(167, 139, 250, 0.15),
-    0 0 0 1.5px rgba(251, 113, 133, 0.2) !important;
+    var(--pf-shadow-rose-md),
+    var(--pf-shadow-violet),
+    0 0 0 1.5px var(--pf-border-soft) !important;
   border-radius: 26px !important;
 }
 
-/* ── Toolbar inside cards ── */
+/* ── Toolbar / v-card-title inside cards ── */
 html.theme-playful .card-opacity .v-toolbar,
-html.theme-playful div.card-opacity .v-toolbar {
-  background: linear-gradient(to right, #fce7f3, #ede9fe) !important;
-  border-bottom: 1px solid rgba(251, 113, 133, 0.25) !important;
-}
-
-/* ── v-card-title inside cards ── */
+html.theme-playful div.card-opacity .v-toolbar,
 html.theme-playful .v-card.card-opacity > .v-card-title,
 html.theme-playful div.card-opacity .v-card-title {
-  background: linear-gradient(to right, #fce7f3, #ede9fe) !important;
-  color: #9d174d !important;
-  border-bottom-color: rgba(251, 113, 133, 0.25) !important;
+  background: var(--pf-gradient-header) !important;
+  color: var(--pf-text-heading) !important;
+  border-bottom: 1px solid var(--pf-border) !important;
 }
 
-/* ── Section header bands (Home, Family) ── */
-html.theme-playful .home-section-header {
-  background: linear-gradient(to right, #fce7f3, #ede9fe) !important;
-  color: #9d174d !important;
-  border-bottom-color: rgba(251, 113, 133, 0.25) !important;
+/* ── Header bands (consolidated): home/section/header-card/sticky ── */
+html.theme-playful .home-section-header,
+html.theme-playful .section-header,
+html.theme-playful .header-card,
+html.theme-playful .sticky-header {
+  background: var(--pf-gradient-header) !important;
+  color: var(--pf-text-heading) !important;
+  border-bottom-color: var(--pf-border) !important;
 }
-html.theme-playful .home-section-header .mdi {
-  color: #f43f5e !important;
-}
-
-html.theme-playful .section-header {
-  background: linear-gradient(to right, #fce7f3, #ede9fe) !important;
-  color: #9d174d !important;
-  border-bottom-color: rgba(251, 113, 133, 0.25) !important;
-}
+html.theme-playful .home-section-header .mdi,
 html.theme-playful .section-header .mdi {
-  color: #f43f5e !important;
+  color: var(--pf-primary) !important;
 }
 
-/* ── Container header h1 ── */
+/* ── Container header h1 + dashboard icon ── */
 html.theme-playful .container-header h1 {
-  color: #9d174d !important;
+  color: var(--pf-text-heading) !important;
 }
-html.theme-playful .container-header h1 .mdi {
-  background: linear-gradient(145deg, #fb7185 0%, #f43f5e 100%) !important;
-  box-shadow:
-    5px 5px 12px rgba(244, 63, 94, 0.35),
-    -3px -3px 8px rgba(255, 255, 255, 0.75),
-    inset 1px 1px 2px rgba(255, 255, 255, 0.3) !important;
-}
+html.theme-playful .container-header h1 .mdi,
 html.theme-playful .dashboard-header-icon {
-  background: linear-gradient(145deg, #fb7185 0%, #f43f5e 100%) !important;
+  background: var(--pf-gradient-primary) !important;
+  color: #ffffff !important;
   box-shadow:
     6px 6px 14px rgba(244, 63, 94, 0.4),
     -4px -4px 10px rgba(255, 255, 255, 0.75),
     inset 1px 1px 2px rgba(255, 255, 255, 0.3),
     inset -1px -1px 2px rgba(0, 0, 0, 0.08) !important;
+}
+html.theme-playful .dashboard-header-icon {
   width: 46px !important;
   height: 46px !important;
   min-width: 46px !important;
   border-radius: 14px !important;
 }
 html.theme-playful .dashboard-title {
-  background: linear-gradient(135deg, #9d174d, #be185d) !important;
+  background: var(--pf-gradient-text-heading) !important;
   -webkit-background-clip: text !important;
   background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
@@ -834,70 +913,123 @@ html.theme-playful .dashboard-title {
 
 /* ── App bar ── */
 html.theme-playful .v-app-bar {
-  background: linear-gradient(to right, #fce7f3 0%, #ede9fe 100%) !important;
+  background: var(--pf-gradient-header) !important;
   box-shadow:
     0 6px 16px rgba(244, 63, 94, 0.2),
     0 -2px 6px rgba(255, 255, 255, 0.6) !important;
 }
 html.theme-playful .v-app-bar .v-btn {
-  color: #9d174d !important;
+  color: var(--pf-text-heading) !important;
 }
 html.theme-playful .v-app-bar .v-btn:hover {
-  color: #f43f5e !important;
+  color: var(--pf-primary) !important;
 }
 
 /* ── Navigation drawer ── */
 html.theme-playful .v-navigation-drawer {
-  background: linear-gradient(to bottom, #fff5fb 0%, #f5f0ff 100%) !important;
+  background: linear-gradient(to bottom, var(--pf-surface-tint-1) 0%, #f5f0ff 100%) !important;
   box-shadow:
     8px 0 20px rgba(244, 63, 94, 0.15),
     -2px 0 6px rgba(255, 255, 255, 0.6) !important;
 }
 html.theme-playful .v-navigation-drawer .v-list .v-list-item--active {
-  background: linear-gradient(145deg, #fb7185, #f43f5e) !important;
+  background: var(--pf-gradient-primary) !important;
   color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(244, 63, 94, 0.35) !important;
 }
 html.theme-playful .v-navigation-drawer .v-list .v-list-item:hover {
-  background: rgba(244, 63, 94, 0.08) !important;
-  color: #9d174d !important;
+  background: var(--pf-tint-hover) !important;
+  color: var(--pf-text-heading) !important;
 }
 html.theme-playful .v-navigation-drawer .v-list .v-list-item--active .v-list-item__prepend .v-icon,
 html.theme-playful .v-navigation-drawer .v-list .v-list-item--active .v-list-item-title {
   color: #ffffff !important;
 }
 html.theme-playful .v-navigation-drawer .v-label {
-  color: #f9a8d4 !important;
+  color: var(--pf-text-muted) !important;
 }
 html.theme-playful .v-navigation-drawer .v-divider,
 html.theme-playful .v-navigation-drawer hr {
-  border-color: rgba(251, 113, 133, 0.25) !important;
+  border-color: var(--pf-border) !important;
 }
 
-/* ── Sticky headers ── */
-html.theme-playful .sticky-header {
-  background: linear-gradient(145deg, #fce7f3, #ede9fe) !important;
-  color: #9d174d !important;
+/* ──────────────────────────────────────────────────────────
+   Phase 3 coverage — admin tables, forms, pagination, dialogs
+   ────────────────────────────────────────────────────────── */
+
+/* ── Data tables: header row ── */
+html.theme-playful .v-table > .v-table__wrapper > table > thead > tr,
+html.theme-playful .v-data-table thead tr {
+  background: var(--pf-gradient-header-soft) !important;
+}
+html.theme-playful .v-table > .v-table__wrapper > table > thead > tr > th,
+html.theme-playful .v-data-table thead th {
+  color: var(--pf-text-heading) !important;
+  font-weight: 700 !important;
+  border-bottom: 1px solid var(--pf-border) !important;
 }
 
-/* ── Table footer ── */
+/* ── Data tables: body row hover ── */
+html.theme-playful .v-data-table tbody tr:hover,
+html.theme-playful .v-table tbody tr:hover {
+  background: var(--pf-tint-hover) !important;
+}
+
+/* ── Data table footer + pagination ── */
+html.theme-playful .v-data-table-footer,
 html.theme-playful .card-opacity .v-data-table-footer {
-  background: linear-gradient(to right, #fdf2f8, #f5f3ff) !important;
+  background: linear-gradient(to right, var(--pf-surface-cream), #f5f3ff) !important;
+  border-top: 1px solid var(--pf-border-soft) !important;
+  color: var(--pf-text-heading) !important;
+}
+html.theme-playful .v-data-table-footer .v-btn,
+html.theme-playful .v-pagination .v-btn {
+  color: var(--pf-primary-dark) !important;
+}
+html.theme-playful .v-pagination__item--is-active .v-btn,
+html.theme-playful .v-pagination .v-btn--active {
+  background: var(--pf-gradient-primary) !important;
+  color: #ffffff !important;
 }
 
-/* ── group-header ── */
-html.theme-playful .group-header {
-  color: #9d174d !important;
+/* ── Form fields (v-text-field, v-select, v-textarea, v-autocomplete) ── */
+html.theme-playful .v-field--variant-outlined .v-field__outline {
+  --v-field-border-opacity: 0.45;
+  color: var(--pf-primary-light) !important;
+}
+html.theme-playful .v-field--variant-outlined.v-field--focused .v-field__outline {
+  --v-field-border-opacity: 1;
+  color: var(--pf-primary) !important;
+}
+html.theme-playful .v-field .v-label {
+  color: var(--pf-primary-dark) !important;
+}
+html.theme-playful .v-field--focused .v-label,
+html.theme-playful .v-field .v-label.v-field-label--floating {
+  color: var(--pf-primary) !important;
 }
 
-/* ── header-card (ViewClasses date picker card) ── */
-html.theme-playful .header-card {
-  background: linear-gradient(145deg, #fce7f3, #ede9fe) !important;
-  color: #9d174d !important;
+/* Selected option in v-select dropdown */
+html.theme-playful .v-overlay__content .v-list-item--active {
+  background: var(--pf-tint-active) !important;
+  color: var(--pf-text-heading) !important;
+}
+html.theme-playful .v-overlay__content .v-list-item:hover {
+  background: var(--pf-tint-hover) !important;
 }
 
-/* ── Primary action buttons ── */
+/* ── Buttons (Vuetify color="primary" variants) ── */
+html.theme-playful .v-btn--variant-tonal[color="primary"],
+html.theme-playful .v-btn--variant-flat[color="primary"],
+html.theme-playful .v-btn--variant-elevated[color="primary"] {
+  background: var(--pf-gradient-primary) !important;
+  color: #ffffff !important;
+}
+
+/* Primary action button (.neu-action-btn) */
 html.theme-playful .neu-action-btn {
-  background: linear-gradient(145deg, #fb7185 0%, #f43f5e 100%) !important;
+  background: var(--pf-gradient-primary) !important;
+  color: #ffffff !important;
   box-shadow:
     5px 5px 14px rgba(244, 63, 94, 0.4),
     -4px -4px 10px rgba(255, 255, 255, 0.8) !important;
@@ -908,25 +1040,27 @@ html.theme-playful .neu-action-btn:hover {
     -5px -5px 14px rgba(255, 255, 255, 0.85) !important;
 }
 
-/* ── Family row active state ── */
-html.theme-playful .family-row--active {
-  border-left-color: #f43f5e !important;
-  background: rgba(244, 63, 94, 0.06) !important;
+/* Quick-action buttons on Dashboard (.qa-btn) */
+html.theme-playful .qa-btn {
+  background: var(--pf-gradient-card) !important;
+  color: var(--pf-text-heading) !important;
+  box-shadow:
+    4px 4px 10px rgba(244, 63, 94, 0.18),
+    -3px -3px 8px rgba(255, 255, 255, 0.85),
+    0 0 0 1px var(--pf-border-soft) !important;
+}
+html.theme-playful .qa-btn:hover {
+  box-shadow:
+    6px 6px 14px rgba(244, 63, 94, 0.28),
+    -4px -4px 10px rgba(255, 255, 255, 0.9),
+    0 0 0 1px var(--pf-border) !important;
 }
 
-/* ── res-time pill ── */
-html.theme-playful .res-time {
-  color: #f43f5e !important;
-  background: rgba(244, 63, 94, 0.1) !important;
+/* ── Dialogs ── */
+html.theme-playful .v-dialog .v-card:not(.v-alert) {
+  background: var(--pf-gradient-card-deep) !important;
+  border: 1px solid var(--pf-border-soft) !important;
 }
-
-/* ── course chip ── */
-html.theme-playful .course-chip {
-  background: linear-gradient(145deg, #fce7f3, #ede9fe) !important;
-  color: #9d174d !important;
-}
-
-/* ── Dialog headers in playful mode ── */
 html.theme-playful .app-dialog-header--error {
   background: linear-gradient(to right, #fff1f2, #ffe4e6) !important;
 }
@@ -934,7 +1068,25 @@ html.theme-playful .app-dialog-header--success {
   background: linear-gradient(to right, #f0fdf4, #dcfce7) !important;
 }
 
-/* ── Pulse animation override ── */
+/* ── Misc shared bits ── */
+html.theme-playful .group-header {
+  color: var(--pf-text-heading) !important;
+}
+html.theme-playful .family-row--active {
+  border-left-color: var(--pf-primary) !important;
+  background: var(--pf-tint-hover) !important;
+}
+html.theme-playful .res-time {
+  color: var(--pf-primary) !important;
+  background: var(--pf-tint-active) !important;
+}
+html.theme-playful .course-chip {
+  background: var(--pf-gradient-header-soft) !important;
+  color: var(--pf-text-heading) !important;
+  border: 1px solid var(--pf-border-soft) !important;
+}
+
+/* ── Pulse animation ── */
 html.theme-playful .pulse-button {
   animation: playful-pulse 1.2s infinite !important;
 }
@@ -960,14 +1112,14 @@ html.theme-playful .pulse-button {
 }
 html.theme-playful .theme-switcher-row {
   background: rgba(244, 63, 94, 0.07) !important;
-  color: #9d174d !important;
+  color: var(--pf-text-heading) !important;
 }
 .theme-switcher-row .mdi {
   font-size: 18px;
   color: #6366f1;
 }
 html.theme-playful .theme-switcher-row .mdi {
-  color: #f43f5e !important;
+  color: var(--pf-primary) !important;
 }
 .theme-switcher-label {
   flex: 1;
