@@ -7,7 +7,12 @@
             <div class="mx-auto mt-4">
                 <v-row>
                     <v-col cols="12" sm="12" md="4" xl="3">
-                        <v-card class="mx-0 card-opacity" height="470">
+                        <v-card class="mx-0 card-opacity viewclasses-card" height="540">
+                            <div class="istar-deco-stars">
+                                <span class="mdi mdi-star-four-points deco-star-side"></span>
+                                <span class="mdi mdi-star-shooting deco-star-main"></span>
+                                <span class="mdi mdi-star-four-points deco-star-side"></span>
+                            </div>
                             <v-list-item class="header-card">
                                 <v-card-title class="text-center">{{ $t('viewClasses.viewByDate') }}</v-card-title>
                             </v-list-item>

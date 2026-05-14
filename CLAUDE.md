@@ -74,16 +74,41 @@ axios.get(this.baseURL + '/endpoint', {
 
 Booking tables use inline color markers in cell text: `(red)`, `(green)`, `(blue)`, `(yellow)`, `(pink)` — these are stripped before rendering and used to apply background colors. `(1)` adds the `highlighted-blackground` class. See `BookingList.vue` for the template slot pattern.
 
-### Seasonal Theme System
+### Theme System
 
-Themes activate automatically based on the current month. State lives in `App.vue`:
+User-selectable themes via picker in navigation drawer (saved to localStorage + backend `/saveAppSettings`). Halloween/Christmas also have animated overlay components.
 
-| Theme | Months | CSS class | Overlay component |
-|-------|--------|-----------|-------------------|
-| Halloween | October (10) | `theme-halloween` | `HalloweenOverlay.vue` |
-| Christmas | November–December (11–12) | `theme-christmas` | `ChristmasOverlay.vue` |
+| Theme | CSS class | Overlay |
+|-------|-----------|---------|
+| Neumorphic (default) | (none) | — |
+| Playful | `theme-playful` | — |
+| Halloween | `theme-halloween` | `HalloweenOverlay.vue` |
+| Christmas | `theme-christmas` | `ChristmasOverlay.vue` |
+| 7 Stars Muaythai Gym | `theme-muaythai` | — |
+| iStar Gymnastics | `theme-istar` | — |
 
-Stored in localStorage as `currentTheme` (`'none'` / `'halloween'` / `'christmas'`). Only one theme active at a time. Music toggle is in `App.vue` (not in the overlay component). Overlays use `pointer-events: none` so they don't block clicks.
+Stored in localStorage as `uiTheme`. Token-based CSS variables: Playful uses `--pf-*`, Muaythai `--mt-*`, iStar `--is-*` — change palette in one place, all rules cascade. Music toggle (Christmas) lives in `App.vue`. Overlays use `pointer-events: none`.
+
+#### 🔒 Layout Consistency Rule — **MUST FOLLOW**
+
+**Card / Table / Toolbar dimensions (width, height, padding) MUST stay identical across all themes.** Themes change colors, gradients, shadows, typography, and decorations — they NEVER change layout dimensions.
+
+**Why**: Switching themes should be a paint-only operation. A user toggling themes should see colors change, never see content reflow, cards resize, or tables shift. The baseline Neumorphic geometry is authoritative.
+
+**How to add theme decorations correctly**:
+- ✅ **DO** use absolute-positioned overlays (e.g., `.stat-card::before { position: absolute; ... }`) — overlays sit on top of content without affecting flow
+- ✅ **DO** use background images, gradients, shadows, borders — paint-only changes
+- ✅ **DO** use CSS pseudo-elements (`::before` / `::after`) with `position: absolute`
+- ❌ **DO NOT** add `padding-top: 22px !important` (or similar) on cards "to make room" for decorations — this changes the card height per-theme
+- ❌ **DO NOT** insert flow-positioned `<div>` decorations that take vertical space (e.g., `<div class="muaythai-deco-gloves">` with `display: flex; padding: 14px 0;`)
+- ❌ **DO NOT** change `height=""` attribute on `v-card` per-theme
+
+**Decoration patterns that respect this rule**:
+- Corner watermarks: `position: absolute; bottom: -8px; right: -4px; opacity: 0.2;` (used on Dashboard `.stat-card::before` for the boxing glove)
+- Overlay banners at card top: `position: absolute; top: 4px; left: 0; right: 0;` (used for 7-star row in muaythai)
+- Diagonal ribbons in corners: `position: absolute; transform: rotate(45deg);` (used on muaythai `.card-opacity::after` gold stripe)
+
+**If a decoration needs flow space** (rare): increase the BASELINE card height across all themes, not just the theme that needs space. Better: redesign the decoration as an overlay.
 
 **Z-index hierarchy** (highest to lowest):
 - `2400` — Vuetify dialogs (must be above app bar + drawer)

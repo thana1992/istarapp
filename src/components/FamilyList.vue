@@ -7,6 +7,11 @@
                 </div>
                 <div class="container-content">
                     <v-card class="card-opacity family-card">
+                        <div class="istar-deco-stars">
+                            <span class="mdi mdi-star-four-points deco-star-side"></span>
+                            <span class="mdi mdi-star-shooting deco-star-main"></span>
+                            <span class="mdi mdi-star-four-points deco-star-side"></span>
+                        </div>
                         <div class="section-header">
                             <span class="mdi mdi-account-group"></span> {{ $t('family.sectionHeader') }}
                         </div>
