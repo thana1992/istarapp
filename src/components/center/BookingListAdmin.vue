@@ -22,11 +22,11 @@
               {{ $t('bookingMgmt.noBooking') }}
             </template>
             <template v-for="(header, index) in bookingHeaders" :key="`booking-col-${index}`" v-slot:[`item.${header.key}`]="{ item }" >
-              <td :class="getClass(item[header.key])">
+              <td :class="[getClass(item[header.key]), { 'cell-clickable': isClickableCell(item[header.key]) }]"
+                @click="handleCellClick($event, item[header.key], header.key)">
 
                 <label :class="[getClass(item[header.key]), { 'no-hover': !item[header.key] || typeof item[header.key] ==='number' }]"
-                name="col-center"
-                @click="handleCellClick(item[header.key], header.key)">
+                name="col-center">
                 {{
                   typeof item[header.key] === 'object' && item[header.key] !== null
                     ? parseName(item[header.key])
@@ -50,6 +50,57 @@
         </div>
       </v-col>
     </v-row>
+
+    <!-- Quick action menu: anchored to the clicked name -->
+    <v-menu
+      v-model="menuOpen"
+      :target="menuTarget"
+      location="bottom start"
+      offset="8"
+      :close-on-content-click="false"
+      :persistent="true"
+      transition="scale-transition"
+      origin="top left"
+    >
+      <div class="quick-menu" :class="{ 'is-checked': isCheckedIn }">
+        <div class="quick-menu__header">
+          <span class="quick-menu__name">{{ selectedStudentName || '—' }}</span>
+          <span class="quick-menu__status" v-if="isCheckedIn">
+            <v-icon size="12">mdi-check-decagram</v-icon>เช็คชื่อแล้ว
+          </span>
+        </div>
+
+        <button class="quick-menu__item quick-menu__item--checkin" @click="onChooseCheckin">
+          <span class="quick-menu__dot"></span>
+          <v-icon size="18">{{ isCheckedIn ? 'mdi-undo-variant' : 'mdi-check-bold' }}</v-icon>
+          <span class="quick-menu__label">{{ isCheckedIn ? 'ยกเลิกเช็คชื่อ' : 'เช็คชื่อ' }}</span>
+        </button>
+
+        <button class="quick-menu__item quick-menu__item--edit" @click="onChooseEdit">
+          <span class="quick-menu__dot"></span>
+          <v-icon size="18">mdi-account-edit</v-icon>
+          <span class="quick-menu__label">ดู/แก้ไขข้อมูล</span>
+        </button>
+      </div>
+    </v-menu>
+
+    <!-- Check-in / Undo check-in confirmation -->
+    <v-dialog v-model="checkinConfirmDialog" persistent width="auto">
+      <v-card>
+        <v-card-title></v-card-title>
+        <v-card-text>
+          {{ isCheckedIn
+            ? $t('bookingMgmt.confirmUndoCheckin', { name: selectedStudentName })
+            : $t('bookingMgmt.confirmCheckin', { name: selectedStudentName }) }}
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="#4CAF50" variant="tonal" @click="confirmCheckin">{{ $t('btn.ok') }}</v-btn>
+          <v-btn color="#F44336" variant="tonal" @click="checkinConfirmDialog = false">{{ $t('btn.cancel') }}</v-btn>
+          <v-spacer></v-spacer>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -69,6 +120,11 @@ export default {
 
       },
       classdate: new Date(),
+      menuOpen: false,
+      menuTarget: null,
+      checkinConfirmDialog: false,
+      selectedStudent: null,
+      selectedSlotKey: '',
     }
   },
   props: {
@@ -89,21 +145,119 @@ export default {
       required: false,
     }
   },
+  mounted() {
+    document.addEventListener('mousedown', this.onDocumentMousedown, true);
+    document.addEventListener('keydown', this.onDocumentKeydown);
+  },
+  beforeUnmount() {
+    document.removeEventListener('mousedown', this.onDocumentMousedown, true);
+    document.removeEventListener('keydown', this.onDocumentKeydown);
+  },
   computed: {
     ...mapGetters({
       token: 'getToken',
     }),
+    selectedStudentName() {
+      const s = this.selectedStudent;
+      if (!s) return '';
+      if (typeof s === 'string') return this.stripMarkers(s);
+      if (typeof s === 'object' && s.name) return this.stripMarkers(s.name);
+      return '';
+    },
+    isCheckedIn() {
+      const s = this.selectedStudent;
+      if (!s || typeof s !== 'object') return false;
+      if (s.checkedin !== undefined && s.checkedin !== null) {
+        return parseInt(s.checkedin) === 1;
+      }
+      if (typeof s.name === 'string' && s.name.includes('(1)')) return true;
+      return false;
+    },
   },
   methods: {
-    handleCellClick(value, key) {
-      
-      //console.log('Cell clicked [' + key + '] : ' +value);
-      if (typeof value === "number") {
-          return;
+    isClickableCell(value) {
+      return !!(value && typeof value === 'object');
+    },
+    onDocumentMousedown(event) {
+      if (!this.menuOpen) return;
+      const t = event.target;
+      if (!t) return;
+      if (t.closest && (t.closest('.cell-clickable') || t.closest('.quick-menu'))) return;
+      this.menuOpen = false;
+    },
+    onDocumentKeydown(event) {
+      if (event.key === 'Escape' && this.menuOpen) {
+        this.menuOpen = false;
       }
-      //console.log("studentid = ", value.studentid);
-      this.$emit('student-clicked', value, key);
-      // เพิ่ม logic ที่คุณต้องการเมื่อคลิก cell
+    },
+    handleCellClick(event, value, key) {
+      if (typeof value === "number") return;
+      if (!value) return;
+      if (typeof value !== 'object') return;
+
+      const td = event.currentTarget;
+      const nameLabel = td && td.querySelector
+        ? td.querySelector('label[name="col-center"]')
+        : null;
+
+      this.selectedStudent = value;
+      this.selectedSlotKey = key;
+      this.menuTarget = nameLabel || td;
+      this.menuOpen = true;
+    },
+    onChooseEdit() {
+      const value = this.selectedStudent;
+      const key = this.selectedSlotKey;
+      this.menuOpen = false;
+      this.$nextTick(() => {
+        this.$emit('student-clicked', value, key);
+      });
+    },
+    onChooseCheckin() {
+      this.menuOpen = false;
+      this.$nextTick(() => { this.checkinConfirmDialog = true; });
+    },
+    async confirmCheckin() {
+      const wasCheckedIn = this.isCheckedIn;
+      const endpoint = wasCheckedIn ? '/undoCheckinByAdmin' : '/checkinByAdmin';
+      this.checkinConfirmDialog = false;
+      this.$emit('onLoading', true);
+      try {
+        const response = await axios.post(this.baseURL + endpoint, {
+          reservationid: this.selectedStudent.reservationid,
+          studentid: this.selectedStudent.studentid,
+        }, {
+          headers: { Authorization: `Bearer ${this.token}` }
+        });
+        if (response.data && response.data.success) {
+          this.$emit('onUpdateDataSuccess');
+        } else {
+          this.$emit('onErrorHandler',
+            (response.data && response.data.message) ||
+            (wasCheckedIn ? 'Cancel Check-in failed' : 'Check-in failed'));
+        }
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          this.$emit('onErrorHandler', error.response.data.message);
+          this.$emit('onClickChangeState', 'login');
+        } else {
+          this.$emit('onErrorHandler', error.message);
+        }
+      } finally {
+        this.$emit('onLoading', false);
+      }
+    },
+    stripMarkers(name) {
+      if (typeof name !== 'string') return '';
+      return name
+        .replace('(1)', '')
+        .replace('(red)', '')
+        .replace('(green)', '')
+        .replace('(blue)', '')
+        .replace('(yellow)', '')
+        .replace('(pink)', '')
+        .replace('(pay)', '')
+        .trim();
     },
     SQLDate(date) {
       return moment(date).format('YYYY-MM-DD')
@@ -319,6 +473,16 @@ const BookingListAPI = {
   cursor: default; /* ไม่เปลี่ยน cursor เมื่อ hover */
 }
 
+/* Whole-cell click target — extends clickable area beyond the name text */
+:deep(.v-table > .v-table__wrapper > table > tbody > tr > td.cell-clickable) {
+  cursor: pointer;
+  transition: background-color 0.18s ease;
+}
+
+:deep(.v-table > .v-table__wrapper > table > tbody > tr > td.cell-clickable:hover) {
+  background: rgba(99, 102, 241, 0.06) !important;
+}
+
 .bell-icon {
   color: gold;
   animation: swing 2s ease-in-out infinite;
@@ -393,6 +557,124 @@ const BookingListAPI = {
   50% { transform: rotate(15deg); }
   75% { transform: rotate(-15deg); }
   100% { transform: rotate(15deg); }
+}
+
+/* ============================================================
+   Quick action dropdown — anchored next to the clicked name
+   ============================================================ */
+.quick-menu {
+  min-width: 200px;
+  background: linear-gradient(155deg, #ffffff 0%, #eef2f8 100%);
+  border-radius: 14px;
+  padding: 6px;
+  box-shadow:
+    0 14px 36px -10px rgba(15, 23, 42, 0.28),
+    0 4px 10px -6px rgba(15, 23, 42, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  border: 1px solid rgba(163, 177, 198, 0.2);
+  color: #1e293b;
+  font-family: inherit;
+}
+
+.quick-menu__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 10px 8px;
+  border-bottom: 1px dashed rgba(100, 116, 139, 0.22);
+  margin-bottom: 4px;
+}
+
+.quick-menu__name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+.quick-menu__status {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: #047857;
+  background: rgba(16, 185, 129, 0.12);
+  padding: 1px 6px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.quick-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.88rem;
+  color: #1e293b;
+  text-align: left;
+  position: relative;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.quick-menu__item:hover {
+  background: rgba(99, 102, 241, 0.08);
+}
+
+.quick-menu__item:active {
+  transform: scale(0.98);
+}
+
+.quick-menu__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.quick-menu__item--checkin .quick-menu__dot {
+  background: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
+}
+
+.quick-menu.is-checked .quick-menu__item--checkin .quick-menu__dot {
+  background: #f59e0b;
+  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
+}
+
+.quick-menu__item--checkin :deep(.v-icon),
+.quick-menu__item--checkin .v-icon {
+  color: #047857;
+}
+
+.quick-menu.is-checked .quick-menu__item--checkin :deep(.v-icon),
+.quick-menu.is-checked .quick-menu__item--checkin .v-icon {
+  color: #b45309;
+}
+
+.quick-menu__item--edit .quick-menu__dot {
+  background: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
+}
+
+.quick-menu__item--edit :deep(.v-icon),
+.quick-menu__item--edit .v-icon {
+  color: #4338ca;
+}
+
+.quick-menu__label {
+  font-weight: 600;
+  letter-spacing: 0.01em;
 }
 
 </style>

@@ -48,6 +48,8 @@
                                 </span>
                             </div>
                         </div>
+                        <span class="stat-glove mdi mdi-boxing-glove"></span>
+                        <span class="stat-star mdi mdi-star-four-points"></span>
                     </v-card>
                 </v-col>
                 <v-col cols="12" sm="4" md="3" lg="3" xl="3">
@@ -67,6 +69,8 @@
                                 </span>
                             </div>
                         </div>
+                        <span class="stat-glove mdi mdi-boxing-glove"></span>
+                        <span class="stat-star mdi mdi-star-four-points"></span>
                     </v-card>
                 </v-col>
                 <v-col cols="12" sm="4" md="2" lg="2" xl="2">
@@ -86,6 +90,8 @@
                                 </span>
                             </div>
                         </div>
+                        <span class="stat-glove mdi mdi-boxing-glove"></span>
+                        <span class="stat-star mdi mdi-star-four-points"></span>
                     </v-card>
                 </v-col>
                 <v-col cols="12" sm="4" md="2" lg="2" xl="2">
@@ -105,6 +111,8 @@
                                 </span>
                             </div>
                         </div>
+                        <span class="stat-glove mdi mdi-boxing-glove"></span>
+                        <span class="stat-star mdi mdi-star-four-points"></span>
                     </v-card>
                 </v-col>
                 <v-col cols="12" sm="4" md="2" lg="2" xl="2">
@@ -123,6 +131,8 @@
                                 </span>
                             </div>
                         </div>
+                        <span class="stat-glove mdi mdi-boxing-glove"></span>
+                        <span class="stat-star mdi mdi-star-four-points"></span>
                     </v-card>
                 </v-col>
             </v-row>

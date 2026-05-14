@@ -44,7 +44,9 @@
       scrim="rgba(0,0,0,0.5)"
       @update:model-value="(val) => console.log('Drawer model-value:', val)"
     >
-    <v-list-item :prepend-avatar="iconUrl" :title="parent"></v-list-item>
+    <v-list-item v-if="isLoggedIn" :prepend-avatar="iconUrl" :title="parent" class="drawer-avatar-row"
+      @click.stop.prevent="onClickChangeState('editprofile')"></v-list-item>
+    <v-list-item v-else :prepend-avatar="iconUrl" :title="parent"></v-list-item>
     <v-divider></v-divider>
     <v-list density="compact" nav v-model:selected="selectedMenu" @click="handleListClick">
       <v-label v-if="managerflag || customerflag">{{ $t('nav.mainMenu') }}</v-label>
@@ -87,6 +89,11 @@
       </v-list-item>
       <br>
       <hr>
+      <!-- Edit profile — any logged-in user -->
+      <v-list-item v-if="isLoggedIn" prepend-icon="mdi-account-edit"
+        title="แก้ไขข้อมูล"
+        @click.stop.prevent="onClickChangeState('editprofile')">
+      </v-list-item>
       <!-- UI Theme Picker — admin only -->
       <v-list-item
         v-if="managerflag || adminflag"
@@ -183,6 +190,12 @@
 
         <HolidayManagment v-else-if="state == 'holidaymanager'" @onErrorHandler="onError($event)"
           @onInfoHandler="onShowInfoDialog($event)" @onLoading="onLoading($event)"></HolidayManagment>
+
+        <EditProfile v-else-if="state == 'editprofile'"
+          @onErrorHandler="onError($event)" @onSuccessHandler="onSuccess($event)"
+          @onInfoHandler="onShowInfoDialog($event)" @onClickChangeState="onClickChangeState($event)"
+          @onProfileImageUpdated="onProfileImageUpdated($event)"
+          @onLoading="onLoading($event)"></EditProfile>
         </Transition>
       </v-main>
     </v-layout>
@@ -305,6 +318,7 @@ import CustomerCourseFinished from './components/admin/CustomerCourseFinished.vu
 import Course from './components/admin/Courses.vue'
 import Classes from './components/admin/Classes.vue'
 import HolidayManagment from './components/admin/HolidayManagment.vue'
+import EditProfile from './components/EditProfile.vue'
 import CryptoJS from 'crypto-js';
 import { ref, computed, onMounted, inject } from 'vue';
 import { mapGetters } from 'vuex';
@@ -315,6 +329,7 @@ export default {
   data() {
     return {
       drawer: false,
+      userProfileImage: null,
       rail: false,
       parent: 'Guest',
       state: 'login',
@@ -370,6 +385,20 @@ export default {
           previewIconColor: '#4ade80',
           gradient: 'linear-gradient(145deg, #0a1f0a 0%, #1a3a1a 50%, #4a0d0d 100%)',
         },
+        {
+          id: 'muaythai',
+          name: '7 Stars Muaythai Gym',
+          icon: 'mdi-boxing-glove',
+          previewIconColor: '#fbbf24',
+          gradient: 'linear-gradient(135deg, #0a0a0a 0%, #991b1b 55%, #fbbf24 100%)',
+        },
+        {
+          id: 'istar',
+          name: 'iStar Gymnastics',
+          icon: 'mdi-star-shooting',
+          previewIconColor: '#ec4899',
+          gradient: 'linear-gradient(135deg, #fce7f3 0%, #ec4899 55%, #dc2626 100%)',
+        },
       ],
     }
   },
@@ -396,6 +425,7 @@ export default {
     Course,
     Classes,
     HolidayManagment,
+    EditProfile,
     LoadingDialog,
     HalloweenOverlay,
     ChristmasOverlay,
@@ -408,6 +438,7 @@ export default {
       if(this.userdata) {
         this.parent = this.userdata.firstname
         this.student = null;
+        this.fetchUserProfileImage();
         if (this.userdata.usertype == 0) { // head
           this.managerflag = true
           this.state = 'dashboard'
@@ -424,6 +455,26 @@ export default {
       }else {
         this.state = 'login'
       }
+    },
+    async fetchUserProfileImage() {
+      try {
+        const userdata = JSON.parse(localStorage.getItem('userdata'));
+        if (!userdata || !userdata.username) return;
+        const token = this.$store.getters.getToken;
+        const res = await axios.post(
+          this.baseURL + '/getUserProfile',
+          { username: userdata.username },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (res.data && res.data.success && res.data.user && res.data.user.profile_image_url) {
+          this.userProfileImage = res.data.user.profile_image_url;
+        }
+      } catch (e) {
+        // backend ยังไม่รองรับ — ใช้รูป default
+      }
+    },
+    onProfileImageUpdated(url) {
+      this.userProfileImage = url;
     },
     toggleRail(page) {
       this.$router.push('/' + page)
@@ -600,8 +651,8 @@ export default {
     },
     applyUITheme(theme) {
       localStorage.setItem('uiTheme', theme);
-      document.documentElement.classList.remove('theme-playful', 'theme-halloween', 'theme-christmas');
-      document.body.classList.remove('theme-playful', 'theme-halloween', 'theme-christmas');
+      document.documentElement.classList.remove('theme-playful', 'theme-halloween', 'theme-christmas', 'theme-muaythai', 'theme-istar');
+      document.body.classList.remove('theme-playful', 'theme-halloween', 'theme-christmas', 'theme-muaythai', 'theme-istar');
       if (theme !== 'neumorphic') {
         document.documentElement.classList.add(`theme-${theme}`);
         document.body.classList.add(`theme-${theme}`);
@@ -620,6 +671,15 @@ export default {
       }
     },
     async loadAppTheme() {
+      // localStorage เป็น authoritative — ใช้ค่าล่าสุดที่ user เลือกในเครื่องนี้
+      // (กันเคส API save ล้มเหลวเงียบๆ แล้วโหลด login กลับมาธีมเก่า)
+      const savedLocal = localStorage.getItem('uiTheme');
+      if (savedLocal) {
+        this.uiTheme = savedLocal;
+        this.applyUITheme(savedLocal);
+        return;
+      }
+      // ไม่มีค่าใน localStorage (เครื่องใหม่/login ครั้งแรก) → ลองจาก API
       try {
         const token = this.$store.getters.getToken;
         const res = await axios.post(this.baseURL + '/getAppSettings', {}, {
@@ -631,11 +691,10 @@ export default {
           return;
         }
       } catch (e) {
-        // backend ยังไม่รองรับ — fallback ใช้ localStorage
+        // backend ยังไม่รองรับ — ใช้ default
       }
-      const saved = localStorage.getItem('uiTheme') || 'neumorphic';
-      this.uiTheme = saved;
-      this.applyUITheme(saved);
+      this.uiTheme = 'neumorphic';
+      this.applyUITheme('neumorphic');
     },
   },
   mounted() {
@@ -669,8 +728,7 @@ export default {
       return [this.state];
     },
     iconUrl() {
-      return require('./assets/avatar/1.png')
-      // The path could be '../assets/img.png', etc., which depends on where your vue file is
+      return this.userProfileImage || require('./assets/avatar/1.png');
     },
     // เช็คว่าธีมปัจจุบันมีเพลงหรือไม่
     currentThemeHasMusic() {
@@ -692,7 +750,14 @@ export default {
       return false;
     },
     currentThemeLabel() {
-      const map = { neumorphic: 'Neumorphic', playful: 'Playful', halloween: 'Halloween', christmas: 'Christmas' };
+      const map = {
+        neumorphic: 'Neumorphic',
+        playful: 'Playful',
+        halloween: 'Halloween',
+        christmas: 'Christmas',
+        muaythai: '7 Stars Muaythai Gym',
+        istar: 'iStar Gymnastics',
+      };
       return map[this.uiTheme] || 'Neumorphic';
     },
   }

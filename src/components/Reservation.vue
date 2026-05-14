@@ -8,6 +8,11 @@
 
             <v-card class="res-card card-opacity mx-auto mt-4">
                 <v-form ref="reserveForm">
+                    <div class="istar-deco-stars">
+                        <span class="mdi mdi-star-four-points deco-star-side"></span>
+                        <span class="mdi mdi-star-shooting deco-star-main"></span>
+                        <span class="mdi mdi-star-four-points deco-star-side"></span>
+                    </div>
                     <div class="px-6 pt-5 pb-1">
                         <p class="booking-for-text">{{ $t('reservation.bookingFor', { name: student.firstname + ' ' + student.lastname }) }}</p>
                     </div>
@@ -21,7 +26,9 @@
                             item-value="classid" :items="classtimesData" variant="outlined" :rules="classTimeRules"
                             :no-data-text="$t('reservation.noClassTime')" return-object required></v-select>
                         <v-btn class="mt-4 neu-action-btn" size="large" block @click="validate" required>
-                            <v-icon>mdi-emoticon-plus</v-icon>
+                            <v-icon class="btn-icon-default">mdi-emoticon-plus</v-icon>
+                            <v-icon class="btn-icon-muaythai">mdi-boxing-glove</v-icon>
+                            <v-icon class="btn-icon-istar">mdi-star-shooting</v-icon>
                             &nbsp;{{ $t('home.bookClass') }}
                         </v-btn>
                     </div>

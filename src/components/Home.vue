@@ -14,6 +14,13 @@
             <!-- ── Unified card ── -->
             <v-card v-else class="card-opacity home-card">
 
+                <!-- ── iStar Gymnastics theme decoration (3 stars) ── -->
+                <div class="istar-deco-stars">
+                    <span class="mdi mdi-star-four-points deco-star-side"></span>
+                    <span class="mdi mdi-star-shooting deco-star-main"></span>
+                    <span class="mdi mdi-star-four-points deco-star-side"></span>
+                </div>
+
                 <!-- ── Family selector ── -->
                 <div class="home-section-header">
                     <span class="mdi mdi-account-group"></span> {{ $t('home.familySection') }}
@@ -23,16 +30,9 @@
                          class="family-row"
                          :class="{ 'family-row--active': p.studentid === studentid }"
                          @click="selectChild(p)">
-                        <div class="avatar-container">
-                            <div class="avatar-wrap">
-                                <v-img :src="p.profile_image_url || (p.gender === 'หญิง' ? profileGirl : profileBoy)" cover
-                                       width="46" height="46"></v-img>
-                            </div>
-                            <label class="avatar-upload-btn" :for="`upload-${p.studentid}`" @click.stop>
-                                <v-icon size="10">mdi-camera</v-icon>
-                            </label>
-                            <input :id="`upload-${p.studentid}`" type="file" accept="image/*" style="display:none"
-                                   @change="(e) => uploadPhotoFile(e.target.files[0], p.studentid)">
+                        <div class="avatar-wrap">
+                            <v-img :src="p.profile_image_url || (p.gender === 'หญิง' ? profileGirl : profileBoy)" cover
+                                   width="46" height="46"></v-img>
                         </div>
                         <div class="family-row-info">
                             <span class="member-name">{{ p.fullname }}</span>
@@ -134,7 +134,9 @@
                 </v-btn>
                 <v-btn v-else block class="pulse-button neu-action-btn" size="large"
                        @click="doReservation">
-                    <v-icon>mdi-emoticon-plus</v-icon>
+                    <v-icon class="btn-icon-default">mdi-emoticon-plus</v-icon>
+                    <v-icon class="btn-icon-muaythai">mdi-boxing-glove</v-icon>
+                    <v-icon class="btn-icon-istar">mdi-star-shooting</v-icon>
                     &nbsp;{{ $t('home.bookClass') }}
                 </v-btn>
             </div>
