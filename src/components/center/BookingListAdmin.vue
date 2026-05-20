@@ -66,20 +66,20 @@
         <div class="quick-menu__header">
           <span class="quick-menu__name">{{ selectedStudentName || '—' }}</span>
           <span class="quick-menu__status" v-if="isCheckedIn">
-            <v-icon size="12">mdi-check-decagram</v-icon>เช็คชื่อแล้ว
+            <v-icon size="12">mdi-check-decagram</v-icon>{{ $t('bookingList.menuCheckedInBadge') }}
           </span>
         </div>
 
         <button class="quick-menu__item quick-menu__item--checkin" @click="onChooseCheckin">
           <span class="quick-menu__dot"></span>
           <v-icon size="18">{{ isCheckedIn ? 'mdi-undo-variant' : 'mdi-check-bold' }}</v-icon>
-          <span class="quick-menu__label">{{ isCheckedIn ? 'ยกเลิกเช็คชื่อ' : 'เช็คชื่อ' }}</span>
+          <span class="quick-menu__label">{{ isCheckedIn ? $t('bookingList.menuUndoCheckin') : $t('bookingList.menuCheckin') }}</span>
         </button>
 
         <button class="quick-menu__item quick-menu__item--edit" @click="onChooseEdit">
           <span class="quick-menu__dot"></span>
           <v-icon size="18">mdi-account-edit</v-icon>
-          <span class="quick-menu__label">ดู/แก้ไขข้อมูล</span>
+          <span class="quick-menu__label">{{ $t('bookingList.menuEdit') }}</span>
         </button>
       </div>
     </v-menu>

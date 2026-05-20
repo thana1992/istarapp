@@ -138,6 +138,10 @@ const messages = {
     },
     bookingList: {
       classBooking: 'การจองคลาส',
+      menuCheckin: 'เช็คชื่อ',
+      menuUndoCheckin: 'ยกเลิกเช็คชื่อ',
+      menuEdit: 'ดู/แก้ไขข้อมูล',
+      menuCheckedInBadge: 'เช็คชื่อแล้ว',
     },
     customerCourse: {
       period: 'ระยะเวลา (เดือน)',
@@ -438,6 +442,10 @@ const messages = {
     },
     bookingList: {
       classBooking: 'Class Booking',
+      menuCheckin: 'Check in',
+      menuUndoCheckin: 'Undo check-in',
+      menuEdit: 'View / Edit',
+      menuCheckedInBadge: 'Checked in',
     },
     customerCourse: {
       period: 'Period (months)',
