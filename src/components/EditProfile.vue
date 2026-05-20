@@ -39,6 +39,8 @@
             v-model="profile.mobileno"
             label="เบอร์โทรศัพท์"
             variant="outlined"
+            type="text"
+            @input="acceptNumber"
             :rules="phoneRules"
             prepend-inner-icon="mdi-phone"
             class="mb-1"
@@ -138,7 +140,6 @@ export default {
       ],
       phoneRules: [
         v => !!v || 'กรุณากรอกเบอร์โทรศัพท์',
-        v => /^[0-9\-+\s]{8,15}$/.test(v) || 'รูปแบบเบอร์โทรไม่ถูกต้อง',
       ],
       passwordRules: [
         v => !!v || 'กรุณากรอกรหัสผ่าน',
@@ -173,6 +174,10 @@ export default {
     await this.loadProfile();
   },
   methods: {
+    acceptNumber() {
+      const v = (this.profile.mobileno || '').replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+      this.profile.mobileno = !v[2] ? v[1] : v[1] + '-' + v[2] + (v[3] ? '-' + v[3] : '');
+    },
     async loadProfile() {
       try {
         this.$emit('onLoading', true);
