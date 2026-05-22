@@ -27,8 +27,8 @@
     "vue": "^3.2.36",
     "vue-router": "^4.2.5",
     "vue3-autocounter": "^1.0.6",
-    "vuex": "^4.1.0",
-    "vuetify": "^3.4.7"
+    "vuetify": "^3.4.7",
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
