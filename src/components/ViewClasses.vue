@@ -94,21 +94,16 @@ export default ({
                         //console.log('fetchDataBooking result',success, results, message);
                         if (success) {
                             if (results) {
-                                //console.log('results', results)
                                 this.bookingHeaders = Object.keys(results).map((key) => ({ title: key, key: key, sortable: false, align: "right"}));
                                 this.bookingHeaders.unshift({ title: 'No.', key: 'idx', sortable: false, align: "right"  })
                                 this.bookingList = this.formattedData(results)
-                                //console.log('bookingList'+ JSON.stringify(this.bookingList))
-                                //console.log('bookingHeaders'+ JSON.stringify(this.bookingHeaders))
-
                             } else {
                                 this.bookingHeaders = []
                                 this.bookingList = []
                             }
                         } else {
-                            this.loadingBooking = false
-                            //console.log("message : " + message)
-                            //console.log("results : " + results)
+                            this.bookingHeaders = []
+                            this.bookingList = []
                             this.$emit('onErrorHandler', message || 'Get Bookinglist failed')
                         }
                         if (classdate == this.SQLDate(this.datepick)) {
@@ -193,9 +188,9 @@ const DashboardAPI = {
                 .then(response => {
                     //console.log('fetchDataBooking result',response);
                     if (response.data.success) {
-                        resolve({ success: true, results: response.data.bookinglist })
+                        resolve({ success: true, results: response.data.bookinglist, message: response.data.message })
                     } else {
-                        resolve({ success: true, results: [] })
+                        resolve({ success: false, results: null, message: response.data.message })
                     }
                 })
                 .catch(error => {
