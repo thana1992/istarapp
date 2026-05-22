@@ -3,3 +3,4 @@ node_modules
 .env
 vue.config.js
 .env
+docs/booking-list-access-guard-spec.md

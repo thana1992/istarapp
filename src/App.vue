@@ -346,6 +346,7 @@ export default {
       adminflag: false,
       coachflag: false,
       customerflag: false,
+      bookingAccessRestricted: false,
       interval: null,
       ConfirmLogoutDialog: false,
       loadingDialog: false,
@@ -438,6 +439,7 @@ export default {
       if(this.userdata) {
         this.parent = this.userdata.firstname
         this.student = null;
+        this.bookingAccessRestricted = !!this.userdata.access_restricted;
         this.fetchUserProfileImage();
         if (this.userdata.usertype == 0) { // head
           this.managerflag = true
@@ -555,6 +557,7 @@ export default {
       this.managerflag = false
       this.coachflag = false
       this.customerflag = false
+      this.bookingAccessRestricted = false
     },
     onLoading(loading) {
       //this.loadingDialog = loading
