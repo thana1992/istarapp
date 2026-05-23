@@ -196,7 +196,7 @@ export default {
         try {
           const response = await axios.post(this.baseURL + '/change-password', {
             username: this.username,
-            password: encryptedPassword,
+            newPassword: encryptedPassword,
           },{
               headers: { Authorization: `Bearer ${token}`, }
           });
