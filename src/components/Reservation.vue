@@ -77,7 +77,7 @@ export default {
             classtimesData: [],
             people: '',
             classTimeRules: [
-                v => !!v || 'Class time is required',
+                v => !!v || this.$t('common.required'),
                 v => !v || (v.available > 0) || this.$t('home.errorNoRemaining')
             ],
             //weekday:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],

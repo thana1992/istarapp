@@ -62,55 +62,55 @@
                                         </v-row>
                                         <v-row>
                                             <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedStudentItem.firstname" label="Firstname"
+                                                <v-text-field v-model="editedStudentItem.firstname" :label="$t('table.firstname')"
                                                     variant="solo-filled" :rules="notNullRules" required></v-text-field>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedStudentItem.middlename" label="Middlename"
+                                                <v-text-field v-model="editedStudentItem.middlename" :label="$t('table.middlename')"
                                                     variant="solo-filled" required></v-text-field>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedStudentItem.lastname" label="Lastname"
+                                                <v-text-field v-model="editedStudentItem.lastname" :label="$t('table.lastname')"
                                                     variant="solo-filled" :rules="notNullRules" required></v-text-field>
                                             </v-col>
                                         </v-row>
                                         <v-row>
                                             <v-col cols="12" sm="6" md="3">
-                                                <v-text-field v-model="editedStudentItem.nickname" label="Nickname"
+                                                <v-text-field v-model="editedStudentItem.nickname" :label="$t('table.nickname')"
                                                     variant="solo-filled" :rules="notNullRules" required></v-text-field>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="3">
-                                                <v-select v-model="editedStudentItem.gender" label="Gender"
-                                                    :items="['ชาย', 'หญิง']" variant="solo-filled" :rules="notNullRules"
+                                                <v-select v-model="editedStudentItem.gender" :label="$t('table.gender')"
+                                                    :items="[{ title: $t('common.male'), value: 'ชาย' }, { title: $t('common.female'), value: 'หญิง' }]" variant="solo-filled" :rules="notNullRules"
                                                     required></v-select>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="3">
-                                                <DatePicker label="Date of Birth" variant="solo-filled"
+                                                <DatePicker :label="$t('table.dob')" variant="solo-filled"
                                                     v-model="editedStudentItem.dateofbirth" :maxdate="new Date()"
                                                     @click="calculateAgeNewStudent" rules="notNullRules" required>
                                                 </DatePicker>
                                             </v-col>
                                             <v-col cols="12" sm="6" md="3">
-                                                <v-text-field label="Age" v-model="editedStudentItem.age" readonly
+                                                <v-text-field :label="$t('table.age')" v-model="editedStudentItem.age" readonly
                                                     variant="solo-filled"></v-text-field>
                                             </v-col>
                                         </v-row>
                                         <v-row>
                                             <v-col cols="12" sm="6" md="3">
-                                                <v-text-field label="Level" type="number" v-model="editedStudentItem.level" 
+                                                <v-text-field :label="$t('table.level')" type="number" v-model="editedStudentItem.level" 
                                                     variant="solo-filled" :rules="levelRules" ></v-text-field>
                                             </v-col>
                                         </v-row>
                                         <v-row>
                                             <v-col cols="12" sm="6" md="12">
-                                                <v-textarea v-model="editedStudentItem.shortnote" label="Short Note"
+                                                <v-textarea v-model="editedStudentItem.shortnote" :label="$t('table.shortNote')"
                                                     variant="solo-filled" rows="4">
                                                 </v-textarea>
                                             </v-col>
                                         </v-row>
                                         <v-row>
                                             <v-col cols="12" sm="6" md="5">
-                                                <v-autocomplete v-model="editedStudentItem.familyid" label="Parent's Username"
+                                                <v-autocomplete v-model="editedStudentItem.familyid" :label="$t('table.parentUsername')"
                                                     item-title="username" item-value="familyid" :items="familyLookup"
                                                     variant="solo-filled" :rules="notNullRules" required filterable>
                                                 </v-autocomplete>
@@ -126,22 +126,22 @@
                                         <v-row>
                                             <v-col cols="12" sm="4" md="4">
                                                 <v-autocomplete v-model="editedStudentItem.courserefer"
-                                                    label="Course Refer" item-title="courserefer"
+                                                    :label="$t('table.courseRefer')" item-title="courserefer"
                                                     item-value="courserefer" :items="customerCourseLookup"
-                                                    variant="solo-filled" no-data-text="No course"
+                                                    variant="solo-filled" :no-data-text="$t('common.noCourseData')"
                                                     editable @update:modelValue="onCourseChange"
                                                     filterable></v-autocomplete>
                                             </v-col>
                                             <v-col cols="12" sm="4" md="4" class="arrow-col">
                                                 <div class="arrow">
-                                                    <span class="arrow-text">Next Course</span>
+                                                    <span class="arrow-text">{{ $t('common.nextCourse') }}</span>
                                                 </div>
                                             </v-col>
                                             <v-col cols="12" sm="4" md="4">
                                                 <v-autocomplete v-model="editedStudentItem.courserefer2"
-                                                    label="Continue Course Refer" item-title="courserefer"
+                                                    :label="$t('table.continueCourseRefer')" item-title="courserefer"
                                                     item-value="courserefer" :items="customerCourseLookup"
-                                                    variant="solo-filled" no-data-text="No course"
+                                                    variant="solo-filled" :no-data-text="$t('common.noCourseData')"
                                                     editable
                                                     filterable></v-autocomplete>
                                             </v-col>
@@ -153,7 +153,7 @@
                                                     <template v-slot:prepend>
                                                         <v-icon color="success"></v-icon>
                                                     </template>
-                                                    จบคอร์ส
+                                                    {{ $t('table.finish') }}
                                                 </v-btn>
                                             </v-col>
                                         </v-row>
@@ -237,7 +237,7 @@
                 <v-icon size="large" color="error" @click="clickDeleteStudent(item)">mdi-delete-forever</v-icon>
             </template>
             <template v-slot:loadingStudent><v-skeleton-loader type="table-row@5"></v-skeleton-loader></template>
-            <template v-slot:no-data> No Student list </template>
+            <template v-slot:no-data> {{ $t('common.noStudentList') }} </template>
         </v-data-table-server>
     </v-card>
 </div>
@@ -305,7 +305,7 @@ export default {
             dialogStudentDelete: false,
             loadingStudent: false,
             dialogFinish: false,
-            notNullRules: [(v) => !!v || "field is required"],
+            notNullRules: [(v) => !!v || this.$t("common.required")],
             totalStudents: 0,
             tableOptions: { page: 1, itemsPerPage: 10, sortBy: [] },
             searchTimer: null,
@@ -381,7 +381,7 @@ export default {
                         this.StudentList = results;
                         this.totalStudents = total ?? 0;
                     } else {
-                        this.$emit("onErrorHandler", message || "Get Student list failed");
+                        this.$emit("onErrorHandler", message || this.$t("msg.studentListFail"));
                     }
                     this.loadingStudent = false;
                 })
@@ -615,12 +615,12 @@ export default {
                 .then((response) => {
                     //console.dir(response);
                     if (response.data.success) {
-                        this.$emit("onInfoHandler", "Delete Student Successful");
+                        this.$emit("onInfoHandler", this.$t("msg.studentDeleted"));
                         this.$emit("onUpdateDataSuccess");
                     } else {
                         this.$emit(
                             "onErrorHandler",
-                            response.data.message || "Delete Student failed"
+                            response.data.message || this.$t("msg.studentDeleteFail")
                         );
                     }
                     this.dialogStudentDelete = false;
@@ -666,7 +666,7 @@ export default {
             if (file.size > maxSize) {
                 this.editedStudentItem.profile_image = null;
                 this.imagePreview = this.profileAvatar;
-                this.$emit("onErrorHandler", "จำกัดขนาดไฟล์ไม่เกิน 4MB");
+                this.$emit("onErrorHandler", this.$t("msg.fileTooLarge"));
 
                 return;
             }
@@ -782,7 +782,7 @@ export default {
                             //console.log("data", data.user);
                             if (data.user > 0) {
                                 this.editedStudentItem.current_course_detail =
-                                    "มีผู้กำลังใช้คอร์สนี้ " + data.user + " คน " + data.userlist;
+                                    this.$t("customerCourse.courseInUseBy", { count: data.user, list: data.userlist });
                             } else {
                                 this.editedStudentItem.current_course_detail = null;
                             }
@@ -796,7 +796,7 @@ export default {
                             this.editedStudentItem.current_course_detail = null;
                         }
                     } else {
-                        this.$emit("onErrorHandler", "getCustomerCourseInfo failed");
+                        this.$emit("onErrorHandler", this.$t("customerCourse.loadFail"));
                     }
                 })
                 .catch((error) => {
@@ -822,7 +822,7 @@ export default {
                 this.years = null;
                 this.months = null;
                 this.days = null;
-                alert("Invalid Date of Birth");
+                alert(this.$t("common.invalidDob"));
             }
 
             const diffTime = currentDate - new Date(birthDate);
@@ -831,7 +831,7 @@ export default {
             let months = Math.floor((totalDays % 365.25) / 30.4375);
             let days = Math.floor((totalDays % 365.25) % 30.4375);
             return {
-                text : years + " ปี " + months + " เดือน ",
+                text : years + " " + this.$t('table.yearAbbr') + " " + months + " " + this.$t('table.monthAbbr') + " ",
                 int : years+'.'+months
             }
         },
@@ -939,7 +939,7 @@ export default {
                     if (response.data.success) {
                         studentDetail = response.data.results;
                     } else {
-                        this.$emit("onErrorHandler", "getStudentInfo failed");
+                        this.$emit("onErrorHandler", this.$t("msg.loadFail"));
                     }
                 })
                 .catch((error) => {

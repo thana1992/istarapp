@@ -26,7 +26,7 @@
                       <v-container>
                         <v-row>
                           <v-col cols="12" class="text-center">
-                            <v-date-picker v-model="editedItem.holidaydate" label="Holiday Date" required></v-date-picker>
+                            <v-date-picker v-model="editedItem.holidaydate" :label="$t('table.holidayDate')" required></v-date-picker>
                           </v-col>
                         </v-row> 
                         <v-row>

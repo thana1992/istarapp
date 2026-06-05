@@ -4,3 +4,11 @@ node_modules
 vue.config.js
 .env
 docs/booking-list-access-guard-spec.md
+design.md
+prototype-brief.md
+.claude/settings.json
+.claude/settings.local.json
+.understand-anything/.understandignore
+.understand-anything/fingerprints.json
+.understand-anything/knowledge-graph.json
+.understand-anything/meta.json

@@ -33,6 +33,7 @@ import axios from 'axios';
 import CryptoJS from 'crypto-js';
 import { mapActions } from "vuex";
 import { mapGetters } from "vuex";
+import { t } from "@/i18n";
 export default {
   data: () => ({
     LogginggIn: false,
@@ -41,12 +42,12 @@ export default {
     password: '',
     showpassword: false,
     nameRules: [
-      v => !!v || 'Username is required',
-      v => !/\s/.test(v) || 'Username must not contain spaces. / ห้ามมีเว้นวรรค',
-      v => /^[\x00-\x7F]+$/.test(v) || 'Username must be English letters, numbers, or special characters only.',
+      v => !!v || t('validation.usernameRequired'),
+      v => !/\s/.test(v) || t('validation.usernameNoSpaces'),
+      v => /^[\x00-\x7F]+$/.test(v) || t('validation.usernameEnglishOnly'),
     ],
     passwordRules: [
-      v => !!v || 'Password is required',
+      v => !!v || t('validation.passwordRequired'),
     ],
     showLogin: false,
   }),

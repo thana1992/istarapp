@@ -21,7 +21,7 @@
                     <v-text-field variant="solo-filled" v-model="school" :label="$t('addFamily.school')"
                         type="text"></v-text-field>
 
-                    <v-select v-model="gender" :label="$t('addFamily.gender')" :items="['ชาย', 'หญิง']" variant="solo-filled"
+                    <v-select v-model="gender" :label="$t('addFamily.gender')" :items="[{ title: $t('common.male'), value: 'ชาย' }, { title: $t('common.female'), value: 'หญิง' }]" variant="solo-filled"
                     :rules="requireRules" required></v-select>
 
                     <DatePicker :label="$t('addFamily.dob')" v-model="dateofbirth" :maxdate="new Date()" :rules="requireRules">
@@ -45,6 +45,7 @@ import axios from 'axios'
 import DatePicker from '@/components/DatePicker.vue'
 import moment from 'moment'
 import { mapGetters } from 'vuex';
+import { t } from '@/i18n';
 
 export default {
     components: {
@@ -61,7 +62,7 @@ export default {
         school: '',
         format: 'dddd MMMM DD, YYYY',
         requireRules: [
-            v => !!v || 'field is required',
+            v => !!v || t('common.required'),
         ],
     }),
     methods: {

@@ -91,7 +91,7 @@
       <hr>
       <!-- Edit profile — any logged-in user -->
       <v-list-item v-if="isLoggedIn" prepend-icon="mdi-account-edit"
-        title="แก้ไขข้อมูล"
+        :title="$t('nav.editProfile')"
         @click.stop.prevent="onClickChangeState('editprofile')">
       </v-list-item>
       <!-- UI Theme Picker — admin only -->

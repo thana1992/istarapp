@@ -282,7 +282,7 @@ export default ({
             bookingHeaders: [],
             loadingBooking: false,
             state: 'bookinglist',
-            notNullRules: [v => !!v || 'This field is required',],
+            notNullRules: [v => !!v || this.$t('common.required'),],
 
             loadingCourse: false,
             editedBookingIndex: -1,
@@ -487,7 +487,7 @@ export default ({
                             }
                         } else {
                             //console.log("message : " + message)
-                            this.$emit('onErrorHandler', message || 'Get Bookinglist failed')
+                            this.$emit('onErrorHandler', message || this.$t('msg.loadFail'))
                         }
                         if (classdate == this.SQLDate(this.datepick)) {
                             this.loadingBooking = false
@@ -531,7 +531,7 @@ export default ({
                 this.years = null;
                 this.months = null;
                 this.days = null;
-                alert('Invalid Date of Birth')
+                alert(this.$t('common.invalidDob'))
             }
 
             const diffTime = currentDate - new Date(birthDate);
@@ -539,7 +539,7 @@ export default ({
             let years = Math.floor(totalDays / 365.25);
             let months = Math.floor((totalDays % 365.25) / 30.4375);
             let days = Math.floor((totalDays % 365.25) % 30.4375);
-            return years + ' ปี ' + months + ' เดือน '
+            return years + ' ' + this.$t('table.yearAbbr') + ' ' + months + ' ' + this.$t('table.monthAbbr') + ' '
 
         },
         onError(msg) {

@@ -136,9 +136,9 @@ export default {
                 .then(response => {
                     //console.dir(response);
                     if (response.data.success) {
-                        this.$emit('onInfoHandler', 'Delete Family Member Successful');
+                        this.$emit('onInfoHandler', this.$t('msg.familyDeleted'));
                     } else {
-                        this.$emit('onErrorHandler', response.data.message || 'Get Family Member failed');
+                        this.$emit('onErrorHandler', response.data.message || this.$t('msg.familyLoadFail'));
                     }
                     this.getFamilyList()
                 })

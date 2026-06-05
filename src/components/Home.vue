@@ -290,7 +290,7 @@ export default {
             if (!birthDate) return;
             const currentDate = new Date();
             if (new Date(birthDate) > currentDate) {
-                alert('Invalid Date of Birth')
+                alert(this.$t('common.invalidDob'))
                 return;
             }
             const diffTime = currentDate - new Date(birthDate);
@@ -309,7 +309,7 @@ export default {
         async uploadPhotoFile(file, studentid) {
             if (!file) return;
             if (file.size > 4 * 1024 * 1024) {
-                this.$emit('onErrorHandler', 'ไฟล์รูปต้องไม่เกิน 4MB');
+                this.$emit('onErrorHandler', this.$t('msg.fileTooLarge'));
                 return;
             }
             const ext = file.name.split('.').pop();
@@ -331,10 +331,10 @@ export default {
                     if (this.studentSelected && this.studentSelected.studentid === studentid) {
                         this.imagePreview = data.url;
                     }
-                    this.$emit('onSuccessHandler', 'อัพโหลดรูปสำเร็จ');
+                    this.$emit('onSuccessHandler', this.$t('msg.uploadSuccess'));
                 }
             } catch (e) {
-                this.$emit('onErrorHandler', 'อัพโหลดรูปไม่สำเร็จ');
+                this.$emit('onErrorHandler', this.$t('msg.uploadFail'));
             } finally {
                 this.$emit('onLoading', false);
             }

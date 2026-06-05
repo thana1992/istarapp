@@ -65,6 +65,7 @@
 import { VBottomNavigation, VBottomSheet } from 'vuetify/lib/components/index.mjs'
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
+import { t } from "@/i18n";
 
 export default {
   data: () => ({
@@ -79,22 +80,22 @@ export default {
     mobileno: '',
     acceptPrivacyPolicy: false,
     usernameRules: [
-      v => !!v || 'Username is required',
-      v => !/\s/.test(v) || 'Username must not contain spaces. / ห้ามมีเว้นวรรค',
-      v => /^[\x00-\x7F]+$/.test(v) || 'Username must be English letters, numbers, or special characters only. / ชื่อผู้ใช้ต้องเป็นตัวอักษรภาษาอังกฤษ',
+      v => !!v || t('validation.usernameRequired'),
+      v => !/\s/.test(v) || t('validation.usernameNoSpaces'),
+      v => /^[\x00-\x7F]+$/.test(v) || t('validation.usernameEnglishOnly'),
     ],
     passwordRules: [
-      v => !!v || 'Password is required',
+      v => !!v || t('validation.passwordRequired'),
     ],
     nameRules: [
-      v => !!v || 'Name is required',
+      v => !!v || t('validation.nameRequired'),
     ],
     mobileRules: [
-      v => !!v || 'Mobile Number is required',
+      v => !!v || t('validation.mobileRequired'),
     ],
     emailRules: [
-      v => !!v || 'E-mail is required',
-      v => !v || /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || 'E-mail must be valid'
+      v => !!v || t('validation.emailRequired'),
+      v => !v || /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) || t('validation.emailInvalid')
     ]
   }),
   methods: {
@@ -105,7 +106,7 @@ export default {
       if (valid) {
         // Check if username and password are not empty
         if (!this.username || !this.password) {
-          alert('Please enter both username and password.');
+          alert(t('msg.bothCredsRequired'));
           return;
         }
 
@@ -126,9 +127,9 @@ export default {
           })
           .then(response => {
             if (response.data.success) {
-              this.$emit('onSuccessHandler', response.data.message || 'Registration successful');
+              this.$emit('onSuccessHandler', response.data.message || t('msg.registerSuccess'));
             } else {
-              this.$emit('onErrorHandler', response.data.message || 'Registration failed');
+              this.$emit('onErrorHandler', response.data.message || t('msg.registerFail'));
             }
           })
           .catch(error => {

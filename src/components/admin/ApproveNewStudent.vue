@@ -1,7 +1,7 @@
 <template>
   <v-div>
   <v-data-table v-model="confirmStudentList" :items="newStudentList" return-object :headers="newStudentlistHeaders"
-    show-select :loading="loadingNewStudentList" loading-text="Loading... Please wait">
+    show-select :loading="loadingNewStudentList" :loading-text="$t('common.loading')">
     <template v-slot:top>
       <v-toolbar flat>
         <v-toolbar-title>{{ $t('approve.title') }}</v-toolbar-title>
@@ -110,11 +110,11 @@ export default {
           //console.log(response)
 
           this.$emit('onUpdateDataSuccess');
-          this.$emit('onInfoHandler', response.data.message || 'Approve new student success');
+          this.$emit('onInfoHandler', response.data.message || this.$t('msg.studentApproved'));
         })
         .catch(error => {
 
-          this.$emit('onErrorHandler', error.message || 'Approve new student failed');
+          this.$emit('onErrorHandler', error.message || this.$t('msg.approveFail'));
           //console.log(error)
         })
 
@@ -139,11 +139,11 @@ export default {
           this.dialogStudentNewDelete = false;
 
           this.$emit('onUpdateDataSuccess');
-          this.$emit('onInfoHandler', response.data.message || 'Delete new student success');
+          this.$emit('onInfoHandler', response.data.message || this.$t('msg.studentDeleted'));
         })
         .catch(error => {
           this.dialogStudentNewDelete = false;
-          this.$emit('onErrorHandler', error.message || 'Delete new student failed');
+          this.$emit('onErrorHandler', error.message || this.$t('msg.studentDeleteFail'));
           //console.log(error)
         })
       this.studentNewDeleteObj = null
@@ -193,7 +193,7 @@ export default {
           this.years = null;
           this.months = null;
           this.days = null;
-          alert("Invalid Date of Birth");
+          alert(this.$t("common.invalidDob"));
       }
 
       const diffTime = currentDate - new Date(birthDate);
