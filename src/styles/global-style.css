@@ -29,6 +29,27 @@ body {
   min-height: 100vh;
 }
 
+/* ── Browser autofill override ────────────────────────────────────────
+   Chrome/Edge force a blue-yellow background on autofilled inputs.
+   The classic fix: paint our own inset box-shadow that the browser
+   can't override, plus a 5000s background-color transition delay so
+   the browser's color animation never reaches the field. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+textarea:-webkit-autofill:hover,
+textarea:-webkit-autofill:focus,
+select:-webkit-autofill,
+select:-webkit-autofill:hover,
+select:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px white inset !important;
+  -webkit-text-fill-color: #1e293b !important;
+  caret-color: #1e293b !important;
+  transition: background-color 5000s ease-in-out 0s !important;
+}
+
 /* บังคับ #app ให้สูงเกิน viewport เพื่อมี scrollbar ตลอดเวลา */
 #app {
   min-height: calc(100vh + 1px);
@@ -819,15 +840,27 @@ html.theme-playful {
   --pf-text-body:      #475569;
   --pf-text-muted:     #f9a8d4;
 
-  /* Effects */
-  --pf-shadow-rose-sm: 4px 4px 10px rgba(244, 63, 94, 0.15);
-  --pf-shadow-rose-md: 6px 6px 18px rgba(244, 63, 94, 0.18);
-  --pf-shadow-rose-lg: 8px 8px 22px rgba(244, 63, 94, 0.28);
-  --pf-shadow-violet:  -4px -4px 12px rgba(167, 139, 250, 0.15);
-  --pf-shadow-light:   -4px -4px 12px rgba(255, 255, 255, 0.95);
-  --pf-border-soft:    rgba(251, 113, 133, 0.2);
-  --pf-border:         rgba(251, 113, 133, 0.3);
-  --pf-border-strong:  rgba(244, 63, 94, 0.5);
+  /* Effects — ambient layered shadows, no hard edges, no stark white */
+  --pf-shadow-rose-sm:
+    0 2px 8px -3px rgba(244, 63, 94, 0.10),
+    0 6px 16px -8px rgba(244, 63, 94, 0.08);
+  --pf-shadow-rose-md:
+    0 4px 14px -6px rgba(244, 63, 94, 0.14),
+    0 14px 38px -14px rgba(244, 63, 94, 0.18),
+    0 2px 4px -2px rgba(244, 63, 94, 0.06);
+  --pf-shadow-rose-lg:
+    0 6px 20px -8px rgba(244, 63, 94, 0.18),
+    0 22px 50px -18px rgba(244, 63, 94, 0.24),
+    0 4px 8px -3px rgba(244, 63, 94, 0.10);
+  /* Subtle violet bloom from above — sits with the rose shadows for depth */
+  --pf-shadow-violet:
+    0 -6px 22px -10px rgba(167, 139, 250, 0.16),
+    0 -2px 6px -3px rgba(167, 139, 250, 0.08);
+  /* Soft inner top highlight — rose-tinted, never pure white */
+  --pf-inner-highlight: inset 0 1px 0 rgba(255, 240, 247, 0.7);
+  --pf-border-soft:    rgba(251, 113, 133, 0.14);
+  --pf-border:         rgba(251, 113, 133, 0.22);
+  --pf-border-strong:  rgba(244, 63, 94, 0.4);
   --pf-tint-hover:     rgba(244, 63, 94, 0.06);
   --pf-tint-active:    rgba(244, 63, 94, 0.1);
 
@@ -841,22 +874,66 @@ html.theme-playful {
   --pf-gradient-text-heading: linear-gradient(135deg, var(--pf-primary-deeper), var(--pf-primary-dark));
 }
 
-/* ── Page background ── */
+/* ── Page background — soft pink → lavender, layered for atmosphere ── */
 html.theme-playful body {
-  background: var(--pf-gradient-bg) !important;
+  background:
+    radial-gradient(ellipse 60% 50% at 18% 20%, rgba(252, 207, 232, 0.45), transparent 65%),
+    radial-gradient(ellipse 65% 55% at 82% 78%, rgba(221, 214, 254, 0.5), transparent 65%),
+    linear-gradient(160deg,
+      #fef0f7 0%,
+      #fae6f5 25%,
+      #f1e6fd 55%,
+      #fae6f5 80%,
+      #fef0f7 100%
+    ) !important;
+  background-attachment: fixed !important;
 }
 
+/* Vuetify root wrappers must be transparent so the body gradient + PlayfulOverlay
+   stars show through. Without this, Vuetify's default white surface covers everything. */
+html.theme-playful .v-application,
+html.theme-playful .v-application__wrap,
+html.theme-playful .v-layout,
+html.theme-playful .v-main,
+html.theme-playful .app-root-card,
+html.theme-playful .app-root-card.v-card {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Login page: keep fixed positioning but let body gradient + PlayfulOverlay
+   show through. z-index 1 puts login content above the overlay (z-index 0). */
 html.theme-playful .login-page {
-  background: linear-gradient(135deg, var(--pf-surface-pink) 0%, var(--pf-surface-violet) 50%, var(--pf-surface-pink) 100%) !important;
+  background: transparent !important;
+  z-index: 1 !important;
 }
 
-/* ── Cards (.card-opacity) ── */
+/* Login card: drop the frame — inputs/buttons sit directly on the gradient.
+   Keep Vuetify's px/py utility padding so inputs don't hug the screen edge. */
+html.theme-playful .login-card,
+html.theme-playful .login-card.card-opacity {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+/* ── Cards (.card-opacity) — Frosted Glass ──
+   Translucent white surface + backdrop-blur so the body gradient + stars
+   subtly bleed through every card. Same recipe applied to .stat-card /
+   .content-card in Dashboard.vue → every card across the system matches.
+   Opacity 0.78 + saturate(0.92) keeps the body gradient bleed gentle so
+   sparse cards (text only) and dense cards (colored cells) look uniform. */
 html.theme-playful .card-opacity {
-  background: var(--pf-gradient-card) !important;
+  background: rgba(255, 252, 254, 0.78) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(0.92) !important;
+  backdrop-filter: blur(18px) saturate(0.92) !important;
+  border: 1px solid rgba(255, 255, 255, 0.6) !important;
   box-shadow:
-    var(--pf-shadow-rose-md),
-    var(--pf-shadow-violet),
-    0 0 0 1.5px var(--pf-border-soft) !important;
+    0 10px 28px -10px rgba(244, 63, 94, 0.20),
+    0 24px 56px -22px rgba(244, 63, 94, 0.16),
+    0 -2px 14px -6px rgba(167, 139, 250, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
   border-radius: 26px !important;
 }
 
@@ -893,10 +970,9 @@ html.theme-playful .dashboard-header-icon {
   background: var(--pf-gradient-primary) !important;
   color: #ffffff !important;
   box-shadow:
-    6px 6px 14px rgba(244, 63, 94, 0.4),
-    -4px -4px 10px rgba(255, 255, 255, 0.75),
-    inset 1px 1px 2px rgba(255, 255, 255, 0.3),
-    inset -1px -1px 2px rgba(0, 0, 0, 0.08) !important;
+    0 8px 20px -6px rgba(244, 63, 94, 0.42),
+    0 2px 6px -2px rgba(190, 24, 93, 0.28),
+    inset 0 1px 0 rgba(255, 220, 232, 0.45) !important;
 }
 html.theme-playful .dashboard-header-icon {
   width: 46px !important;
@@ -916,8 +992,9 @@ html.theme-playful .dashboard-title {
 html.theme-playful .v-app-bar {
   background: var(--pf-gradient-header) !important;
   box-shadow:
-    0 6px 16px rgba(244, 63, 94, 0.2),
-    0 -2px 6px rgba(255, 255, 255, 0.6) !important;
+    0 8px 24px -8px rgba(244, 63, 94, 0.22),
+    0 2px 6px -2px rgba(167, 139, 250, 0.14),
+    inset 0 1px 0 rgba(255, 240, 247, 0.55) !important;
 }
 html.theme-playful .v-app-bar .v-btn {
   color: var(--pf-text-heading) !important;
@@ -926,12 +1003,32 @@ html.theme-playful .v-app-bar .v-btn:hover {
   color: var(--pf-primary) !important;
 }
 
+/* ── Quick action buttons (Dashboard header pills) ──
+   Flat — no box-shadow, just a rose border and bg subtly different from page */
+html.theme-playful .qa-btn {
+  background: #fce7f3 !important;
+  border: 1.5px solid rgba(157, 23, 77, 0.35) !important;
+  box-shadow: none !important;
+}
+html.theme-playful .qa-btn:hover {
+  background: #f9c8de !important;
+  border-color: rgba(157, 23, 77, 0.5) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: none !important;
+}
+html.theme-playful .qa-btn:active {
+  background: #f5a8c5 !important;
+  border-color: rgba(157, 23, 77, 0.6) !important;
+  transform: translateY(1px) !important;
+  box-shadow: inset 0 2px 4px rgba(157, 23, 77, 0.18) !important;
+}
+
 /* ── Navigation drawer ── */
 html.theme-playful .v-navigation-drawer {
   background: linear-gradient(to bottom, var(--pf-surface-tint-1) 0%, #f5f0ff 100%) !important;
   box-shadow:
-    8px 0 20px rgba(244, 63, 94, 0.15),
-    -2px 0 6px rgba(255, 255, 255, 0.6) !important;
+    8px 0 28px -6px rgba(244, 63, 94, 0.18),
+    2px 0 8px -4px rgba(167, 139, 250, 0.12) !important;
 }
 html.theme-playful .v-navigation-drawer .v-list .v-list-item--active {
   background: var(--pf-gradient-primary) !important;
@@ -1010,6 +1107,81 @@ html.theme-playful .v-field .v-label.v-field-label--floating {
   color: var(--pf-primary) !important;
 }
 
+/* Solo-filled v-text-field (used on login) — keep field surface uniformly
+   white so the autofill-white input doesn't sit next to a grey append zone. */
+html.theme-playful .v-field--variant-solo-filled {
+  background-color: #ffffff !important;
+  color: var(--pf-text-body) !important;
+}
+html.theme-playful .v-field--variant-solo-filled .v-field__overlay,
+html.theme-playful .v-field--variant-solo-filled .v-field__loader {
+  background: transparent !important;
+  opacity: 0 !important;
+}
+
+/* Append-inner / prepend-inner icons (eye toggle, clear, etc.) — rose accent.
+   Wildcard descendant selector catches every nested element Vuetify might
+   wrap the icon in (button, span, i, v-icon, etc.) across all variants. */
+html.theme-playful .v-field__append-inner,
+html.theme-playful .v-field__append-inner *,
+html.theme-playful .v-field__prepend-inner,
+html.theme-playful .v-field__prepend-inner * {
+  color: var(--pf-primary) !important;
+  --v-medium-emphasis-opacity: 1 !important;
+}
+html.theme-playful .v-field__append-inner .v-icon,
+html.theme-playful .v-field__prepend-inner .v-icon {
+  opacity: 0.9 !important;
+  background: transparent !important;
+  outline: none !important;
+}
+html.theme-playful .v-field__append-inner .v-icon:hover,
+html.theme-playful .v-field__prepend-inner .v-icon:hover {
+  opacity: 1 !important;
+}
+
+/* Kill Vuetify's hover/focus state overlay on clickable inner icons —
+   the grey circular halo that lingers after click/focus. */
+html.theme-playful .v-field .v-field__append-inner .v-icon::before,
+html.theme-playful .v-field .v-field__append-inner .v-icon::after,
+html.theme-playful .v-field .v-field__prepend-inner .v-icon::before,
+html.theme-playful .v-field .v-field__prepend-inner .v-icon::after {
+  display: none !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  opacity: 0 !important;
+  box-shadow: none !important;
+}
+
+html.theme-playful .v-field .v-field__append-inner .v-icon:focus,
+html.theme-playful .v-field .v-field__append-inner .v-icon:focus-visible,
+html.theme-playful .v-field .v-field__append-inner .v-icon:active {
+  background: transparent !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Also clear hover/focus state on the wrapper itself + any v-btn inside */
+html.theme-playful .v-field .v-field__append-inner,
+html.theme-playful .v-field .v-field__append-inner:hover,
+html.theme-playful .v-field .v-field__append-inner:focus,
+html.theme-playful .v-field .v-field__prepend-inner,
+html.theme-playful .v-field .v-field__prepend-inner:hover,
+html.theme-playful .v-field .v-field__prepend-inner:focus {
+  background: transparent !important;
+}
+
+html.theme-playful .v-field .v-field__append-inner .v-btn,
+html.theme-playful .v-field .v-field__append-inner .v-btn:hover,
+html.theme-playful .v-field .v-field__append-inner .v-btn:focus,
+html.theme-playful .v-field .v-field__append-inner .v-btn:active,
+html.theme-playful .v-field .v-field__append-inner .v-btn .v-btn__overlay {
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
+  opacity: 0 !important;
+}
+
 /* Selected option in v-select dropdown */
 html.theme-playful .v-overlay__content .v-list-item--active {
   background: var(--pf-tint-active) !important;
@@ -1039,22 +1211,6 @@ html.theme-playful .neu-action-btn:hover {
   box-shadow:
     7px 7px 18px rgba(244, 63, 94, 0.5),
     -5px -5px 14px rgba(255, 255, 255, 0.85) !important;
-}
-
-/* Quick-action buttons on Dashboard (.qa-btn) */
-html.theme-playful .qa-btn {
-  background: var(--pf-gradient-card) !important;
-  color: var(--pf-text-heading) !important;
-  box-shadow:
-    4px 4px 10px rgba(244, 63, 94, 0.18),
-    -3px -3px 8px rgba(255, 255, 255, 0.85),
-    0 0 0 1px var(--pf-border-soft) !important;
-}
-html.theme-playful .qa-btn:hover {
-  box-shadow:
-    6px 6px 14px rgba(244, 63, 94, 0.28),
-    -4px -4px 10px rgba(255, 255, 255, 0.9),
-    0 0 0 1px var(--pf-border) !important;
 }
 
 /* ── Dialogs ── */
@@ -1805,763 +1961,6 @@ html.theme-christmas .stat-card-dynamic {
   color: #0d3a0d !important;
   box-shadow: 8px 8px 24px rgba(0,0,0,0.55), 0 0 0 1px rgba(255,215,0,0.22) !important;
 }
-
-/* ================================================================
-   7 STARS MUAYTHAI GYM — FIGHT CARD EDITION
-   ────────────────────────────────────────────────────────────────
-   Aesthetic: industrial championship × bangkok 90s fight poster
-   • Typography: Chakra Petch (display, athletic) + Bebas Neue (numerics)
-   • Sharp corners (4–8px), no rounded cuteness
-   • Gold diagonal corner stripes on cards (fight poster motif)
-   • Subtle SVG grain texture overlay
-   • Punch-impact micro-interactions
-   ================================================================
-*/
-html.theme-muaythai {
-  /* === Brand: red + gold (no white, ใช้ cream แทน) === */
-  --mt-primary:        #ef4444;   /* glove red */
-  --mt-primary-light:  #f87171;
-  --mt-primary-dark:   #b91c1c;
-  --mt-primary-deeper: #7f1d1d;
-  --mt-accent:         #fbbf24;   /* championship gold */
-  --mt-accent-light:   #fcd34d;
-  --mt-accent-dark:    #b45309;
-  --mt-accent-deep:    #78350f;   /* bronze undertone */
-
-  /* === Surfaces: matte black tactical === */
-  --mt-bg-deepest:     #000000;
-  --mt-bg-dark:        #0a0907;
-  --mt-surface:        #141210;   /* warm-tinted dark */
-  --mt-surface-2:      #1c1a17;
-  --mt-surface-3:      #25221e;
-
-  /* === Text: cream/gauze (แทนสีขาว) === */
-  --mt-text:           #fef3c7;   /* hand wrap cream */
-  --mt-text-bright:    #fef9c3;   /* highlight cream */
-  --mt-text-secondary: #fde68a;   /* warm gold-cream */
-  --mt-text-muted:     #a8a29e;   /* warm stone */
-  --mt-text-dim:       #57534e;   /* muted bronze */
-  --mt-text-gold:      var(--mt-accent);
-
-  /* === Effects === */
-  --mt-shadow-deep:    0 14px 40px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(0,0,0,0.5);
-  --mt-shadow-red:     0 8px 22px rgba(220, 38, 38, 0.45);
-  --mt-shadow-red-glow:0 0 28px rgba(239, 68, 68, 0.55), 0 0 56px rgba(220, 38, 38, 0.28);
-  --mt-shadow-gold:    0 0 20px rgba(251, 191, 36, 0.45);
-  --mt-shadow-gold-soft:0 4px 16px rgba(180, 83, 9, 0.35);
-  --mt-border-red:     rgba(239, 68, 68, 0.5);
-  --mt-border-gold:    rgba(251, 191, 36, 0.5);
-  --mt-border-subtle:  rgba(254, 243, 199, 0.06);
-  --mt-tint-hover:     rgba(239, 68, 68, 0.14);
-  --mt-tint-active:    rgba(251, 191, 36, 0.18);
-
-  /* === Gradients === */
-  --mt-gradient-primary:    linear-gradient(135deg, var(--mt-primary-light) 0%, var(--mt-primary) 40%, var(--mt-primary-dark) 100%);
-  --mt-gradient-gold:       linear-gradient(135deg, var(--mt-accent-light) 0%, var(--mt-accent) 50%, var(--mt-accent-dark) 100%);
-  --mt-gradient-card:       linear-gradient(155deg, var(--mt-surface-2) 0%, var(--mt-surface) 55%, var(--mt-bg-dark) 100%);
-  --mt-gradient-card-deep:  linear-gradient(155deg, var(--mt-surface-3) 0%, var(--mt-surface-2) 60%, var(--mt-bg-dark) 100%);
-  --mt-gradient-header:     linear-gradient(95deg, var(--mt-bg-dark) 0%, #1a0a08 35%, var(--mt-primary-deeper) 100%);
-  --mt-gradient-bg:         radial-gradient(ellipse 80% 50% at 20% 0%, rgba(127, 29, 29, 0.35) 0%, transparent 60%),
-                            radial-gradient(ellipse 60% 40% at 100% 100%, rgba(180, 83, 9, 0.18) 0%, transparent 60%),
-                            linear-gradient(140deg, var(--mt-bg-deepest) 0%, var(--mt-bg-dark) 100%);
-
-  /* === Typography === */
-  --mt-font-display: 'Chakra Petch', 'Kodchasan', sans-serif;
-  --mt-font-body:    'Chakra Petch', 'Kodchasan', sans-serif;
-  --mt-font-numeric: 'Bebas Neue', 'Chakra Petch', sans-serif;
-
-  /* === SVG grain (cream-tinted, subtle) === */
-  --mt-grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.99  0 0 0 0 0.95  0 0 0 0 0.78  0 0 0 0.04 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-
-  /* === Championship banner — solid gold gradient (replaces striped finish-flag look) === */
-  --mt-corner-banner: linear-gradient(
-    to bottom,
-    var(--mt-accent-light) 0%,
-    var(--mt-accent) 50%,
-    var(--mt-accent-dark) 100%
-  );
-}
-
-/* Global typography — italic display, condensed body */
-html.theme-muaythai,
-html.theme-muaythai body,
-html.theme-muaythai .v-application {
-  font-family: var(--mt-font-body) !important;
-  letter-spacing: 0.3px;
-  color: var(--mt-text);
-}
-html.theme-muaythai h1,
-html.theme-muaythai h2,
-html.theme-muaythai h3,
-html.theme-muaythai .v-card-title,
-html.theme-muaythai .v-toolbar-title {
-  font-family: var(--mt-font-display) !important;
-  font-weight: 700 !important;
-  font-style: italic !important;
-  letter-spacing: 1.5px !important;
-  text-transform: uppercase;
-}
-
-/* ── Page background — radial red/bronze atmosphere + cream grain overlay ── */
-html.theme-muaythai body {
-  background: var(--mt-gradient-bg) !important;
-  background-attachment: fixed !important;
-  color: var(--mt-text) !important;
-  position: relative;
-}
-html.theme-muaythai body::before {
-  content: '';
-  position: fixed;
-  inset: 0;
-  background-image: var(--mt-grain);
-  opacity: 0.5;
-  pointer-events: none;
-  z-index: 1;
-  mix-blend-mode: overlay;
-}
-
-html.theme-muaythai .login-page {
-  background:
-    radial-gradient(ellipse at center, rgba(127, 29, 29, 0.45) 0%, transparent 65%),
-    var(--mt-bg-deepest) !important;
-}
-
-/* ── Cards — angular, sharp corners, signature diagonal gold stripe ── */
-html.theme-muaythai .card-opacity {
-  position: relative;
-  background: var(--mt-gradient-card) !important;
-  color: var(--mt-text) !important;
-  box-shadow:
-    var(--mt-shadow-deep),
-    inset 0 1px 0 rgba(254, 243, 199, 0.04),
-    inset 0 0 0 1px var(--mt-border-red) !important;
-  border-radius: 6px !important;
-  overflow: hidden !important;
-}
-/* Signature: champion's gold banner on top-right corner (Muay Thai gym style) */
-html.theme-muaythai .card-opacity::after {
-  content: '';
-  position: absolute;
-  top: -12px;
-  right: -34px;
-  width: 100px;
-  height: 24px;
-  background: var(--mt-corner-banner);
-  transform: rotate(45deg);
-  opacity: 0.95;
-  pointer-events: none;
-  z-index: 2;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.35),
-    inset 0 -1px 0 rgba(120, 53, 15, 0.6),
-    0 2px 6px rgba(0, 0, 0, 0.4);
-  border-top: 1px solid rgba(120, 53, 15, 0.55);
-  border-bottom: 1px solid rgba(120, 53, 15, 0.55);
-}
-
-/* ── Toolbars / v-card-title — italic uppercase fight-card titles ── */
-html.theme-muaythai .card-opacity .v-toolbar,
-html.theme-muaythai div.card-opacity .v-toolbar,
-html.theme-muaythai .v-card.card-opacity > .v-card-title,
-html.theme-muaythai div.card-opacity .v-card-title {
-  background: var(--mt-gradient-header) !important;
-  color: var(--mt-accent) !important;
-  border-bottom: 2px solid var(--mt-accent) !important;
-  font-family: var(--mt-font-display) !important;
-  font-style: italic !important;
-  font-weight: 700 !important;
-  letter-spacing: 2px !important;
-  text-transform: uppercase;
-  text-shadow: 0 1px 0 rgba(0,0,0,0.5);
-}
-
-/* ── Header bands (sharper, italic, gold underline) ── */
-html.theme-muaythai .home-section-header,
-html.theme-muaythai .section-header,
-html.theme-muaythai .header-card,
-html.theme-muaythai .sticky-header {
-  background: var(--mt-gradient-header) !important;
-  color: var(--mt-accent) !important;
-  border-bottom: 2px solid var(--mt-accent) !important;
-  font-family: var(--mt-font-display) !important;
-  font-style: italic !important;
-  font-weight: 700 !important;
-  letter-spacing: 1.5px !important;
-  text-transform: uppercase;
-  text-shadow: 0 1px 0 rgba(0,0,0,0.5);
-}
-html.theme-muaythai .home-section-header .mdi,
-html.theme-muaythai .section-header .mdi {
-  color: var(--mt-accent) !important;
-}
-
-/* ── Container header — italic gold, fight-card title ── */
-html.theme-muaythai .container-header h1 {
-  color: var(--mt-accent) !important;
-  font-family: var(--mt-font-display) !important;
-  font-style: italic !important;
-  font-weight: 700 !important;
-  letter-spacing: 2px !important;
-  text-transform: uppercase;
-}
-html.theme-muaythai .container-header h1 .mdi,
-html.theme-muaythai .dashboard-header-icon {
-  background: var(--mt-gradient-primary) !important;
-  color: var(--mt-accent) !important;
-  box-shadow:
-    var(--mt-shadow-red),
-    0 0 0 1.5px var(--mt-accent),
-    inset 0 1px 2px rgba(254, 243, 199, 0.18) !important;
-  transform: skewX(-4deg);
-}
-html.theme-muaythai .dashboard-header-icon {
-  width: 46px !important;
-  height: 46px !important;
-  min-width: 46px !important;
-  border-radius: 4px !important;
-}
-html.theme-muaythai .dashboard-header-icon .mdi {
-  transform: skewX(4deg);
-}
-html.theme-muaythai .dashboard-title {
-  background: var(--mt-gradient-gold) !important;
-  -webkit-background-clip: text !important;
-  background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  color: transparent !important;
-  font-family: var(--mt-font-display) !important;
-  font-style: italic !important;
-  font-weight: 700 !important;
-  letter-spacing: 3px !important;
-  text-shadow: 0 2px 12px rgba(251, 191, 36, 0.25);
-}
-
-/* ── App bar ── */
-html.theme-muaythai .v-app-bar {
-  background: var(--mt-gradient-header) !important;
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.6),
-    0 0 0 1px var(--mt-border-gold) !important;
-}
-html.theme-muaythai .v-app-bar .v-btn {
-  color: var(--mt-accent) !important;
-}
-html.theme-muaythai .v-app-bar .v-btn:hover {
-  color: var(--mt-accent-light) !important;
-}
-
-/* ── Navigation drawer ── */
-html.theme-muaythai .v-navigation-drawer {
-  background: linear-gradient(to bottom, var(--mt-surface) 0%, var(--mt-bg-dark) 100%) !important;
-  box-shadow:
-    8px 0 20px rgba(0, 0, 0, 0.5),
-    inset -1px 0 0 var(--mt-border-red) !important;
-}
-html.theme-muaythai .v-navigation-drawer .v-list-item {
-  color: var(--mt-text-secondary) !important;
-}
-html.theme-muaythai .v-navigation-drawer .v-list .v-list-item--active {
-  background: var(--mt-gradient-primary) !important;
-  color: var(--mt-accent) !important;
-  box-shadow: var(--mt-shadow-red) !important;
-}
-html.theme-muaythai .v-navigation-drawer .v-list .v-list-item:hover {
-  background: var(--mt-tint-hover) !important;
-  color: var(--mt-accent) !important;
-}
-html.theme-muaythai .v-navigation-drawer .v-list .v-list-item--active .v-list-item__prepend .v-icon,
-html.theme-muaythai .v-navigation-drawer .v-list .v-list-item--active .v-list-item-title {
-  color: var(--mt-accent) !important;
-}
-html.theme-muaythai .v-navigation-drawer .v-label {
-  color: var(--mt-text-muted) !important;
-}
-html.theme-muaythai .v-navigation-drawer .v-divider,
-html.theme-muaythai .v-navigation-drawer hr {
-  border-color: var(--mt-border-subtle) !important;
-}
-
-/* ── Data tables ── */
-html.theme-muaythai .v-table,
-html.theme-muaythai .v-data-table {
-  background: transparent !important;
-  color: var(--mt-text-secondary) !important;
-}
-html.theme-muaythai .v-table > .v-table__wrapper > table > thead > tr,
-html.theme-muaythai .v-data-table thead tr {
-  background: var(--mt-gradient-header) !important;
-}
-html.theme-muaythai .v-table > .v-table__wrapper > table > thead > tr > th,
-html.theme-muaythai .v-data-table thead th {
-  color: var(--mt-accent) !important;
-  font-weight: 700 !important;
-  border-bottom: 2px solid var(--mt-accent) !important;
-}
-html.theme-muaythai .v-data-table tbody tr,
-html.theme-muaythai .v-table tbody tr {
-  color: var(--mt-text-secondary) !important;
-}
-html.theme-muaythai .v-data-table tbody tr td,
-html.theme-muaythai .v-table tbody tr td {
-  border-bottom-color: var(--mt-border-subtle) !important;
-  color: var(--mt-text-secondary) !important;
-}
-html.theme-muaythai .v-data-table tbody tr:hover,
-html.theme-muaythai .v-table tbody tr:hover {
-  background: var(--mt-tint-hover) !important;
-}
-
-/* ── Data table footer + pagination ── */
-html.theme-muaythai .v-data-table-footer,
-html.theme-muaythai .card-opacity .v-data-table-footer {
-  background: var(--mt-bg-dark) !important;
-  color: var(--mt-text-secondary) !important;
-  border-top: 1px solid var(--mt-border-subtle) !important;
-}
-html.theme-muaythai .v-data-table-footer .v-btn,
-html.theme-muaythai .v-pagination .v-btn {
-  color: var(--mt-accent) !important;
-}
-html.theme-muaythai .v-pagination__item--is-active .v-btn,
-html.theme-muaythai .v-pagination .v-btn--active {
-  background: var(--mt-gradient-primary) !important;
-  color: var(--mt-accent) !important;
-}
-
-/* ── Form fields — labels in red (gold ที่เป็นสีเหลืองมองไม่ชัดบน dark bg) ── */
-html.theme-muaythai .v-field--variant-outlined .v-field__outline {
-  --v-field-border-opacity: 0.55;
-  color: var(--mt-primary-light) !important;
-}
-html.theme-muaythai .v-field--variant-outlined.v-field--focused .v-field__outline {
-  --v-field-border-opacity: 1;
-  color: var(--mt-primary) !important;
-}
-html.theme-muaythai .v-field .v-label {
-  color: #fca5a5 !important;  /* light red — readable on dark */
-}
-html.theme-muaythai .v-field--focused .v-label,
-html.theme-muaythai .v-field .v-label.v-field-label--floating {
-  color: var(--mt-primary-light) !important;  /* bright red on focus */
-  font-weight: 600 !important;
-}
-html.theme-muaythai .v-field input,
-html.theme-muaythai .v-field .v-field__input {
-  color: var(--mt-text) !important;
-}
-
-/* Selected option in dropdown */
-html.theme-muaythai .v-overlay__content .v-list,
-html.theme-muaythai .v-overlay__content .v-card {
-  background: var(--mt-surface-2) !important;
-  color: var(--mt-text-secondary) !important;
-}
-html.theme-muaythai .v-overlay__content .v-list-item {
-  color: var(--mt-text-secondary) !important;
-}
-html.theme-muaythai .v-overlay__content .v-list-item--active {
-  background: var(--mt-tint-active) !important;
-  color: var(--mt-accent) !important;
-}
-html.theme-muaythai .v-overlay__content .v-list-item:hover {
-  background: var(--mt-tint-hover) !important;
-}
-
-/* ── Buttons — sharp, italic, punch-impact motion ── */
-html.theme-muaythai .v-btn {
-  border-radius: 4px !important;
-  font-family: var(--mt-font-display) !important;
-  font-style: italic !important;
-  font-weight: 700 !important;
-  letter-spacing: 1.2px !important;
-  text-transform: uppercase;
-  transition: transform 0.12s ease-out, box-shadow 0.18s ease-out !important;
-}
-html.theme-muaythai .v-btn:active {
-  transform: scale(0.96) !important;
-}
-
-html.theme-muaythai .v-btn--variant-tonal[color="primary"],
-html.theme-muaythai .v-btn--variant-flat[color="primary"],
-html.theme-muaythai .v-btn--variant-elevated[color="primary"] {
-  background: var(--mt-gradient-primary) !important;
-  color: var(--mt-accent) !important;
-}
-
-/* Primary action button — championship belt feel */
-html.theme-muaythai .neu-action-btn {
-  background: var(--mt-gradient-primary) !important;
-  color: var(--mt-accent) !important;
-  font-family: var(--mt-font-display) !important;
-  font-style: italic !important;
-  font-weight: 700 !important;
-  letter-spacing: 2px !important;
-  text-transform: uppercase;
-  border-radius: 4px !important;
-  position: relative;
-  box-shadow:
-    var(--mt-shadow-red),
-    0 0 0 2px var(--mt-accent),
-    inset 0 1px 0 rgba(254, 243, 199, 0.15),
-    inset 0 -2px 0 rgba(0, 0, 0, 0.35) !important;
-  text-shadow: 0 1px 0 rgba(0,0,0,0.4);
-}
-html.theme-muaythai .neu-action-btn:hover {
-  transform: translateY(-2px) !important;
-  box-shadow:
-    var(--mt-shadow-red-glow),
-    0 0 0 2px var(--mt-accent-light),
-    inset 0 1px 0 rgba(254, 243, 199, 0.2),
-    inset 0 -2px 0 rgba(0, 0, 0, 0.35) !important;
-}
-html.theme-muaythai .neu-action-btn:active {
-  transform: translateY(0) scale(0.97) !important;
-}
-
-/* Dashboard quick-action buttons — leather/canvas card feel */
-html.theme-muaythai .qa-btn {
-  background:
-    linear-gradient(155deg, var(--mt-surface-2) 0%, var(--mt-surface) 100%),
-    var(--mt-grain) !important;
-  background-blend-mode: overlay !important;
-  color: var(--mt-accent) !important;
-  border-radius: 4px !important;
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.6),
-    inset 0 1px 0 rgba(254, 243, 199, 0.05),
-    0 0 0 1px var(--mt-border-red) !important;
-}
-html.theme-muaythai .qa-btn:hover {
-  transform: translateY(-2px) !important;
-  background: linear-gradient(155deg, var(--mt-surface-3) 0%, var(--mt-surface) 100%) !important;
-  box-shadow:
-    var(--mt-shadow-red),
-    inset 0 1px 0 rgba(254, 243, 199, 0.08),
-    0 0 0 1px var(--mt-border-gold) !important;
-}
-
-/* ── Dialogs — fight card poster feel ── */
-html.theme-muaythai .v-dialog .v-card:not(.v-alert) {
-  background:
-    linear-gradient(155deg, var(--mt-surface-3) 0%, var(--mt-surface-2) 60%, var(--mt-bg-dark) 100%),
-    var(--mt-grain) !important;
-  background-blend-mode: overlay !important;
-  color: var(--mt-text) !important;
-  border-radius: 6px !important;
-  border: 1px solid var(--mt-border-red) !important;
-  box-shadow:
-    0 16px 48px rgba(0, 0, 0, 0.85),
-    0 0 0 1px var(--mt-border-gold),
-    inset 0 1px 0 rgba(254, 243, 199, 0.04) !important;
-}
-html.theme-muaythai .app-dialog-header--error {
-  background: linear-gradient(95deg, #450a0a, var(--mt-primary-dark)) !important;
-  color: var(--mt-accent) !important;
-  font-style: italic;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-}
-html.theme-muaythai .app-dialog-header--success {
-  background: linear-gradient(95deg, #052e16, #14532d) !important;
-  color: var(--mt-accent) !important;
-  font-style: italic;
-  text-transform: uppercase;
-  letter-spacing: 1.5px;
-}
-
-/* ── Misc shared bits ── */
-html.theme-muaythai .group-header {
-  color: var(--mt-accent) !important;
-}
-html.theme-muaythai .family-row {
-  color: var(--mt-text-secondary) !important;
-}
-html.theme-muaythai .family-row--active {
-  border-left-color: var(--mt-accent) !important;
-  background: var(--mt-tint-hover) !important;
-  color: var(--mt-accent) !important;
-}
-html.theme-muaythai .member-name {
-  color: var(--mt-text) !important;
-}
-html.theme-muaythai .member-course,
-html.theme-muaythai .member-age,
-html.theme-muaythai .member-fullname {
-  color: var(--mt-text-secondary) !important;
-}
-html.theme-muaythai .member-fullname {
-  color: var(--mt-accent) !important;
-  font-weight: 700 !important;
-}
-html.theme-muaythai .res-time {
-  color: var(--mt-accent) !important;
-  background: var(--mt-tint-active) !important;
-}
-html.theme-muaythai .course-chip {
-  background: var(--mt-surface-2) !important;
-  color: var(--mt-accent) !important;
-  border: 1px solid var(--mt-border-gold) !important;
-}
-
-/* ── Theme switcher row ── */
-html.theme-muaythai .theme-switcher-row {
-  background: var(--mt-tint-hover) !important;
-  color: var(--mt-accent) !important;
-}
-html.theme-muaythai .theme-switcher-row .mdi {
-  color: var(--mt-accent) !important;
-}
-
-/* ── Dashboard stat-card — leather/jersey aesthetic ── */
-html.theme-muaythai .stat-card,
-html.theme-muaythai .stat-card-dynamic {
-  position: relative;
-  background:
-    linear-gradient(155deg, var(--mt-surface-2) 0%, var(--mt-surface) 50%, var(--mt-bg-dark) 100%),
-    var(--mt-grain) !important;
-  background-blend-mode: overlay !important;
-  color: var(--mt-text) !important;
-  border-radius: 4px !important;
-  box-shadow:
-    var(--mt-shadow-deep),
-    inset 0 1px 0 rgba(254, 243, 199, 0.04),
-    inset 0 0 0 1px var(--mt-border-red) !important;
-  overflow: hidden !important;
-  transition: transform 0.18s ease-out, box-shadow 0.22s ease-out !important;
-}
-html.theme-muaythai .stat-card:hover {
-  transform: translateY(-3px) !important;
-  box-shadow:
-    var(--mt-shadow-deep),
-    var(--mt-shadow-red),
-    inset 0 1px 0 rgba(254, 243, 199, 0.06),
-    inset 0 0 0 1px var(--mt-border-gold) !important;
-}
-/* Signature: MDI boxing-glove icon watermark — bottom-right of stat cards
-   Uses actual Material Design Icons font (already loaded) for crisp, professional look */
-.stat-glove {
-  display: none;
-}
-html.theme-muaythai .stat-glove {
-  display: block !important;
-  position: absolute;
-  bottom: -8px;
-  right: -4px;
-  font-size: 88px;
-  line-height: 1;
-  color: var(--mt-accent);
-  opacity: 0.22;
-  pointer-events: none;
-  transform: rotate(-15deg);
-  filter: drop-shadow(0 0 10px rgba(251, 191, 36, 0.45));
-  z-index: 1;
-}
-
-/* Stat label — small caps, muted gold-cream */
-html.theme-muaythai .stat-label {
-  color: var(--mt-text-secondary) !important;
-  font-family: var(--mt-font-display) !important;
-  font-style: italic !important;
-  font-weight: 600 !important;
-  text-transform: uppercase !important;
-  letter-spacing: 1.5px !important;
-  font-size: 11px !important;
-  opacity: 0.75;
-}
-
-/* Stat value — championship-size numerics, Bebas Neue */
-html.theme-muaythai .stat-value {
-  color: var(--mt-accent) !important;
-  font-family: var(--mt-font-numeric) !important;
-  font-weight: 400 !important;
-  letter-spacing: 1.5px !important;
-  font-size: 48px !important;
-  line-height: 1.1 !important;
-  text-shadow: 0 2px 12px rgba(251, 191, 36, 0.25);
-}
-
-html.theme-muaythai .stat-meta {
-  color: var(--mt-text-muted) !important;
-  font-style: italic;
-  letter-spacing: 0.5px;
-}
-html.theme-muaythai .stat-icons .mdi {
-  color: var(--mt-primary) !important;
-}
-
-/* Accent strips at top of stat cards — all become gradient gold */
-html.theme-muaythai .stat-accent-blue,
-html.theme-muaythai .stat-accent-green,
-html.theme-muaythai .stat-accent-cyan,
-html.theme-muaythai .stat-accent-violet,
-html.theme-muaythai .stat-accent-amber {
-  background: var(--mt-gradient-gold) !important;
-  height: 4px !important;
-  box-shadow: 0 0 12px rgba(251, 191, 36, 0.45);
-}
-
-/* Dynamic booking cards (today/tomorrow) — red glow rim */
-html.theme-muaythai .stat-card-dynamic {
-  box-shadow:
-    var(--mt-shadow-deep),
-    var(--mt-shadow-red),
-    inset 0 1px 0 rgba(254, 243, 199, 0.04),
-    inset 0 0 0 1px var(--mt-accent) !important;
-}
-
-/* ── Dashboard content-card (booking table, calendar) ── */
-html.theme-muaythai .content-card {
-  background:
-    linear-gradient(155deg, var(--mt-surface-2) 0%, var(--mt-surface) 50%, var(--mt-bg-dark) 100%),
-    var(--mt-grain) !important;
-  background-blend-mode: overlay !important;
-  color: var(--mt-text) !important;
-  border-radius: 4px !important;
-  box-shadow:
-    var(--mt-shadow-deep),
-    inset 0 1px 0 rgba(254, 243, 199, 0.04),
-    inset 0 0 0 1px var(--mt-border-red) !important;
-  overflow: hidden !important;
-}
-
-/* ── Calendar / date picker ── */
-html.theme-muaythai .v-date-picker,
-html.theme-muaythai .v-date-picker__header,
-html.theme-muaythai .v-date-picker-controls,
-html.theme-muaythai .v-date-picker-month {
-  background: transparent !important;
-  color: var(--mt-text-secondary) !important;
-}
-html.theme-muaythai .v-date-picker-header__title,
-html.theme-muaythai .v-picker__title {
-  color: var(--mt-accent) !important;
-}
-html.theme-muaythai .v-date-picker-controls .v-btn {
-  color: var(--mt-accent) !important;
-}
-html.theme-muaythai .v-date-picker-month__weekday {
-  color: var(--mt-text-muted) !important;
-}
-html.theme-muaythai .v-date-picker-month__day .v-btn {
-  color: var(--mt-text-secondary) !important;
-  background: transparent !important;
-}
-html.theme-muaythai .v-date-picker-month__day .v-btn:hover {
-  background: var(--mt-tint-hover) !important;
-  color: var(--mt-accent) !important;
-}
-html.theme-muaythai .v-date-picker-month__day--selected .v-btn,
-html.theme-muaythai .v-date-picker-month__day .v-btn.v-btn--active {
-  background: var(--mt-gradient-primary) !important;
-  color: var(--mt-accent) !important;
-}
-html.theme-muaythai .v-date-picker-month__day--disabled .v-btn {
-  color: rgba(254, 243, 199, 0.18) !important;
-}
-html.theme-muaythai .calendar-header-icon {
-  color: var(--mt-accent) !important;
-}
-
-/* ── Form labels & helper text — cream defaults instead of pure white ── */
-html.theme-muaythai .v-label,
-html.theme-muaythai .v-input,
-html.theme-muaythai .v-field__field,
-html.theme-muaythai .v-field input,
-html.theme-muaythai .v-field textarea {
-  color: var(--mt-text) !important;
-}
-
-/* ── Decorative diagonal divider helper (re-usable) ── */
-html.theme-muaythai .diagonal-divider {
-  height: 4px;
-  background:
-    repeating-linear-gradient(
-      -55deg,
-      var(--mt-primary) 0px,
-      var(--mt-primary) 6px,
-      transparent 6px,
-      transparent 14px
-    );
-  opacity: 0.85;
-}
-
-/* ── Booking table cells in playful Dashboard — adapt to dark theme ── */
-html.theme-muaythai .highlighted-blackground,
-html.theme-muaythai .highlighted-cell-yellow {
-  background: var(--mt-tint-active) !important;
-  color: var(--mt-text-bright) !important;
-}
-html.theme-muaythai .highlighted-cell-red,
-html.theme-muaythai .highlighted-cell-pink {
-  background: var(--mt-tint-hover) !important;
-  color: var(--mt-text) !important;
-}
-html.theme-muaythai .highlighted-cell-green,
-html.theme-muaythai .highlighted-cell-blue {
-  background: rgba(20, 83, 45, 0.25) !important;
-  color: var(--mt-text-bright) !important;
-}
-
-/* ================================================================
-   PAGE DECORATIONS — page-specific signature elements
-   Home/FamilyList: 7 stars at top (gym name motif)
-   Dashboard: boxing glove watermark
-   ================================================================ */
-
-/* ================================================================
-   CARD DECORATION ZONE — baseline (applies to ALL themes for consistency)
-   ────────────────────────────────────────────────────────────────
-   Reserves 50px at the top of main page cards for theme decorations.
-   • Same height in every theme → layout dimensions identical
-   • Decorations (muaythai gloves, iStar stars, muaythai 7-stars) are
-     absolute-positioned overlays within this 50px zone
-   • In non-decorated themes (Neumorphic/Playful/Halloween/Christmas)
-     the zone is simply empty card background — looks like generous padding
-   See CLAUDE.md "Layout Consistency Rule".
-   ================================================================ */
-.home-card,
-.family-card,
-.res-card,
-.viewclasses-card {
-  position: relative;
-  padding-top: 50px !important;
-}
-
-/* ── 7-star row decoration (Muaythai) — absolute overlay in deco zone ── */
-html.theme-muaythai .home-card::before,
-html.theme-muaythai .family-card::before,
-html.theme-muaythai .res-card::before,
-html.theme-muaythai .viewclasses-card::before {
-  content: '★ ★ ★ ★ ★ ★ ★';
-  position: absolute;
-  top: 4px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  font-size: 9px;
-  letter-spacing: 3px;
-  color: var(--mt-accent);
-  opacity: 0.7;
-  z-index: 4;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-  pointer-events: none;
-  font-family: var(--mt-font-display);
-}
-
-/* Muaythai crossed-gloves decoration removed by user request — now only 7-star row + stat-card watermarks remain */
-
-/* ── Button icon swap: muaythai theme shows boxing glove instead of emoticon ── */
-.btn-icon-muaythai {
-  display: none !important;
-}
-html.theme-muaythai .btn-icon-default {
-  display: none !important;
-}
-html.theme-muaythai .btn-icon-muaythai {
-  display: inline-flex !important;
-}
-
-/* Dashboard header decoration removed — now using glove watermarks on the 5 stat cards instead */
 
 /* ================================================================
    iSTAR GYMNASTICS THEME — PERFORMANCE STAGE

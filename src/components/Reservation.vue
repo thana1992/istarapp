@@ -27,7 +27,6 @@
                             :no-data-text="$t('reservation.noClassTime')" return-object required></v-select>
                         <v-btn class="mt-4 neu-action-btn" size="large" block @click="validate" required>
                             <v-icon class="btn-icon-default">mdi-emoticon-plus</v-icon>
-                            <v-icon class="btn-icon-muaythai">mdi-boxing-glove</v-icon>
                             <v-icon class="btn-icon-istar">mdi-star-shooting</v-icon>
                             &nbsp;{{ $t('home.bookClass') }}
                         </v-btn>

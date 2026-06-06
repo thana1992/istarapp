@@ -5,7 +5,8 @@
       "Bash(grep -o \"#[0-9a-fA-F]\\\\{6\\\\}\\\\|rgba\\([0-9, .]*\\)\" \"c:/iStarApp/istarapp_dev/src/styles/global-style.css\")",
       "Bash(awk 'NR>=250 && NR<=400')",
       "Bash(awk '/html.theme-muaythai/,/^\\\\/\\\\* ====/' \"c:\\\\iStarApp\\\\istarapp_dev\\\\src\\\\styles\\\\global-style.css\")",
-      "Bash(npx eslint *)"
+      "Bash(npx eslint *)",
+      "Bash(awk 'NR<1965 || NR>2721' src/styles/global-style.css)"
     ]
   },
   "enabledPlugins": {

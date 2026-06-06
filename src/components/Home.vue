@@ -135,7 +135,6 @@
                 <v-btn v-else block class="pulse-button neu-action-btn" size="large"
                        @click="doReservation">
                     <v-icon class="btn-icon-default">mdi-emoticon-plus</v-icon>
-                    <v-icon class="btn-icon-muaythai">mdi-boxing-glove</v-icon>
                     <v-icon class="btn-icon-istar">mdi-star-shooting</v-icon>
                     &nbsp;{{ $t('home.bookClass') }}
                 </v-btn>

@@ -112,7 +112,7 @@
     </v-list>
   </v-navigation-drawer>
 
-  <v-card style="width: 100%; max-width: 100%; overflow-x: hidden;">
+  <v-card class="app-root-card" style="width: 100%; max-width: 100%; overflow-x: hidden;">
     <v-layout style="width: 100%; max-width: 100%; overflow-x: hidden;">
       <!-- Floating Christmas Music Control -->
       <v-div class="theme-toggle-global" v-if="isChristmasOn">
@@ -216,6 +216,12 @@
       :minDecor="6"
       :maxDecor="10"
       @audioStateChanged="onChristmasMusicStateChanged"
+    />
+
+    <PlayfulOverlay
+      v-if="isPlayfulOn"
+      :behind="true"
+      :count="50"
     />
   </v-card>
 
@@ -325,6 +331,7 @@ import { mapGetters } from 'vuex';
 import LoadingDialog from './components/LoadingDialog.vue';
 import HalloweenOverlay from '@/components/theme/HalloweenOverlay.vue';
 import ChristmasOverlay from '@/components/theme/ChristmasOverlay.vue';
+import PlayfulOverlay from '@/components/theme/PlayfulOverlay.vue';
 export default {
   data() {
     return {
@@ -353,6 +360,7 @@ export default {
       isLoading: false,
       isHalloweenOn: false,
       isChristmasOn: false,
+      isPlayfulOn: false,
       currentTheme: 'none',
       christmasMusicPlaying: false,
       uiTheme: 'neumorphic',
@@ -385,13 +393,6 @@ export default {
           icon: 'mdi-pine-tree',
           previewIconColor: '#4ade80',
           gradient: 'linear-gradient(145deg, #0a1f0a 0%, #1a3a1a 50%, #4a0d0d 100%)',
-        },
-        {
-          id: 'muaythai',
-          name: '7 Stars Muaythai Gym',
-          icon: 'mdi-boxing-glove',
-          previewIconColor: '#fbbf24',
-          gradient: 'linear-gradient(135deg, #0a0a0a 0%, #991b1b 55%, #fbbf24 100%)',
         },
         {
           id: 'istar',
@@ -430,6 +431,7 @@ export default {
     LoadingDialog,
     HalloweenOverlay,
     ChristmasOverlay,
+    PlayfulOverlay,
   },
   methods: {
     async AffterLogin() {
@@ -654,14 +656,15 @@ export default {
     },
     applyUITheme(theme) {
       localStorage.setItem('uiTheme', theme);
-      document.documentElement.classList.remove('theme-playful', 'theme-halloween', 'theme-christmas', 'theme-muaythai', 'theme-istar');
-      document.body.classList.remove('theme-playful', 'theme-halloween', 'theme-christmas', 'theme-muaythai', 'theme-istar');
+      document.documentElement.classList.remove('theme-playful', 'theme-halloween', 'theme-christmas', 'theme-istar');
+      document.body.classList.remove('theme-playful', 'theme-halloween', 'theme-christmas', 'theme-istar');
       if (theme !== 'neumorphic') {
         document.documentElement.classList.add(`theme-${theme}`);
         document.body.classList.add(`theme-${theme}`);
       }
       this.isHalloweenOn = theme === 'halloween';
       this.isChristmasOn = theme === 'christmas';
+      this.isPlayfulOn = theme === 'playful';
     },
     async saveAppTheme(theme) {
       try {
@@ -758,7 +761,6 @@ export default {
         playful: 'Playful',
         halloween: 'Halloween',
         christmas: 'Christmas',
-        muaythai: '7 Stars Muaythai Gym',
         istar: 'iStar Gymnastics',
       };
       return map[this.uiTheme] || 'Neumorphic';

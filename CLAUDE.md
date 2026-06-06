@@ -84,10 +84,9 @@ User-selectable themes via picker in navigation drawer (saved to localStorage + 
 | Playful | `theme-playful` | — |
 | Halloween | `theme-halloween` | `HalloweenOverlay.vue` |
 | Christmas | `theme-christmas` | `ChristmasOverlay.vue` |
-| 7 Stars Muaythai Gym | `theme-muaythai` | — |
 | iStar Gymnastics | `theme-istar` | — |
 
-Stored in localStorage as `uiTheme`. Token-based CSS variables: Playful uses `--pf-*`, Muaythai `--mt-*`, iStar `--is-*` — change palette in one place, all rules cascade. Music toggle (Christmas) lives in `App.vue`. Overlays use `pointer-events: none`.
+Stored in localStorage as `uiTheme`. Token-based CSS variables: Playful uses `--pf-*`, iStar `--is-*` — change palette in one place, all rules cascade. Music toggle (Christmas) lives in `App.vue`. Overlays use `pointer-events: none`.
 
 #### 🔒 Layout Consistency Rule — **MUST FOLLOW**
 
@@ -100,15 +99,38 @@ Stored in localStorage as `uiTheme`. Token-based CSS variables: Playful uses `--
 - ✅ **DO** use background images, gradients, shadows, borders — paint-only changes
 - ✅ **DO** use CSS pseudo-elements (`::before` / `::after`) with `position: absolute`
 - ❌ **DO NOT** add `padding-top: 22px !important` (or similar) on cards "to make room" for decorations — this changes the card height per-theme
-- ❌ **DO NOT** insert flow-positioned `<div>` decorations that take vertical space (e.g., `<div class="muaythai-deco-gloves">` with `display: flex; padding: 14px 0;`)
+- ❌ **DO NOT** insert flow-positioned `<div>` decorations that take vertical space
 - ❌ **DO NOT** change `height=""` attribute on `v-card` per-theme
 
 **Decoration patterns that respect this rule**:
-- Corner watermarks: `position: absolute; bottom: -8px; right: -4px; opacity: 0.2;` (used on Dashboard `.stat-card::before` for the boxing glove)
-- Overlay banners at card top: `position: absolute; top: 4px; left: 0; right: 0;` (used for 7-star row in muaythai)
-- Diagonal ribbons in corners: `position: absolute; transform: rotate(45deg);` (used on muaythai `.card-opacity::after` gold stripe)
+- Corner watermarks: `position: absolute; bottom: -8px; right: -4px; opacity: 0.2;`
+- Overlay banners at card top: `position: absolute; top: 4px; left: 0; right: 0;`
+- Diagonal ribbons in corners: `position: absolute; transform: rotate(45deg);`
 
 **If a decoration needs flow space** (rare): increase the BASELINE card height across all themes, not just the theme that needs space. Better: redesign the decoration as an overlay.
+
+#### 🔍 Stylesheet Modification Protocol — **MUST FOLLOW**
+
+When editing any CSS file (`global-style.css`, `<style>` block in `.vue`), the same change has bitten us multiple times because we skipped these checks. Do them every time — no exceptions.
+
+**Before editing a CSS rule, run these 4 checks:**
+
+1. **Hunt for duplicate selectors** in the SAME file. CSS is order-dependent: when two rules have the same selector and specificity, the LATER one wins. Editing the first occurrence is invisible because a later duplicate overrides it.
+   - Use `Grep` with the full selector (e.g., `html.theme-playful .qa-btn`) across the file. If more than one match, consolidate before editing.
+
+2. **Find competing selectors across files** — the same class can be styled in `global-style.css`, a Vue component's `<style scoped>`, AND theme-specific blocks. Vue scoped styles compile to `.foo[data-v-xxxx]` (specificity boost via attribute). A global `html.theme-X .foo` (specificity 0,2,1) usually wins over scoped `.foo[data-v-xxxx]` (0,2,0), but `!important` and load order can flip it. Always grep across the whole `src/` tree.
+
+3. **Cross-theme impact check** — for every theme palette change, verify the selector isn't shared with: Neumorphic (base), Playful, Halloween, Christmas, iStar, Dark mode (`.v-theme--dark`). Use `Grep` for the selector or class name across the codebase. A change scoped with `html.theme-playful` only affects Playful, but a change to a base class (e.g. `.qa-btn` without theme prefix) affects everything.
+
+4. **Verify the rule will actually apply** — trace specificity and source order:
+   - Scoped styles in `.vue` files get a `[data-v-hash]` attribute selector appended to the LAST simple selector, bumping specificity by one attribute.
+   - Global rules with `html.theme-X` prefix typically win over scoped base rules.
+   - `!important` only matters when same-importance rules tie on specificity.
+   - When rules tie on specificity, the LATER one in source order wins — but components scoped CSS loads at component-mount time, which can be after global CSS.
+
+**Honesty about testing:** I cannot run the dev server and visually verify rendering. After editing CSS, I can only verify via cascade tracing (greps, specificity math). If a fix needs visual confirmation, say so explicitly — don't claim "done" without that confirmation.
+
+**Notes on lessons learned** live in the auto-memory system at `C:\Users\thana\.claude\projects\c--iStarApp-istarapp-dev\memory\`. Before any CSS/layout fix, check `MEMORY.md` for prior incidents with similar selectors or symptoms.
 
 **Z-index hierarchy** (highest to lowest):
 - `2400` — Vuetify dialogs (must be above app bar + drawer)
@@ -141,3 +163,5 @@ Moment.js is available for date manipulation.
 - Dark theme is the default (set in `main.js`)
 - Use `card-opacity` CSS class for semi-transparent card backgrounds
 - Use `<v-skeleton-loader>` for table loading states
+
+
