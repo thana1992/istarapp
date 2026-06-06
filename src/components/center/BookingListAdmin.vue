@@ -9,9 +9,9 @@
           </div>
           <div class="header-cell">
             <div class="description-cell">
-              <div><v-icon class="blue-icon">mdi-circle-slice-8</v-icon> ทดลองเรียน</div>
-              <div><v-icon class="pink-icon">mdi-circle-slice-8</v-icon> รายครั้ง</div>
-              <div><v-icon class="bell-icon">mdi-bell-ring</v-icon> ต้องชำระเงิน / คอร์สหมด</div>
+              <div><v-icon class="blue-icon">mdi-circle-slice-8</v-icon> {{ $t('bookingList.legendTrial') }}</div>
+              <div><v-icon class="pink-icon">mdi-circle-slice-8</v-icon> {{ $t('bookingList.legendPerSession') }}</div>
+              <div><v-icon class="bell-icon">mdi-bell-ring</v-icon> {{ $t('bookingList.legendPayment') }}</div>
             </div>
           </div>
           <v-data-table :loading="loadingBooking" :headers="bookingHeaders" :items="bookingData" items-per-page="20" class="elevation-1">
@@ -234,7 +234,7 @@ export default {
         } else {
           this.$emit('onErrorHandler',
             (response.data && response.data.message) ||
-            (wasCheckedIn ? 'Cancel Check-in failed' : 'Check-in failed'));
+            (wasCheckedIn ? this.$t('bookingList.undoCheckinFail') : this.$t('bookingList.checkinFail')));
         }
       } catch (error) {
         if (error.response && error.response.status === 401) {

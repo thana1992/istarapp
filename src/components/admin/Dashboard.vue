@@ -282,7 +282,7 @@ export default ({
             bookingHeaders: [],
             loadingBooking: false,
             state: 'bookinglist',
-            notNullRules: [v => !!v || 'This field is required',],
+            notNullRules: [v => !!v || this.$t('common.required'),],
 
             loadingCourse: false,
             editedBookingIndex: -1,
@@ -487,7 +487,7 @@ export default ({
                             }
                         } else {
                             //console.log("message : " + message)
-                            this.$emit('onErrorHandler', message || 'Get Bookinglist failed')
+                            this.$emit('onErrorHandler', message || this.$t('msg.loadFail'))
                         }
                         if (classdate == this.SQLDate(this.datepick)) {
                             this.loadingBooking = false
@@ -531,7 +531,7 @@ export default ({
                 this.years = null;
                 this.months = null;
                 this.days = null;
-                alert('Invalid Date of Birth')
+                alert(this.$t('common.invalidDob'))
             }
 
             const diffTime = currentDate - new Date(birthDate);
@@ -539,7 +539,7 @@ export default ({
             let years = Math.floor(totalDays / 365.25);
             let months = Math.floor((totalDays % 365.25) / 30.4375);
             let days = Math.floor((totalDays % 365.25) % 30.4375);
-            return years + ' ปี ' + months + ' เดือน '
+            return years + ' ' + this.$t('table.yearAbbr') + ' ' + months + ' ' + this.$t('table.monthAbbr') + ' '
 
         },
         onError(msg) {
@@ -1206,14 +1206,15 @@ html.theme-playful .stat-accent-violet {
 
 html.theme-playful .stat-card,
 html.theme-playful .content-card {
-    background:
-        radial-gradient(ellipse at 22% 16%, rgba(255, 255, 255, 0.82) 0%, transparent 52%),
-        radial-gradient(ellipse at 78% 85%, rgba(251, 113, 133, 0.13) 0%, transparent 48%),
-        var(--pf-gradient-card-deep) !important;
+    background: rgba(255, 252, 254, 0.78) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(0.92) !important;
+    backdrop-filter: blur(18px) saturate(0.92) !important;
+    border: 1px solid rgba(255, 255, 255, 0.6) !important;
     box-shadow:
-        var(--pf-shadow-rose-md),
-        var(--pf-shadow-light),
-        0 0 0 1.5px var(--pf-border-soft) !important;
+        0 10px 28px -10px rgba(244, 63, 94, 0.20),
+        0 24px 56px -22px rgba(244, 63, 94, 0.16),
+        0 -2px 14px -6px rgba(167, 139, 250, 0.18),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6) !important;
 }
 
 /* Stat card label/value text — readable rose tones */

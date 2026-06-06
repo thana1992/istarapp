@@ -29,7 +29,7 @@
                         <v-col cols="12" sm="6" md="50">
                           <v-select v-model="editedItem.courseid" :label="$t('table.courseName')" item-title="coursename"
                             item-value="courseid" :items="courseLookup" variant="solo-filled"
-                            no-data-text="No course data" required></v-select>
+                            :no-data-text="$t('common.noCourseData')" required></v-select>
                         </v-col>
                         <v-col cols="12" sm="6" md="50">
                           <v-text-field v-model="editedItem.classday" :label="$t('table.classDay')"
@@ -87,7 +87,7 @@
           </template>
           <template v-slot:no-data>
             <v-btn color="primary" @click="initialize">
-              Reset
+              {{ $t('btn.reset') }}
             </v-btn>
           </template>
         </v-data-table>

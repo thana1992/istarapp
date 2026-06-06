@@ -87,20 +87,20 @@ export default {
       isPhoneMatched: false,
       phoneMatchError: '', // For storing phone match error message
       newPassRules: [
-        v => !!v || 'New Password is required',
-        v => (v && v.length <= 10) || 'New Password must be 10 characters or less',
+        v => !!v || this.$t('validation.newPasswordRequired'),
+        v => (v && v.length <= 10) || this.$t('validation.newPasswordMaxLength'),
       ],
       nameRules: [
-        v => !!v || 'Username is required',
-        v => !/\s/.test(v) || 'Username must not contain spaces. / ห้ามมีเว้นวรรค',
-        v => /^[\x00-\x7F]+$/.test(v) || 'Username must be English letters, numbers, or special characters only. / ชื่อผู้ใช้ต้องเป็นตัวอักษรภาษาอังกฤษ',
+        v => !!v || this.$t('validation.usernameRequired'),
+        v => !/\s/.test(v) || this.$t('validation.usernameNoSpaces'),
+        v => /^[\x00-\x7F]+$/.test(v) || this.$t('validation.usernameEnglishOnly'),
       ],
       phonenumberRules: [
-        v => !!v || 'Phone number is required',
+        v => !!v || this.$t('validation.phoneRequired'),
       ],
       otpRules: [
-        v => !!v || 'OTP is required',
-        v => (v && v.length === 6) || 'OTP must be 6 characters long',
+        v => !!v || this.$t('validation.otpRequired'),
+        v => (v && v.length === 6) || this.$t('validation.otpLength'),
       ],
     };
   },
@@ -115,7 +115,7 @@ export default {
         //console.log("phoneMatch", response);
         valid = response.data.success;
         this.isPhoneMatched = valid;
-        this.phoneMatchError = valid ? '' : 'The username and phone number you entered don\'t match / username และเบอร์โทรศัพท์ไม่ถูกต้อง';
+        this.phoneMatchError = valid ? '' : this.$t('forgot.phoneMatchError');
       } catch (error) {
         this.$emit('onErrorHandler', error.message);
       }
@@ -175,7 +175,7 @@ export default {
           if (response.data.message.valid) {
             this.$emit('onErrorHandler', response.data.message);
           } else {
-            this.$emit('onErrorHandler', 'OTP is invalid');
+            this.$emit('onErrorHandler', this.$t('forgot.otpInvalid'));
             this.otppassword = '';
             this.$nextTick(() => {
               this.$refs.otpField.focus();
@@ -204,7 +204,7 @@ export default {
             // ลบ token จาก localStorage
             localStorage.removeItem('token');
             console.log("doChangePassword Success", response);
-            this.$emit('onSuccessHandler', 'Password changed successfully');
+            this.$emit('onSuccessHandler', this.$t('forgot.passwordChangedSuccess'));
             this.$emit('onForgotHandler', 'login');
           } else {
             // ลบ token จาก localStorage
@@ -222,7 +222,7 @@ export default {
     },
     checkNewPassword() {
       if (this.newPassword !== this.confirmNewPassword) {
-        this.$emit('onErrorHandler', 'Password does not match');
+        this.$emit('onErrorHandler', this.$t('forgot.passwordMismatch'));
         this.newPassword = '';
         this.confirmNewPassword = '';
         this.$nextTick(() => {

@@ -9,7 +9,7 @@
         variant="solo-filled"
         hide-details 
         :required="required" 
-        :rules="[v => !!v || 'Required']"
+        :rules="[v => !!v || t('common.required')]"
       >
         <template v-slot:append-inner>
           <v-icon 
@@ -32,6 +32,7 @@
 <script setup>
 import { ref, computed, watch, defineProps, defineEmits } from "vue";
 import moment from "moment";
+import { t } from "@/i18n";
 
 const { label, color, modelValue, mindate, maxdate, required } = defineProps([
   "label",

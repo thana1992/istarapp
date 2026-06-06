@@ -23,7 +23,7 @@
                         <Transition name="fade" mode="out-in">
                             <v-card flatclass="mx-0" class="card-opacity" v-if="state == 'bookinglist'" min-height="400">
                                 <v-data-table fixed-header height="auto" :loading="loadingBooking"
-                                    loading-text="Loading... Please wait" :headers="BookingListHeaders"
+                                    :loading-text="$t('common.loading')" :headers="BookingListHeaders"
                                     :items="BookingList" :sort-by="[{ key: 'classtime', order: 'asc' }]"
                                     :search="search" >
                                     <template v-slot:top>
@@ -56,10 +56,10 @@
                                                                     </v-col>
                                                                     <v-col cols="12" sm="6" md="6">
                                                                         <v-autocomplete v-model="editedBookingItem.studentid"
-                                                                            label="Name" item-title="name"
+                                                                            :label="$t('table.name')" item-title="name"
                                                                             item-value="studentid"
                                                                             :items="studentLookup" variant="solo-filled"
-                                                                            no-data-text="No student data"
+                                                                            :no-data-text="$t('common.noStudentData')"
                                                                             :rules="notNullRules"
                                                                             @update:modelValue="onStudentChange"
                                                                             :readonly="editedBookingIndex != -1"
@@ -69,27 +69,27 @@
                                                                     </v-col>
                                                                     <v-col cols="12" sm="6" md="6">
                                                                         <v-select v-model="editedBookingItem.courseid"
-                                                                            label="Course Name" item-title="coursename"
+                                                                            :label="$t('table.courseName')" item-title="coursename"
                                                                             item-value="courseid" :items="courseLookup"
                                                                             variant="solo-filled"
-                                                                            no-data-text="No course data"
+                                                                            :no-data-text="$t('common.noCourseData')"
                                                                             :rules="notNullRules"
                                                                             :loading="loadingCourse"
                                                                             @update:modelValue="getClassTime"
                                                                             required></v-select>
                                                                     </v-col>
                                                                     <v-col cols="12" sm="6" md="4">
-                                                                        <DatePicker label="Class date"
+                                                                        <DatePicker :label="$t('table.date')"
                                                                             v-model="selectedDate" variant="solo-filled"
                                                                             @update:modelValue="getClassTime" :rules="requireRules">
                                                                         </DatePicker>
                                                                     </v-col>
                                                                     <v-col cols="12" sm="6" md="6">
                                                                         <v-select v-model="editedBookingItem.classtime"
-                                                                            label="Class time" item-title="text"
+                                                                            :label="$t('table.classTime')" item-title="text"
                                                                             item-value="classid" :items="classtimesData"
                                                                             variant="solo-filled" :rules="notNullRules"
-                                                                            no-data-text="No class data"
+                                                                            :no-data-text="$t('common.noClassData')"
                                                                             :loading="loadingClassTime"
                                                                             return-object="true" required></v-select>
                                                                     </v-col>
@@ -168,7 +168,7 @@
                                             </v-dialog>
                                         </v-toolbar>
                                         <div class="table-search-row">
-                                            <v-text-field v-model="search" density="compact" label="Search"
+                                            <v-text-field v-model="search" density="compact" :label="$t('btn.search')"
                                                 prepend-inner-icon="mdi-magnify" variant="solo-filled"
                                                 flat hide-details single-line></v-text-field>
                                         </div>
@@ -295,7 +295,7 @@ export default ({
             dialogUndoCheckin: false,
             state: 'bookinglist',
 
-            notNullRules: [v => !!v || 'This field is required',]
+            notNullRules: [v => !!v || this.$t('common.required'),]
         }
     },
 
@@ -603,7 +603,7 @@ export default ({
                     if (response.data.success) {
                         //this.$emit('onInfoHandler', 'Check-in Successful');
                     } else {
-                        this.$emit('onErrorHandler', response.data.message || 'Check-in failed');
+                        this.$emit('onErrorHandler', response.data.message || this.$t('bookingList.checkinFail'));
                     }
                     this.dialogCheckin = false
                 })
@@ -631,7 +631,7 @@ export default ({
                     if (response.data.success) {
                         //this.$emit('onInfoHandler', 'Cancel Check-in Successful');
                     } else {
-                        this.$emit('onErrorHandler', response.data.message || 'Cancel Check-in failed');
+                        this.$emit('onErrorHandler', response.data.message || this.$t('bookingList.undoCheckinFail'));
                     }
                     this.dialogUndoCheckin = false
                 })
@@ -660,9 +660,9 @@ export default ({
                 .then(response => {
                     //console.dir(response);
                     if (response.data.success) {
-                        this.$emit('onInfoHandler', response.data.message || 'Delete Reservation Successful');
+                        this.$emit('onInfoHandler', response.data.message || this.$t('msg.reservationDeleted'));
                     } else {
-                        this.$emit('onErrorHandler', response.data.message || 'Delete Reservation failed');
+                        this.$emit('onErrorHandler', response.data.message || this.$t('msg.reservationDeleteFail'));
                     }
                     this.dialogBookingDelete = false
                     this.getReservationList()

@@ -46,13 +46,13 @@
                         <v-row>
                           <v-col cols="12" sm="4" md="5">
                             <v-select v-model="editedItem.course" :label="$t('table.courseName')" item-title="coursename"
-                              item-value="course" :items="courseLookup" variant="solo-filled" no-data-text="No course"
+                              item-value="course" :items="courseLookup" variant="solo-filled" :no-data-text="$t('common.noCourseData')"
                               :readonly="editedIndex > -1" :rules="notNullRules" return-object required></v-select>
                           </v-col>
                           <v-col cols="12" sm="4" md="4">
                             <v-select v-model="editedItem.coursetype" :label="$t('table.courseType')" item-title="coursetype"
                               item-value="coursetype" :items="['Monthly', 'Limited']" variant="solo-filled"
-                              no-data-text="No course" :rules="notNullRules" :readonly="editedIndex !== -1" required></v-select>
+                              :no-data-text="$t('common.noCourseData')" :rules="notNullRules" :readonly="editedIndex !== -1" required></v-select>
                           </v-col>
                           <v-col cols="12" sm="4" md="3">
                             <v-select v-model="editedItem.period" :label="$t('customerCourse.period')" item-title="period"
@@ -158,7 +158,7 @@
                         </v-row>
                         <v-row>
                           <v-col cols="12" sm="12" md="12">
-                            <v-textarea v-model="editedItem.shortnote" label="Short Note" variant="solo-filled" rows="2"></v-textarea>
+                            <v-textarea v-model="editedItem.shortnote" :label="$t('customerCourse.shortNote')" variant="solo-filled" rows="2"></v-textarea>
                           </v-col>
                         </v-row>
                         <v-row v-if="editedIndex > -1">
@@ -251,8 +251,8 @@
                 </p>
             </template>
           <template v-slot:item.remaining="{ item }">
-            <span v-if="item.coursetype === 'Monthly'">รายเดือน</span>
-            <span v-else-if="item.remaining !== null && item.remaining !== ''">{{ item.remaining }} ครั้ง</span>
+            <span v-if="item.coursetype === 'Monthly'">{{ $t('home.monthly') }}</span>
+            <span v-else-if="item.remaining !== null && item.remaining !== ''">{{ item.remaining }} {{ $t('common.times') }}</span>
             <span v-else>-</span>
           </template>
           <!-- <template v-slot:item.actions="{ item }">
@@ -262,9 +262,9 @@
             <v-icon size="small" @click="deleteItem(item)"> mdi-delete </v-icon>
           </template> -->
           <template v-slot:no-data>
-            No Customer's course list
+            {{ $t('customerCourse.noCourseList') }}
             <br /><br />
-            <v-btn color="primary" @click="initialize"> Reset </v-btn>
+            <v-btn color="primary" @click="initialize"> {{ $t('btn.reset') }} </v-btn>
           </template>
           <template v-slot:item.paid="{ item }">
             <v-chip color="success" v-if="item.paid == 1">{{ $t('customerCourse.paid') }}</v-chip>
@@ -290,6 +290,7 @@ import axios from "axios";
 import { mapGetters } from "vuex";
 import DatePicker from "@/components/DatePicker.vue";
 import moment from "moment";
+import { t } from "@/i18n";
 export default {
   components: {
     DatePicker,
@@ -345,7 +346,7 @@ export default {
     CourseUsingtList: [],
     courselist: [],
     notNullRules: [
-      v => !!v || 'Field is required',
+      v => !!v || t('common.required'),
     ],
     totalItems: 0,
     tableOptions: { page: 1, itemsPerPage: 10, sortBy: [] },
@@ -523,9 +524,7 @@ export default {
             });
             //console.dir(nicknameList);
             this.deleteNotifyMsg =
-              "คอร์สเรียนนี้ กำลังถูกใช้โดย " +
-              nicknameList.join(", ") +
-              " ต้องการลบใช่ไหม ?";
+              this.$t("customerCourse.deleteInUse", { names: nicknameList.join(", ") });
             this.dialogDeleteNotify = true;
             this.dialogDelete = false;
             this.$emit("onLoading", false);
@@ -622,7 +621,7 @@ export default {
               //console.log("data", data.user);
               if (data.user > 0) {
                 this.editedItem.course_user =
-                  "มีผู้กำลังใช้คอร์สนี้ " + data.user + " คน " + data.userlist;
+                  this.$t("customerCourse.courseInUseBy", { count: data.user, list: data.userlist });
               } else {
                 this.editedItem.course_user = null;
               }
@@ -636,7 +635,7 @@ export default {
               this.editedItem.course_user = null;
             }
           } else {
-            this.$emit("onErrorHandler", "getCustomerCourseInfo failed");
+            this.$emit("onErrorHandler", this.$t("customerCourse.loadFail"));
           }
         })
         .catch((error) => {
@@ -777,15 +776,15 @@ export default {
             console.log("Error Response Data:", error.response.data);
             console.log("Error Response Status:", error.response.status);
             console.log("Error Response Headers:", error.response.headers);
-            this.$emit("onErrorHandler", error.response.data.message || "เกิดข้อผิดพลาดในการสื่อสารกับ Server");
+            this.$emit("onErrorHandler", error.response.data.message || this.$t("common.serverError"));
           } else if (error.request) {
             // Request ถูกส่งไปแต่ไม่ได้รับการตอบกลับ
             console.log("Error Request:", error.message);
-            this.$emit("onErrorHandler", "ไม่ได้รับการตอบกลับจาก Server " + error.message);
+            this.$emit("onErrorHandler", this.$t("common.noServerResponse") + " " + error.message);
           } else {
             // เกิดข้อผิดพลาดอื่นๆ ในการตั้งค่า request
             console.log("Error Message:", error.message);
-            this.$emit("onErrorHandler", "เกิดข้อผิดพลาด: " + error.message);
+            this.$emit("onErrorHandler", this.$t("common.errorPrefix") + ": " + error.message);
           }
         } finally { // <--- (ทางเลือก) finally block จะทำงานเสมอ ไม่ว่าจะมี error หรือไม่
           this.close();
@@ -870,13 +869,13 @@ export default {
       } catch (error) {
         if (error.response) {
           console.log("Error Response Data:", error.response.data);
-          this.$emit("onErrorHandler", error.response.data.message || "เกิดข้อผิดพลาดในการสื่อสารกับ Server");
+          this.$emit("onErrorHandler", error.response.data.message || this.$t("common.serverError"));
         } else if (error.request) {
           console.log("Error Request:", error.message);
-          this.$emit("onErrorHandler", "ไม่ได้รับการตอบกลับจาก Server " + error.message);
+          this.$emit("onErrorHandler", this.$t("common.noServerResponse") + " " + error.message);
         } else {
           console.log("Error Message:", error.message);
-          this.$emit("onErrorHandler", "เกิดข้อผิดพลาด: " + error.message);
+          this.$emit("onErrorHandler", this.$t("common.errorPrefix") + ": " + error.message);
         }
       } finally {
         this.close();

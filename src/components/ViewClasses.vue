@@ -104,7 +104,7 @@ export default ({
                         } else {
                             this.bookingHeaders = []
                             this.bookingList = []
-                            this.$emit('onErrorHandler', message || 'Get Bookinglist failed')
+                            this.$emit('onErrorHandler', message || this.$t('msg.loadFail'))
                         }
                         if (classdate == this.SQLDate(this.datepick)) {
                             this.loadingBooking = false

@@ -34,7 +34,7 @@
                         <v-row></v-row>
                         <v-row>
                           <v-col cols="12" sm="6" md="6">
-                            <v-label>Course Refer :
+                            <v-label>{{ $t('table.courseRefer') }} :
                               {{ editedItem.courserefer }}</v-label>
                           </v-col>
                           <v-col cols="12" sm="6" md="6">
@@ -43,8 +43,8 @@
                         </v-row>
                         <v-row>
                           <v-col cols="12" sm="4" md="5">
-                            <v-select v-model="editedItem.course" label="Course Name" item-title="coursename"
-                              item-value="course" :items="courseLookup" variant="solo-filled" no-data-text="No course"
+                            <v-select v-model="editedItem.course" :label="$t('table.courseName')" item-title="coursename"
+                              item-value="course" :items="courseLookup" variant="solo-filled" :no-data-text="$t('common.noCourseData')"
                               disabled ></v-select>
                           </v-col>
                           <v-col cols="12" sm="4" md="4">
@@ -125,7 +125,7 @@
                         </v-row>
                         <v-row>
                           <v-col cols="12" sm="12" md="12">
-                            <v-textarea v-model="editedItem.shortnote" label="Short Note" variant="solo-filled" rows="2" readonly></v-textarea>
+                            <v-textarea v-model="editedItem.shortnote" :label="$t('customerCourse.shortNote')" variant="solo-filled" rows="2" readonly></v-textarea>
                           </v-col>
                         </v-row>
                         <v-row v-if="editedIndex > -1">
@@ -156,7 +156,7 @@
                   <v-card-actions class="sticky-footer">
                     <v-spacer></v-spacer>
                     <v-btn color="red-darken-1" variant="flat" @click="close">
-                      Close
+                      {{ $t('btn.close') }}
                     </v-btn>
                   </v-card-actions>
                 </v-card>
@@ -202,8 +202,8 @@
                 </p>
             </template>
           <template v-slot:item.remaining="{ item }">
-            <span v-if="item.coursetype === 'Monthly'">รายเดือน</span>
-            <span v-else-if="item.remaining !== null && item.remaining !== ''">{{ item.remaining }} ครั้ง</span>
+            <span v-if="item.coursetype === 'Monthly'">{{ $t('home.monthly') }}</span>
+            <span v-else-if="item.remaining !== null && item.remaining !== ''">{{ item.remaining }} {{ $t('common.times') }}</span>
             <span v-else>-</span>
           </template>
           <!-- <template v-slot:item.actions="{ item }">
@@ -213,9 +213,9 @@
             <v-icon size="small" @click="deleteItem(item)"> mdi-delete </v-icon>
           </template> -->
           <template v-slot:no-data>
-            No Customer's course list
+            {{ $t('customerCourse.noCourseList') }}
             <br /><br />
-            <v-btn color="primary" @click="initialize"> Reset </v-btn>
+            <v-btn color="primary" @click="initialize"> {{ $t('btn.reset') }} </v-btn>
           </template>
           <template v-slot:item.paid="{ item }">
             <v-chip color="success" v-if="item.paid == 1">{{ $t('customerCourse.paid') }}</v-chip>
@@ -238,6 +238,7 @@ import axios from "axios";
 import { mapGetters } from "vuex";
 import DatePicker from "@/components/DatePicker.vue";
 import moment from "moment";
+import { t } from "@/i18n";
 export default {
   components: {
     DatePicker,
@@ -290,7 +291,7 @@ export default {
     CourseUsingtList: [],
     courselist: [],
     notNullRules: [
-      v => !!v || 'Field is required',
+      v => !!v || t('common.required'),
     ],
     totalItems: 0,
     tableOptions: { page: 1, itemsPerPage: 10, sortBy: [] },
@@ -460,7 +461,7 @@ export default {
             this.dialogFinish = false;
             this.$emit(
               "onErrorHandler",
-              response.data.message || "เสียใจ จบคอร์สไม่ได้ ลองใหม่อีกครั้งนะ"
+              response.data.message || this.$t("msg.updateFail")
             );
           }
           this.initialize();
@@ -489,7 +490,7 @@ export default {
               //console.log("data", data.user);
               if (data.user > 0) {
                 this.editedItem.course_user =
-                  "มีผู้กำลังใช้คอร์สนี้ " + data.user + " คน " + data.userlist;
+                  this.$t("customerCourse.courseInUseBy", { count: data.user, list: data.userlist });
               } else {
                 this.editedItem.course_user = null;
               }
@@ -503,7 +504,7 @@ export default {
               this.editedItem.course_user = null;
             }
           } else {
-            this.$emit("onErrorHandler", "getCustomerCourseInfo failed");
+            this.$emit("onErrorHandler", this.$t("customerCourse.loadFail"));
           }
         })
         .catch((error) => {

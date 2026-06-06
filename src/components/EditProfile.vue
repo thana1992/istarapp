@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="container-header">
-      <h1><span class="mdi mdi-account-edit"></span> แก้ไขข้อมูล</h1>
+      <h1><span class="mdi mdi-account-edit"></span> {{ $t('editProfile.title') }}</h1>
     </div>
     <div class="container-content">
       <v-card class="card-opacity edit-profile-card mx-auto mt-4">
@@ -23,12 +23,12 @@
 
         <!-- ── Personal info ── -->
         <div class="section-header">
-          <span class="mdi mdi-card-account-details-outline"></span> ข้อมูลส่วนตัว
+          <span class="mdi mdi-card-account-details-outline"></span> {{ $t('editProfile.personalInfo') }}
         </div>
         <v-form ref="profileForm" class="px-6 py-5">
           <v-text-field
             v-model="profile.email"
-            label="อีเมล"
+            :label="$t('editProfile.email')"
             variant="outlined"
             type="email"
             :rules="emailRules"
@@ -37,7 +37,7 @@
           ></v-text-field>
           <v-text-field
             v-model="profile.mobileno"
-            label="เบอร์โทรศัพท์"
+            :label="$t('editProfile.phone')"
             variant="outlined"
             type="text"
             @input="acceptNumber"
@@ -47,7 +47,7 @@
           ></v-text-field>
           <v-textarea
             v-model="profile.address"
-            label="ที่อยู่"
+            :label="$t('editProfile.address')"
             variant="outlined"
             rows="3"
             prepend-inner-icon="mdi-map-marker"
@@ -55,18 +55,18 @@
           ></v-textarea>
           <v-btn block size="large" class="neu-action-btn mt-2" @click="saveProfile">
             <v-icon>mdi-content-save</v-icon>
-            &nbsp;บันทึกข้อมูล
+            &nbsp;{{ $t('editProfile.saveProfile') }}
           </v-btn>
         </v-form>
 
         <!-- ── Password change ── -->
         <div class="section-header">
-          <span class="mdi mdi-lock-outline"></span> เปลี่ยนรหัสผ่าน
+          <span class="mdi mdi-lock-outline"></span> {{ $t('editProfile.changePasswordSection') }}
         </div>
         <v-form ref="passwordForm" class="px-6 py-5">
           <v-text-field
             v-model="password.current"
-            label="รหัสผ่านปัจจุบัน"
+            :label="$t('editProfile.currentPassword')"
             variant="outlined"
             :type="showCurrent ? 'text' : 'password'"
             :rules="passwordRules"
@@ -77,7 +77,7 @@
           ></v-text-field>
           <v-text-field
             v-model="password.new"
-            label="รหัสผ่านใหม่"
+            :label="$t('editProfile.newPassword')"
             variant="outlined"
             :type="showNew ? 'text' : 'password'"
             :rules="passwordRules"
@@ -88,7 +88,7 @@
           ></v-text-field>
           <v-text-field
             v-model="password.confirm"
-            label="ยืนยันรหัสผ่านใหม่"
+            :label="$t('editProfile.confirmNewPassword')"
             variant="outlined"
             :type="showConfirm ? 'text' : 'password'"
             :rules="confirmPasswordRules"
@@ -99,7 +99,7 @@
           ></v-text-field>
           <v-btn block size="large" class="neu-action-btn mt-2" @click="changePassword">
             <v-icon>mdi-key-variant</v-icon>
-            &nbsp;เปลี่ยนรหัสผ่าน
+            &nbsp;{{ $t('editProfile.changePasswordBtn') }}
           </v-btn>
         </v-form>
       </v-card>
@@ -135,19 +135,19 @@ export default {
       showConfirm: false,
       imagePreview: null,
       emailRules: [
-        v => !!v || 'กรุณากรอกอีเมล',
-        v => /.+@.+\..+/.test(v) || 'รูปแบบอีเมลไม่ถูกต้อง',
+        v => !!v || this.$t('editProfile.emailRequired'),
+        v => /.+@.+\..+/.test(v) || this.$t('editProfile.emailInvalid'),
       ],
       phoneRules: [
-        v => !!v || 'กรุณากรอกเบอร์โทรศัพท์',
+        v => !!v || this.$t('editProfile.phoneRequired'),
       ],
       passwordRules: [
-        v => !!v || 'กรุณากรอกรหัสผ่าน',
-        v => (v && v.length >= 6) || 'รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร',
+        v => !!v || this.$t('editProfile.passwordRequired'),
+        v => (v && v.length >= 6) || this.$t('editProfile.passwordMinLength'),
       ],
       confirmPasswordRules: [
-        v => !!v || 'กรุณายืนยันรหัสผ่าน',
-        v => v === this.password.new || 'รหัสผ่านไม่ตรงกัน',
+        v => !!v || this.$t('editProfile.confirmRequired'),
+        v => v === this.password.new || this.$t('editProfile.passwordMismatch'),
       ],
     };
   },
@@ -230,12 +230,12 @@ export default {
           { headers: { Authorization: `Bearer ${this.token}` } }
         );
         if (res.data && res.data.success) {
-          this.$emit('onSuccessHandler', 'บันทึกข้อมูลสำเร็จ');
+          this.$emit('onSuccessHandler', this.$t('editProfile.saveSuccess'));
         } else {
-          this.$emit('onErrorHandler', (res.data && res.data.message) || 'บันทึกข้อมูลไม่สำเร็จ');
+          this.$emit('onErrorHandler', (res.data && res.data.message) || this.$t('editProfile.saveFail'));
         }
       } catch (e) {
-        this.$emit('onErrorHandler', 'เกิดข้อผิดพลาด: ' + (e.message || 'ลองอีกครั้ง'));
+        this.$emit('onErrorHandler', this.$t('common.errorPrefix') + ': ' + (e.message || ''));
       } finally {
         this.$emit('onLoading', false);
       }
@@ -258,16 +258,16 @@ export default {
           { headers: { Authorization: `Bearer ${this.token}` } }
         );
         if (res.data && res.data.success) {
-          this.$emit('onSuccessHandler', 'เปลี่ยนรหัสผ่านสำเร็จ');
+          this.$emit('onSuccessHandler', this.$t('editProfile.passwordChangeSuccess'));
           this.password.current = '';
           this.password.new = '';
           this.password.confirm = '';
           this.$refs.passwordForm.resetValidation();
         } else {
-          this.$emit('onErrorHandler', (res.data && res.data.message) || 'เปลี่ยนรหัสผ่านไม่สำเร็จ');
+          this.$emit('onErrorHandler', (res.data && res.data.message) || this.$t('editProfile.passwordChangeFail'));
         }
       } catch (e) {
-        this.$emit('onErrorHandler', 'เกิดข้อผิดพลาด: ' + (e.message || 'ลองอีกครั้ง'));
+        this.$emit('onErrorHandler', this.$t('common.errorPrefix') + ': ' + (e.message || ''));
       } finally {
         this.$emit('onLoading', false);
       }
@@ -276,7 +276,7 @@ export default {
       const file = event.target.files[0];
       if (!file) return;
       if (file.size > 4 * 1024 * 1024) {
-        this.$emit('onErrorHandler', 'ไฟล์รูปต้องไม่เกิน 4MB');
+        this.$emit('onErrorHandler', this.$t('msg.fileTooLarge'));
         return;
       }
       const userdata = JSON.parse(localStorage.getItem('userdata'));
@@ -296,12 +296,12 @@ export default {
         if (data && data.url) {
           this.imagePreview = data.url;
           this.$emit('onProfileImageUpdated', data.url);
-          this.$emit('onSuccessHandler', 'อัพโหลดรูปสำเร็จ');
+          this.$emit('onSuccessHandler', this.$t('msg.uploadSuccess'));
         } else {
-          this.$emit('onErrorHandler', 'อัพโหลดรูปไม่สำเร็จ');
+          this.$emit('onErrorHandler', this.$t('msg.uploadFail'));
         }
       } catch (e) {
-        this.$emit('onErrorHandler', 'อัพโหลดรูปไม่สำเร็จ');
+        this.$emit('onErrorHandler', this.$t('msg.uploadFail'));
       } finally {
         this.$emit('onLoading', false);
         event.target.value = '';
