@@ -223,6 +223,25 @@
       :behind="true"
       :count="50"
     />
+
+    <PrideOverlay
+      v-if="isPrideOn"
+      :behind="true"
+      :count="42"
+    />
+
+    <IstarOverlay
+      v-if="isIstarOn"
+      :behind="true"
+      :count="32"
+      :shootCount="4"
+    />
+
+    <NeumorphicOverlay
+      v-if="isNeumorphicOn"
+      :behind="true"
+      :count="26"
+    />
   </v-card>
 
   <!-- Theme Picker Dialog — admin only -->
@@ -332,6 +351,9 @@ import LoadingDialog from './components/LoadingDialog.vue';
 import HalloweenOverlay from '@/components/theme/HalloweenOverlay.vue';
 import ChristmasOverlay from '@/components/theme/ChristmasOverlay.vue';
 import PlayfulOverlay from '@/components/theme/PlayfulOverlay.vue';
+import PrideOverlay from '@/components/theme/PrideOverlay.vue';
+import IstarOverlay from '@/components/theme/IstarOverlay.vue';
+import NeumorphicOverlay from '@/components/theme/NeumorphicOverlay.vue';
 export default {
   data() {
     return {
@@ -361,6 +383,9 @@ export default {
       isHalloweenOn: false,
       isChristmasOn: false,
       isPlayfulOn: false,
+      isPrideOn: false,
+      isIstarOn: false,
+      isNeumorphicOn: false,
       currentTheme: 'none',
       christmasMusicPlaying: false,
       uiTheme: 'neumorphic',
@@ -401,6 +426,13 @@ export default {
           previewIconColor: '#ec4899',
           gradient: 'linear-gradient(135deg, #fce7f3 0%, #ec4899 55%, #dc2626 100%)',
         },
+        {
+          id: 'pride',
+          name: 'Pride Month',
+          icon: 'mdi-looks',
+          previewIconColor: '#ffffff',
+          gradient: 'linear-gradient(120deg, #e40303 0%, #ff8c00 20%, #ffd60a 40%, #00a651 60%, #0066ff 80%, #8a2be2 100%)',
+        },
       ],
     }
   },
@@ -432,6 +464,9 @@ export default {
     HalloweenOverlay,
     ChristmasOverlay,
     PlayfulOverlay,
+    PrideOverlay,
+    IstarOverlay,
+    NeumorphicOverlay,
   },
   methods: {
     async AffterLogin() {
@@ -656,8 +691,8 @@ export default {
     },
     applyUITheme(theme) {
       localStorage.setItem('uiTheme', theme);
-      document.documentElement.classList.remove('theme-playful', 'theme-halloween', 'theme-christmas', 'theme-istar');
-      document.body.classList.remove('theme-playful', 'theme-halloween', 'theme-christmas', 'theme-istar');
+      document.documentElement.classList.remove('theme-playful', 'theme-halloween', 'theme-christmas', 'theme-istar', 'theme-pride');
+      document.body.classList.remove('theme-playful', 'theme-halloween', 'theme-christmas', 'theme-istar', 'theme-pride');
       if (theme !== 'neumorphic') {
         document.documentElement.classList.add(`theme-${theme}`);
         document.body.classList.add(`theme-${theme}`);
@@ -665,6 +700,9 @@ export default {
       this.isHalloweenOn = theme === 'halloween';
       this.isChristmasOn = theme === 'christmas';
       this.isPlayfulOn = theme === 'playful';
+      this.isPrideOn = theme === 'pride';
+      this.isIstarOn = theme === 'istar';
+      this.isNeumorphicOn = theme === 'neumorphic';
     },
     async saveAppTheme(theme) {
       try {
@@ -762,6 +800,7 @@ export default {
         halloween: 'Halloween',
         christmas: 'Christmas',
         istar: 'iStar Gymnastics',
+        pride: 'Pride Month',
       };
       return map[this.uiTheme] || 'Neumorphic';
     },

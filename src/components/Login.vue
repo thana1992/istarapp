@@ -167,12 +167,16 @@ export default {
 </script>
 
 <style scoped>
+/* Frameless login: transparent so the themed body/wrapper background + the
+   active theme's floating effect overlay show through. z-index 1 keeps the
+   form above the overlay (z-index 0). Unified for all themes in global-style.css. */
 .login-page {
   position: fixed;
   inset: 0;
   width: 100vw;
   min-height: 100vh;
-  background: linear-gradient(135deg, #e8ebf1 0%, #cfd6e4 50%, #e8ebf1 100%);
+  background: transparent;
+  z-index: 1;
   display: flex;
   justify-content: center;
   align-items: flex-start;
