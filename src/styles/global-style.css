@@ -901,22 +901,7 @@ html.theme-playful .app-root-card.v-card {
   box-shadow: none !important;
 }
 
-/* Login page: keep fixed positioning but let body gradient + PlayfulOverlay
-   show through. z-index 1 puts login content above the overlay (z-index 0). */
-html.theme-playful .login-page {
-  background: transparent !important;
-  z-index: 1 !important;
-}
-
-/* Login card: drop the frame — inputs/buttons sit directly on the gradient.
-   Keep Vuetify's px/py utility padding so inputs don't hug the screen edge. */
-html.theme-playful .login-card,
-html.theme-playful .login-card.card-opacity {
-  background: transparent !important;
-  box-shadow: none !important;
-  border: none !important;
-  border-radius: 0 !important;
-}
+/* Login layout (frameless) is unified for every theme at the end of this file. */
 
 /* ── Cards (.card-opacity) — Frosted Glass ──
    Translucent white surface + backdrop-blur so the body gradient + stars
@@ -1295,10 +1280,7 @@ html.theme-halloween body {
   color: #f0e6ff !important;
 }
 
-/* ── Login page ── */
-html.theme-halloween .login-page {
-  background: radial-gradient(ellipse at 30% 20%, #2d0a50 0%, #0d0114 60%, #3d1800 100%) !important;
-}
+/* ── Login greeting text (frameless login layout unified at end of file) ── */
 html.theme-halloween .login-greeting h1 { color: #ffb347 !important; }
 html.theme-halloween .login-greeting p  { color: #c4a8e8 !important; }
 
@@ -1597,9 +1579,8 @@ html.theme-christmas body {
   color: #0d3a0d !important;
 }
 
-html.theme-christmas .login-page {
-  background: radial-gradient(ellipse at 30% 20%, #1a3a1a 0%, #0a1f0a 60%, #3a0d0d 100%) !important;
-}
+/* Christmas login uses the unified frameless layout (end of file) — the dark
+   green wrappers + ChristmasOverlay snow show through the transparent login. */
 
 /* ── LAYER 2: Cards — snow white "snow panel" floating on dark green ── */
 html.theme-christmas .card-opacity {
@@ -2049,10 +2030,17 @@ html.theme-istar body {
   color: var(--is-text) !important;
 }
 
-html.theme-istar .login-page {
-  background:
-    radial-gradient(ellipse at center, rgba(236, 72, 153, 0.18) 0%, transparent 65%),
-    var(--is-gradient-bg) !important;
+/* Root wrappers transparent so the body gradient + IstarOverlay show through
+   (Vuetify's dark #121212 surface would otherwise cover them). Login layout is
+   unified at the end of this file. */
+html.theme-istar .v-application,
+html.theme-istar .v-application__wrap,
+html.theme-istar .v-layout,
+html.theme-istar .v-main,
+html.theme-istar .app-root-card,
+html.theme-istar .app-root-card.v-card {
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 /* ── Cards — rounded, soft pink shadows ── */
@@ -2458,9 +2446,6 @@ html.theme-istar .viewclasses-card:hover .deco-star-main {
 .stat-star {
   display: none;
 }
-html.theme-istar .stat-glove {
-  display: none !important;
-}
 html.theme-istar .stat-star {
   display: block !important;
   position: absolute;
@@ -2485,4 +2470,508 @@ html.theme-istar .btn-icon-default {
 }
 html.theme-istar .btn-icon-istar {
   display: inline-flex !important;
+}
+
+/* ============================================================================
+   PRIDE MONTH THEME  (html.theme-pride)
+   ----------------------------------------------------------------------------
+   Light, readable surfaces (like Playful / iStar) so tables & text stay legible.
+   Design system:
+     • RAINBOW  = identity / decoration only — accent strips, active nav, CTA,
+       stat accents, dashboard icon + title, the heart overlay.
+     • VIOLET   = the readable interactive accent — focus rings, field labels,
+       hovers, selected dates, secondary actions (always enough contrast).
+   Layout is paint-only: colors / gradients / shadows / radius — never geometry.
+   ========================================================================== */
+html.theme-pride {
+  /* === Six-stripe Pride palette (yellow nudged to gold for contrast) === */
+  --pr-red:    #e40303;
+  --pr-orange: #ff8c00;
+  --pr-yellow: #ffd60a;
+  --pr-green:  #00a651;
+  --pr-blue:   #0066ff;
+  --pr-violet: #8a2be2;
+
+  /* === Brand primary — deep violet ties the rainbow together, reads on white === */
+  --pr-primary:        #7c3aed;   /* accents, focus, active */
+  --pr-primary-light:  #a78bfa;
+  --pr-primary-dark:   #6d28d9;
+  --pr-primary-deeper: #4c1d95;   /* heading text */
+
+  /* === Surfaces (white → faint lilac) === */
+  --pr-surface:        #ffffff;
+  --pr-surface-cream:  #fbf9ff;
+  --pr-surface-tint-1: #f6f2ff;
+  --pr-surface-tint-2: #efe9ff;
+  --pr-surface-tint-3: #e7defb;
+
+  /* === Text === */
+  --pr-text:           #1e1633;
+  --pr-text-heading:   #4c1d95;
+  --pr-text-body:      #44425a;
+  --pr-text-muted:     #9488b8;
+
+  /* === Effects === */
+  --pr-shadow-md:    6px 6px 20px rgba(124, 58, 237, 0.20);
+  --pr-shadow-lg:    10px 10px 32px rgba(124, 58, 237, 0.28);
+  --pr-shadow-light: -4px -4px 14px rgba(255, 255, 255, 0.95);
+  --pr-border:       rgba(124, 58, 237, 0.30);
+  --pr-border-soft:  rgba(124, 58, 237, 0.16);
+  --pr-tint-hover:   rgba(124, 58, 237, 0.08);
+  --pr-tint-active:  rgba(124, 58, 237, 0.12);
+
+  /* === The signature rainbow (interpolated in oklch for vivid, even mid-tones) === */
+  --pr-rainbow:      linear-gradient(120deg in oklch, var(--pr-red), var(--pr-orange), var(--pr-yellow), var(--pr-green), var(--pr-blue), var(--pr-violet));
+  --pr-rainbow-h:    linear-gradient(90deg in oklch, var(--pr-red), var(--pr-orange), var(--pr-yellow), var(--pr-green), var(--pr-blue), var(--pr-violet));
+  /* loops back to red so the flow animation has no visible seam */
+  --pr-rainbow-flow: linear-gradient(90deg in oklch, var(--pr-red), var(--pr-orange), var(--pr-yellow), var(--pr-green), var(--pr-blue), var(--pr-violet), var(--pr-red));
+  /* pastel rainbow wash — keeps dark text on header bands fully readable */
+  --pr-rainbow-soft: linear-gradient(95deg, #fff4f4 0%, #fff6ec 20%, #fffced 40%, #effaf2 58%, #eef4ff 78%, #f6f0ff 100%);
+
+  /* === Readable violet gradient — used for active/selected states that need white text === */
+  --pr-gradient-primary: linear-gradient(135deg, var(--pr-primary-light) 0%, var(--pr-primary) 55%, var(--pr-primary-dark) 100%);
+  --pr-gradient-card:      linear-gradient(135deg, var(--pr-surface) 0%, var(--pr-surface-cream) 100%);
+  --pr-gradient-card-deep: linear-gradient(140deg, var(--pr-surface) 0%, var(--pr-surface-tint-1) 55%, var(--pr-surface-tint-2) 100%);
+  --pr-gradient-bg:
+    radial-gradient(ellipse 70% 50% at 0% 0%,   rgba(228, 3, 3, 0.06)   0%, transparent 55%),
+    radial-gradient(ellipse 60% 45% at 100% 0%, rgba(255, 140, 0, 0.06) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 100% 100%, rgba(0, 102, 255, 0.07) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 55% at 0% 100%, rgba(138, 43, 226, 0.08) 0%, transparent 55%),
+    linear-gradient(135deg, var(--pr-surface-cream) 0%, var(--pr-surface-tint-1) 50%, var(--pr-surface-cream) 100%);
+
+  /* === Typography === */
+  --pr-font-display: 'Mali', 'Kodchasan', sans-serif;
+  --pr-font-body:    'Kodchasan', 'Mali', sans-serif;
+}
+
+/* Animated flowing rainbow for CTA buttons. Ping-pong (start == end position)
+   so the loop restart is seamless — no hue jump. Paused for reduced-motion below. */
+@keyframes prideFlow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* ── Global typography ── */
+html.theme-pride,
+html.theme-pride body,
+html.theme-pride .v-application {
+  font-family: var(--pr-font-body) !important;
+}
+html.theme-pride h1,
+html.theme-pride h2,
+html.theme-pride h3,
+html.theme-pride .v-card-title,
+html.theme-pride .v-toolbar-title {
+  font-family: var(--pr-font-display) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* ── Page background — white with faint rainbow corner glows ── */
+html.theme-pride body {
+  background: var(--pr-gradient-bg) !important;
+  background-attachment: fixed !important;
+  color: var(--pr-text) !important;
+}
+/* Root wrappers transparent so the body gradient + PrideOverlay show through
+   (Vuetify's dark #121212 surface would otherwise cover them). Login layout is
+   unified at the end of this file. */
+html.theme-pride .v-application,
+html.theme-pride .v-application__wrap,
+html.theme-pride .v-layout,
+html.theme-pride .v-main,
+html.theme-pride .app-root-card,
+html.theme-pride .app-root-card.v-card {
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* ── Cards ── */
+html.theme-pride .card-opacity {
+  background: var(--pr-gradient-card) !important;
+  color: var(--pr-text-body) !important;
+  box-shadow:
+    var(--pr-shadow-md),
+    var(--pr-shadow-light),
+    0 0 0 1.5px var(--pr-border-soft) !important;
+  border-radius: 22px !important;
+}
+
+/* ── Toolbars / v-card-title — pastel rainbow wash + crisp rainbow underline ── */
+html.theme-pride .card-opacity .v-toolbar,
+html.theme-pride div.card-opacity .v-toolbar,
+html.theme-pride .v-card.card-opacity > .v-card-title,
+html.theme-pride div.card-opacity .v-card-title {
+  background: var(--pr-rainbow-h) bottom / 100% 3px no-repeat, var(--pr-rainbow-soft) !important;
+  color: var(--pr-text-heading) !important;
+  border-bottom: none !important;
+  font-family: var(--pr-font-display) !important;
+  font-weight: 600 !important;
+}
+
+/* ── Header bands ── */
+html.theme-pride .home-section-header,
+html.theme-pride .section-header,
+html.theme-pride .header-card,
+html.theme-pride .sticky-header {
+  background: var(--pr-rainbow-h) bottom / 100% 3px no-repeat, var(--pr-rainbow-soft) !important;
+  color: var(--pr-text-heading) !important;
+  border-bottom: none !important;
+  font-family: var(--pr-font-display) !important;
+  font-weight: 600 !important;
+}
+html.theme-pride .home-section-header .mdi,
+html.theme-pride .section-header .mdi {
+  color: var(--pr-primary) !important;
+}
+
+/* ── Container header + dashboard icon ── */
+html.theme-pride .container-header h1 {
+  color: var(--pr-text-heading) !important;
+  font-family: var(--pr-font-display) !important;
+  font-weight: 600 !important;
+}
+html.theme-pride .container-header h1 .mdi,
+html.theme-pride .dashboard-header-icon {
+  background: var(--pr-rainbow) !important;
+  color: #ffffff !important;
+  box-shadow:
+    var(--pr-shadow-md),
+    -3px -3px 8px rgba(255, 255, 255, 0.85),
+    inset 0 1px 2px rgba(255, 255, 255, 0.3) !important;
+}
+html.theme-pride .dashboard-header-icon {
+  width: 46px !important;
+  height: 46px !important;
+  min-width: 46px !important;
+  border-radius: 14px !important;
+}
+/* Signature rainbow title text */
+html.theme-pride .dashboard-title {
+  background: var(--pr-rainbow-h) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  color: transparent !important;
+  font-family: var(--pr-font-display) !important;
+  font-weight: 700 !important;
+}
+
+/* ── App bar — pastel wash + 4px rainbow base strip ── */
+html.theme-pride .v-app-bar {
+  background: var(--pr-rainbow-h) bottom / 100% 4px no-repeat, var(--pr-rainbow-soft) !important;
+  box-shadow:
+    0 4px 14px rgba(124, 58, 237, 0.16),
+    0 -2px 6px rgba(255, 255, 255, 0.6) !important;
+}
+html.theme-pride .v-app-bar .v-btn {
+  color: var(--pr-text-heading) !important;
+}
+html.theme-pride .v-app-bar .v-btn:hover {
+  color: var(--pr-primary) !important;
+}
+html.theme-pride .v-toolbar-title {
+  color: var(--pr-text-heading) !important;
+}
+
+/* ── Navigation drawer ── */
+html.theme-pride .v-navigation-drawer {
+  background: linear-gradient(to bottom, var(--pr-surface-cream) 0%, var(--pr-surface-tint-1) 100%) !important;
+  box-shadow:
+    8px 0 20px rgba(124, 58, 237, 0.16),
+    -2px 0 6px rgba(255, 255, 255, 0.7) !important;
+}
+html.theme-pride .v-navigation-drawer .v-list .v-list-item--active {
+  background: var(--pr-rainbow-h) !important;
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.32);
+  box-shadow: 0 4px 14px rgba(124, 58, 237, 0.4) !important;
+}
+html.theme-pride .v-navigation-drawer .v-list .v-list-item:hover {
+  background: var(--pr-tint-hover) !important;
+  color: var(--pr-text-heading) !important;
+}
+html.theme-pride .v-navigation-drawer .v-list .v-list-item--active .v-list-item__prepend .v-icon,
+html.theme-pride .v-navigation-drawer .v-list .v-list-item--active .v-list-item-title {
+  color: #ffffff !important;
+}
+html.theme-pride .v-navigation-drawer .v-label {
+  color: var(--pr-primary) !important;
+  opacity: 0.7;
+}
+html.theme-pride .v-navigation-drawer .v-divider,
+html.theme-pride .v-navigation-drawer hr {
+  border-color: var(--pr-border) !important;
+}
+
+/* ── Data tables — thead stays TRANSPARENT (no "card on card"); identity via the
+   toolbar above + violet hover. Headers differ by text weight + border only. ── */
+html.theme-pride .v-table > .v-table__wrapper > table > thead > tr,
+html.theme-pride .v-data-table thead tr {
+  background: transparent !important;
+}
+html.theme-pride .v-table > .v-table__wrapper > table > thead > tr > th,
+html.theme-pride .v-data-table thead th {
+  background: transparent !important;
+  color: var(--pr-text-heading) !important;
+  font-weight: 700 !important;
+  border-bottom: 2px solid var(--pr-border) !important;
+  font-family: var(--pr-font-display) !important;
+}
+html.theme-pride .v-data-table tbody tr:hover,
+html.theme-pride .v-table tbody tr:hover {
+  background: var(--pr-tint-hover) !important;
+}
+html.theme-pride .v-data-table-footer,
+html.theme-pride .card-opacity .v-data-table-footer {
+  background: linear-gradient(to right, var(--pr-surface-cream), var(--pr-surface-tint-1)) !important;
+  border-top: 1px solid var(--pr-border-soft) !important;
+}
+html.theme-pride .v-pagination__item--is-active .v-btn,
+html.theme-pride .v-pagination .v-btn--active {
+  background: var(--pr-gradient-primary) !important;
+  color: #ffffff !important;
+}
+
+/* ── Form fields ── */
+html.theme-pride .v-field--variant-outlined .v-field__outline {
+  --v-field-border-opacity: 0.5;
+  color: var(--pr-primary-light) !important;
+}
+html.theme-pride .v-field--variant-outlined.v-field--focused .v-field__outline {
+  --v-field-border-opacity: 1;
+  color: var(--pr-primary) !important;
+}
+html.theme-pride .v-field .v-label {
+  color: var(--pr-primary-dark) !important;
+}
+html.theme-pride .v-field--focused .v-label,
+html.theme-pride .v-field .v-label.v-field-label--floating {
+  color: var(--pr-primary) !important;
+  font-weight: 600 !important;
+}
+
+/* Dropdown items */
+html.theme-pride .v-overlay__content .v-list-item--active {
+  background: var(--pr-tint-active) !important;
+  color: var(--pr-text-heading) !important;
+}
+html.theme-pride .v-overlay__content .v-list-item:hover {
+  background: var(--pr-tint-hover) !important;
+}
+
+/* ── Primary Vuetify buttons — readable violet ── */
+html.theme-pride .v-btn--variant-tonal[color="primary"],
+html.theme-pride .v-btn--variant-flat[color="primary"],
+html.theme-pride .v-btn--variant-elevated[color="primary"] {
+  background: var(--pr-gradient-primary) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+}
+
+/* ── Signature CTA — flowing rainbow, white text with shadow for legibility ── */
+html.theme-pride .neu-action-btn {
+  background: var(--pr-rainbow-flow) !important;
+  background-size: 300% 100% !important;
+  background-position: 0% 50% !important;
+  color: #ffffff !important;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35) !important;
+  font-family: var(--pr-font-display) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.5px !important;
+  border-radius: 16px !important;
+  box-shadow:
+    var(--pr-shadow-md),
+    -3px -3px 10px rgba(255, 255, 255, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+  animation: prideFlow 8s linear infinite;
+  transition: transform 0.18s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s !important;
+}
+html.theme-pride .neu-action-btn:hover {
+  transform: translateY(-2px) scale(1.02) !important;
+  box-shadow:
+    var(--pr-shadow-lg),
+    -4px -4px 12px rgba(255, 255, 255, 0.8),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4) !important;
+}
+html.theme-pride .neu-action-btn:active {
+  transform: translateY(0) scale(0.97) !important;
+}
+
+/* Dashboard quick-action buttons */
+html.theme-pride .qa-btn {
+  background: var(--pr-gradient-card) !important;
+  color: var(--pr-text-heading) !important;
+  border-radius: 14px !important;
+  box-shadow:
+    4px 4px 12px rgba(124, 58, 237, 0.13),
+    -3px -3px 8px rgba(255, 255, 255, 0.85),
+    0 0 0 1px var(--pr-border-soft) !important;
+}
+html.theme-pride .qa-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow:
+    var(--pr-shadow-md),
+    -4px -4px 10px rgba(255, 255, 255, 0.9),
+    0 0 0 1px var(--pr-border) !important;
+}
+
+/* ── Dialogs ── */
+html.theme-pride .v-dialog .v-card:not(.v-alert) {
+  background: var(--pr-gradient-card-deep) !important;
+  color: var(--pr-text-body) !important;
+  border-radius: 20px !important;
+  border: 1px solid var(--pr-border-soft) !important;
+}
+html.theme-pride .app-dialog-header--error {
+  background: linear-gradient(to right, #fff1f2, #ffe4e6) !important;
+}
+html.theme-pride .app-dialog-header--success {
+  background: linear-gradient(to right, #f0fdf4, #dcfce7) !important;
+}
+
+/* ── Misc ── */
+html.theme-pride .group-header {
+  color: var(--pr-text-heading) !important;
+  font-family: var(--pr-font-display) !important;
+}
+html.theme-pride .family-row--active {
+  border-left-color: var(--pr-primary) !important;
+  background: var(--pr-tint-hover) !important;
+}
+html.theme-pride .member-fullname {
+  color: var(--pr-text-heading) !important;
+}
+html.theme-pride .res-time {
+  color: var(--pr-primary) !important;
+  background: var(--pr-tint-hover) !important;
+}
+html.theme-pride .course-chip {
+  background: var(--pr-rainbow-soft) !important;
+  color: var(--pr-text-heading) !important;
+  border: 1px solid var(--pr-border-soft) !important;
+}
+
+/* ── Theme switcher row ── */
+html.theme-pride .theme-switcher-row {
+  background: var(--pr-tint-hover) !important;
+  color: var(--pr-text-heading) !important;
+}
+html.theme-pride .theme-switcher-row .mdi {
+  color: var(--pr-primary) !important;
+}
+
+/* ── Dashboard stat-cards — white card, rainbow accent strip ── */
+html.theme-pride .stat-card,
+html.theme-pride .stat-card-dynamic {
+  background: var(--pr-gradient-card) !important;
+  color: var(--pr-text-body) !important;
+  border-radius: 18px !important;
+  box-shadow:
+    var(--pr-shadow-md),
+    var(--pr-shadow-light),
+    0 0 0 1.5px var(--pr-border-soft) !important;
+  transition: transform 0.2s, box-shadow 0.25s !important;
+}
+html.theme-pride .stat-card:hover {
+  transform: translateY(-3px) scale(1.01) !important;
+  box-shadow:
+    var(--pr-shadow-lg),
+    var(--pr-shadow-light),
+    0 0 0 1.5px var(--pr-border) !important;
+}
+html.theme-pride .stat-label {
+  color: var(--pr-primary-dark) !important;
+  font-family: var(--pr-font-display) !important;
+  font-weight: 600 !important;
+}
+html.theme-pride .stat-value {
+  color: var(--pr-primary) !important;
+  font-family: var(--pr-font-display) !important;
+  font-weight: 700 !important;
+  text-shadow: 0 2px 12px rgba(124, 58, 237, 0.18);
+}
+html.theme-pride .stat-meta {
+  color: var(--pr-text-muted) !important;
+}
+html.theme-pride .stat-icons .mdi {
+  color: var(--pr-primary) !important;
+}
+/* All accent strips become the rainbow regardless of their base color */
+html.theme-pride .stat-accent-blue,
+html.theme-pride .stat-accent-green,
+html.theme-pride .stat-accent-cyan,
+html.theme-pride .stat-accent-violet,
+html.theme-pride .stat-accent-amber {
+  background: var(--pr-rainbow-h) !important;
+  height: 4px !important;
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.35);
+}
+
+/* ── Calendar / date picker ── */
+html.theme-pride .v-date-picker-header__title,
+html.theme-pride .v-picker__title,
+html.theme-pride .v-date-picker-controls .v-btn {
+  color: var(--pr-text-heading) !important;
+}
+html.theme-pride .v-date-picker-month__day .v-btn:hover {
+  background: var(--pr-tint-hover) !important;
+  color: var(--pr-primary) !important;
+}
+html.theme-pride .v-date-picker-month__day--selected .v-btn,
+html.theme-pride .v-date-picker-month__day .v-btn.v-btn--active {
+  background: var(--pr-gradient-primary) !important;
+  color: #ffffff !important;
+}
+html.theme-pride .calendar-header-icon {
+  color: var(--pr-primary) !important;
+}
+
+/* ── Respect reduced motion — freeze the flowing CTA ── */
+@media (prefers-reduced-motion: reduce) {
+  html.theme-pride .neu-action-btn {
+    animation: none !important;
+    background-position: 0% 50% !important;
+  }
+}
+
+/* ============================================================================
+   UNIFIED LOGIN — frameless layout across EVERY theme (canonical = Playful)
+   ----------------------------------------------------------------------------
+   • login-page transparent → the themed background + that theme's floating
+     effect overlay (Playful stars / Halloween ghosts / Christmas snow /
+     Pride hearts / iStar shooting-stars / Neumorphic gems) show through;
+     z-index 1 keeps the form above the overlay (z-index 0).
+   • login-card drops its frame → the form floats directly on the background.
+   Per-theme .login-card selectors match each theme's .card-opacity specificity,
+   and this block is LAST so it always wins on source order.
+   ========================================================================== */
+.login-page {
+  background: transparent !important;
+  z-index: 1 !important;
+}
+.login-card.card-opacity,
+html.theme-playful .login-card.card-opacity,
+html.theme-halloween .login-card.card-opacity,
+html.theme-christmas .login-card.card-opacity,
+html.theme-istar .login-card.card-opacity,
+html.theme-pride .login-card.card-opacity {
+  background: transparent !important;
+  -webkit-backdrop-filter: none !important;
+  backdrop-filter: none !important;
+  box-shadow: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+}
+
+/* Neumorphic = the bare (un-prefixed) theme; its frameless login reveals the
+   dark Vuetify surface (#121212), so lighten the greeting text. Light themes
+   (Playful / iStar / Pride) keep the dark base color from Login.vue; dark
+   seasonal themes (Halloween / Christmas) keep their own greeting overrides. */
+html:not(.theme-playful):not(.theme-halloween):not(.theme-christmas):not(.theme-istar):not(.theme-pride) .login-greeting h1 {
+  color: #e7ecf5 !important;
+}
+html:not(.theme-playful):not(.theme-halloween):not(.theme-christmas):not(.theme-istar):not(.theme-pride) .login-greeting p {
+  color: #aab4c8 !important;
 }

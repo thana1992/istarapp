@@ -6,7 +6,12 @@
       "Bash(awk 'NR>=250 && NR<=400')",
       "Bash(awk '/html.theme-muaythai/,/^\\\\/\\\\* ====/' \"c:\\\\iStarApp\\\\istarapp_dev\\\\src\\\\styles\\\\global-style.css\")",
       "Bash(npx eslint *)",
-      "Bash(awk 'NR<1965 || NR>2721' src/styles/global-style.css)"
+      "Bash(awk 'NR<1965 || NR>2721' src/styles/global-style.css)",
+      "Bash(grep -n \"^html.theme-playful\\\\|^html.theme-istar\\\\|^/\\\\* =\\\\|^/\\\\*=\\\\|^html.theme-christmas\\\\|^html.theme-halloween\" \"c:/iStarApp/istarapp_dev/src/styles/global-style.css\")",
+      "Bash(grep -n \"^/\\\\*\\\\|====\\\\|theme-istar\\\\b\" \"c:/iStarApp/istarapp_dev/src/styles/global-style.css\")",
+      "Bash(echo \"=== exit:$? \\(no matches = clean\\) ===\")",
+      "Bash(grep -nE \"^body \\\\{|^html \\\\{|^html,|^\\\\s*body,|^body\\\\.\" src/styles/global-style.css)",
+      "Bash(grep -rnE \"\\\\.login-page\\\\s*\\\\{|\\\\.login-page,|\\\\.login-page\\\\s\" src/styles/global-style.css src/components/Login.vue)"
     ]
   },
   "enabledPlugins": {
