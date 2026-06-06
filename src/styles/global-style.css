@@ -1104,14 +1104,14 @@ html.theme-playful .v-field--variant-solo-filled .v-field__loader {
   opacity: 0 !important;
 }
 
-/* Append-inner / prepend-inner icons (eye toggle, clear, etc.) — rose accent.
-   Wildcard descendant selector catches every nested element Vuetify might
-   wrap the icon in (button, span, i, v-icon, etc.) across all variants. */
+/* Append-inner / prepend-inner icons (eye toggle, clear, etc.) — STANDARD
+   neutral colour, like the other themes. Rose (--pf-primary) blended into the
+   white solo-filled login field, so use a clearly-visible medium-emphasis grey. */
 html.theme-playful .v-field__append-inner,
 html.theme-playful .v-field__append-inner *,
 html.theme-playful .v-field__prepend-inner,
 html.theme-playful .v-field__prepend-inner * {
-  color: var(--pf-primary) !important;
+  color: rgba(0, 0, 0, 0.6) !important;
   --v-medium-emphasis-opacity: 1 !important;
 }
 html.theme-playful .v-field__append-inner .v-icon,
@@ -1125,18 +1125,9 @@ html.theme-playful .v-field__prepend-inner .v-icon:hover {
   opacity: 1 !important;
 }
 
-/* Kill Vuetify's hover/focus state overlay on clickable inner icons —
-   the grey circular halo that lingers after click/focus. */
-html.theme-playful .v-field .v-field__append-inner .v-icon::before,
-html.theme-playful .v-field .v-field__append-inner .v-icon::after,
-html.theme-playful .v-field .v-field__prepend-inner .v-icon::before,
-html.theme-playful .v-field .v-field__prepend-inner .v-icon::after {
-  display: none !important;
-  background: transparent !important;
-  background-color: transparent !important;
-  opacity: 0 !important;
-  box-shadow: none !important;
-}
+/* NOTE: do NOT set `display:none` on .v-icon::before here — for mdi icons the
+   ::before IS the glyph (e.g. the eye toggle), so hiding it hides the icon.
+   The focus/hover halo is cleared on the wrapper + :focus rules below instead. */
 
 html.theme-playful .v-field .v-field__append-inner .v-icon:focus,
 html.theme-playful .v-field .v-field__append-inner .v-icon:focus-visible,
