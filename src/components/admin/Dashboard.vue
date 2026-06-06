@@ -89,6 +89,9 @@
                             </div>
                         </div>
                         <span class="stat-star mdi mdi-star-four-points"></span>
+                        <div class="stat-progress" :title="bookingProgressTitle(totalBookingToday, today())">
+                            <div class="stat-progress-fill" :style="bookingProgressStyle(totalBookingToday, today())"></div>
+                        </div>
                     </v-card>
                 </v-col>
                 <v-col cols="12" sm="4" md="2" lg="2" xl="2">
@@ -109,6 +112,9 @@
                             </div>
                         </div>
                         <span class="stat-star mdi mdi-star-four-points"></span>
+                        <div class="stat-progress" :title="bookingProgressTitle(totalBookingTomorrow, tomorrow())">
+                            <div class="stat-progress-fill" :style="bookingProgressStyle(totalBookingTomorrow, tomorrow())"></div>
+                        </div>
                     </v-card>
                 </v-col>
                 <v-col cols="12" sm="4" md="2" lg="2" xl="2">
@@ -607,6 +613,24 @@ export default ({
             }
             return { background: `rgb(${r},${g},${b})` };
         },
+        // Peak booking capacity: weekdays 100, weekends (Sat/Sun) 120
+        bookingPeak(date) {
+            const day = new Date(date).getDay(); // 0 = Sun, 6 = Sat
+            return (day === 0 || day === 6) ? 120 : 100;
+        },
+        // Width + colour of the peak progress bar for a booking card
+        bookingProgressStyle(count, date) {
+            const peak = this.bookingPeak(date);
+            const ratio = Math.min(Math.max(count, 0) / peak, 1);
+            let color;
+            if (ratio < 0.6) color = '#22c55e';       // green — plenty of room
+            else if (ratio < 0.85) color = '#f59e0b'; // amber — filling up
+            else color = '#ef4444';                   // red — near / at peak
+            return { width: (ratio * 100) + '%', background: color };
+        },
+        bookingProgressTitle(count, date) {
+            return `${Math.max(count, 0)} / ${this.bookingPeak(date)}`;
+        },
         animateTomorrow() {
             // รีเซ็ตค่า
             this.totalBookingTomorrow = 0;
@@ -1065,6 +1089,28 @@ const DashboardAPI = {
     opacity: 0.85;
 }
 
+/* ===== Peak progress bar — Today's / Tomorrow's Booking cards only =====
+   Absolutely positioned at the card's bottom edge so it adds NO flow height:
+   all five stat cards (and their rows) stay exactly the same size. The card's
+   own `overflow: hidden` + border-radius clip the bar to the rounded corner. */
+.stat-progress {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.10);
+    z-index: 2;
+    overflow: hidden;
+}
+
+.stat-progress-fill {
+    height: 100%;
+    width: 0;
+    border-radius: 0 3px 3px 0;
+    transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1), background 0.4s ease;
+}
+
 /* ===== Action Cards ===== */
 .action-row {
     margin-top: 4px !important;
@@ -1459,6 +1505,25 @@ html.theme-christmas :deep(.v-date-picker-month__day--disabled .v-btn) {
         -9px -9px 22px rgba(60, 72, 95, 0.4),
         0 0 0 1px rgba(99, 102, 241, 0.2) !important;
 }
+
+/* iStar/Pride need an explicit opaque light panel for the grid/calendar card,
+   otherwise they fall back to the dark navy rule above. (Neumorphic uses that
+   dark rule; Playful/Halloween/Christmas have their own.) */
+html.theme-istar .content-card {
+    background: linear-gradient(135deg, #ffffff, #fff8fb) !important;
+    color: var(--is-text-body) !important;
+    box-shadow:
+        6px 6px 20px rgba(236, 72, 153, 0.18),
+        0 0 0 1.5px rgba(236, 72, 153, 0.18) !important;
+}
+html.theme-pride .content-card {
+    background: linear-gradient(135deg, #ffffff, #fbf9ff) !important;
+    color: var(--pr-text-body) !important;
+    box-shadow:
+        6px 6px 20px rgba(124, 58, 237, 0.16),
+        0 0 0 1.5px rgba(124, 58, 237, 0.16) !important;
+}
+/* iStar/Pride stat cards use their global opaque rule (in global-style.css). */
 
 :deep(.v-theme--dark) .stat-card:hover,
 :deep(.v-theme--dark) .content-card:hover {

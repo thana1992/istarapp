@@ -204,8 +204,8 @@
       v-if="isHalloweenOn"
       ref="halo"
       :behind="true"
-      :minDecor="8"
-      :maxDecor="14"
+      :minDecor="9"
+      :maxDecor="16"
       :skullRatio="0.35"
     />
 
@@ -213,34 +213,34 @@
       v-if="isChristmasOn"
       ref="xmas"
       :behind="true"
-      :minDecor="6"
-      :maxDecor="10"
+      :minDecor="7"
+      :maxDecor="12"
       @audioStateChanged="onChristmasMusicStateChanged"
     />
 
     <PlayfulOverlay
       v-if="isPlayfulOn"
       :behind="true"
-      :count="50"
+      :count="58"
     />
 
     <PrideOverlay
       v-if="isPrideOn"
       :behind="true"
-      :count="42"
+      :count="48"
     />
 
     <IstarOverlay
       v-if="isIstarOn"
       :behind="true"
-      :count="32"
-      :shootCount="4"
+      :count="37"
+      :shootCount="5"
     />
 
     <NeumorphicOverlay
       v-if="isNeumorphicOn"
       :behind="true"
-      :count="26"
+      :count="30"
     />
   </v-card>
 
