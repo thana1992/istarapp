@@ -36,7 +36,11 @@
       "Bash(cd \"/tmp\")",
       "Bash(grep -qiE \"Dashboard URL|Local:|ready in|token=\" /tmp/ua-dashboard.log)",
       "Bash(break)",
-      "Bash(cat /tmp/ua-dashboard.log)"
+      "Bash(cat /tmp/ua-dashboard.log)",
+      "Bash(echo \"Exit: $?\")",
+      "Bash(npm --version)",
+      "Bash(npm install *)",
+      "Bash(npm config *)"
     ]
   }
 }
