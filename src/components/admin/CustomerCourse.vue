@@ -1,25 +1,65 @@
 <template>
-  <div class="container">
-    <div class="container-header">
-      <h1><span class="mdi mdi-book-account"></span> {{ $t('nav.customerCourse') }}</h1>
+  <div>
+    <div class="pg-head">
+      <div class="pg-ico"><span class="mdi mdi-book-account"></span></div>
+      <div>
+        <div class="id-h1">{{ $t('nav.customerCourse') }}</div>
+        <div class="pg-sub">คอร์สของลูกค้า</div>
+      </div>
     </div>
-    <div class="container-content">
-      <v-card class="mx-auto mt-5 card-opacity">
-        <v-data-table-server :headers="headers" :items="courselist" :loading="loadingCustomerCourse"
-          :items-length="totalItems" :page="tableOptions.page" :items-per-page="tableOptions.itemsPerPage"
-          @update:options="onTableOptions">
-          <template v-slot:top>
-            <v-toolbar flat>
-              <v-toolbar-title>{{ $t('courseHistory.ourCourses') }}</v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-btn color="primary" @click="initialize">
-                <v-icon left>mdi-refresh</v-icon>
-                {{ $t('btn.refresh') }}
-              </v-btn>
-              <v-dialog v-model="dialog" max-width="950px">
-                <template v-slot:activator="{ props }">
-                  <v-btn color="primary" dark v-bind="props"><span class="mdi mdi-book-plus-multiple"></span> {{ $t('btn.newCourse') }}</v-btn>
+
+    <!-- server-side search + pagination preserved (getCustomerCourseList / tableOptions / totalItems / search watcher) -->
+    <div class="grid-toolbar">
+      <label class="grid-search"><span class="mdi mdi-magnify"></span>
+        <input class="id-input" v-model="search" :placeholder="$t('btn.search')" /></label>
+      <span class="grid-spacer"></span>
+      <button class="id-btn id-btn-primary id-btn-sm" @click="dialog = true"><span class="mdi mdi-plus"></span> {{ $t('btn.newCourse') }}</button>
+    </div>
+    <div class="scard" style="padding:14px">
+      <div style="overflow-x:auto">
+        <table class="idt">
+          <thead>
+            <tr>
+              <th v-for="h in headers" :key="h.key" :class="{ 'idt-action': ['edit', 'delete', 'finish'].includes(h.key) }" :style="{ textAlign: (h.align === 'center' || h.align === 'end') ? 'center' : 'left' }">{{ h.title }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="item in courselist" :key="item.courserefer">
+              <td v-for="h in headers" :key="h.key" :class="{ 'idt-action': ['edit', 'delete', 'finish'].includes(h.key) }" :style="{ textAlign: (h.align === 'center' || h.align === 'end') ? 'center' : 'left' }">
+                <template v-if="h.key === 'courserefer'"><span class="id-copy">{{ item.courserefer }}<span class="mdi mdi-content-copy id-copy-btn" :title="$t('btn.copy')" @click="copyToClipboard(item.courserefer)"></span></span></template>
+                <template v-else-if="h.key === 'startdate'">{{ format_date(item.startdate) }}</template>
+                <template v-else-if="h.key === 'expiredate'"><span :style="{ color: (item.expiredate != null && isExpiredDate(item.expiredate)) ? 'var(--c-error)' : '' }">{{ expireDateLeft(item.expiredate) }}</span></template>
+                <template v-else-if="h.key === 'remaining'">
+                  <span v-if="item.coursetype === 'Monthly'" class="badge badge-primary">{{ $t('home.monthly') }}</span>
+                  <span v-else-if="item.remaining !== null && item.remaining !== ''" class="badge" :class="Number(item.remaining) <= 2 ? 'badge-warning' : 'badge-primary'">{{ item.remaining }} {{ $t('common.times') }}</span>
+                  <span v-else>-</span>
                 </template>
+                <template v-else-if="h.key === 'paid'">
+                  <span v-if="item.paid == 1" class="badge badge-success">{{ $t('customerCourse.paid') }}</span>
+                  <span v-else class="badge badge-error">{{ $t('customerCourse.unpaid') }}</span>
+                </template>
+                <template v-else-if="h.key === 'edit'"><span class="mdi mdi-pencil" style="color:var(--c-info);cursor:pointer;font-size:20px" @click="editItem(item)"></span></template>
+                <template v-else-if="h.key === 'delete'"><span class="mdi mdi-delete-forever" style="color:var(--c-error);cursor:pointer;font-size:20px" @click="deleteItem(item)"></span></template>
+                <template v-else-if="h.key === 'finish'"><span class="mdi mdi-check" style="color:var(--c-success);cursor:pointer;font-size:20px" @click="finishCourse(item)"></span></template>
+                <template v-else>{{ item[h.key] }}</template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div v-if="!loadingCustomerCourse && courselist.length === 0" class="grid-empty"><span class="mdi mdi-book-off-outline"></span>ไม่พบข้อมูล</div>
+      <div class="grid-foot" v-if="totalItems > 0">
+        <span class="grid-count">{{ totalItems }}</span>
+        <div class="grid-pager">
+          <button class="pager-btn" :disabled="tableOptions.page <= 1" @click="tableOptions.page--; getCustomerCourseList()"><span class="mdi mdi-chevron-left"></span></button>
+          <span class="pager-now"><b>{{ tableOptions.page }}</b> / {{ Math.max(1, Math.ceil(totalItems / tableOptions.itemsPerPage)) }}</span>
+          <button class="pager-btn" :disabled="tableOptions.page >= Math.ceil(totalItems / tableOptions.itemsPerPage)" @click="tableOptions.page++; getCustomerCourseList()"><span class="mdi mdi-chevron-right"></span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- add / edit dialog -->
+    <v-dialog v-model="dialog" max-width="950px">
                 <v-card>
                   <v-card-title class="sticky-header">
                     <span class="mdi mdi-book-plus-multiple"></span><span>{{ formTitle }}</span>
@@ -77,7 +117,7 @@
                           </v-col>
                         </v-row>
                         <v-row>
-                          <v-col cols="6" sm="12" md="12">
+                          <v-col cols="12" sm="12" md="12">
                             <v-switch
                               v-model.number="editedItem.enable_double_booking"
                               color="success"
@@ -114,7 +154,7 @@
                           </v-col>
                         </v-row>
                         <v-row>
-                          <v-col cols="3" sm="3" md="3">
+                          <v-col cols="12" sm="3" md="3">
                             <v-checkbox
                               v-model="editedItem.paid"
                               :label="editedItem.paid ? $t('customerCourse.paid') : $t('customerCourse.unpaid')"
@@ -236,53 +276,6 @@
                   </v-card-actions>
                 </v-card>
               </v-dialog>
-            </v-toolbar>
-            <div class="table-search-row">
-              <v-text-field v-model="search" density="compact" :label="$t('btn.search')" prepend-inner-icon="mdi-magnify"
-                variant="solo-filled" flat hide-details single-line></v-text-field>
-            </div>
-          </template>
-          <template v-slot:item.startdate="{ item }">
-              <p>{{ format_date(item.startdate) }}</p>
-          </template>
-          <template v-slot:item.expiredate="{ item }">
-                <p :class="{ 'highlighted-red': item.expiredate != null && isExpiredDate(item.expiredate) }">
-                    {{ expireDateLeft(item.expiredate) }}
-                </p>
-            </template>
-          <template v-slot:item.remaining="{ item }">
-            <span v-if="item.coursetype === 'Monthly'">{{ $t('home.monthly') }}</span>
-            <span v-else-if="item.remaining !== null && item.remaining !== ''">{{ item.remaining }} {{ $t('common.times') }}</span>
-            <span v-else>-</span>
-          </template>
-          <!-- <template v-slot:item.actions="{ item }">
-            <v-icon size="small" class="me-2" @click="editItem(item)">
-              mdi-pencil
-            </v-icon>
-            <v-icon size="small" @click="deleteItem(item)"> mdi-delete </v-icon>
-          </template> -->
-          <template v-slot:no-data>
-            {{ $t('customerCourse.noCourseList') }}
-            <br /><br />
-            <v-btn color="primary" @click="initialize"> {{ $t('btn.reset') }} </v-btn>
-          </template>
-          <template v-slot:item.paid="{ item }">
-            <v-chip color="success" v-if="item.paid == 1">{{ $t('customerCourse.paid') }}</v-chip>
-            <v-chip color="error" v-else>{{ $t('customerCourse.unpaid') }}</v-chip>
-          </template>
-          <template v-slot:item.edit="{ item }">
-              <v-icon size="large" color="info" @click="editItem(item)">mdi-pencil</v-icon>
-          </template>
-          <template v-slot:item.finish="{ item }">
-              <v-icon size="large" color="error" @click="finishCourse(item)">mdi-check</v-icon>
-          </template>
-          <template v-slot:item.delete="{ item }">
-              <v-icon size="large" color="error" @click="deleteItem(item)">mdi-delete-forever</v-icon>
-          </template>
-          <template v-slot:loading><v-skeleton-loader type="table-row@20"></v-skeleton-loader></template>
-        </v-data-table-server>
-      </v-card>
-    </div>
   </div>
 </template>
 <script>
@@ -303,7 +296,6 @@ export default {
     loadingCustomerCourse: false,
     deleteNotifyMsg: "",
     dialogDeleteNotify: false,
-    headers: [],
     editedIndex: -1,
     editedItem: {
       courserefer: null,
@@ -463,7 +455,7 @@ export default {
           .then(() => {
             //consol.log('คัดลอกคอร์สใหม่เรียบร้อยแล้ว');
           })
-          .catch(err => {
+          .catch(() => {
             //console.error('ไม่สามารถคัดลอกได้: ', err);
           });
       } else {
@@ -530,7 +522,7 @@ export default {
             this.$emit("onLoading", false);
           }
         })
-        .catch((error) => {
+        .catch(() => {
           //console.error(error);
           this.$emit("onLoading", false);
           return false;
@@ -563,7 +555,7 @@ export default {
           }
           this.initialize();
         })
-        .catch((error) => {
+        .catch(() => {
           //console.error(error);
         });
       this.$emit("onLoading", false);
@@ -597,7 +589,7 @@ export default {
           }
           this.initialize();
         })
-        .catch((error) => {
+        .catch(() => {
           //console.error(error);
         });
       this.$emit("onLoading", false);
@@ -983,7 +975,7 @@ export default {
     },
     format_date(value) {
       if (value) {
-        return moment(String(value)).format("DD/MM/YYYY");
+        return moment(value).format("DD/MM/YYYY");
       }
     },
     expireDateLeft(value) {

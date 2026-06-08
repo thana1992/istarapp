@@ -1,45 +1,43 @@
 <template>
     <div>
         <div v-if="!isAddFamily">
-            <div class="container">
-                <div class="container-header">
-                    <h1><span class="mdi mdi-account-multiple"></span> {{ $t('family.title') }}</h1>
+            <div class="pg-head">
+                <div class="pg-ico"><span class="mdi mdi-account-multiple"></span></div>
+                <div>
+                    <div class="id-h1">{{ $t('family.title') }}</div>
+                    <div class="pg-sub">{{ $t('family.sectionHeader') }}</div>
                 </div>
-                <div class="container-content">
-                    <v-card class="card-opacity family-card">
-                        <div class="istar-deco-stars">
-                            <span class="mdi mdi-star-four-points deco-star-side"></span>
-                            <span class="mdi mdi-star-shooting deco-star-main"></span>
-                            <span class="mdi mdi-star-four-points deco-star-side"></span>
+                <div style="flex:1"></div>
+                <button class="id-btn id-btn-primary id-btn-sm" @click="doAddFamilyMember">
+                    <span class="mdi mdi-account-plus"></span> {{ $t('family.addMember') }}
+                </button>
+            </div>
+
+            <div class="scard" style="padding:0">
+                <div v-for="people in family" :key="people.studentid"
+                    class="row family-row"
+                    :class="{ 'highlight-row': people.journal === '1' }"
+                    style="justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--c-border)">
+                    <div class="row" style="gap:12px">
+                        <span class="tt-avatar fam-avatar"
+                            style="width:46px;height:46px;font-size:17px;background:var(--c-primary)">
+                            <v-img :src="people.gender === 'หญิง' ? profileGirl : profileBoy"
+                                cover width="46" height="46"></v-img>
+                        </span>
+                        <div class="col" style="gap:1px">
+                            <span class="strong" style="font-size:16px">{{ people.fullname }}</span>
+                            <span class="t-cap">{{ people.gender }}</span>
                         </div>
-                        <div class="section-header">
-                            <span class="mdi mdi-account-group"></span> {{ $t('family.sectionHeader') }}
-                        </div>
-                        <v-table class="family-list">
-                            <tbody>
-                                <tr v-for="people in family" :key="people.studentid"
-                                    :class="{ 'highlight-row': people.journal === '1' }" class="tr-rows">
-                                    <td class="td-avatar">
-                                        <div class="avatar-wrap">
-                                            <v-img :src="people.gender === 'หญิง' ? profileGirl : profileBoy"
-                                                   cover width="46" height="46"></v-img>
-                                        </div>
-                                    </td>
-                                    <td class="td-name">{{ people.fullname }}</td>
-                                    <td v-if="people.journal === '1'" class="td-action">
-                                        <span class="mdi mdi-delete-forever delete-icon"
-                                              @click="onClickDelete(people)"></span>
-                                    </td>
-                                    <td v-else class="td-action"></td>
-                                </tr>
-                            </tbody>
-                        </v-table>
-                    </v-card>
-                    <div class="below-card-actions">
-                        <v-btn class="pulse-button neu-action-btn" size="large" @click="doAddFamilyMember">
-                            <v-icon left>mdi-account-multiple-plus</v-icon>
-                            &nbsp;{{ $t('family.addMember') }}
-                        </v-btn>
+                    </div>
+                    <div class="row" style="gap:10px">
+                        <span class="badge" :class="people.journal === '1' ? 'badge-warning' : 'badge-success'">
+                            <span class="mdi"
+                                :class="people.journal === '1' ? 'mdi-clock-outline' : 'mdi-check-circle-outline'"></span>
+                        </span>
+                        <button v-if="people.journal === '1'" class="id-btn id-btn-ghost id-btn-sm fam-del"
+                            @click="onClickDelete(people)">
+                            <span class="mdi mdi-delete-forever"></span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -67,11 +65,9 @@
 </template>
 
 <script>
-import { ref, computed, onMounted, inject } from 'vue';
 import AddFamily from './AddFamily.vue'
 import axios from 'axios';
 import { mapGetters } from 'vuex';
-import { TrinityRingsSpinner } from 'epic-spinners'
 export default {
     components: {
         AddFamily,
@@ -117,7 +113,7 @@ export default {
                         this.family = []
                     }
                 })
-                .catch(error => {
+                .catch(() => {
                     //console.error(error);
                 });
             this.$emit('onLoading', false)
@@ -184,86 +180,32 @@ export default {
 </script>
 
 <style scoped>
-.family-card {
-    width: 100%;
-}
-
-/* Section header band — matches Home.vue style */
-.section-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    font-size: 12px;
-    font-weight: 700;
-    color: #475569;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    background: linear-gradient(to right, #eef0f5, #f5f7fb);
-    border-bottom: 1px solid rgba(163, 177, 198, 0.18);
-}
-
-.section-header .mdi {
-    color: #6366f1;
-    font-size: 15px;
-}
-
-.family-list {
-    font-size: clamp(13px, 3.1vw, 16px);
-    width: 100%;
-    background: transparent !important;
-}
-
-.tr-rows {
-    cursor: pointer;
-}
-
-.td-avatar {
-    width: 64px;
-    padding: 10px 12px;
-}
-
-.avatar-wrap {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
+/* Round-clip the gender avatar image inside the tt-avatar circle.
+   .tt-avatar sets flex:0 0 30px, which (in the flex row) overrides the inline
+   width:46px and squashes the box to 30×46 — an ellipse. Re-assert a square
+   46px basis so overflow:hidden + border-radius:999px clip a real circle. */
+.fam-avatar {
+    flex: 0 0 46px;
     overflow: hidden;
-    background: #e0e5ec;
+    padding: 0;
 }
 
-.td-name {
-    padding: 10px 8px;
+.family-row:last-child {
+    border-bottom: none !important;
 }
 
-.td-action {
-    width: 48px;
-    text-align: center;
-    padding: 10px 8px;
-}
-
-.delete-icon {
-    font-size: clamp(22px, 6vw, 30px);
-    color: #ef4444;
-    cursor: pointer;
-}
-
+/* Pending (journal === '1') members render dimmed, matching the original */
 .highlight-row {
-    color: #80808059;
+    opacity: 0.6;
 }
 
-.below-card-actions {
-    display: flex;
-    justify-content: center;
-    padding: 16px 0 8px;
+/* Ghost delete button uses the error color for the trash icon */
+.fam-del {
+    color: var(--c-error);
+    padding: 0 10px;
 }
 
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-    100% { transform: scale(1); }
-}
-
-.pulse-button {
-    animation: pulse 1.5s infinite;
+.fam-del .mdi {
+    font-size: 20px;
 }
 </style>

@@ -1,108 +1,167 @@
 <template>
-  <div class="container">
-    <div class="container-header">
-      <h1><span class="mdi mdi-account-edit"></span> {{ $t('editProfile.title') }}</h1>
+  <div>
+    <!-- ── Page head ── -->
+    <div class="pg-head">
+      <div class="pg-ico"><span class="mdi mdi-account-edit"></span></div>
+      <div>
+        <div class="id-h1">{{ $t('editProfile.title') }}</div>
+        <div class="pg-sub">{{ $t('editProfile.personalInfo') }}</div>
+      </div>
     </div>
-    <div class="container-content">
-      <v-card class="card-opacity edit-profile-card mx-auto mt-4">
 
-        <!-- ── Profile photo ── -->
-        <div class="profile-photo-section">
-          <div class="profile-container">
-            <div class="profile-wrap">
-              <v-img :src="imagePreview || defaultAvatar" cover width="140" height="140"></v-img>
+    <div class="grid2 grid2-profile">
+      <!-- LEFT: avatar card -->
+      <div class="scard" style="padding:26px;text-align:center">
+        <div class="avatar-up">
+          <img v-if="imagePreview || defaultAvatar" :src="imagePreview || defaultAvatar"
+               class="av-img" alt="profile" />
+          <span v-else class="tt-avatar" style="background:var(--c-primary)">
+            {{ (profile.firstname || '?').charAt(0) }}
+          </span>
+          <label class="avatar-cam" title="เปลี่ยนรูป">
+            <span class="mdi mdi-camera"></span>
+            <input type="file" accept="image/*" style="display:none" @change="handleProfileUpload">
+          </label>
+        </div>
+        <div class="strong" style="font-size:18px;color:var(--c-text-heading)">
+          {{ profile.firstname }} {{ profile.lastname }}
+        </div>
+        <div class="t-cap" style="margin-bottom:14px">@{{ profile.username }}</div>
+        <div class="col" style="gap:8px">
+          <label class="id-btn id-btn-soft id-btn-sm" style="width:100%;cursor:pointer">
+            <span class="mdi mdi-upload"></span> อัปโหลดรูปใหม่
+            <input type="file" accept="image/*" style="display:none" @change="handleProfileUpload">
+          </label>
+          <button v-if="imagePreview" type="button" class="id-btn id-btn-ghost id-btn-sm"
+                  style="width:100%;color:var(--c-error)" @click="removePhoto">
+            <span class="mdi mdi-trash-can-outline"></span> ลบรูป
+          </button>
+        </div>
+      </div>
+
+      <!-- RIGHT: personal info card -->
+      <div class="scard" style="padding:22px">
+        <div class="isk-sec" style="margin-bottom:16px">
+          <span class="mdi mdi-card-account-details-outline" style="color:var(--c-primary)"></span>
+          {{ $t('editProfile.personalInfo') }}
+        </div>
+        <v-form ref="profileForm" class="id-form">
+          <div class="form-grid">
+            <div class="field">
+              <label>{{ $t('register.firstname') }}</label>
+              <input class="id-input" v-model="profile.firstname">
             </div>
-            <label class="profile-upload-btn" for="edit-profile-upload">
-              <v-icon size="18">mdi-camera</v-icon>
-            </label>
-            <input id="edit-profile-upload" type="file" accept="image/*"
-                   style="display:none" @change="handleProfileUpload">
+            <div class="field">
+              <label>{{ $t('register.lastname') }}</label>
+              <input class="id-input" v-model="profile.lastname">
+            </div>
+            <div class="field full">
+              <label>{{ $t('editProfile.email') }}</label>
+              <v-text-field
+                v-model="profile.email"
+                variant="outlined"
+                density="compact"
+                hide-details="auto"
+                type="email"
+                :rules="emailRules"
+                prepend-inner-icon="mdi-email"
+              ></v-text-field>
+            </div>
+            <div class="field full">
+              <label>{{ $t('editProfile.phone') }}</label>
+              <v-text-field
+                v-model="profile.mobileno"
+                variant="outlined"
+                density="compact"
+                hide-details="auto"
+                type="text"
+                @input="acceptNumber"
+                :rules="phoneRules"
+                prepend-inner-icon="mdi-phone"
+              ></v-text-field>
+            </div>
+            <div class="field full">
+              <label>{{ $t('editProfile.address') }}</label>
+              <v-textarea
+                v-model="profile.address"
+                variant="outlined"
+                density="compact"
+                hide-details="auto"
+                rows="3"
+                prepend-inner-icon="mdi-map-marker"
+              ></v-textarea>
+            </div>
           </div>
-          <p class="profile-username">{{ profile.firstname }} {{ profile.lastname }}</p>
-        </div>
-
-        <!-- ── Personal info ── -->
-        <div class="section-header">
-          <span class="mdi mdi-card-account-details-outline"></span> {{ $t('editProfile.personalInfo') }}
-        </div>
-        <v-form ref="profileForm" class="px-6 py-5">
-          <v-text-field
-            v-model="profile.email"
-            :label="$t('editProfile.email')"
-            variant="outlined"
-            type="email"
-            :rules="emailRules"
-            prepend-inner-icon="mdi-email"
-            class="mb-1"
-          ></v-text-field>
-          <v-text-field
-            v-model="profile.mobileno"
-            :label="$t('editProfile.phone')"
-            variant="outlined"
-            type="text"
-            @input="acceptNumber"
-            :rules="phoneRules"
-            prepend-inner-icon="mdi-phone"
-            class="mb-1"
-          ></v-text-field>
-          <v-textarea
-            v-model="profile.address"
-            :label="$t('editProfile.address')"
-            variant="outlined"
-            rows="3"
-            prepend-inner-icon="mdi-map-marker"
-            class="mb-2"
-          ></v-textarea>
-          <v-btn block size="large" class="neu-action-btn mt-2" @click="saveProfile">
-            <v-icon>mdi-content-save</v-icon>
-            &nbsp;{{ $t('editProfile.saveProfile') }}
-          </v-btn>
+          <div class="row" style="gap:10px;margin-top:20px;flex-wrap:wrap">
+            <button type="button" class="id-btn id-btn-primary" @click="saveProfile">
+              <span class="mdi mdi-content-save"></span> {{ $t('editProfile.saveProfile') }}
+            </button>
+          </div>
         </v-form>
+      </div>
+    </div>
 
-        <!-- ── Password change ── -->
-        <div class="section-header">
-          <span class="mdi mdi-lock-outline"></span> {{ $t('editProfile.changePasswordSection') }}
+    <!-- BELOW: change password card -->
+    <div class="scard" style="padding:22px;margin-top:16px">
+      <div class="isk-sec" style="margin-bottom:16px">
+        <span class="mdi mdi-lock-outline" style="color:var(--c-primary)"></span>
+        {{ $t('editProfile.changePasswordSection') }}
+      </div>
+      <v-form ref="passwordForm" class="id-form">
+        <div class="form-grid">
+          <div class="field full">
+            <label>{{ $t('editProfile.currentPassword') }}</label>
+            <v-text-field
+              v-model="password.current"
+              variant="outlined"
+              density="compact"
+              hide-details="auto"
+              :type="showCurrent ? 'text' : 'password'"
+              :rules="passwordRules"
+              prepend-inner-icon="mdi-lock"
+              :append-inner-icon="showCurrent ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
+              @click:append-inner="showCurrent = !showCurrent"
+            ></v-text-field>
+          </div>
+          <div class="field">
+            <label>{{ $t('editProfile.newPassword') }}</label>
+            <v-text-field
+              v-model="password.new"
+              variant="outlined"
+              density="compact"
+              hide-details="auto"
+              :type="showNew ? 'text' : 'password'"
+              :rules="passwordRules"
+              prepend-inner-icon="mdi-lock-plus"
+              :append-inner-icon="showNew ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
+              @click:append-inner="showNew = !showNew"
+            ></v-text-field>
+          </div>
+          <div class="field">
+            <label>{{ $t('editProfile.confirmNewPassword') }}</label>
+            <v-text-field
+              v-model="password.confirm"
+              variant="outlined"
+              density="compact"
+              hide-details="auto"
+              :type="showConfirm ? 'text' : 'password'"
+              :rules="confirmPasswordRules"
+              prepend-inner-icon="mdi-lock-check"
+              :append-inner-icon="showConfirm ? 'mdi-eye-off-outline' : 'mdi-eye-outline'"
+              @click:append-inner="showConfirm = !showConfirm"
+            ></v-text-field>
+            <span v-if="password.confirm && password.new !== password.confirm"
+                  style="font-size:12px;color:var(--c-error)">
+              {{ $t('editProfile.passwordMismatch') }}
+            </span>
+          </div>
         </div>
-        <v-form ref="passwordForm" class="px-6 py-5">
-          <v-text-field
-            v-model="password.current"
-            :label="$t('editProfile.currentPassword')"
-            variant="outlined"
-            :type="showCurrent ? 'text' : 'password'"
-            :rules="passwordRules"
-            prepend-inner-icon="mdi-lock"
-            :append-inner-icon="showCurrent ? 'mdi-eye' : 'mdi-eye-off'"
-            @click:append-inner="showCurrent = !showCurrent"
-            class="mb-1"
-          ></v-text-field>
-          <v-text-field
-            v-model="password.new"
-            :label="$t('editProfile.newPassword')"
-            variant="outlined"
-            :type="showNew ? 'text' : 'password'"
-            :rules="passwordRules"
-            prepend-inner-icon="mdi-lock-plus"
-            :append-inner-icon="showNew ? 'mdi-eye' : 'mdi-eye-off'"
-            @click:append-inner="showNew = !showNew"
-            class="mb-1"
-          ></v-text-field>
-          <v-text-field
-            v-model="password.confirm"
-            :label="$t('editProfile.confirmNewPassword')"
-            variant="outlined"
-            :type="showConfirm ? 'text' : 'password'"
-            :rules="confirmPasswordRules"
-            prepend-inner-icon="mdi-lock-check"
-            :append-inner-icon="showConfirm ? 'mdi-eye' : 'mdi-eye-off'"
-            @click:append-inner="showConfirm = !showConfirm"
-            class="mb-2"
-          ></v-text-field>
-          <v-btn block size="large" class="neu-action-btn mt-2" @click="changePassword">
-            <v-icon>mdi-key-variant</v-icon>
-            &nbsp;{{ $t('editProfile.changePasswordBtn') }}
-          </v-btn>
-        </v-form>
-      </v-card>
+        <div style="margin-top:18px">
+          <button type="button" class="id-btn id-btn-primary" @click="changePassword">
+            <span class="mdi mdi-lock-reset"></span> {{ $t('editProfile.changePasswordBtn') }}
+          </button>
+        </div>
+      </v-form>
     </div>
   </div>
 </template>
@@ -223,6 +282,9 @@ export default {
           this.baseURL + '/updateUserProfile',
           {
             username: userdata.username,
+            firstname: this.profile.firstname,
+            middlename: this.profile.middlename,
+            lastname: this.profile.lastname,
             email: this.profile.email,
             mobileno: this.profile.mobileno,
             address: this.profile.address,
@@ -307,85 +369,46 @@ export default {
         event.target.value = '';
       }
     },
+    async removePhoto() {
+      try {
+        this.$emit('onLoading', true);
+        const userdata = JSON.parse(localStorage.getItem('userdata'));
+        const res = await axios.post(
+          this.baseURL + '/deleteUserProfileImage',
+          { username: userdata.username },
+          { headers: { Authorization: `Bearer ${this.token}` } }
+        );
+        if (res.data && res.data.success) {
+          this.imagePreview = null;
+          this.$emit('onProfileImageUpdated', null);
+          this.$emit('onSuccessHandler', this.$t('msg.deleted'));
+        } else {
+          this.$emit('onErrorHandler', (res.data && res.data.message) || this.$t('msg.uploadFail'));
+        }
+      } catch (e) {
+        this.$emit('onErrorHandler', this.$t('common.errorPrefix') + ': ' + (e.message || ''));
+      } finally {
+        this.$emit('onLoading', false);
+      }
+    },
   },
 };
 </script>
 
 <style scoped>
-.edit-profile-card {
-  max-width: 640px;
+/* Let Vuetify form fields sit flush inside the new-design .field wrappers.
+   Layout (grid/columns) comes from global istar-pages.css (.form-grid/.field). */
+.id-form :deep(.v-field) {
+  border-radius: var(--radius-md);
+  background: var(--c-surface);
+  font-family: var(--font-body);
+}
+.id-form :deep(.v-text-field),
+.id-form :deep(.v-textarea) {
   width: 100%;
-  padding-bottom: 20px;
-  overflow: hidden;
 }
-
-.profile-photo-section {
-  padding: 28px 0 8px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-}
-
-.profile-container {
-  position: relative;
-  display: inline-block;
-}
-
-.profile-wrap {
-  width: 140px;
-  height: 140px;
-  border-radius: 50%;
-  overflow: hidden;
-  background: #e0e5ec;
-  box-shadow: 0 6px 16px rgba(163, 177, 198, 0.4);
-}
-
-.profile-upload-btn {
-  position: absolute;
-  bottom: 4px;
-  right: 4px;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: #f43f5e;
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 3px 10px rgba(244, 63, 94, 0.5);
-  transition: transform 0.15s ease;
-}
-
-.profile-upload-btn:hover {
-  transform: scale(1.05);
-}
-
-.profile-username {
-  margin: 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #334155;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  font-size: 12px;
-  font-weight: 700;
-  color: #475569;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  background: linear-gradient(to right, #eef0f5, #f5f7fb);
-  border-bottom: 1px solid rgba(163, 177, 198, 0.18);
-  border-top: 1px solid rgba(163, 177, 198, 0.18);
-}
-
-.section-header .mdi {
-  color: #6366f1;
-  font-size: 15px;
+.id-form :deep(.v-input__details) {
+  padding-top: 2px;
+  min-height: 0;
 }
 </style>

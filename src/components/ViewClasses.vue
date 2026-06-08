@@ -1,37 +1,27 @@
 <template>
-    <div class="container">
-        <div class="container-header">
-            <h1><span class="mdi mdi-table-eye"></span> {{ $t('viewClasses.title') }}</h1>
+    <div>
+        <div class="pg-head">
+            <div class="pg-ico"><span class="mdi mdi-table-eye"></span></div>
+            <div>
+                <div class="id-h1">{{ $t('viewClasses.title') }}</div>
+                <div class="pg-sub">{{ $t('viewClasses.viewByDate') }}</div>
+            </div>
         </div>
-        <div class="container-content">
-            <div class="mx-auto mt-4">
-                <v-row>
-                    <v-col cols="12" sm="12" md="4" xl="3">
-                        <v-card class="mx-0 card-opacity viewclasses-card" height="540">
-                            <div class="istar-deco-stars">
-                                <span class="mdi mdi-star-four-points deco-star-side"></span>
-                                <span class="mdi mdi-star-shooting deco-star-main"></span>
-                                <span class="mdi mdi-star-four-points deco-star-side"></span>
-                            </div>
-                            <v-list-item class="header-card">
-                                <v-card-title class="text-center">{{ $t('viewClasses.viewByDate') }}</v-card-title>
-                            </v-list-item>
-                            <v-container>
-                                <v-row justify="space-around">
-                                    <v-date-picker class="datepick" v-model="datepick"
-                                        @update:model-value="selectDate"></v-date-picker>
-                                </v-row>
-                            </v-container>
-                        </v-card>
-                    </v-col>
-                    <v-col cols="12" sm="12" md="8" xl="9">
-                        <BookingList @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
-                            @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
-                            @onLoading="onLoading($event)" :bookingHeaders="bookingHeaders" :bookingData="bookingList"
-                            :classdate="datepick" :loadingBooking="loadingBooking">
-                        </BookingList>
-                    </v-col>
-                </v-row>
+
+        <div class="grid2 grid2-booking">
+            <div class="scard" style="padding:16px;align-self:start;max-width:340px;width:100%">
+                <div class="step-head"><span class="mdi mdi-calendar-month-outline" style="color:var(--c-primary);font-size:22px"></span> {{ $t('viewClasses.viewByDate') }}</div>
+                <id-calendar
+                    :model-value="datepick ? (datepick.getFullYear() + '-' + (datepick.getMonth() + 1) + '-' + datepick.getDate()) : ''"
+                    @update:model-value="key => { const p = key.split('-'); datepick = new Date(+p[0], +p[1] - 1, +p[2]); selectDate(); }">
+                </id-calendar>
+            </div>
+            <div>
+                <BookingList @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
+                    @onClickChangeState="onClickChangeState($event)" @onUpdateDataSuccess="refreshData"
+                    @onLoading="onLoading($event)" :bookingHeaders="bookingHeaders" :bookingData="bookingList"
+                    :classdate="datepick" :loadingBooking="loadingBooking">
+                </BookingList>
             </div>
         </div>
     </div>
@@ -201,40 +191,7 @@ const DashboardAPI = {
 }
 </script>
 <style scoped>
-.font-card {
-    font-size: 20px;
-    font-weight: bold;
-}
-
-button span.mdi,
-.dashboard-card span.mdi {
-    font-size: 22px;
-    margin-right: 5px;
-}
-
-.dashboard-card:hover {
-    background-color: rgba(187, 187, 187, 0.342);
-    cursor: pointer;
-}
-
-/* Neumorphic date picker blending */
-:deep(.v-date-picker) {
-    background: transparent !important;
-}
-
-:deep(.v-date-picker__header) {
-    background: transparent !important;
-}
-
-:deep(.v-date-picker-controls) {
-    background: transparent !important;
-}
-
-:deep(.v-date-picker-month) {
-    background: transparent !important;
-}
-
-:deep(.datepick) {
-    background: transparent !important;
-}
+/* Layout comes from global istar-pages.css (.pg-head, .grid2-booking, .scard,
+   .step-head) and istar-design.css. The calendar is the global <id-calendar>
+   styled by global .cal-* rules — no scoped overrides needed here. */
 </style>

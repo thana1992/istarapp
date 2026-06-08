@@ -74,6 +74,29 @@ axios.get(this.baseURL + '/endpoint', {
 
 Booking tables use inline color markers in cell text: `(red)`, `(green)`, `(blue)`, `(yellow)`, `(pink)` — these are stripped before rendering and used to apply background colors. `(1)` adds the `highlighted-blackground` class. See `BookingList.vue` for the template slot pattern.
 
+### Data Grid Standard — **MUST FOLLOW**
+
+Every data grid must look and behave identically. Two implementations exist and **both follow the same rules**:
+- **`.idt` tables** — the standard grid (`<table class="idt">` or the `IdDataGrid.vue` component). Used by most admin lists (Gymnast List, Customer Courses, Course History, Classes, Courses).
+- **Vuetify `<v-data-table>`** — used by Booking Management and a few in-dialog sub-tables.
+
+Shared rules, defined **once** in `src/assets/istar-pages.css` under the "SYSTEM GRID STANDARD" comment block:
+
+1. **Single line + horizontal scroll, at ALL screen sizes.** Cells are `white-space: nowrap`; the wrapper (`.scard > div` or `.v-table__wrapper`) has `overflow-x: auto`. Data is **never** wrapped to a new line and **never** truncated with `…` / `text-overflow: ellipsis`. (The old `@media (min-width:1280px)` rule that switched `.idt` to `table-layout: fixed` + ellipsis on wide screens was removed — it hid data. Mobile already scrolled; now every width does.)
+2. **Headers bold, data normal weight.** `.idt th` is `font-weight:700`; `.idt td` is normal. Do **not** wrap individual data cells in `<b>`/`<strong>` to emphasize one column — that is exactly what made `fullname` / `courserefer` inconsistently bold across grids. Identifier/reference cells use the `.id-copy` helper (plain text + a `.id-copy-btn` copy icon), not bold.
+3. **Action columns** (`edit`/`delete`/`finish`/`view`/`actions`…) get the `idt-action` class — narrow (64px), centered, pinned right.
+
+**Exception:** the **ViewClasses timetable** (`ตารางเรียน`) is intentionally custom — it uses neither `.idt` nor `v-data-table` and is exempt. Do not "normalize" it.
+
+Before changing grid styling, follow the **Stylesheet Modification Protocol** below (grep for duplicate/competing selectors across `istar-pages.css`, `global-style.css`, and component `<style scoped>`).
+
+### Dialog Standard — **MUST FOLLOW**
+
+Every view / add / edit dialog (`<v-dialog>`) must fit the viewport **horizontally** at all sizes:
+- **No horizontal overflow, no horizontal scrollbar.** Long content wraps; the dialog scrolls **vertically** only (a vertical scrollbar is acceptable).
+- Enforced globally in `src/assets/istar-pages.css` ("SYSTEM DIALOG STANDARD"): `.v-dialog .v-card / .v-card-text { overflow-x: hidden }` + `overflow-wrap: break-word` + `img/.v-img { max-width:100% }`.
+- **Responsive columns are part of the standard:** inside dialog forms, every `<v-col>` must be `cols="12"` on extra-small screens (only narrow to `sm`/`md` on larger breakpoints). A sub-12 xs value like `cols="6"` / `cols="3"` squeezes a field/label into a sliver on mobile and its text wraps one character per line — never set a sub-12 `cols` (the xs value).
+
 ### Theme System
 
 User-selectable themes via picker in navigation drawer (saved to localStorage + backend `/saveAppSettings`). Halloween/Christmas also have animated overlay components.

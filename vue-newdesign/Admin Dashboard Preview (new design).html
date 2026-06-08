@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iStar — Admin Dashboard · พรีวิวดีไซน์ใหม่</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@3.4.11/dist/vuetify.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="istar-design.css" />
+  <style>
+    body { margin: 0; background: var(--c-bg-grad); min-height: 100vh; font-family: var(--font-body); }
+    .shell { max-width: 1160px; margin: 0 auto; padding: 22px 20px 60px; }
+    .pv-note { background:#fff; border:1px solid var(--c-border); border-radius:var(--radius-md); padding:10px 14px;
+      margin-bottom:16px; font-size:13px; color:var(--c-text-body); box-shadow:var(--shadow-sm); }
+    .pv-note b { color: var(--c-primary-dark); }
+    /* dashboard chrome (mirrors Dashboard.vue scoped styles) */
+    .dash-head { display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:6px; }
+    .dash-ico { width:46px; height:46px; border-radius:14px; display:grid; place-items:center; background:var(--c-primary); color:#fff; box-shadow:var(--shadow-sm); }
+    .dash-ico .mdi { font-size:24px; }
+    .dash-sub { font-size:13px; color:var(--c-text-muted); margin:2px 0 0; }
+    .dash-actions { display:flex; flex-wrap:wrap; gap:8px; }
+    .qa .mdi { font-size:18px; }
+    .qa-pink{color:#be185d;} .qa-amber{color:#b45309;} .qa-cyan{color:#0e7490;} .qa-orange{color:#c2410c;}
+    .stat-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; margin:14px 0; }
+    @media (max-width:1100px){ .stat-grid{ grid-template-columns:repeat(3,1fr);} }
+    @media (max-width:700px){ .stat-grid{ grid-template-columns:repeat(2,1fr);} }
+    .stat-card { position:relative; overflow:hidden; background:var(--c-surface); border:1px solid var(--c-border);
+      border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); padding:16px 16px 18px; cursor:pointer; min-height:118px;
+      transition:transform .15s, box-shadow .15s; }
+    .stat-card:hover { transform:translateY(-3px); box-shadow:var(--shadow-md); }
+    .stat-card.active { outline:2px solid var(--c-primary); outline-offset:-2px; }
+    .stat-accent { position:absolute; top:0; left:0; right:0; height:4px; }
+    .stat-top { display:flex; align-items:center; justify-content:space-between; gap:8px; }
+    .stat-ico { width:38px; height:38px; border-radius:12px; display:grid; place-items:center; }
+    .stat-ico .mdi { font-size:20px; }
+    .stat-label { font-size:12px; font-weight:600; color:var(--c-text-muted); }
+    .stat-value { font-family:var(--font-head); font-weight:800; font-size:30px; color:var(--c-text-heading); line-height:1; margin:10px 0 6px; }
+    .stat-meta { font-size:12px; color:var(--c-text-muted); }
+    .stat-progress { position:absolute; left:0; right:0; bottom:0; height:6px; background:rgba(0,0,0,.08); }
+    .stat-progress-fill { height:100%; transition:width .7s; }
+    .pulse { animation:dp 2.4s ease-in-out infinite; }
+    @keyframes dp { 0%,100%{box-shadow:var(--shadow-sm);} 50%{box-shadow:0 0 0 4px rgba(245,158,11,.18),var(--shadow-md);} }
+    .dash-content { display:grid; grid-template-columns:300px 1fr; gap:16px; align-items:start; }
+    @media (max-width:960px){ .dash-content{ grid-template-columns:1fr; } }
+    .cal-card { padding:16px; }
+    .cal-head { display:flex; align-items:center; gap:8px; font-family:var(--font-head); font-weight:700; color:var(--c-text-heading); margin-bottom:12px; }
+    .cal-head .mdi { color:var(--c-primary); font-size:18px; }
+    .cal { display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+    .cal-dow { text-align:center; font-size:11px; font-weight:700; color:var(--c-text-muted); padding:2px 0; }
+    .cal-cell { aspect-ratio:1; display:grid; place-items:center; border-radius:9px; cursor:pointer; font-size:13px; font-weight:600;
+      color:var(--c-text-body); border:1.5px solid transparent; }
+    .cal-cell:hover { background:var(--c-surface-3); }
+    .cal-cell.on { background:var(--c-primary); color:#fff; }
+    .content-card { padding:16px; min-height:520px; }
+    .panel-head { display:flex; align-items:center; gap:8px; margin-bottom:12px; }
+    .panel-head .mdi { color:var(--c-primary); font-size:20px; }
+    .form-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+    @media (max-width:760px){ .form-grid{ grid-template-columns:1fr; } }
+    .id-table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+    .id-table th{ text-align:left; font-family:var(--font-head); font-weight:700; color:var(--c-text-heading); padding:10px 12px; background:var(--c-surface-2); border-bottom:2px solid var(--c-border); white-space:nowrap; }
+    .id-table td{ padding:10px 12px; border-bottom:1px solid var(--c-border); white-space:nowrap; }
+    .id-table tbody tr:hover td{ background:var(--c-surface-3); }
+    .id-act .mdi{ cursor:pointer; font-size:18px; padding:0 5px; }
+    .id-act .mdi-pencil{ color:var(--c-info); } .id-act .mdi-delete-forever{ color:var(--c-error); }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="shell">
+      <div class="pv-note">🔎 <b>พรีวิว Admin Dashboard (ดีไซน์ใหม่)</b> — สะท้อน Dashboard.vue จริง · <b>คลิกการ์ดสถิติ</b> เพื่อสลับพาเนล · <b>คลิกชื่อนักเรียนใน roster</b> → เช็คอิน/แก้ไข</div>
+
+      <!-- header -->
+      <div class="dash-head">
+        <div class="row" style="gap:14px">
+          <div class="dash-ico"><span class="mdi mdi-view-dashboard"></span></div>
+          <div><h1 class="id-h1">แดชบอร์ด</h1><p class="dash-sub">ภาพรวมระบบจัดการคลาส iStar</p></div>
+        </div>
+        <div class="dash-actions">
+          <button class="id-btn id-btn-soft id-btn-sm qa qa-pink" @click="openForm('student')"><span class="mdi mdi-emoticon-plus-outline"></span> เพิ่มนักเรียน</button>
+          <button class="id-btn id-btn-soft id-btn-sm qa qa-amber" @click="openForm('course')"><span class="mdi mdi-book-plus-outline"></span> เพิ่มคอร์ส</button>
+          <button class="id-btn id-btn-soft id-btn-sm qa qa-cyan" @click="openForm('booking')"><span class="mdi mdi-calendar-plus-outline"></span> เพิ่มการจอง</button>
+          <button class="id-btn id-btn-soft id-btn-sm qa qa-orange" @click="openForm('holiday')"><span class="mdi mdi-door-sliding-lock"></span> เพิ่มวันหยุด</button>
+        </div>
+      </div>
+
+      <!-- stat cards -->
+      <div class="stat-grid">
+        <div v-for="s in stats" :key="s.key" class="stat-card" :class="{ active: isActiveCard(s), pulse: s.key==='pending' && s.value>0 }"
+          :style="s.bg ? { background: s.bg } : {}" @click="onStat(s)">
+          <div class="stat-accent" :style="{ background: s.accent }"></div>
+          <div class="stat-top">
+            <span class="stat-label">{{ s.label }}</span>
+            <span class="stat-ico" :style="{ background: s.icoBg, color: s.icoFg }"><span class="mdi" :class="s.icon"></span></span>
+          </div>
+          <div class="stat-value">{{ s.value }}</div>
+          <div class="stat-meta">{{ s.unit }}</div>
+          <div v-if="s.peak" class="stat-progress"><div class="stat-progress-fill" :style="{ width: Math.min(s.value/s.peak*100,100)+'%', background: s.value/s.peak<0.6?'#22c55e':s.value/s.peak<0.85?'#f59e0b':'#ef4444' }"></div></div>
+        </div>
+      </div>
+
+      <!-- calendar + content -->
+      <div class="dash-content">
+        <div class="id-card cal-card">
+          <div class="cal-head"><span class="mdi mdi-calendar-month-outline"></span> ดูตามวันที่</div>
+          <div class="cal">
+            <div v-for="d in ['อา','จ','อ','พ','พฤ','ศ','ส']" :key="d" class="cal-dow">{{ d }}</div>
+            <div v-for="n in 30" :key="n" class="cal-cell" :class="{ on: n===selDay }" @click="selDay=n; panel='today'; toast('เลือกวันที่ '+n)">{{ n }}</div>
+          </div>
+        </div>
+
+        <div class="id-card content-card">
+          <!-- roster (today/tomorrow) -->
+          <div v-show="panel==='today' || panel==='tomorrow'">
+            <booking-roster :classdate="activeDate" :booking-headers="headers" :booking-data="activeRows" :loading-booking="false" @student-clicked="onEdit"></booking-roster>
+          </div>
+          <!-- approve queue -->
+          <div v-show="panel==='pending'">
+            <div class="panel-head"><span class="mdi mdi-account-clock"></span><div class="id-h2">นักเรียนใหม่รออนุมัติ</div></div>
+            <div v-for="p in pending" :key="p.name" class="row" style="justify-content:space-between;padding:12px 4px;border-bottom:1px solid var(--c-border)">
+              <div class="row" style="gap:10px"><span class="tt-avatar" :style="{background:p.color}">{{ p.name.replace('น้อง','').charAt(0) }}</span><div class="col" style="gap:1px"><span class="strong">{{ p.name }}</span><span class="t-cap">{{ p.note }}</span></div></div>
+              <button class="id-btn id-btn-success id-btn-sm" @click="approve(p)"><span class="mdi mdi-check"></span> อนุมัติ</button>
+            </div>
+          </div>
+          <!-- student list (mirrors Student.vue: searchable + all/active filter) -->
+          <div v-show="panel==='students'">
+            <div class="panel-head" style="justify-content:space-between">
+              <div class="row" style="gap:8px"><span class="mdi mdi-account-group"></span><div class="id-h2">{{ studentFilter==='active' ? 'นักเรียนกำลังเรียน (active)' : 'นักเรียนทั้งหมด' }}</div></div>
+              <span class="badge badge-primary">{{ filteredStudents.length }} คน</span>
+            </div>
+            <v-text-field v-model="studentSearch" density="compact" variant="solo-filled" flat hide-details
+              prepend-inner-icon="mdi-magnify" placeholder="ค้นหาชื่อ / คอร์ส" style="margin-bottom:10px"></v-text-field>
+            <div v-if="filteredStudents.length===0" class="id-empty"><div class="mdi mdi-account-search-outline"></div><div style="margin-top:6px">ไม่พบนักเรียน</div></div>
+            <div v-else style="overflow-x:auto">
+              <table class="id-table">
+                <thead><tr>
+                  <th>ชื่อ</th><th>ชื่อเล่น</th><th>เพศ</th><th>อายุ</th><th>Level</th><th>คอร์ส</th>
+                  <th>คงเหลือ</th><th>วันหมดอายุ</th><th>เบอร์โทร</th><th style="text-align:center">จัดการ</th>
+                </tr></thead>
+                <tbody>
+                  <tr v-for="st in filteredStudents" :key="st.name">
+                    <td><div class="row" style="gap:8px"><span class="tt-avatar" :style="{background:st.color}">{{ st.name.replace('น้อง','').charAt(0) }}</span><b>{{ st.name }}</b></div></td>
+                    <td>{{ st.nickname }}</td>
+                    <td>{{ st.gender }}</td>
+                    <td>{{ st.age }}</td>
+                    <td style="text-align:center">{{ st.level }}</td>
+                    <td>{{ st.course }}</td>
+                    <td style="text-align:center"><span class="badge" :class="st.remaining<=2?'badge-warning':'badge-primary'">{{ st.remaining }} ครั้ง</span></td>
+                    <td><span :style="{ color: !st.active ? 'var(--c-error)' : 'inherit' }">{{ st.expire }}</span></td>
+                    <td style="text-align:center">{{ st.phone }}</td>
+                    <td class="id-act" style="text-align:center;white-space:nowrap">
+                      <span class="mdi mdi-pencil" title="แก้ไข" @click="openForm('edit', st)"></span>
+                      <span class="mdi mdi-delete-forever" title="ลบ" @click="removeStudent(st)"></span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <v-dialog v-model="formDialog" width="860">
+      <div class="id-card" style="overflow:hidden">
+        <div style="background:linear-gradient(135deg,var(--c-primary),var(--c-secondary));color:#fff;padding:16px 20px;font-family:var(--font-head);font-weight:700;display:flex;align-items:center;gap:10px">
+          <span class="mdi" :class="formIcon" style="font-size:22px"></span> {{ formTitle }}
+        </div>
+        <div style="padding:20px;max-height:64vh;overflow:auto">
+          <div v-if="formPhoto" style="text-align:center;margin-bottom:18px">
+            <span class="tt-avatar" style="width:96px;height:96px;font-size:34px;margin:0 auto;background:var(--c-primary);border:4px solid var(--c-surface);box-shadow:0 0 0 3px var(--c-primary-light)">{{ (formModel.nickname||'+').charAt(0) }}</span>
+          </div>
+          <div v-for="(sec,si) in formSections" :key="si" style="margin-bottom:18px">
+            <div class="group-header" style="margin-bottom:12px">{{ sec.title }}</div>
+            <div class="form-grid">
+              <div v-for="f in sec.fields" :key="f.key" :style="{ gridColumn: f.full ? '1 / -1' : 'auto' }">
+                <v-autocomplete v-if="f.type==='lookup'" :label="f.label" :items="f.items" v-model="formModel[f.key]" variant="solo-filled" flat hide-details density="comfortable" clearable></v-autocomplete>
+                <v-select v-else-if="f.type==='select'" :label="f.label" :items="f.items" v-model="formModel[f.key]" variant="solo-filled" flat hide-details density="comfortable"></v-select>
+                <v-textarea v-else-if="f.type==='textarea'" :label="f.label" v-model="formModel[f.key]" variant="solo-filled" flat hide-details rows="2"></v-textarea>
+                <v-switch v-else-if="f.type==='toggle'" :label="f.label" v-model="formModel[f.key]" color="primary" hide-details density="comfortable"></v-switch>
+                <v-checkbox v-else-if="f.type==='checkbox'" :label="f.label" v-model="formModel[f.key]" color="primary" hide-details density="comfortable"></v-checkbox>
+                <v-file-input v-else-if="f.type==='file'" :label="f.label" variant="solo-filled" flat hide-details density="comfortable" prepend-icon="mdi-camera"></v-file-input>
+                <v-text-field v-else :label="f.label" :type="f.type||'text'" v-model="formModel[f.key]" :readonly="f.readonly" variant="solo-filled" flat hide-details density="comfortable"></v-text-field>
+              </div>
+            </div>
+          </div>
+          <div v-if="formHistory">
+            <div class="group-header" style="margin-bottom:12px">ประวัติการใช้คอร์สปัจจุบัน</div>
+            <div style="overflow-x:auto"><table class="id-table">
+              <thead><tr><th>#</th><th>ชื่อ</th><th>วันที่</th><th>เวลา</th></tr></thead>
+              <tbody><tr v-for="(h,i) in courseHistory" :key="i"><td>{{ i+1 }}</td><td>{{ h.name }}</td><td>{{ h.date }}</td><td>{{ h.time }}</td></tr></tbody>
+            </table></div>
+          </div>
+        </div>
+        <div style="padding:12px 20px;border-top:1px solid var(--c-border);display:flex;justify-content:flex-end;gap:8px">
+          <button class="id-btn id-btn-ghost id-btn-sm" @click="formDialog=false">ยกเลิก</button>
+          <button class="id-btn id-btn-primary id-btn-sm" @click="saveForm">บันทึก</button>
+        </div>
+      </div>
+    </v-dialog>
+    <v-snackbar v-model="sb" :timeout="2200" location="top" color="#ec4899">{{ sbText }}</v-snackbar>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.4.21/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@3.4.11/dist/vuetify.min.js"></script>
+  <script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const { createApp } = Vue;
+    const vuetify = Vuetify.createVuetify();
+    const T = {
+      'bookingList.classBooking':'การจองคลาส','bookingMgmt.bookings':'รายการ','bookingList.legend':'สัญลักษณ์',
+      'bookingList.legendNormal':'ปกติ','bookingList.legendTrial':'ทดลองเรียน','bookingList.legendPerSession':'เรียนรายครั้ง',
+      'bookingList.legendChecked':'เช็คอินแล้ว','bookingList.legendPayment':'ต้องชำระเงิน','bookingMgmt.noBooking':'ยังไม่มีการจอง',
+      'bookingList.menuCheckedInBadge':'เช็คอินแล้ว','bookingList.menuCheckin':'เช็คอิน','bookingList.menuUndoCheckin':'ยกเลิกเช็คอิน',
+      'bookingList.menuEdit':'แก้ไขข้อมูลการจอง','bookingMgmt.confirmCheckin':p=>`ยืนยันการเช็คอินของ ${p.name}?`,
+      'bookingMgmt.confirmUndoCheckin':p=>`ยกเลิกการเช็คอินของ ${p.name}?`,'btn.ok':'ยืนยัน','btn.cancel':'ยกเลิก',
+    };
+    const $t = (k,p)=>{ const v=T[k]; return typeof v==='function'?v(p||{}):(v||k); };
+
+    const BookingRoster = {
+      template: document.getElementById('tpl-roster').innerHTML,
+      props: { classdate:{type:Date}, bookingHeaders:{type:Array}, bookingData:{type:Array}, loadingBooking:{type:Boolean} },
+      data(){ return { options:{weekday:'long',year:'numeric',month:'long',day:'numeric'}, menuOpen:false, menuPos:{x:0,y:0}, checkinConfirmDialog:false, selectedStudent:null, selectedSlotKey:'' }; },
+      mounted(){ document.addEventListener('mousedown',this.onDocumentMousedown,true); document.addEventListener('keydown',this.onDocumentKeydown); },
+      beforeUnmount(){ document.removeEventListener('mousedown',this.onDocumentMousedown,true); document.removeEventListener('keydown',this.onDocumentKeydown); },
+      computed: {
+        columns(){ const cols=[]; (this.bookingHeaders||[]).forEach(h=>{ if(h.key==='idx')return; const items=[]; (this.bookingData||[]).forEach(row=>{const v=row[h.key]; if(v&&typeof v==='object')items.push(v);}); cols.push({key:h.key,time:h.title,items,checkedN:items.filter(s=>this.isCellChecked(s)).length,courses:this.courseSummary(items)}); }); return cols; },
+        totalCount(){ return this.columns.reduce((n,c)=>n+c.items.length,0); },
+        menuStyle(){ return {position:'fixed',left:this.menuPos.x+'px',top:this.menuPos.y+'px',zIndex:2400}; },
+        selectedStudentName(){ const s=this.selectedStudent; if(!s)return''; if(typeof s==='object'&&s.name)return this.stripMarkers(s.name); return''; },
+        isCheckedIn(){ const s=this.selectedStudent; if(!s||typeof s!=='object')return false; if(s.checkedin!=null)return parseInt(s.checkedin)===1; return typeof s.name==='string'&&s.name.includes('(1)'); },
+      },
+      methods: {
+        $t,
+        onPillClick(e,value,key){ if(!value||typeof value!=='object')return; const pad=8,mw=210,mh=150; let x=e.clientX,y=e.clientY; if(x+mw>innerWidth-pad)x=innerWidth-mw-pad; if(y+mh>innerHeight-pad)y=innerHeight-mh-pad; this.menuPos={x,y}; this.selectedStudent=value; this.selectedSlotKey=key; this.menuOpen=true; },
+        onDocumentMousedown(e){ if(!this.menuOpen)return; const t=e.target; if(t&&t.closest&&(t.closest('.popmenu')||t.closest('.tt-pill')))return; this.menuOpen=false; },
+        onDocumentKeydown(e){ if(e.key==='Escape'&&this.menuOpen)this.menuOpen=false; },
+        onChooseEdit(){ const v=this.selectedStudent,k=this.selectedSlotKey; this.menuOpen=false; this.$nextTick(()=>this.$emit('student-clicked',v,k)); },
+        onChooseCheckin(){ this.menuOpen=false; this.$nextTick(()=>{this.checkinConfirmDialog=true;}); },
+        confirmCheckin(){ const s=this.selectedStudent; this.checkinConfirmDialog=false; if(s)s.checkedin=this.isCellChecked(s)?0:1; },
+        stripMarkers(n){ if(typeof n!=='string')return''; return n.replace('(1)','').replace('(red)','').replace('(green)','').replace('(blue)','').replace('(yellow)','').replace('(pink)','').replace('(pay)','').trim(); },
+        displayName(s){ return s&&typeof s==='object'?this.stripMarkers(s.name):''; },
+        warningText(s){ return s&&typeof s==='object'&&s.msg?s.msg:''; },
+        isCellChecked(s){ if(!s||typeof s!=='object')return false; if(s.checkedin!=null)return parseInt(s.checkedin)===1; return typeof s.name==='string'&&s.name.includes('(1)'); },
+        needPay(s){ return s&&typeof s==='object'&&typeof s.name==='string'&&s.name.includes('(pay)'); },
+        pillClass(s){ const c=[]; if(this.isCellChecked(s))c.push('checked'); if(s&&typeof s.name==='string'){ if(s.name.includes('(blue)'))c.push('trial'); else if(s.name.includes('(pink)'))c.push('session'); } return c; },
+        avatarInitial(s){ const n=this.displayName(s); return n?n.replace('น้อง','').charAt(0):'?'; },
+        avatarColor(s){ const p=['#ec4899','#a855f7','#3b82f6','#10b981','#f59e0b','#06b6d4']; const n=this.displayName(s); let h=0; for(let i=0;i<n.length;i++)h=(h*31+n.charCodeAt(i))%p.length; return p[h]; },
+        courseSummary(items){ return [...new Set(items.map(s=>(s&&s.coursename)||'').filter(Boolean))].join(', '); },
+      },
+    };
+
+    function mk(name,o){ return Object.assign({name,reservationid:Math.random(),studentid:Math.random()},o); }
+    const headers=[{title:'No.',key:'idx'},{title:'16:00',key:'16:00'},{title:'17:00',key:'17:00'},{title:'18:00',key:'18:00'},{title:'19:00',key:'19:00'}];
+    const slot={
+      '16:00':[mk('น้องเฟิร์น(1)',{checkedin:1,coursename:'ยิมนาสติก ระดับกลาง'}),mk('น้องเกรซ(blue)',{coursename:'ทดลองเรียน',msg:'ทดลองเรียน'}),mk('น้องบีม(pay)',{coursename:'ยิมนาสติก ระดับกลาง',msg:'คอร์สหมดอายุ'}),mk('น้องข้าวปุ้น',{coursename:'ยิมนาสติก ระดับกลาง'})],
+      '17:00':[mk('น้องโตโต้(1)',{checkedin:1,coursename:'ยิมนาสติก เริ่มต้น'}),mk('น้องพีพี',{coursename:'ยิมนาสติก เริ่มต้น'}),mk('น้องเอม(pink)',{coursename:'เรียนรายครั้ง',msg:'เรียนรายครั้ง'})],
+      '18:00':[mk('น้องนาโน(1)',{checkedin:1,coursename:'แอโรบิก'}),mk('น้องริว',{coursename:'แอโรบิก'}),mk('น้องใบเฟิร์น',{coursename:'แอโรบิก'}),mk('น้องมะลิ',{coursename:'แอโรบิก'}),mk('น้องกัปตัน(pay)',{coursename:'แอโรบิก',msg:'เหลือ 0 ครั้ง'})],
+      '19:00':[mk('น้องอลิส',{coursename:'ตีลังกา'}),mk('น้องเจได',{coursename:'ตีลังกา'})],
+    };
+    const maxLen=Math.max(...Object.values(slot).map(a=>a.length));
+    const rows=Array.from({length:maxLen},(_,i)=>{ const r={idx:i+1}; headers.forEach(h=>{ if(h.key!=='idx')r[h.key]=slot[h.key][i]||''; }); return r; });
+
+    // tomorrow = a different, lighter schedule (9 bookings)
+    const slotT={
+      '16:00':[mk('น้องปลื้ม',{coursename:'ยิมนาสติก ระดับกลาง'}),mk('น้องโอ๊ต(blue)',{coursename:'ทดลองเรียน',msg:'ทดลองเรียน'})],
+      '17:00':[mk('น้องน้ำหอม(pay)',{coursename:'ยิมนาสติก เริ่มต้น',msg:'เหลือ 0 ครั้ง'}),mk('น้องบิว',{coursename:'ยิมนาสติก เริ่มต้น'}),mk('น้องมายด์',{coursename:'ยิมนาสติก เริ่มต้น'})],
+      '18:00':[mk('น้องจิ๋ว',{coursename:'แอโรบิก'}),mk('น้องฟ้า(pink)',{coursename:'เรียนรายครั้ง',msg:'เรียนรายครั้ง'}),mk('น้องปอง',{coursename:'แอโรบิก'})],
+    };
+    const maxLenT=Math.max(...Object.values(slotT).map(a=>a.length));
+    const rowsTomorrow=Array.from({length:maxLenT},(_,i)=>{ const r={idx:i+1}; headers.forEach(h=>{ if(h.key!=='idx')r[h.key]=(slotT[h.key]||[])[i]||''; }); return r; });
+
+    createApp({
+      components:{ BookingRoster },
+      data(){ return {
+        classdate:new Date(), headers, rows, rowsTomorrow, sb:false, sbText:'', panel:'today', selDay:8,
+        formDialog:false, formTitle:'', formIcon:'', formSections:[], formModel:{}, formPhoto:false, formHistory:false,
+        lookups:{ parents:['Karnphitcha','Somchai','Nipawan','Thanawat'], courses:['GA-20260515-0001','GA-20260515-0002','AE-20260601-0007'], courseNames:['ยิมนาสติก ระดับกลาง','ยิมนาสติก เริ่มต้น','แอโรบิก','ตีลังกา (Tumbling)'], courseTypes:['ยิมนาสติก','แอโรบิก','ตีลังกา','มวยไทยเด็ก'], students:['น้องเฟิร์น','น้องพราว','น้องเกรซ','น้องบีม'], times:['16:00','17:00','18:00','19:00'] },
+        courseHistory:[ {name:'ยิมนาสติก ระดับกลาง',date:'06/06/2026',time:'17:00'}, {name:'ยิมนาสติก ระดับกลาง',date:'04/06/2026',time:'17:00'}, {name:'ยิมนาสติก ระดับกลาง',date:'01/06/2026',time:'17:00'} ],
+        stats:[
+          { key:'total', panel:'students', filter:'all', label:'นักเรียนทั้งหมด', value:26, unit:'คน', icon:'mdi-account-group', accent:'linear-gradient(90deg,#3b82f6,#06b6d4)', icoBg:'#dbeafe', icoFg:'#2563eb' },
+          { key:'active', panel:'students', filter:'active', label:'กำลังเรียน', value:23, unit:'คน', icon:'mdi-account-check', accent:'linear-gradient(90deg,#10b981,#34d399)', icoBg:'#d1fae5', icoFg:'#047857' },
+          { key:'today', panel:'today', label:'จองวันนี้', value:14, unit:'การจอง', icon:'mdi-calendar-today', accent:'linear-gradient(90deg,#06b6d4,#0284c7)', icoBg:'#cffafe', icoFg:'#0e7490', peak:100 },
+          { key:'tomorrow', panel:'tomorrow', label:'จองพรุ่งนี้', value:8, unit:'การจอง', icon:'mdi-calendar-arrow-right', accent:'linear-gradient(90deg,#8b5cf6,#6366f1)', icoBg:'#ede9fe', icoFg:'#7c3aed', peak:100 },
+          { key:'pending', panel:'pending', label:'รออนุมัติ', value:3, unit:'คน', icon:'mdi-account-multiple-check', accent:'linear-gradient(90deg,#f59e0b,#f97316)', icoBg:'#fef3c7', icoFg:'#b45309' },
+        ],
+        pending:[
+          { name:'น้องมิ้นต์', color:'#a855f7', note:'ผู้ปกครอง: คุณแม่ดาว · 7 ขวบ' },
+          { name:'น้องโฟกัส', color:'#3b82f6', note:'ผู้ปกครอง: คุณพ่อโต้ง · 6 ขวบ' },
+          { name:'น้องเพลง', color:'#ec4899', note:'ผู้ปกครอง: คุณแม่กิ่ง · 8 ขวบ' },
+        ],
+        students:[
+          { name:'น้องเฟิร์น', nickname:'เฟิร์น', gender:'หญิง', age:'9.2', level:2, color:'#ec4899', course:'ยิมนาสติก ระดับกลาง', remaining:7, expire:'30/06/2026', phone:'081-234-5678', active:true },
+          { name:'น้องพราว', nickname:'พราว', gender:'หญิง', age:'6.5', level:1, color:'#a855f7', course:'ยิมนาสติก เริ่มต้น', remaining:1, expire:'12/06/2026', phone:'089-111-2233', active:true },
+          { name:'น้องเกรซ', nickname:'เกรซ', gender:'หญิง', age:'8.0', level:2, color:'#f59e0b', course:'ยิมนาสติก ระดับกลาง', remaining:5, expire:'28/06/2026', phone:'086-555-7788', active:true },
+          { name:'น้องบีม', nickname:'บีม', gender:'ชาย', age:'7.3', level:1, color:'#10b981', course:'ยิมนาสติก ระดับกลาง', remaining:9, expire:'15/08/2026', phone:'082-333-4455', active:true },
+          { name:'น้องริว', nickname:'ริว', gender:'ชาย', age:'10.1', level:3, color:'#8b5cf6', course:'แอโรบิก', remaining:3, expire:'05/07/2026', phone:'080-777-9911', active:true },
+          { name:'น้องโอ๊ต', nickname:'โอ๊ต', gender:'ชาย', age:'5.8', level:1, color:'#3b82f6', course:'แอโรบิก', remaining:0, expire:'หมดอายุแล้ว', phone:'083-222-6677', active:false },
+          { name:'น้องมะลิ', nickname:'มะลิ', gender:'หญิง', age:'11.4', level:3, color:'#06b6d4', course:'ตีลังกา', remaining:0, expire:'หมดอายุแล้ว', phone:'088-444-1122', active:false },
+        ],
+        studentSearch:'', studentFilter:'all',
+      }; },
+      methods:{
+        onEdit(s){ this.openForm('edit', { nickname:(s.name||'').replace(/\(\w+\)/g,'').trim() }); },
+        toast(t){ this.sbText=t; this.sb=true; },
+        onStat(s){ this.panel=s.panel; if(s.filter){ this.studentFilter=s.filter; this.studentSearch=''; } },
+        isActiveCard(s){ if(s.panel!==this.panel) return false; if(s.filter) return s.filter===this.studentFilter; return true; },
+        openForm(type, item){
+          const L=this.lookups;
+          const studentSecs=[{ title:'ข้อมูลนักเรียน', fields:[
+            {key:'firstname',label:'ชื่อ'},{key:'middlename',label:'ชื่อกลาง'},{key:'lastname',label:'นามสกุล'},
+            {key:'nickname',label:'ชื่อเล่น'},{key:'gender',label:'เพศ',type:'select',items:['หญิง','ชาย']},{key:'dob',label:'วันเกิด',type:'date'},
+            {key:'age',label:'อายุ',readonly:true},{key:'level',label:'Level',type:'number'},
+            {key:'shortnote',label:'หมายเหตุ',type:'textarea',full:true},
+            {key:'parent',label:'Username ผปค. (lookup)',type:'lookup',items:L.parents},
+            {key:'courserefer',label:'หมายเลขคอร์ส (lookup)',type:'lookup',items:L.courses},
+            {key:'courserefer2',label:'คอร์สถัดไป (lookup)',type:'lookup',items:L.courses},
+          ]}];
+          const defs={
+            student:{title:'เพิ่มนักเรียนใหม่',icon:'mdi-emoticon-plus-outline',sections:studentSecs,photo:true,history:false},
+            edit:{title:'แก้ไขข้อมูลนักเรียน',icon:'mdi-human-edit',sections:studentSecs,photo:true,history:true},
+            course:{title:'เพิ่มคอร์สใหม่',icon:'mdi-book-plus-outline',photo:false,history:false,sections:[
+              {title:'ข้อมูลคอร์ส',fields:[
+                {key:'cname',label:'ชื่อคอร์ส (lookup)',type:'lookup',items:L.courseNames},
+                {key:'ctype',label:'ประเภท (lookup)',type:'lookup',items:L.courseTypes},
+                {key:'months',label:'ระยะเวลา (เดือน)',type:'number'},
+                {key:'remaining',label:'คงเหลือ',type:'number'},{key:'start',label:'วันเริ่มต้น',type:'date'},{key:'expire',label:'วันหมดอายุ',type:'date'},
+                {key:'once',label:'คอร์สเรียนนี้ เรียนได้ 1 รอบ/วัน',type:'toggle',full:true},
+              ]},
+              {title:'ชำระเงิน',fields:[
+                {key:'unpaid',label:'ยังไม่จ่าย',type:'checkbox'},{key:'paydate',label:'วันที่ชำระ',type:'date'},{key:'slip',label:'อัปโหลดสลิป',type:'file'},
+                {key:'note',label:'หมายเหตุ',type:'textarea',full:true},
+              ]},
+            ]},
+            booking:{title:'เพิ่มการจอง',icon:'mdi-calendar-plus-outline',photo:false,history:false,sections:[
+              {title:'ข้อมูลการจอง',fields:[
+                {key:'student',label:'นักเรียน (lookup)',type:'lookup',items:L.students},
+                {key:'course',label:'คอร์ส (lookup)',type:'lookup',items:L.courses},
+                {key:'date',label:'วันที่',type:'date'},{key:'time',label:'เวลา (lookup)',type:'lookup',items:L.times},
+              ]},
+            ]},
+            holiday:{title:'เพิ่มวันหยุด',icon:'mdi-door-sliding-lock',photo:false,history:false,sections:[
+              {title:'ข้อมูลวันหยุด',fields:[
+                {key:'name',label:'ชื่อวันหยุด',full:true},{key:'start',label:'วันที่เริ่ม',type:'date'},{key:'end',label:'วันที่สิ้นสุด',type:'date'},
+              ]},
+            ]},
+          };
+          const d=defs[type]; this.formTitle=d.title; this.formIcon=d.icon; this.formSections=d.sections; this.formPhoto=d.photo; this.formHistory=d.history;
+          this.formModel=item?JSON.parse(JSON.stringify(item)):{}; this.formDialog=true;
+        },
+        saveForm(){ this.formDialog=false; this.toast('✔ บันทึกข้อมูลเรียบร้อยแล้ว'); },
+        approve(p){ this.pending=this.pending.filter(x=>x!==p); this.toast('✔ อนุมัติ '+p.name+' แล้ว'); },
+        removeStudent(st){ this.students=this.students.filter(x=>x!==st); this.toast('ลบ '+st.name+' แล้ว'); } },
+      computed:{
+        activeRows(){ return this.panel==='tomorrow' ? this.rowsTomorrow : this.rows; },
+        activeDate(){ if(this.panel==='tomorrow'){ const d=new Date(); d.setDate(d.getDate()+1); return d; } return this.classdate; },
+        filteredStudents(){ let list=this.students; if(this.studentFilter==='active') list=list.filter(s=>s.active); const q=(this.studentSearch||'').trim().toLowerCase(); if(q) list=list.filter(s=>(s.name+s.course).toLowerCase().includes(q)); return list; },
+      },
+    }).use(vuetify).mount('#app');
+  });
+  </script>
+
+  <script type="text/x-template" id="tpl-roster">
+    <div class="id-scope booking-roster">
+      <div class="roster-head" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;padding:4px 4px 14px">
+        <div class="col" style="gap:2px">
+          <h3 class="t-h3">{{ $t('bookingList.classBooking') }} {{ classdate.toLocaleDateString('th-TH', options) }}</h3>
+          <span class="t-cap">{{ classdate.toLocaleDateString('en-GB') }} · {{ totalCount }} {{ $t('bookingMgmt.bookings') }}</span>
+        </div>
+        <div class="row gap3 wrap" style="font-size:12.5px">
+          <span class="t-cap strong">{{ $t('bookingList.legend') }}:</span>
+          <span class="row" style="gap:5px"><span class="dot" style="background:var(--c-text-muted)"></span><span class="muted">{{ $t('bookingList.legendNormal') }}</span></span>
+          <span class="row" style="gap:5px"><v-icon size="14" color="#3b82f6">mdi-circle-slice-8</v-icon><span class="muted">{{ $t('bookingList.legendTrial') }}</span></span>
+          <span class="row" style="gap:5px"><v-icon size="14" color="#ec4899">mdi-circle-slice-8</v-icon><span class="muted">{{ $t('bookingList.legendPerSession') }}</span></span>
+          <span class="row" style="gap:5px"><v-icon size="14" color="#10b981">mdi-check-circle</v-icon><span class="muted">{{ $t('bookingList.legendChecked') }}</span></span>
+          <span class="row" style="gap:5px"><v-icon size="14" color="#f59e0b">mdi-bell-ring</v-icon><span class="muted">{{ $t('bookingList.legendPayment') }}</span></span>
+        </div>
+      </div>
+      <div v-if="columns.length === 0" class="id-empty"><div class="mdi mdi-calendar-blank-outline"></div><div style="margin-top:8px">{{ $t('bookingMgmt.noBooking') }}</div></div>
+      <div v-else class="tt-grid-wrap">
+        <div class="tt-row">
+          <div v-for="col in columns" :key="col.key" class="tt-col">
+            <div class="tt-colhead">
+              <div class="row" style="justify-content:space-between">
+                <span class="strong row" style="gap:5px"><v-icon size="15">mdi-clock-outline</v-icon> {{ col.time }}</span>
+                <span class="badge badge-neutral" style="height:20px;font-size:11px">{{ col.items.length }}</span>
+              </div>
+              <div class="t-cap nowrap" style="overflow:hidden;text-overflow:ellipsis">{{ col.courses }}</div>
+              <div v-if="col.checkedN > 0" class="t-cap" style="color:var(--c-success-tx)"><v-icon size="12" color="#047857">mdi-check</v-icon> {{ col.checkedN }}/{{ col.items.length }} {{ $t('bookingList.legendChecked') }}</div>
+            </div>
+            <div class="tt-cell">
+              <div v-for="(s, i) in col.items" :key="i" class="tt-pill" :class="pillClass(s)" @click="onPillClick($event, s, col.key)">
+                <span class="tt-avatar" :style="{ background: avatarColor(s) }">{{ avatarInitial(s) }}</span>
+                <div class="col" style="gap:0;flex:1;min-width:0">
+                  <span class="strong nowrap" style="font-size:13.5px;overflow:hidden;text-overflow:ellipsis">{{ displayName(s) }}</span>
+                  <span v-if="warningText(s)" class="t-cap nowrap" style="font-size:11px">{{ warningText(s) }}</span>
+                </div>
+                <div class="row" style="gap:3px">
+                  <v-icon v-if="needPay(s)" size="15" color="#f59e0b">mdi-bell-ring</v-icon>
+                  <v-icon v-if="isCellChecked(s)" size="16" color="#10b981">mdi-check-circle</v-icon>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-if="menuOpen" class="popmenu" :style="menuStyle" @click.stop>
+        <div class="popmenu-head">
+          <span class="popmenu-name">{{ selectedStudentName || '—' }}</span>
+          <span v-if="isCheckedIn" class="badge badge-success" style="height:20px;font-size:11px"><v-icon size="12">mdi-check-decagram</v-icon>{{ $t('bookingList.menuCheckedInBadge') }}</span>
+        </div>
+        <button class="popmenu-item" @click="onChooseCheckin"><span class="pm-ico"><v-icon size="18" :color="isCheckedIn ? '#b45309' : '#047857'">{{ isCheckedIn ? 'mdi-undo-variant' : 'mdi-check-bold' }}</v-icon></span>{{ isCheckedIn ? $t('bookingList.menuUndoCheckin') : $t('bookingList.menuCheckin') }}</button>
+        <div class="popmenu-divider"></div>
+        <button class="popmenu-item" @click="onChooseEdit"><span class="pm-ico"><v-icon size="18" color="#6366f1">mdi-account-edit</v-icon></span>{{ $t('bookingList.menuEdit') }}</button>
+      </div>
+      <v-dialog v-model="checkinConfirmDialog" persistent width="auto">
+        <div class="id-card id-card-pad" style="max-width:420px">
+          <div class="row" style="gap:12px;margin-bottom:14px"><v-icon size="34" :color="isCheckedIn ? '#f59e0b' : '#10b981'">{{ isCheckedIn ? 'mdi-undo-variant' : 'mdi-check-circle' }}</v-icon><div class="id-h2">{{ isCheckedIn ? $t('bookingList.menuUndoCheckin') : $t('bookingList.menuCheckin') }}</div></div>
+          <div style="color:var(--c-text-body);margin-bottom:18px">{{ isCheckedIn ? $t('bookingMgmt.confirmUndoCheckin', { name: selectedStudentName }) : $t('bookingMgmt.confirmCheckin', { name: selectedStudentName }) }}</div>
+          <div class="row" style="justify-content:flex-end;gap:8px"><button class="id-btn id-btn-ghost id-btn-sm" @click="checkinConfirmDialog = false">{{ $t('btn.cancel') }}</button><button class="id-btn id-btn-primary id-btn-sm" @click="confirmCheckin">{{ $t('btn.ok') }}</button></div>
+        </div>
+      </v-dialog>
+    </div>
+  </script>
+</body>
+</html>

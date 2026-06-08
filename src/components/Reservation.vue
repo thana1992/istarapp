@@ -1,40 +1,68 @@
 <template>
-    <div class="container">
-        <div class="container-header">
-            <h1><span class="mdi mdi-account-plus"></span> {{ $t('reservation.title') }}</h1>
+    <div>
+        <div class="pg-head">
+            <div class="pg-ico"><span class="mdi mdi-calendar-plus"></span></div>
+            <div>
+                <div class="id-h1">{{ $t('reservation.title') }}</div>
+                <div class="pg-sub">เลือกวันที่ก่อน แล้วจึงเลือกรอบเวลา</div>
+            </div>
         </div>
-        <div class="container-content">
-            <v-divider color="#fffff" thickness="3"></v-divider>
 
-            <v-card class="res-card card-opacity mx-auto mt-4">
-                <v-form ref="reserveForm">
-                    <div class="istar-deco-stars">
-                        <span class="mdi mdi-star-four-points deco-star-side"></span>
-                        <span class="mdi mdi-star-shooting deco-star-main"></span>
-                        <span class="mdi mdi-star-four-points deco-star-side"></span>
+        <v-form ref="reserveForm">
+            <div class="grid2 grid2-booking">
+                <!-- STEP 1 — pick a date -->
+                <div class="scard" style="padding:18px;max-width:340px;width:100%;align-self:start">
+                    <div class="step-head"><span class="step-num">1</span> เลือกวันที่</div>
+                    <id-calendar
+                        :model-value="date ? (date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()) : ''"
+                        :holiday-keys="holidays.map(h => h.year() + '-' + (h.month() + 1) + '-' + h.date())"
+                        @update:model-value="key => { const p = key.split('-'); date = new Date(+p[0], +p[1] - 1, +p[2]); selectDate(); }">
+                    </id-calendar>
+                </div>
+
+                <!-- STEP 2 — pick a time slot -->
+                <div class="scard" style="padding:18px;align-self:start">
+                    <div class="step-head" :class="{ 'is-muted': !date }"><span class="step-num">2</span> เลือกรอบเวลา</div>
+
+                    <div class="reserve-datebar" style="margin-top:-2px">
+                        <span class="mdi mdi-account-child-circle"></span>
+                        <b>{{ $t('reservation.bookingFor', { name: student.firstname + ' ' + student.lastname }) }}</b>
                     </div>
-                    <div class="px-6 pt-5 pb-1">
-                        <p class="booking-for-text">{{ $t('reservation.bookingFor', { name: student.firstname + ' ' + student.lastname }) }}</p>
+
+                    <div v-if="!date" class="reserve-empty">
+                        <span class="mdi mdi-calendar-cursor"></span>
+                        <div>กรุณาเลือกวันที่ทางซ้ายก่อน<br />จึงจะเลือกรอบเวลาเรียนได้</div>
                     </div>
-                    <v-container>
-                        <v-row justify="space-around">
-                            <v-date-picker v-model="date" :min="minDate" :allowed-dates="isDateAllowed" @update:month="handleMonthChange" @click="selectDate"></v-date-picker>
-                        </v-row>
-                    </v-container>
-                    <div class="px-6 pt-4 pb-6">
-                        <v-select v-model="classtimeSelect" :label="$t('home.classTime')" item-title="text"
-                            item-value="classid" :items="classtimesData" variant="outlined" :rules="classTimeRules"
-                            :no-data-text="$t('reservation.noClassTime')" return-object required></v-select>
-                        <v-btn class="mt-4 neu-action-btn" size="large" block @click="validate" required>
-                            <v-icon class="btn-icon-default">mdi-emoticon-plus</v-icon>
-                            <v-icon class="btn-icon-istar">mdi-star-shooting</v-icon>
-                            &nbsp;{{ $t('home.bookClass') }}
-                        </v-btn>
+                    <div v-else>
+                        <div class="reserve-datebar">
+                            <span class="mdi mdi-calendar-check"></span> รอบเวลาของ <b>{{ format_date(date) }}</b>
+                        </div>
+                        <div v-if="!classtimesData.length" class="reserve-empty">
+                            <span class="mdi mdi-clock-alert-outline"></span>
+                            <div>{{ $t('reservation.noClassTime') }}</div>
+                        </div>
+                        <div v-else class="cards3" style="grid-template-columns:1fr">
+                            <div v-for="s in classtimesData" :key="s.classid" class="scard" style="padding:16px">
+                                <div class="row" style="gap:8px;margin-bottom:8px">
+                                    <span class="mdi mdi-clock-outline" style="color:var(--c-primary);font-size:20px"></span>
+                                    <span class="strong" style="font-size:18px">{{ s.classtime }}</span>
+                                    <div style="flex:1"></div>
+                                    <span class="badge" :class="s.available <= 0 ? 'badge-error' : 'badge-success'">{{ s.available <= 0 ? 'เต็มแล้ว' : ('ว่าง ' + s.available) }}</span>
+                                </div>
+                                <div class="t-cap" style="margin-bottom:14px">{{ s.text }}</div>
+                                <button type="button" class="id-btn" :class="s.available <= 0 ? 'id-btn-ghost' : 'id-btn-primary'"
+                                    style="width:100%" :disabled="s.available <= 0"
+                                    @click="classtimeSelect = s; validate()">
+                                    <span class="mdi" :class="s.available <= 0 ? 'mdi-calendar-remove' : 'mdi-star-shooting'"></span>
+                                    {{ s.available <= 0 ? 'เต็มแล้ว' : 'จองรอบนี้' }}
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </v-form>
-            </v-card>
-        </div>
-    
+                </div>
+            </div>
+        </v-form>
+
         <v-dialog v-model="questionDialog" persistent width="auto">
             <v-card>
                 <v-card-title class="text-h5">
@@ -246,13 +274,13 @@ export default {
         },
         SQLDate(value) {
             if (value) {
-                return moment(String(value)).format('YYYYMMDD')
+                return moment(value).format('YYYYMMDD')
             }
         },
         format_date(value) {
             if (value) {
                 const userLocale = navigator.language || 'en'; // ดึง locale จากการตั้งค่าของอุปกรณ์
-                return moment(String(value)).locale(userLocale).format('dddd D MMMM YYYY');
+                return moment(value).locale(userLocale).format('dddd D MMMM YYYY');
             }
         },
         
@@ -273,21 +301,24 @@ export default {
 }
 </script>
 
-<style>
-/* .v-picker-title,
-.v-date-picker-header__content {
-    display: none;
-} */
-
-/* .v-date-picker-month__day {
-    height: auto !important;
-} */
-</style>
-
 <style scoped>
-.booking-for-text {
-    margin: 0;
-    font-size: 14px;
-    color: #475569;
+/* ============================================================
+   จองคลาส (reserve) — new iStar design.
+   Layout comes entirely from the global istar-pages.css
+   (.pg-head, .grid2-booking, .scard, .step-head, .reserve-*,
+   .cards3, .badge, .id-btn) and istar-design.css tokens; the
+   calendar is the global <id-calendar>. Only the confirm
+   <v-dialog> needs a light token re-skin below.
+   ============================================================ */
+:deep(.v-overlay__content > .v-card) {
+    border-radius: var(--radius-lg) !important;
+    box-shadow: var(--shadow-lg) !important;
+    border: 1px solid var(--c-border) !important;
+}
+:deep(.v-overlay__content .v-btn) {
+    border-radius: var(--radius-md) !important;
+    text-transform: none !important;
+    letter-spacing: normal !important;
+    font-weight: 700 !important;
 }
 </style>

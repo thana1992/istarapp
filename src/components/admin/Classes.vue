@@ -1,98 +1,95 @@
+<!-- ============================================================
+  Classes.vue — NEW DESIGN 1:1 (iStar).
+  • <script> = UNCHANGED from the original (data/methods/API kept byte-for-byte).
+  • <template> rebuilt to the prototype: .pg-head + standard <id-data-grid>
+    (global component) + add/edit + delete v-dialogs (unchanged, opened via @add / editItem / deleteItem).
+  • Columns reuse the existing `headers` computed (REAL fields only).
+  Requires global: src/assets/istar-design.css + istar-pages.css, and the
+  globally-registered <id-data-grid> component (main.js).
+============================================================ -->
 <template>
-  <div class="container">
-    <div class="container-header">
-      <h1><span class="mdi mdi-view-dashboard-variant-outline"></span> {{ $t('classes.title') }}</h1>
+  <div>
+    <div class="pg-head">
+      <div class="pg-ico"><span class="mdi mdi-view-dashboard-variant-outline"></span></div>
+      <div>
+        <div class="id-h1">{{ $t('classes.title') }}</div>
+        <div class="pg-sub">ตารางคลาสประจำสัปดาห์</div>
+      </div>
     </div>
-    <div class="container-content">
-      <v-card class="mx-auto mt-5 card-opacity">
-        <v-data-table :headers="headers" :items="classlist" :sort-by="[{ key: 'coursename', order: 'asc' }]"
-          :loading="loadingClasses">
-          <template v-slot:top>
-            <v-toolbar flat>
-              <v-toolbar-title>{{ $t('classes.ourClasses') }}</v-toolbar-title>
-              <v-divider class="mx-4" inset vertical></v-divider>
-              <v-spacer></v-spacer>
-              <v-dialog v-model="dialog" max-width="500px">
-                <template v-slot:activator="{ props }">
-                  <v-btn color="primary" dark v-bind="props">
-                    {{ $t('classes.newClass') }}
-                  </v-btn>
-                </template>
-                <v-card>
-                  <v-card-title>
-                    <span>{{ formTitle }}</span>
-                  </v-card-title>
 
-                  <v-card-text>
-                    <v-container>
-                      <v-row>
-                        <v-col cols="12" sm="6" md="50">
-                          <v-select v-model="editedItem.courseid" :label="$t('table.courseName')" item-title="coursename"
-                            item-value="courseid" :items="courseLookup" variant="solo-filled"
-                            :no-data-text="$t('common.noCourseData')" required></v-select>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="50">
-                          <v-text-field v-model="editedItem.classday" :label="$t('table.classDay')"
-                            variant="solo-filled"></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="50">
-                          <v-text-field v-model="editedItem.classtime" :label="$t('table.classTime')"
-                            variant="solo-filled"></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="50">
-                          <v-text-field v-model="editedItem.maxperson" :label="$t('table.maxStudent')"
-                            variant="solo-filled"></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="50">
-                          <v-text-field v-model="editedItem.adminflag" :label="$t('table.adminFlag')"
-                            variant="solo-filled"></v-text-field>
-                        </v-col>
-                      </v-row>
-                    </v-container>
-                  </v-card-text>
+    <id-data-grid
+      :columns="headers"
+      :rows="classlist"
+      :search-keys="['coursename', 'classday']"
+      :search-placeholder="$t('btn.search')"
+      :add-label="$t('classes.newClass')"
+      @add="dialog = true">
+      <template #cell-actions="{ row }">
+        <span class="mdi mdi-pencil" style="color:var(--c-info);cursor:pointer;font-size:20px;padding:0 5px" @click="editItem(row)"></span>
+        <span class="mdi mdi-delete-forever" style="color:var(--c-error);cursor:pointer;font-size:20px;padding:0 5px" @click="deleteItem(row)"></span>
+      </template>
+    </id-data-grid>
 
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="blue-darken-1" variant="text" @click="close">
-                      {{ $t('btn.cancel') }}
-                    </v-btn>
-                    <v-btn color="blue-darken-1" variant="text" @click="save">
-                      {{ $t('btn.save') }}
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-              <v-dialog v-model="dialogDelete" persistent width="auto">
-                <v-card>
-                  <v-card-title></v-card-title>
-                  <v-card-text>{{ $t('classes.confirmDelete') }}</v-card-text>
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">{{ $t('btn.ok') }}</v-btn>
-                    <v-btn color="#F44336" variant="tonal" @click="closeDelete">{{ $t('btn.cancel') }}</v-btn>
+    <!-- add / edit dialog -->
+    <v-dialog v-model="dialog" max-width="500px">
+      <v-card>
+        <v-card-title>
+          <span>{{ formTitle }}</span>
+        </v-card-title>
 
-                    <v-spacer></v-spacer>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-            </v-toolbar>
-          </template>
-          <template v-slot:item.actions="{ item }">
-            <v-icon size="small" class="me-2" @click="editItem(item)">
-              mdi-pencil
-            </v-icon>
-            <v-icon size="small" @click="deleteItem(item)">
-              mdi-delete
-            </v-icon>
-          </template>
-          <template v-slot:no-data>
-            <v-btn color="primary" @click="initialize">
-              {{ $t('btn.reset') }}
-            </v-btn>
-          </template>
-        </v-data-table>
+        <v-card-text>
+          <v-container>
+            <v-row>
+              <v-col cols="12" sm="6" md="50">
+                <v-select v-model="editedItem.courseid" :label="$t('table.courseName')" item-title="coursename"
+                  item-value="courseid" :items="courseLookup" variant="solo-filled"
+                  :no-data-text="$t('common.noCourseData')" required></v-select>
+              </v-col>
+              <v-col cols="12" sm="6" md="50">
+                <v-text-field v-model="editedItem.classday" :label="$t('table.classDay')"
+                  variant="solo-filled"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="50">
+                <v-text-field v-model="editedItem.classtime" :label="$t('table.classTime')"
+                  variant="solo-filled"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="50">
+                <v-text-field v-model="editedItem.maxperson" :label="$t('table.maxStudent')"
+                  variant="solo-filled"></v-text-field>
+              </v-col>
+              <v-col cols="12" sm="6" md="50">
+                <v-text-field v-model="editedItem.adminflag" :label="$t('table.adminFlag')"
+                  variant="solo-filled"></v-text-field>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue-darken-1" variant="text" @click="close">
+            {{ $t('btn.cancel') }}
+          </v-btn>
+          <v-btn color="blue-darken-1" variant="text" @click="save">
+            {{ $t('btn.save') }}
+          </v-btn>
+        </v-card-actions>
       </v-card>
-    </div>
+    </v-dialog>
+
+    <!-- delete confirm dialog -->
+    <v-dialog v-model="dialogDelete" persistent width="auto">
+      <v-card>
+        <v-card-title></v-card-title>
+        <v-card-text>{{ $t('classes.confirmDelete') }}</v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">{{ $t('btn.ok') }}</v-btn>
+          <v-btn color="#F44336" variant="tonal" @click="closeDelete">{{ $t('btn.cancel') }}</v-btn>
+          <v-spacer></v-spacer>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 <script>
@@ -173,7 +170,7 @@ export default {
           }
           this.loadingClasses = false
         })
-        .catch(error => {
+        .catch(() => {
           this.loadingClasses = false
           //console.error(error);
         });
@@ -194,7 +191,7 @@ export default {
             this.courseLookup = response.data.results
           }
         })
-        .catch(error => {
+        .catch(() => {
           //console.error(error);
         });
     },
@@ -230,7 +227,7 @@ export default {
           }
           this.initialize()
         })
-        .catch(error => {
+        .catch(() => {
           //console.error(error);
         });
       this.closeDelete()

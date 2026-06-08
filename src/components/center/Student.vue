@@ -1,22 +1,50 @@
 <template>
     <div>
-    <v-card flat>
-        <v-data-table-server :loading="loadingStudent" :headers="StudentListHeaders" :items="StudentList"
-            :items-length="totalStudents" :page="tableOptions.page" :items-per-page="tableOptions.itemsPerPage"
-            @update:options="onTableOptions">
-            <template v-slot:top>
-                <v-toolbar flat>
-                    <v-toolbar-title>{{ $t('gymnasts.listTitle') }}</v-toolbar-title>
-                    <v-spacer></v-spacer>
-                    <v-btn color="primary" @click="initialize">
-                        <v-icon left>mdi-refresh</v-icon>
-                        {{ $t('btn.refresh') }}
-                    </v-btn>
-                    <v-dialog v-model="dialogStudent" max-width="1080px" style="z-index: 999">
-                        <template v-slot:activator="{ props }">
-                            <v-btn color="primary" dark v-bind="props"><span
-                                    class="mdi mdi-emoticon-plus-outline"></span> {{ $t('gymnasts.addStudent') }}</v-btn>
-                        </template>
+        <div class="pg-head">
+            <div class="pg-ico"><span class="mdi mdi-account-group"></span></div>
+            <div><div class="id-h1">{{ $t('gymnasts.listTitle') }}</div></div>
+        </div>
+        <!-- มาตรฐาน DataGrid: toolbar แถวเดียว [ค้นหา] -> (ดันขวา) [รีเฟรช][เพิ่ม] -->
+        <div class="grid-toolbar">
+            <label class="grid-search"><span class="mdi mdi-magnify"></span>
+                <input class="id-input" v-model="search" :placeholder="$t('btn.search')" /></label>
+            <span class="grid-spacer"></span>
+            <button class="id-btn id-btn-ghost id-btn-sm" @click="initialize"><span class="mdi mdi-refresh"></span> {{ $t('btn.refresh') }}</button>
+            <button class="id-btn id-btn-primary id-btn-sm" @click="showAddNewStudent"><span class="mdi mdi-emoticon-plus-outline"></span> {{ $t('gymnasts.addStudent') }}</button>
+        </div>
+        <!-- ตาราง .idt: วนหัวจาก StudentListHeaders เดิม (i18n ถูกอัตโนมัติ) -->
+        <div class="scard" style="padding:14px">
+            <div style="overflow-x:auto">
+                <table class="idt">
+                    <thead><tr><th v-for="h in StudentListHeaders" :key="h.key" :style="{ textAlign: (h.align==='center'||h.align==='end') ? 'center' : 'left' }">{{ h.title }}</th></tr></thead>
+                    <tbody>
+                        <tr v-for="item in StudentList" :key="item.studentid">
+                            <td v-for="h in StudentListHeaders" :key="h.key" :style="{ textAlign: (h.align==='center'||h.align==='end') ? 'center' : 'left' }">
+                                <template v-if="h.key==='fullname'">{{ item.fullname }}</template>
+                                <template v-else-if="h.key==='dateofbirth'">{{ calculateAge(item.dateofbirth).int }}</template>
+                                <template v-else-if="h.key==='expiredate'"><span :class="{ 'highlighted-red': item.expiredate != null && isExpiredDate(item.expiredate) }">{{ expireDateLeft(item.expiredate) }}</span></template>
+                                <template v-else-if="h.key==='edit'"><span class="mdi mdi-pencil" style="color:var(--c-info);cursor:pointer;font-size:20px" @click="clickEditStudent(item)"></span></template>
+                                <template v-else-if="h.key==='delete'"><span class="mdi mdi-delete-forever" style="color:var(--c-error);cursor:pointer;font-size:20px" @click="clickDeleteStudent(item)"></span></template>
+                                <template v-else>{{ item[h.key] }}</template>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div v-if="!loadingStudent && StudentList.length===0" class="grid-empty"><span class="mdi mdi-account-off-outline"></span>{{ $t('common.noStudentList') }}</div>
+            <!-- footer: server pagination เดิม (tableOptions + totalStudents) -->
+            <div class="grid-foot" v-if="totalStudents > 0">
+                <span class="grid-count">{{ totalStudents }}</span>
+                <div class="grid-pager">
+                    <button class="pager-btn" :disabled="tableOptions.page<=1" @click="tableOptions.page--; getStudentList(currentActive)"><span class="mdi mdi-chevron-left"></span></button>
+                    <span class="pager-now"><b>{{ tableOptions.page }}</b> / {{ Math.max(1, Math.ceil(totalStudents / tableOptions.itemsPerPage)) }}</span>
+                    <button class="pager-btn" :disabled="tableOptions.page >= Math.ceil(totalStudents / tableOptions.itemsPerPage)" @click="tableOptions.page++; getStudentList(currentActive)"><span class="mdi mdi-chevron-right"></span></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== ไดอะล็อกเดิมทั้งหมด คงไว้ ไม่แตะ logic (เปิดด้วยปุ่ม showAddNewStudent / clickEditStudent) ===== -->
+        <v-dialog v-model="dialogStudent" max-width="1080px" style="z-index: 999">
                         <v-dialog v-model="dialogFinish" persistent width="auto">
                             <v-card>
                             <v-card-title></v-card-title>
@@ -164,13 +192,13 @@
                                             <v-divider color="#fffff" thickness="3"></v-divider>
                                             </v-col>
                                         </v-row>
-                                        <v-rol>
+                                        <v-row>
                                             <v-col cols="12" sm="12" md="12">
                                                 <v-label style="white-space: break-spaces">{{
                                                     editedStudentItem.current_course_detail
                                                 }}</v-label>
                                             </v-col>
-                                        </v-rol>
+                                        </v-row>
                                         <v-row>
                                             <v-col cols="12" sm="12" md="12">
                                                     <v-data-table :headers="CourseUsingHeaders" :items="CourseUsingtList" density="compact"
@@ -213,41 +241,13 @@
                             </v-card-actions>
                         </v-card>
                     </v-dialog>
-                </v-toolbar>
-                <div class="table-search-row">
-                    <v-text-field v-model="search" density="compact" :label="$t('btn.search')" prepend-inner-icon="mdi-magnify"
-                        variant="solo-filled" flat hide-details single-line></v-text-field>
-                </div>
-            </template>
-            <template v-slot:item.index="{ item }">
-                {{ StudentList.indexOf(item) + 1 }}
-            </template>
-            <template v-slot:item.dateofbirth="{ item }">
-                {{ calculateAge(item.dateofbirth).int }}
-            </template>
-            <template v-slot:item.expiredate="{ item }">
-                <p :class="{ 'highlighted-red': item.expiredate != null && isExpiredDate(item.expiredate) }">
-                    {{ expireDateLeft(item.expiredate) }}
-                </p>
-            </template>
-            <template v-slot:item.edit="{ item }">
-                <v-icon size="large" color="info" @click="clickEditStudent(item)">mdi-pencil</v-icon>
-            </template>
-            <template v-slot:item.delete="{ item }">
-                <v-icon size="large" color="error" @click="clickDeleteStudent(item)">mdi-delete-forever</v-icon>
-            </template>
-            <template v-slot:loadingStudent><v-skeleton-loader type="table-row@5"></v-skeleton-loader></template>
-            <template v-slot:no-data> {{ $t('common.noStudentList') }} </template>
-        </v-data-table-server>
-    </v-card>
-</div>
+    </div>
 </template>
 <script>
 import axios from "axios";
 import DatePicker from "@/components/DatePicker.vue";
 import moment from "moment";
 import { mapGetters } from "vuex";
-import { ref, computed } from 'vue';
 export default {
     components: {
         DatePicker,
@@ -522,7 +522,7 @@ export default {
                 }
                 this.initialize();
                 })
-                .catch((error) => {
+                .catch(() => {
                 //console.error(error);
                 });
             this.$emit("onLoading", false);
@@ -829,7 +829,6 @@ export default {
             const totalDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
             let years = Math.floor(totalDays / 365.25);
             let months = Math.floor((totalDays % 365.25) / 30.4375);
-            let days = Math.floor((totalDays % 365.25) % 30.4375);
             return {
                 text : years + " " + this.$t('table.yearAbbr') + " " + months + " " + this.$t('table.monthAbbr') + " ",
                 int : years+'.'+months
@@ -1044,99 +1043,89 @@ const ComponentAPI = {
 };
 </script>
 <style scoped>
+/* profile photo — pink ring */
 .info-photo {
-    width: 150px;
-    height: 150px;
-    border-radius: 100%;
-    display: flex;
-    justify-content: center;
+  width: 150px; height: 150px; border-radius: 100%;
+  display: flex; justify-content: center;
+  box-shadow: 0 0 0 4px var(--c-surface), 0 0 0 7px var(--c-primary-light);
+  cursor: pointer; transition: box-shadow .18s ease;
+}
+.info-photo:hover { box-shadow: 0 0 0 4px var(--c-surface), 0 0 0 7px var(--c-primary); }
+.center { display: flex; justify-content: center; align-items: center; }
+.highlighted-red { color: var(--c-error); font-weight: 600; }
+
+/* section header — pink label with accent bar */
+:deep(.group-header) {
+  font-family: var(--font-head); font-weight: 700; font-size: 15px;
+  color: var(--c-text-heading); display: flex; align-items: center; gap: 8px; margin: 4px 0 2px;
+}
+:deep(.group-header)::before {
+  content: ''; width: 4px; height: 18px; border-radius: 4px; background: var(--c-primary);
 }
 
-.center {
-    display: flex;
-    justify-content: center;
-    align-items: center;
+/* dialog card — white rounded surface */
+:deep(.v-overlay__content > .v-card) {
+  background: var(--c-surface) !important; border-radius: var(--radius-lg) !important;
+  overflow: hidden !important; box-shadow: var(--shadow-lg) !important;
 }
 
-.highlighted-red {
-  color: red;
-}
-
+/* sticky header — pink gradient bar, white text */
 .sticky-header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  background-color: lightgray;
+  position: sticky; top: 0; z-index: 10;
+  background: linear-gradient(135deg, var(--c-primary) 0%, var(--c-secondary) 100%);
+  color: #fff !important; font-family: var(--font-head); font-weight: 700;
+  display: flex; align-items: center; gap: 10px; padding: 16px 20px;
 }
+.sticky-header :deep(.mdi) { font-size: 22px; }
 
+/* sticky footer — light surface, top divider */
 .sticky-footer {
-  position: sticky;
-  bottom: 0;
-  z-index: 10;
-  background-color: lightgray;
+  position: sticky; bottom: 0; z-index: 10;
+  background: var(--c-surface); border-top: 1px solid var(--c-border); padding: 12px 16px;
 }
+.sticky-footer :deep(.v-btn) { border-radius: var(--radius-md) !important; text-transform: none !important;
+  font-weight: 700; letter-spacing: normal; }
 
-.scrollable-content {
-  max-height: 950px;
-  overflow-y: auto;
-}
+.scrollable-content { max-height: 80vh; overflow-y: auto; padding: 20px !important; }
 
-.arrow-col {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  position: relative;
-}
+/* rounded Vuetify form controls to match the design */
+:deep(.v-field) { border-radius: 14px !important; }
+:deep(.v-field.v-field--variant-solo-filled) { background: var(--c-surface-2); box-shadow: none; }
+:deep(.v-field--focused) { box-shadow: 0 0 0 2px var(--c-ring); }
 
+/* toolbar (list view) */
+:deep(.v-toolbar) { background: transparent !important; }
+:deep(.v-toolbar-title) { font-family: var(--font-head); font-weight: 800; color: var(--c-text-heading); }
+.table-search-row { padding: 8px 4px 4px; }
+
+/* "next course" arrow — pink */
+.arrow-col { display: flex; justify-content: center; align-items: center; position: relative; }
 .arrow {
-  width: 80%; /* ความยาวของหางลูกศร */
-  height: 5px; /* ความสูงของหางลูกศร */
-  background:  linear-gradient(90deg,rgb(255, 255, 255), black); /* ไล่สีตัวอักษร */
-
-  position: relative;
-  border-radius: 4px; /* ทำให้หางลูกศรดูมนๆ */
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 80%; height: 5px; position: relative; border-radius: 4px;
+  background: linear-gradient(90deg, var(--c-surface-2), var(--c-primary));
+  display: flex; align-items: center; justify-content: center;
 }
-
 .arrow::after {
-    content: '';
-    position: absolute;
-    width: 0;
-    height: 0;
-    border-top: 8px solid transparent;
-    border-bottom: 8px solid transparent;
-    border-left: 16px solid #000000;
-    right: -7px;
-    top: -5px;
-    
+  content: ''; position: absolute; width: 0; height: 0;
+  border-top: 8px solid transparent; border-bottom: 8px solid transparent;
+  border-left: 16px solid var(--c-primary); right: -7px; top: -5px;
 }
-
 .arrow-text {
-  background: #7e7e7e;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  font-size: blod 14px;
-  position: relative;
-  z-index: 1;
-  top: -15px;
+  color: var(--c-primary-dark); font-weight: 700; font-size: 14px;
+  position: relative; z-index: 1; top: -15px; background: transparent;
 }
 
-/* Transparent passthrough — parent (div.card-opacity) provides the card surface */
-:deep(.v-card),
-:deep(.v-card--flat) {
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-:deep(.v-data-table),
-:deep(.v-table),
-:deep(.v-table__wrapper),
+/* table surface passthrough (sits inside parent content-card) */
+:deep(.v-card), :deep(.v-card--flat) { background: transparent !important; box-shadow: none !important; }
+:deep(.v-data-table), :deep(.v-table), :deep(.v-table__wrapper),
 :deep(.v-data-table__tr),
 :deep(.v-table__wrapper > table > tbody > tr),
 :deep(.v-table__wrapper > table > tbody > tr > td) {
-  background: transparent !important;
-  background-color: transparent !important;
+  background: transparent !important; background-color: transparent !important;
 }
+:deep(.v-table > .v-table__wrapper > table > thead > tr > th) {
+  color: var(--c-text-heading) !important; font-family: var(--font-head); font-weight: 700;
+  border-bottom: 2px solid var(--c-border) !important;
+}
+:deep(.v-table__wrapper > table > tbody > tr:hover > td) { background: var(--c-surface-3) !important; }
 </style>
