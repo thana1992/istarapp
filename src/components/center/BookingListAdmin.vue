@@ -30,7 +30,7 @@
     </div>
 
     <!-- roster: one column per time-slot header, one pill per student cell -->
-    <div v-else class="tt-grid-wrap">
+    <div v-else class="tt-grid-wrap id-fade-in" :key="classdate.getTime()">
       <div class="tt-row">
         <template v-for="(header, index) in bookingHeaders" :key="`booking-col-${index}`">
           <div v-if="header.key !== 'idx'" class="tt-col">
@@ -53,8 +53,8 @@
                     {{ (parseName(item[header.key]) || '?').replace('น้อง','').charAt(0) || '?' }}
                   </span>
                   <div class="col" style="gap:0;flex:1;min-width:0">
-                    <span class="strong nowrap" style="font-size:13.5px;overflow:hidden;text-overflow:ellipsis">{{ parseName(item[header.key]) }}</span>
-                    <span v-if="parseWarningText(item[header.key])" class="t-cap nowrap" style="font-size:11px">{{ parseWarningText(item[header.key]) }}</span>
+                    <span class="strong" style="font-size:13.5px;white-space:normal;overflow-wrap:anywhere">{{ parseName(item[header.key]) }}</span>
+                    <span v-if="parseWarningText(item[header.key])" class="t-cap" style="font-size:11px;white-space:normal;overflow-wrap:anywhere">{{ parseWarningText(item[header.key]) }}</span>
                   </div>
                   <div class="row" style="gap:3px">
                     <v-icon v-if="item[header.key].name && item[header.key].name.includes('(pay)')" size="15" color="#f59e0b">mdi-bell-ring</v-icon>
@@ -102,23 +102,17 @@
     </v-menu>
 
     <!-- Check-in / Undo check-in confirmation -->
-    <v-dialog v-model="checkinConfirmDialog" persistent width="auto">
-      <div class="id-card id-card-pad" style="max-width:420px">
-        <div class="row" style="gap:12px;margin-bottom:14px">
-          <v-icon size="34" :color="isCheckedIn ? '#f59e0b' : '#10b981'">{{ isCheckedIn ? 'mdi-undo-variant' : 'mdi-check-circle' }}</v-icon>
-          <div class="id-h2">{{ isCheckedIn ? $t('bookingList.menuUndoCheckin') : $t('bookingList.menuCheckin') }}</div>
-        </div>
-        <div style="color:var(--c-text-body);margin-bottom:18px">
-          {{ isCheckedIn
-            ? $t('bookingMgmt.confirmUndoCheckin', { name: selectedStudentName })
-            : $t('bookingMgmt.confirmCheckin', { name: selectedStudentName }) }}
-        </div>
-        <div class="row" style="justify-content:flex-end;gap:8px">
-          <button class="id-btn id-btn-ghost id-btn-sm" @click="checkinConfirmDialog = false">{{ $t('btn.cancel') }}</button>
-          <button class="id-btn id-btn-primary id-btn-sm" @click="confirmCheckin">{{ $t('btn.ok') }}</button>
-        </div>
-      </div>
-    </v-dialog>
+    <id-modal v-model="checkinConfirmDialog" size="sm" persistent
+      :icon="isCheckedIn ? 'mdi-undo-variant' : 'mdi-check-circle'"
+      :title="isCheckedIn ? $t('bookingList.menuUndoCheckin') : $t('bookingList.menuCheckin')">
+      <p style="margin:0">{{ isCheckedIn
+        ? $t('bookingMgmt.confirmUndoCheckin', { name: selectedStudentName })
+        : $t('bookingMgmt.confirmCheckin', { name: selectedStudentName }) }}</p>
+      <template #footer>
+        <button class="id-btn id-btn-ghost" @click="checkinConfirmDialog = false">{{ $t('btn.cancel') }}</button>
+        <button class="id-btn id-btn-primary" @click="confirmCheckin"><span class="mdi mdi-check"></span> {{ $t('btn.ok') }}</button>
+      </template>
+    </id-modal>
   </div>
 </template>
 

@@ -29,30 +29,20 @@
     </div>
 
     <!-- v-dialog ไม่ต้องมี activator slot -->
-    <v-dialog v-model="dialogConfirmApprove" persistent width="auto">
-      <v-card>
-        <v-card-title></v-card-title>
-        <v-card-text>{{ $t('approve.confirmApprove', { count: confirmStudentList.length }) }}</v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmApprove">{{ $t('btn.ok') }}</v-btn>
-          <v-btn color="#F44336" variant="tonal" @click="clickCancelApprove">{{ $t('btn.cancel') }}</v-btn>
-          <v-spacer></v-spacer>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-    <v-dialog v-model="dialogStudentNewDelete" persistent width="auto">
-      <v-card>
-        <v-card-title></v-card-title>
-        <v-card-text>{{ $t('approve.confirmDelete') }}</v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteStd">{{ $t('btn.ok') }}</v-btn>
-          <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteStd">{{ $t('btn.cancel') }}</v-btn>
-          <v-spacer></v-spacer>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <id-modal v-model="dialogConfirmApprove" size="sm" icon="mdi-account-check-outline" :title="$t('btn.confirm')" persistent>
+      <p style="margin:0">{{ $t('approve.confirmApprove', { count: confirmStudentList.length }) }}</p>
+      <template #footer>
+        <button class="id-btn id-btn-ghost" @click="clickCancelApprove">{{ $t('btn.cancel') }}</button>
+        <button class="id-btn id-btn-primary" @click="clickConfirmApprove"><span class="mdi mdi-check"></span> {{ $t('btn.ok') }}</button>
+      </template>
+    </id-modal>
+    <id-modal v-model="dialogStudentNewDelete" size="sm" icon="mdi-delete-alert-outline" title="ยืนยันการลบ" persistent>
+      <p style="margin:0">{{ $t('approve.confirmDelete') }}</p>
+      <template #footer>
+        <button class="id-btn id-btn-ghost" @click="clickCancelDeleteStd">{{ $t('btn.cancel') }}</button>
+        <button class="id-btn id-btn-primary" style="background:var(--c-error)" @click="clickConfirmDeleteStd"><span class="mdi mdi-delete"></span> {{ $t('btn.ok') }}</button>
+      </template>
+    </id-modal>
   </div>
 </template>
 

@@ -202,6 +202,77 @@ emits:
 - **ตารางเรียน `ViewClasses.vue`** — `IdCalendar` (ดีฟอลต์ = วันแรกที่เลือกได้ ≥ วันนี้) → ตาราง/roster โหลดตามวันที่เลือก
 - **จัดการการจอง `BookingManagement.vue`** — เลย์เอาต์อิงระบบเดิม: **ซ้าย** = `IdCalendar` (มีจุดบนวันที่มีการจอง), **ขวา** = หัวข้อ "การจองคลาสทั้งหมด" + ปุ่มรีเฟรช/เพิ่มการจอง + ป้ายวันที่ + ตารางมาตรฐาน `IdDataGrid` คอลัมน์ **ชื่อ · ชื่อคอร์ส · เวลา · เช็คชื่อ · แก้ไข · ลบ** (เช็คชื่อ = ไอคอนกดสลับเช็คอิน, ผูก API เดิม) ดึงรายชื่อตามวันที่ที่เลือก
 
+---
+
+## ⭐ มาตรฐานไดอะล็อก — `IdModal` (ใช้แทน `v-dialog` ทุกที่)
+> ทุก dialog ในระบบ (ฟอร์มเพิ่ม/แก้ไข, ยืนยันลบ, ตัวเลือกแบบมีตาราง) ใช้คอมโพเนนต์กลางตัวเดียว — **เลิกใช้ `v-dialog` หน้าตา default**
+> ดูตัวอย่างทำงานจริงในพรีวิว: เมนู **นักเรียน** → ปุ่ม "เพิ่มนักเรียน" (ฟอร์ม) และ "ลงทะเบียนเข้าคลาส" (กริดในไดอะล็อก)
+
+**สร้าง 1 คอมโพเนนต์กลาง** `src/components/common/IdModal.vue` (ก๊อปจากตัวแปร `IdModal` ใน `full-preview.js`) แล้วใช้ซ้ำทุกหน้า
+
+### สัญญา (props / slots)
+```
+props:
+  modelValue  Boolean   // v-model เปิด/ปิด
+  title       String
+  subtitle    String    // (optional)
+  icon        String    // mdi class เช่น 'mdi-account-plus'
+  size        String    // 'sm' | 'md'(default) | 'lg' | 'xl'
+  noFooter    Boolean   // ซ่อน footer
+slots:
+  default     // เนื้อหา body
+  footer      // ปุ่ม action (ghost ยกเลิก + primary บันทึก)
+behaviour:    teleport to body · ปิดด้วย ESC / คลิกฉากหลัง · ล็อก scroll body · transition fade+rise · มือถือ = sheet เด้งจากล่าง
+```
+
+### แบบที่ 1 — ฟอร์มกรอกข้อมูล (เพิ่ม/แก้ไข)
+```html
+<id-modal v-model="dialog" size="lg" icon="mdi-account-plus"
+          :title="mode==='add' ? 'เพิ่มนักเรียนใหม่' : 'แก้ไขข้อมูลนักเรียน'"
+          :subtitle="mode==='add' ? 'กรอกข้อมูลเพื่อสร้างบัญชีนักเรียน' : form.name">
+  <div class="form-grid">
+    <div class="field"><label>ชื่อ–นามสกุล <span class="req">*</span></label><input class="id-input" v-model="form.name" /></div>
+    <div class="field"><label>เพศ</label><select class="id-select" v-model="form.gender"><option>หญิง</option><option>ชาย</option></select></div>
+    <div class="field full"><label>หมายเหตุ</label><textarea class="id-input id-textarea" v-model="form.note"></textarea></div>
+  </div>
+  <template #footer>
+    <button class="id-btn id-btn-ghost" @click="dialog=false">ยกเลิก</button>
+    <button class="id-btn id-btn-primary" :disabled="!form.name" @click="save">บันทึก</button>
+  </template>
+</id-modal>
+```
+> ผูก `@click="save"` ไปยัง **method บันทึกจริง** (API เดิม) · ปุ่มบันทึก `:disabled` จนฟิลด์บังคับ (`*`) ครบ · ของจริงเอา dialog เดิม (`dialogStudent` + ฟอร์ม + `submitStudent()`) มาห่อด้วย `IdModal` — **ไม่แตะ logic**
+
+### แบบที่ 2 — กริดในไดอะล็อก (ตัวเลือกแบบมีตาราง / เลือกหลายรายการ)
+```html
+<id-modal v-model="dialog" size="lg" icon="mdi-account-multiple-plus" title="ลงทะเบียนเข้าคลาส">
+  <div class="grid-toolbar" style="margin-bottom:12px">
+    <label class="grid-search"><span class="mdi mdi-magnify"></span><input class="id-input" v-model="q" /></label>
+    <span class="grid-spacer"></span>
+    <span class="badge badge-primary" style="height:34px">เลือกแล้ว {{ picked.length }} คน</span>
+  </div>
+  <div class="id-modal-grid"><div class="id-modal-grid-scroll">
+    <table class="idt">
+      <thead><tr><th style="width:46px"></th><th>ชื่อ</th>…</tr></thead>
+      <tbody>
+        <tr v-for="s in filtered" :key="s.id" @click="toggle(s.id)" style="cursor:pointer">
+          <td style="text-align:center"><span class="id-check" :class="{ on: picked.includes(s.id) }"><span class="mdi mdi-check"></span></span></td>
+          <td><b>{{ s.name }}</b></td>…
+        </tr>
+      </tbody>
+    </table>
+  </div></div>
+  <template #footer>
+    <button class="id-btn id-btn-ghost" @click="dialog=false">ยกเลิก</button>
+    <button class="id-btn id-btn-primary" :disabled="!picked.length" @click="confirm">เพิ่ม {{ picked.length }} คน</button>
+  </template>
+</id-modal>
+```
+> `.id-modal-grid > .id-modal-grid-scroll` = ตารางเลื่อนในกรอบ หัวตารางติดบน · `.id-check` = เช็คบ็อกซ์เลือก · footer แสดงตัวนับ + ปุ่มยืนยัน disabled เมื่อยังไม่เลือก
+> สไตล์ทั้งหมดอยู่ใน **`istar-design.css`** (`.id-modal*`, `.id-check`, `.id-textarea`) — ก๊อปไฟล์เดียวพอ
+
+---
+
 ### หน้าโปรไฟล์ ฯลฯ
 - **โปรไฟล์ `EditProfile.vue`** — ทำเป็นฟอร์มแก้ไขได้จริง: การ์ดซ้าย = อวตาร + ปุ่ม "อัปโหลดรูปใหม่/ลบรูป" (`<input type="file" accept="image/*">` → preview ด้วย FileReader, ส่งขึ้น API อัปโหลดเดิม) · การ์ดขวา = ฟิลด์ `.id-input` ใน `.form-grid` (ชื่อ/นามสกุล/ชื่อเล่น/เบอร์/อีเมล/ยิม) + ปุ่ม **บันทึก** (เรียก API อัปเดตโปรไฟล์เดิม) · **ไม่ต้องมีปุ่มออกจากระบบในหน้านี้** (logout อยู่ที่เมนูซ้ายล่างสุดแล้ว) · คงฟิลด์/validation จริงของระบบเก่าให้ครบ · ทุกการ์ดต้อง responsive (ใช้ `.grid2-profile`/`.form-grid` ห้ามตั้ง grid-template เป็น inline) ยุบคอลัมน์เดียวบนมือถือ
 - **เปลี่ยนรหัสผ่าน (ในหน้าโปรไฟล์)** — การ์ดแยกใต้ข้อมูลส่วนตัว: 3 ฟิลด์ (รหัสปัจจุบัน / รหัสใหม่ / ยืนยันรหัสใหม่) มีปุ่มสลับ show/hide (`.pw-eye`) ทุกช่อง · ปุ่ม "เปลี่ยนรหัสผ่าน" เปิดใช้เมื่อ: กรอกรหัสเดิม + รหัสใหม่ ≥ 8 ตัว + ใหม่ตรงกับยืนยัน (ขึ้นข้อความ "รหัสผ่านใหม่ไม่ตรงกัน" เมื่อไม่ตรง) · ผูกกับ API เปลี่ยนรหัสผ่านเดิมของระบบ

@@ -9,11 +9,14 @@
             </div>
         </div>
 
-        <!-- ── Optional warning: selected member's course expired ── -->
-        <v-alert v-if="studentSelected && studentSelected.expiredate && isExpire(studentSelected.expiredate)"
-                 type="warning" variant="tonal" border="start" class="mb-5">
-            {{ studentSelected.fullname }} — {{ $t('home.courseExpired') }}
-        </v-alert>
+        <!-- ── Proactive alerts: expired / low sessions / expiring soon ── -->
+        <template v-if="expiryWarnings.length">
+            <v-alert v-for="w in expiryWarnings" :key="'warn-' + w.studentid"
+                     :type="w.kind === 'expired' ? 'error' : 'warning'"
+                     variant="tonal" border="start" density="comfortable" class="mb-3">
+                {{ warningText(w) }}
+            </v-alert>
+        </template>
 
         <!-- ── Empty state ── -->
         <div v-if="familylist == null || familylist.length === 0" class="scard" style="padding:0">
@@ -51,14 +54,36 @@
                             <template v-else-if="p.expiredate && isExpire(p.expiredate)">{{ $t('home.expired') }}</template>
                             <template v-else-if="p.coursetype === 'Monthly'">{{ $t('home.monthly') }}</template>
                             <template v-else-if="p.remaining <= 0">{{ $t('home.usedUp') }}</template>
-                            <template v-else>{{ $t('table.remaining') }} {{ p.remaining }}</template>
+                            <template v-else>{{ $t('home.remainBadge', { n: p.remaining }) }}</template>
                         </span>
                     </div>
 
-                    <!-- course / remaining detail -->
-                    <div v-if="p.courserefer && p.coursetype !== 'Monthly'" class="row" style="justify-content:space-between;font-size:13px">
-                        <span class="muted">{{ $t('table.remaining') }}</span>
-                        <span class="strong">{{ p.remaining }}</span>
+                    <!-- per-session: remaining count + segmented "pips" (one block per session,
+                         filled = remaining; empties as classes are used = "ค่อยๆ พร่องลง") -->
+                    <div v-if="p.courserefer && p.coursetype !== 'Monthly'" style="margin-bottom:10px">
+                        <div class="row" style="justify-content:space-between;font-size:12.5px;margin-bottom:5px">
+                            <span class="muted">{{ $t('table.remaining') }}</span>
+                            <span class="strong">{{ remainingText(p) }}</span>
+                        </div>
+                        <!-- used (faded) pips sit at the FRONT, remaining (filled) at the BACK;
+                             as sessions are used the filled part recedes toward the back -->
+                        <div class="quota-pips" :aria-label="remainingText(p)">
+                            <span v-for="i in pipCount(p)" :key="i" class="quota-pip"
+                                  :class="{ on: i > pipCount(p) - remainNum(p) }"
+                                  :style="i > pipCount(p) - remainNum(p) ? { background: pipFill(p) } : null"></span>
+                        </div>
+                    </div>
+                    <!-- monthly: time-to-expiry bar (falls back to the current month when no expiry is stored) -->
+                    <div v-else-if="p.courserefer && p.coursetype === 'Monthly'" style="margin-bottom:10px">
+                        <div class="row" style="justify-content:space-between;font-size:12.5px;margin-bottom:5px">
+                            <span class="muted">{{ $t('home.timeLeftLabel') }}</span>
+                            <span class="strong">{{ monthlyDaysText(p) }}</span>
+                        </div>
+                        <!-- remaining time sits on the RIGHT and recedes right as days pass
+                             (same "draining" direction as the per-session pips) -->
+                        <div class="quota-bar">
+                            <div class="quota-bar-fill" :style="{ width: monthlyPct(p) + '%', background: monthlyFill(p) }"></div>
+                        </div>
                     </div>
                     <div class="row" style="justify-content:space-between;font-size:13px;margin-bottom:14px">
                         <span>{{ p.coursename || p.course_shortname || $t('home.noCourse') }}</span>
@@ -79,7 +104,18 @@
                     <div class="mdi mdi-gesture-tap"></div>
                     <div style="margin-top:8px">{{ $t('home.selectMember') }}</div>
                 </div>
-                <div v-else-if="memberReservationDetail && memberReservationDetail.length > 0">
+                <!-- loading: skeleton rows so switching members feels like a fresh fetch, not a flash -->
+                <div v-else-if="loadingHistory">
+                    <div v-for="i in 3" :key="'hsk' + i" class="row" style="gap:10px;padding:14px 18px;border-bottom:1px solid var(--c-border)">
+                        <div class="id-skel" style="width:30px;height:30px;border-radius:50%"></div>
+                        <div class="col" style="gap:6px;flex:1">
+                            <div class="id-skel" style="height:13px;width:45%"></div>
+                            <div class="id-skel" style="height:11px;width:30%"></div>
+                        </div>
+                        <div class="id-skel" style="height:20px;width:74px;border-radius:999px"></div>
+                    </div>
+                </div>
+                <div v-else-if="memberReservationDetail && memberReservationDetail.length > 0" class="id-fade-in" :key="studentid">
                     <div v-for="item in memberReservationDetail" :key="item.classdate + item.classtime"
                          class="row home-hist-row" style="justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--c-border)">
                         <div class="row" style="gap:10px">
@@ -215,6 +251,8 @@ export default {
         },
         async getReservationDetail(studentid) {
             const token = this.$store.getters.getToken;
+            this.loadingHistory = true
+            const t0 = Date.now()
             await axios
                 .post(this.baseURL + '/getMemberReservationDetail', {
                     studentid: studentid,
@@ -232,6 +270,10 @@ export default {
                 })
                 .catch(() => {
                     //console.error(error);
+                })
+                .finally(async () => {
+                    await this.$minLoad(t0)
+                    this.loadingHistory = false
                 });
         },
         format_date(value) {
@@ -258,6 +300,69 @@ export default {
             const today = new Date();
             const expirationDate = new Date(expdate);
             return expirationDate < today;
+        },
+        daysUntil(d) {
+            if (!d) return null;
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const target = new Date(d); target.setHours(0, 0, 0, 0);
+            return Math.round((target - today) / 86400000);
+        },
+        warningText(w) {
+            if (w.kind === 'expired') return this.$t('home.alertExpired', { name: w.name });
+            if (w.kind === 'low') return this.$t('home.alertLow', { name: w.name, n: w.remaining, date: this.format_date(w.expiredate) });
+            return this.$t('home.alertExpireSoon', { name: w.name, date: this.format_date(w.expiredate) });
+        },
+        // `total` = original purchased quota from getFamilyMember (Limited courses;
+        // NULL for Monthly, = remaining for trial owners). Fall back to a last-~8-
+        // sessions gauge only on the rare chance it's missing.
+        courseTotal(p) {
+            const remaining = Number(p.remaining) || 0;
+            const total = Number(p.total);
+            return total > 0 ? total : Math.max(remaining, 8);
+        },
+        remainPct(p) {
+            const remaining = Number(p.remaining) || 0;
+            return Math.max(0, Math.min(100, (remaining / this.courseTotal(p)) * 100));
+        },
+        remainColor(p) {
+            const r = Number(p.remaining) || 0;
+            if (r <= 2) return '#ef4444';
+            if (r <= 4) return '#f59e0b';
+            return 'primary';
+        },
+        // segmented quota "pips": one block per purchased session, filled = remaining
+        pipCount(p) { return Math.max(1, this.courseTotal(p)); },
+        remainNum(p) { return Math.max(0, Number(p.remaining) || 0); },
+        pipFill(p) { const c = this.remainColor(p); return c === 'primary' ? 'var(--c-primary)' : c; },
+        monthlyFill(p) { const c = this.monthlyColor(p); return c === 'primary' ? 'var(--c-primary)' : c; },
+        remainingText(p) {
+            const remaining = Number(p.remaining) || 0;
+            if (Number(p.total) > 0) return this.$t('home.remainOf', { n: remaining, total: Number(p.total) });
+            return this.$t('home.remainBadge', { n: remaining });
+        },
+        // Monthly courses are unlimited but time-boxed — show progress toward expiry.
+        // If the backend stores an expiry date we drain toward it over a ~30-day window;
+        // otherwise the subscription is assumed valid through the end of the current
+        // calendar month, so the bar always renders (consistent across every card).
+        monthlyRemain(p) {
+            if (p.expiredate) return { daysLeft: this.daysUntil(p.expiredate), totalDays: 30 };
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+            return { daysLeft: lastDay - today.getDate(), totalDays: lastDay };
+        },
+        monthlyDaysText(p) {
+            const { daysLeft } = this.monthlyRemain(p);
+            return daysLeft > 0 ? this.$t('home.daysValue', { n: daysLeft }) : this.$t('home.expired');
+        },
+        monthlyPct(p) {
+            const { daysLeft, totalDays } = this.monthlyRemain(p);
+            return Math.max(0, Math.min(100, ((daysLeft || 0) / totalDays) * 100));
+        },
+        monthlyColor(p) {
+            const { daysLeft } = this.monthlyRemain(p);
+            if (daysLeft === null || daysLeft <= this.NEAR_DAYS) return '#ef4444';
+            if (daysLeft <= 14) return '#f59e0b';
+            return 'primary';
         },
         async uploadPhotoFile(file, studentid) {
             if (!file) return;
@@ -306,7 +411,10 @@ export default {
             userdetail: null,
             memberReservationDetail: null,
             studentSelected: null,
+            loadingHistory: false,
             studentid: null,
+            LOW_SESSIONS: 2,   // per-session courses with ≤ this many left → warn
+            NEAR_DAYS: 7,      // expiry within this many days → warn
             options: {
                 weekday: 'long',
                 year: 'numeric',
@@ -324,6 +432,29 @@ export default {
         },
         profileBoy() {
             return require('@/assets/avatar/4.png')
+        },
+        // family members needing attention: expired / used-up / low sessions / expiring soon
+        expiryWarnings() {
+            if (!this.familylist) return [];
+            const out = [];
+            for (const p of this.familylist) {
+                if (!p.courserefer) continue;
+                const perSession = p.coursetype !== 'Monthly';
+                const remaining = Number(p.remaining) || 0;
+                const expired = p.expiredate && this.isExpire(p.expiredate);
+                const usedUp = perSession && remaining <= 0;
+                const daysLeft = this.daysUntil(p.expiredate);
+                const nearExpiry = daysLeft !== null && daysLeft >= 0 && daysLeft <= this.NEAR_DAYS;
+                const lowSessions = perSession && remaining > 0 && remaining <= this.LOW_SESSIONS;
+                if (expired || usedUp) {
+                    out.push({ studentid: p.studentid, name: p.fullname, kind: 'expired' });
+                } else if (lowSessions) {
+                    out.push({ studentid: p.studentid, name: p.fullname, kind: 'low', remaining, expiredate: p.expiredate });
+                } else if (nearExpiry) {
+                    out.push({ studentid: p.studentid, name: p.fullname, kind: 'soon', expiredate: p.expiredate });
+                }
+            }
+            return out;
         },
     },
     async created() {
@@ -356,10 +487,26 @@ export default {
 </script>
 
 <style scoped>
+/* segmented quota meter — one pip per session, filled = remaining (drains as used) */
+.quota-pips { display: flex; flex-wrap: wrap; gap: 3px; }
+.quota-pip { flex: 1 1 8px; min-width: 8px; height: 8px; border-radius: 3px; background: var(--c-surface-3); transition: background .2s ease; }
+/* monthly: continuous draining bar — fill anchored to the right, recedes as days pass */
+.quota-bar { display: flex; justify-content: flex-end; height: 8px; border-radius: 4px; background: var(--c-surface-3); overflow: hidden; }
+.quota-bar-fill { height: 100%; border-radius: 4px; transition: width .3s ease; }
+
 /* ── Student card (selectable) ── */
 .home-scard {
     cursor: pointer;
     transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+    /* flex column so the "Book a class" button can be pinned to the bottom — cards
+       in a grid row are equal height (align-items:stretch), so every button lines up */
+    display: flex;
+    flex-direction: column;
+}
+
+/* pin the booking button to the bottom of every card regardless of content height */
+.home-scard > .id-btn-primary {
+    margin-top: auto;
 }
 
 .home-scard:hover {

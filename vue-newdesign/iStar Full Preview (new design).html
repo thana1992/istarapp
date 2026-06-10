@@ -13,6 +13,8 @@
   <style>
     html, body, #app { height: 100%; margin: 0; }
     body { font-family: var(--font-body); background: var(--c-bg-grad); }
+    /* force the system font on every form control (native ones default to OS font) */
+    #app input, #app select, #app textarea, #app .id-dd-trigger, #app .id-dd-opt { font-family: var(--font-body); }
     /* login */
     .lg-wrap { min-height: 100vh; display: grid; grid-template-columns: 1.05fr 1fr; }
     @media (max-width: 900px){ .lg-wrap{ grid-template-columns: 1fr; } }
@@ -198,6 +200,110 @@
     .pw-eye { position:absolute; right:13px; top:50%; transform:translateY(-50%); color:var(--c-text-muted); font-size:19px; cursor:pointer; }
     .pw-eye:hover { color:var(--c-primary); }
     .field > div .id-input { padding-right:42px; }
+    .field > .id-select { width:100%; }
+    .id-textarea { height:auto; min-height:86px; padding:10px 14px; line-height:1.55; resize:vertical; }
+    .field > label .req { color:var(--c-error); font-weight:700; }
+    .id-btn:disabled { opacity:.5; cursor:not-allowed; }
+    .id-btn:disabled:active { transform:none; }
+    /* ===== ID-MODAL — standard dialog (form entry + grid inside) ===== */
+    .id-modal-scrim { position:fixed; inset:0; z-index:120; background:rgba(131,24,67,.34); backdrop-filter:blur(3px);
+      display:flex; align-items:center; justify-content:center; padding:20px; }
+    .id-modal { width:100%; max-width:560px; max-height:calc(100vh - 40px); background:var(--c-surface);
+      border:1px solid var(--c-border); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg);
+      display:flex; flex-direction:column; overflow:hidden; }
+    .id-modal.sm { max-width:430px; } .id-modal.lg { max-width:760px; } .id-modal.xl { max-width:980px; }
+    .id-modal-head { display:flex; align-items:center; gap:13px; padding:17px 20px; color:#fff;
+      background:linear-gradient(120deg, var(--c-primary), var(--c-primary-dark)); }
+    .id-modal-ico { width:42px; height:42px; flex:0 0 42px; border-radius:13px; background:rgba(255,255,255,.2); display:grid; place-items:center; }
+    .id-modal-ico .mdi { font-size:23px; }
+    .id-modal-titles { flex:1; min-width:0; }
+    .id-modal-title { font-family:var(--font-head); font-weight:800; font-size:19px; line-height:1.2; }
+    .id-modal-sub { font-size:12.5px; opacity:.92; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .id-modal-x { width:34px; height:34px; flex:0 0 34px; border-radius:10px; border:none; cursor:pointer;
+      background:rgba(255,255,255,.16); color:#fff; display:grid; place-items:center; transition:background .15s; }
+    .id-modal-x:hover { background:rgba(255,255,255,.32); }
+    .id-modal-x .mdi { font-size:20px; }
+    .id-modal-body { padding:22px 20px; overflow-y:auto; }
+    .id-modal-foot { display:flex; align-items:center; justify-content:flex-end; gap:10px; padding:14px 20px;
+      border-top:1px solid var(--c-border); background:var(--c-surface-2); flex-wrap:wrap; }
+    .id-modal-grid { border:1px solid var(--c-border); border-radius:var(--radius-md); overflow:hidden; }
+    .id-modal-grid-scroll { max-height:46vh; overflow-y:auto; }
+    .id-modal-grid .idt th { position:sticky; top:0; z-index:1; }
+    .id-check { display:inline-grid; place-items:center; width:22px; height:22px; border-radius:7px; border:2px solid var(--c-border-strong); background:var(--c-surface); color:#fff; transition:.15s; }
+    .id-check .mdi { font-size:15px; opacity:0; }
+    .id-check.on { background:var(--c-primary); border-color:var(--c-primary); }
+    .id-check.on .mdi { opacity:1; }
+    /* ===== ID-SELECT (custom dropdown) + ID-DATE (calendar popover) ===== */
+    .id-dd { position:relative; width:100%; }
+    .id-dd.grid-filter { width:auto; min-width:175px; flex:0 0 auto; }
+    .id-dd-trigger { width:100%; height:42px; display:flex; align-items:center; gap:8px; padding:0 12px 0 14px;
+      border:1px solid var(--c-border); border-radius:var(--radius-md); background:var(--c-surface); cursor:pointer;
+      font-family:var(--font-body); font-size:14px; color:var(--c-text-body); box-shadow:var(--shadow-sm); text-align:left;
+      transition:border-color .15s, box-shadow .15s; }
+    .id-dd-trigger:hover { border-color:var(--c-border-strong); }
+    .id-dd.open .id-dd-trigger { border-color:var(--c-primary); box-shadow:0 0 0 3px var(--c-ring); }
+    .id-dd-trigger.placeholder { color:var(--c-text-muted); }
+    .id-dd-val { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .id-dd-caret { color:var(--c-text-muted); font-size:20px; transition:transform .2s, color .2s; flex:0 0 auto; }
+    .id-dd.open .id-dd-caret { transform:rotate(180deg); color:var(--c-primary); }
+    .id-dd.disabled { opacity:.55; pointer-events:none; }
+    .id-pop-backdrop { position:fixed; inset:0; z-index:199; }
+    .id-dd-menu { background:var(--c-surface); border:1px solid var(--c-border); border-radius:var(--radius-md);
+      box-shadow:var(--shadow-pop); padding:6px; overflow-y:auto; }
+    .id-dd-menu.has-search { padding:0; display:flex; flex-direction:column; overflow:hidden; }
+    .id-dd-menu.has-search .id-dd-list { overflow-y:auto; padding:6px; }
+    .id-dd-search { position:relative; padding:8px; border-bottom:1px solid var(--c-border); background:var(--c-surface); flex:0 0 auto; }
+    .id-dd-search .mdi { position:absolute; left:18px; top:50%; transform:translateY(-50%); color:var(--c-text-muted); font-size:18px; pointer-events:none; }
+    .id-dd-search input { width:100%; height:38px; border:1px solid var(--c-border); border-radius:var(--radius-sm);
+      background:var(--c-surface-2); padding:0 12px 0 38px; font-family:var(--font-body); font-size:14px; color:var(--c-text-body); outline:none; }
+    .id-dd-search input:focus { border-color:var(--c-primary); box-shadow:0 0 0 3px var(--c-ring); }
+    .id-dd-empty { padding:14px 11px; text-align:center; color:var(--c-text-muted); font-size:13px; }
+    .id-dd-opt { width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:9px 11px;
+      border:none; background:transparent; border-radius:var(--radius-sm); cursor:pointer; font-family:var(--font-body);
+      font-size:14px; color:var(--c-text-body); text-align:left; }
+    .id-dd-opt:hover { background:var(--c-surface-3); }
+    .id-dd-opt.on { background:var(--c-primary-soft); color:var(--c-primary-dark); font-weight:600; }
+    .id-dd-opt .mdi { color:var(--c-primary); font-size:17px; }
+    .id-pop { background:var(--c-surface); border:1px solid var(--c-border); border-radius:var(--radius-lg);
+      box-shadow:var(--shadow-pop); padding:12px 14px 10px; }
+    .dd-pop-enter-active, .dd-pop-leave-active { transition:opacity .15s, transform .15s; }
+    .dd-pop-enter-from, .dd-pop-leave-to { opacity:0; transform:translateY(-6px); }
+    /* form section header (replaces old green/blue underline dividers) */
+    .modal-sec { display:flex; align-items:center; gap:8px; font-family:var(--font-head); font-weight:700; font-size:15px;
+      color:var(--c-text-heading); margin:2px 0 14px; padding-left:11px; border-left:4px solid var(--c-primary); }
+    .modal-sec.mt { margin-top:24px; }
+    .modal-sec .mdi { color:var(--c-primary); font-size:18px; }
+    .form-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+    .form-grid-4 { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:14px; }
+    @media (max-width:680px){ .form-grid-3, .form-grid-4 { grid-template-columns:1fr 1fr; } }
+    @media (max-width:460px){ .form-grid-3, .form-grid-4 { grid-template-columns:1fr; } }
+    /* avatar upload inside dialog */
+    .dlg-avatar { width:96px; height:96px; margin:0 auto; position:relative; }
+    .dlg-avatar .av-ph { width:96px; height:96px; border-radius:50%; background:var(--c-surface-3); border:3px solid var(--c-border-strong);
+      display:grid; place-items:center; color:var(--c-primary-light); overflow:hidden; }
+    .dlg-avatar .av-ph .mdi { font-size:46px; }
+    .dlg-avatar .av-ph img { width:100%; height:100%; object-fit:cover; }
+    .dlg-avatar .av-cam { position:absolute; right:0; bottom:0; width:30px; height:30px; border-radius:50%; background:var(--c-primary);
+      color:#fff; display:grid; place-items:center; cursor:pointer; border:2px solid #fff; }
+    .dlg-avatar .av-cam .mdi { font-size:16px; }
+    /* labeled checkbox + upload-slip control */
+    .id-cbx { display:inline-flex; align-items:center; gap:9px; cursor:pointer; font-size:14px; color:var(--c-text-body); }
+    .id-upload { display:flex; align-items:center; gap:9px; height:42px; padding:0 14px; border:1.5px dashed var(--c-border-strong);
+      border-radius:var(--radius-md); background:var(--c-surface-2); color:var(--c-text-muted); cursor:pointer; font-size:13.5px; transition:border-color .15s, color .15s; }
+    .id-upload:hover { border-color:var(--c-primary); color:var(--c-primary); }
+    .id-upload .mdi { font-size:19px; }
+    .course-flow { display:flex; align-items:center; gap:10px; }
+    .course-flow .flow-arrow { display:flex; flex-direction:column; align-items:center; color:var(--c-text-muted); font-size:11px; flex:0 0 auto; padding-top:18px; }
+    .course-flow .flow-arrow .mdi { font-size:22px; color:var(--c-primary-light); }
+    @media (max-width:560px){ .course-flow { flex-direction:column; align-items:stretch; } .course-flow .flow-arrow { flex-direction:row; padding-top:0; } .course-flow .flow-arrow .mdi { transform:rotate(90deg); } }
+    .modal-fade-enter-active, .modal-fade-leave-active { transition:opacity .2s ease; }
+    .modal-fade-enter-from, .modal-fade-leave-to { opacity:0; }
+    .modal-fade-enter-active .id-modal, .modal-fade-leave-active .id-modal { transition:transform .22s cubic-bezier(.2,.8,.2,1); }
+    .modal-fade-enter-from .id-modal, .modal-fade-leave-to .id-modal { transform:translateY(16px) scale(.97); }
+    @media (max-width:600px){
+      .id-modal-scrim { padding:0; align-items:flex-end; }
+      .id-modal { max-width:none; max-height:92vh; border-radius:var(--radius-lg) var(--radius-lg) 0 0; }
+    }
     /* topbar language toggle */
     .lang-btn { display:inline-flex; align-items:center; gap:6px; height:34px; padding:0 12px; border-radius:999px; border:1px solid var(--c-border);
       background:var(--c-surface); color:var(--c-text-body); font-family:var(--font-head); font-weight:700; font-size:13px; cursor:pointer; transition:background .15s, border-color .15s; }
@@ -496,12 +602,92 @@
           <!-- ===== ADMIN: STUDENTS — standard data grid ===== -->
           <div v-else-if="screen==='students'">
             <div class="pg-head"><div class="pg-ico"><span class="mdi mdi-account-group"></span></div><div><div class="id-h1">รายชื่อนักเรียน</div><div class="pg-sub">ทั้งหมด {{ students.length }} คน</div></div></div>
-            <id-grid :columns="studentCols" :rows="students" :filters="studentFilters" :search-keys="['name','nick','course','phone']" search-placeholder="ค้นหาชื่อ / ชื่อเล่น / คอร์ส / เบอร์" add-label="เพิ่มนักเรียน" @add="toast('เพิ่มนักเรียนใหม่')">
+            <id-grid :columns="studentCols" :rows="students" :filters="studentFilters" :search-keys="['name','nick','course','phone']" search-placeholder="ค้นหาชื่อ / ชื่อเล่น / คอร์ส / เบอร์">
+              <template #actions>
+                <button class="id-btn id-btn-ghost id-btn-sm" @click="openEnroll"><span class="mdi mdi-account-multiple-plus"></span> ลงทะเบียนเข้าคลาส</button>
+                <button class="id-btn id-btn-primary id-btn-sm" @click="openAddStudent"><span class="mdi mdi-emoticon-plus-outline"></span> เพิ่มนักเรียน</button>
+              </template>
               <template #cell-name="{ row }"><div class="row" style="gap:8px"><span class="tt-avatar" :style="{ background: ci(row.name) }">{{ row.name.replace('น้อง','').charAt(0) }}</span><b>{{ row.name }}</b></div></template>
               <template #cell-remaining="{ row }"><span class="badge" :class="row.remaining<=2?'badge-warning':'badge-primary'">{{ row.remaining }}</span></template>
               <template #cell-expire="{ row }"><span :style="{ color: row.expire==='หมดอายุ'?'var(--c-error)':'inherit' }">{{ row.expire }}</span></template>
-              <template #cell-actions="{ row }"><span class="mdi mdi-pencil" style="color:var(--c-info);cursor:pointer;padding:0 5px" @click="toast('แก้ไข '+row.name)"></span><span class="mdi mdi-delete-forever" style="color:var(--c-error);cursor:pointer;padding:0 5px" @click="toast('ลบ '+row.name)"></span></template>
+              <template #cell-actions="{ row }"><span class="mdi mdi-pencil" style="color:var(--c-info);cursor:pointer;padding:0 5px" @click="openEditStudent(row)"></span><span class="mdi mdi-delete-forever" style="color:var(--c-error);cursor:pointer;padding:0 5px" @click="toast('ลบ '+row.name)"></span></template>
             </id-grid>
+
+            <!-- ===== DIALOG 1: ฟอร์มนักเรียน (อวตาร + ฟอร์ม + กริดประวัติการใช้คอร์ส) ===== -->
+            <id-modal v-model="dlgStudent.open" size="xl" icon="mdi-account-plus"
+                      :title="dlgStudent.mode==='add' ? 'เพิ่มนักเรียนใหม่' : 'แก้ไขข้อมูลนักเรียน'"
+                      :subtitle="dlgStudent.mode==='add' ? 'กรอกข้อมูลเพื่อสร้างบัญชีนักเรียน' : dlgStudent.form.name">
+              <div class="dlg-avatar" style="margin-bottom:20px">
+                <div class="av-ph"><img v-if="dlgStudent.form.photo" :src="dlgStudent.form.photo" alt="" /><span v-else class="mdi mdi-account"></span></div>
+                <label class="av-cam" title="อัปโหลดรูป"><span class="mdi mdi-camera"></span><input type="file" accept="image/*" style="display:none" @change="onStudentPhoto" /></label>
+              </div>
+              <div class="modal-sec"><span class="mdi mdi-card-account-details-outline"></span> ข้อมูลนักเรียน</div>
+              <div class="form-grid-3">
+                <div class="field"><label>ชื่อ <span class="req">*</span></label><input class="id-input" v-model="dlgStudent.form.firstName" placeholder="ชื่อจริง" /></div>
+                <div class="field"><label>ชื่อกลาง</label><input class="id-input" v-model="dlgStudent.form.middleName" placeholder="(ถ้ามี)" /></div>
+                <div class="field"><label>นามสกุล <span class="req">*</span></label><input class="id-input" v-model="dlgStudent.form.lastName" placeholder="นามสกุล" /></div>
+              </div>
+              <div class="form-grid-4" style="margin-top:14px">
+                <div class="field"><label>ชื่อเล่น</label><input class="id-input" v-model="dlgStudent.form.nick" placeholder="ชื่อเล่น" /></div>
+                <div class="field"><label>เพศ</label><id-select v-model="dlgStudent.form.gender" :options="genderOptions"></id-select></div>
+                <div class="field"><label>วันเกิด</label><id-date v-model="dlgStudent.form.dob" placeholder="เลือกวันเกิด"></id-date></div>
+                <div class="field"><label>อายุ</label><input class="id-input" v-model="dlgStudent.form.age" placeholder="auto" disabled style="opacity:.7" /></div>
+              </div>
+              <div class="form-grid" style="margin-top:14px">
+                <div class="field"><label>ระดับ (Level)</label><id-select v-model="dlgStudent.form.level" :options="levelOptions"></id-select></div>
+                <div class="field"><label>Username ผู้ปกครอง</label><id-select v-model="dlgStudent.form.parent" :options="parentOptions" placeholder="— เลือกผู้ปกครอง —" searchable search-placeholder="พิมพ์ค้นหา userid…"></id-select></div>
+                <div class="field full"><label>หมายเหตุ</label><textarea class="id-input id-textarea" v-model="dlgStudent.form.note" placeholder="ข้อมูลเพิ่มเติม (ถ้ามี)"></textarea></div>
+              </div>
+              <div class="course-flow" style="margin-top:14px">
+                <div class="field" style="flex:1"><label>หมายเลขคอร์ส</label><id-select v-model="dlgStudent.form.courseNo" :options="courseOptions" placeholder="— เลือกคอร์ส —" searchable search-placeholder="พิมพ์ค้นหาหมายเลขคอร์ส…"></id-select></div>
+                <div class="flow-arrow">คอร์สถัดไป<span class="mdi mdi-arrow-right"></span></div>
+                <div class="field" style="flex:1"><label>หมายเลขคอร์สต่อเนื่อง</label><id-select v-model="dlgStudent.form.nextCourseNo" :options="courseOptions" placeholder="— ไม่มี —" searchable search-placeholder="พิมพ์ค้นหาหมายเลขคอร์ส…"></id-select></div>
+              </div>
+              <div class="modal-sec mt"><span class="mdi mdi-history"></span> ประวัติการใช้คอร์ส</div>
+              <div class="id-modal-grid"><div class="id-modal-grid-scroll" style="max-height:30vh">
+                <table class="idt">
+                  <thead><tr><th>วันที่</th><th>คอร์ส</th><th>เวลา</th><th style="text-align:center">สถานะ</th></tr></thead>
+                  <tbody>
+                    <tr v-for="(h,i) in studentUsage" :key="i">
+                      <td>{{ h.date }}</td><td>{{ h.course }}</td><td>{{ h.time }}</td>
+                      <td style="text-align:center"><span class="badge" :class="h.ok?'badge-success':'badge-error'">{{ h.ok?'เช็คชื่อแล้ว':'ขาด' }}</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div></div>
+              <template #footer>
+                <button class="id-btn id-btn-ghost" @click="dlgStudent.open=false">ยกเลิก</button>
+                <button class="id-btn id-btn-primary" :disabled="!dlgStudent.form.firstName || !dlgStudent.form.lastName" @click="saveStudent"><span class="mdi mdi-content-save"></span> {{ dlgStudent.mode==='add' ? 'บันทึกนักเรียน' : 'บันทึกการแก้ไข' }}</button>
+              </template>
+            </id-modal>
+
+            <!-- ===== DIALOG 2: กริดในไดอะล็อก (เลือกหลายรายการ) ===== -->
+            <id-modal v-model="dlgEnroll.open" size="lg" icon="mdi-account-multiple-plus"
+                      title="ลงทะเบียนนักเรียนเข้าคลาส" subtitle="ค้นหาแล้วเลือกนักเรียนที่ต้องการเพิ่มเข้าคลาส">
+              <div class="grid-toolbar" style="margin-bottom:12px">
+                <label class="grid-search"><span class="mdi mdi-magnify"></span><input class="id-input" v-model="dlgEnroll.q" placeholder="ค้นหาชื่อ / ชื่อเล่น" /></label>
+                <span class="grid-spacer"></span>
+                <span class="badge badge-primary" style="height:34px">เลือกแล้ว {{ dlgEnroll.picked.length }} คน</span>
+              </div>
+              <div class="id-modal-grid"><div class="id-modal-grid-scroll">
+                <table class="idt">
+                  <thead><tr><th style="width:46px"></th><th>ชื่อ</th><th>ชื่อเล่น</th><th style="text-align:center">Level</th><th>คอร์สปัจจุบัน</th></tr></thead>
+                  <tbody>
+                    <tr v-for="s in enrollList" :key="s.name" style="cursor:pointer" :style="{ background: dlgEnroll.picked.includes(s.name) ? 'var(--c-surface-3)' : '' }" @click="togglePick(s.name)">
+                      <td style="text-align:center"><span class="id-check" :class="{ on: dlgEnroll.picked.includes(s.name) }"><span class="mdi mdi-check"></span></span></td>
+                      <td><div class="row" style="gap:8px"><span class="tt-avatar" :style="{ background: ci(s.name) }">{{ s.name.replace('น้อง','').charAt(0) }}</span><b>{{ s.name }}</b></div></td>
+                      <td>{{ s.nick }}</td>
+                      <td style="text-align:center"><span class="badge badge-neutral">Lv {{ s.level }}</span></td>
+                      <td>{{ s.course }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div></div>
+              <template #footer>
+                <button class="id-btn id-btn-ghost" @click="dlgEnroll.open=false">ยกเลิก</button>
+                <button class="id-btn id-btn-primary" :disabled="!dlgEnroll.picked.length" @click="confirmEnroll"><span class="mdi mdi-check"></span> เพิ่ม{{ dlgEnroll.picked.length ? ' '+dlgEnroll.picked.length+' ' : '' }}คนเข้าคลาส</button>
+              </template>
+            </id-modal>
           </div>
 
           <!-- ===== ADMIN: BOOKING MANAGEMENT (ปฏิทินเลือกวัน + ตารางรายชื่อ) ===== -->
@@ -520,18 +706,35 @@
                 <id-grid :columns="bookingCols" :rows="bookingRows" :search-keys="['name','course']" search-placeholder="ค้นหาชื่อ / คอร์ส" :per-page="10">
                   <template #actions>
                     <button class="id-btn id-btn-ghost id-btn-sm" @click="toast('รีเฟรชข้อมูล')"><span class="mdi mdi-refresh"></span> รีเฟรช</button>
-                    <button class="id-btn id-btn-primary id-btn-sm" @click="toast('เพิ่มการจอง')"><span class="mdi mdi-plus"></span> เพิ่มการจอง</button>
+                    <button class="id-btn id-btn-primary id-btn-sm" @click="openAddBooking"><span class="mdi mdi-plus"></span> เพิ่มการจอง</button>
                   </template>
                   <template #cell-name="{ row }"><b>{{ row.name }}</b></template>
                   <template #cell-time="{ row }"><span class="badge badge-neutral">{{ row.time }}</span></template>
                   <template #cell-checkin="{ row }">
                     <span class="mdi" :class="row.chk?'mdi-check-circle':'mdi-close-circle-outline'" :style="{ color: row.chk?'var(--c-success)':'var(--c-error)', cursor:'pointer', fontSize:'20px' }" @click="row.chk=!row.chk; toast((row.chk?'เช็คชื่อ ':'ยกเลิกเช็คชื่อ ')+row.name)"></span>
                   </template>
-                  <template #cell-edit="{ row }"><span class="mdi mdi-pencil" style="color:var(--c-info);cursor:pointer" @click="toast('แก้ไข '+row.name)"></span></template>
+                  <template #cell-edit="{ row }"><span class="mdi mdi-pencil" style="color:var(--c-info);cursor:pointer" @click="openEditBooking(row)"></span></template>
                   <template #cell-delete="{ row }"><span class="mdi mdi-delete-forever" style="color:var(--c-error);cursor:pointer" @click="toast('ลบ '+row.name)"></span></template>
                 </id-grid>
               </div>
             </div>
+
+            <!-- ===== DIALOG: เพิ่ม/แก้ไขการจอง (ใช้ id-date = ปฏิทินเดียวกับ Dashboard) ===== -->
+            <id-modal v-model="dlgBooking.open" size="md" icon="mdi-calendar-plus"
+                      :title="dlgBooking.mode==='add' ? 'เพิ่มการจอง' : 'แก้ไขการจอง'"
+                      :subtitle="dlgBooking.mode==='add' ? 'เลือกนักเรียน คอร์ส และวันเวลา' : dlgBooking.form.student">
+              <div class="form-grid">
+                <div class="field full"><label>นักเรียน <span class="req">*</span></label><id-select v-model="dlgBooking.form.student" :options="students.map(s=>s.name)" placeholder="— เลือกนักเรียน —" searchable search-placeholder="พิมพ์ชื่อนักเรียน…"></id-select></div>
+                <div class="field full"><label>คอร์ส <span class="req">*</span></label><id-select v-model="dlgBooking.form.course" :options="courseOptions" placeholder="— เลือกคอร์ส —" searchable search-placeholder="พิมพ์ค้นหาคอร์ส…"></id-select></div>
+                <div class="field"><label>วันที่จอง <span class="req">*</span></label><id-date v-model="dlgBooking.form.date" :disable-mondays="true" :holiday-keys="holidayKeys" placeholder="เลือกวันที่"></id-date></div>
+                <div class="field"><label>รอบเวลา</label><id-select v-model="dlgBooking.form.time" :options="timeSlotOptions" placeholder="— เลือกเวลา —"></id-select></div>
+                <div class="field full"><label>หมายเหตุ</label><textarea class="id-input id-textarea" v-model="dlgBooking.form.note" placeholder="ข้อมูลเพิ่มเติม (ถ้ามี)"></textarea></div>
+              </div>
+              <template #footer>
+                <button class="id-btn id-btn-ghost" @click="dlgBooking.open=false">ยกเลิก</button>
+                <button class="id-btn id-btn-primary" :disabled="!dlgBooking.form.student || !dlgBooking.form.course || !dlgBooking.form.date" @click="saveBooking"><span class="mdi mdi-content-save"></span> {{ dlgBooking.mode==='add' ? 'บันทึกการจอง' : 'บันทึกการแก้ไข' }}</button>
+              </template>
+            </id-modal>
           </div>
 
           <!-- ===== ADMIN: APPROVE ===== -->
@@ -559,11 +762,46 @@
           <!-- ===== ADMIN: COURSES — standard data grid ===== -->
           <div v-else-if="screen==='courses'">
             <div class="pg-head"><div class="pg-ico"><span class="mdi mdi-star-shooting-outline"></span></div><div><div class="id-h1">คอร์สเรียน</div><div class="pg-sub">ประเภทคอร์สในระบบ</div></div></div>
-            <id-grid :columns="courseCols" :rows="courses" :filters="courseFilters" :search-keys="['name','short','code']" search-placeholder="ค้นหาชื่อคอร์ส / ชื่อย่อ / รหัส" add-label="เพิ่มคอร์ส" @add="toast('เพิ่มคอร์ส')">
+            <id-grid :columns="courseCols" :rows="courses" :filters="courseFilters" :search-keys="['name','short','code']" search-placeholder="ค้นหาชื่อคอร์ส / ชื่อย่อ / รหัส" add-label="เพิ่มคอร์ส" @add="openAddCourse">
               <template #cell-name="{ row }"><b>{{ row.name }}</b></template>
               <template #cell-enable="{ row }"><span class="idsw" :class="{ on: row.enable }" @click="row.enable = !row.enable"><span class="track"></span><span class="thumb"></span></span></template>
-              <template #cell-actions="{ row }"><span class="mdi mdi-pencil" style="color:var(--c-info);cursor:pointer;padding:0 5px" @click="toast('แก้ไข '+row.name)"></span><span class="mdi mdi-delete-forever" style="color:var(--c-error);cursor:pointer;padding:0 5px" @click="toast('ลบ '+row.name)"></span></template>
+              <template #cell-actions="{ row }"><span class="mdi mdi-pencil" style="color:var(--c-info);cursor:pointer;padding:0 5px" @click="openEditCourse(row)"></span><span class="mdi mdi-delete-forever" style="color:var(--c-error);cursor:pointer;padding:0 5px" @click="toast('ลบ '+row.name)"></span></template>
             </id-grid>
+
+            <!-- ===== DIALOG: ฟอร์มคอร์ส (ข้อมูลคอร์ส + ชำระเงิน) ===== -->
+            <id-modal v-model="dlgCourse.open" size="lg" icon="mdi-book-plus-multiple-outline"
+                      :title="dlgCourse.mode==='add' ? 'คอร์สใหม่' : 'แก้ไขคอร์ส'"
+                      :subtitle="dlgCourse.mode==='add' ? 'กรอกข้อมูลคอร์สและการชำระเงิน' : dlgCourse.form.courseName">
+              <div class="modal-sec"><span class="mdi mdi-book-open-variant"></span> ข้อมูลคอร์ส</div>
+              <div class="t-cap" style="margin-bottom:12px">หมายเลขคอร์ส: <b>{{ dlgCourse.mode==='add' ? '(สร้างอัตโนมัติเมื่อบันทึก)' : dlgCourse.form.code }}</b></div>
+              <div class="form-grid-3">
+                <div class="field"><label>ชื่อคอร์ส <span class="req">*</span></label><id-select v-model="dlgCourse.form.courseName" :options="courseOptions" placeholder="— เลือกคอร์ส —"></id-select></div>
+                <div class="field"><label>ประเภท</label><id-select v-model="dlgCourse.form.type" :options="courseTypeOptions" placeholder="— ประเภท —"></id-select></div>
+                <div class="field"><label>ระยะเวลา (เดือน)</label><id-select v-model="dlgCourse.form.duration" :options="durationOptions" placeholder="—"></id-select></div>
+              </div>
+              <div class="form-grid-3" style="margin-top:14px">
+                <div class="field"><label>คงเหลือ (ครั้ง)</label><input class="id-input" v-model="dlgCourse.form.remaining" inputmode="numeric" placeholder="เช่น 12" /></div>
+                <div class="field"><label>วันเริ่มต้น</label><id-date v-model="dlgCourse.form.start" placeholder="เลือกวันเริ่ม"></id-date></div>
+                <div class="field"><label>วันหมดอายุ</label><id-date v-model="dlgCourse.form.end" placeholder="เลือกวันหมดอายุ"></id-date></div>
+              </div>
+              <label class="id-cbx" style="margin-top:16px" @click="dlgCourse.form.oncePerDay=!dlgCourse.form.oncePerDay">
+                <span class="idsw" :class="{ on: dlgCourse.form.oncePerDay }"><span class="track"></span><span class="thumb"></span></span>
+                คอร์สเรียนนี้ สามารถเรียนได้ 1 รอบ/วัน
+              </label>
+              <div class="modal-sec mt"><span class="mdi mdi-cash-multiple"></span> ชำระเงิน</div>
+              <div class="form-grid-3" style="align-items:end">
+                <label class="id-cbx" style="height:42px" @click="dlgCourse.form.unpaid=!dlgCourse.form.unpaid">
+                  <span class="id-check" :class="{ on: dlgCourse.form.unpaid }"><span class="mdi mdi-check"></span></span> ยังไม่จ่าย
+                </label>
+                <div class="field"><label>วันที่ชำระ</label><id-date v-model="dlgCourse.form.payDate" :disabled="dlgCourse.form.unpaid" placeholder="เลือกวันที่"></id-date></div>
+                <div class="field"><label>สลิปการโอน</label><label class="id-upload"><span class="mdi mdi-camera-outline"></span> {{ dlgCourse.form.slip || 'อัปโหลดสลิป' }}<input type="file" accept="image/*" style="display:none" @change="onSlip" /></label></div>
+              </div>
+              <div class="field full" style="margin-top:14px"><label>หมายเหตุ</label><textarea class="id-input id-textarea" v-model="dlgCourse.form.note" placeholder="ข้อมูลเพิ่มเติม (ถ้ามี)"></textarea></div>
+              <template #footer>
+                <button class="id-btn id-btn-ghost" @click="dlgCourse.open=false">ยกเลิก</button>
+                <button class="id-btn id-btn-primary" :disabled="!dlgCourse.form.courseName" @click="saveCourse"><span class="mdi mdi-content-save"></span> {{ dlgCourse.mode==='add' ? 'บันทึกคอร์ส' : 'บันทึกการแก้ไข' }}</button>
+              </template>
+            </id-modal>
           </div>
 
           <!-- ===== ADMIN: CLASSES — standard data grid ===== -->

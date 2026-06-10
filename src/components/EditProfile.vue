@@ -16,7 +16,7 @@
           <img v-if="imagePreview || defaultAvatar" :src="imagePreview || defaultAvatar"
                class="av-img" alt="profile" />
           <span v-else class="tt-avatar" style="background:var(--c-primary)">
-            {{ (profile.firstname || '?').charAt(0) }}
+            {{ (displayName.firstname || '?').charAt(0) }}
           </span>
           <label class="avatar-cam" title="เปลี่ยนรูป">
             <span class="mdi mdi-camera"></span>
@@ -24,7 +24,7 @@
           </label>
         </div>
         <div class="strong" style="font-size:18px;color:var(--c-text-heading)">
-          {{ profile.firstname }} {{ profile.lastname }}
+          {{ displayName.firstname }} {{ displayName.lastname }}
         </div>
         <div class="t-cap" style="margin-bottom:14px">@{{ profile.username }}</div>
         <div class="col" style="gap:8px">
@@ -184,6 +184,11 @@ export default {
         mobileno: '',
         address: '',
       },
+      // name shown under the avatar — only refreshed on load/save, NOT while typing
+      displayName: {
+        firstname: '',
+        lastname: '',
+      },
       password: {
         current: '',
         new: '',
@@ -246,6 +251,8 @@ export default {
           this.profile.firstname = userdata.firstname || '';
           this.profile.middlename = userdata.middlename || '';
           this.profile.lastname = userdata.lastname || '';
+          this.displayName.firstname = this.profile.firstname;
+          this.displayName.lastname = this.profile.lastname;
         }
         const res = await axios.post(
           this.baseURL + '/getUserProfile',
@@ -261,6 +268,8 @@ export default {
           this.profile.email = u.email || '';
           this.profile.mobileno = u.mobileno || '';
           this.profile.address = u.address || '';
+          this.displayName.firstname = this.profile.firstname;
+          this.displayName.lastname = this.profile.lastname;
           this.imagePreview = u.profile_image_url || null;
           if (u.profile_image_url) {
             this.$emit('onProfileImageUpdated', u.profile_image_url);
@@ -292,6 +301,9 @@ export default {
           { headers: { Authorization: `Bearer ${this.token}` } }
         );
         if (res.data && res.data.success) {
+          // commit the edited name to the avatar display only after a successful save
+          this.displayName.firstname = this.profile.firstname;
+          this.displayName.lastname = this.profile.lastname;
           this.$emit('onSuccessHandler', this.$t('editProfile.saveSuccess'));
         } else {
           this.$emit('onErrorHandler', (res.data && res.data.message) || this.$t('editProfile.saveFail'));
@@ -356,8 +368,11 @@ export default {
         });
         const data = await response.json();
         if (data && data.url) {
-          this.imagePreview = data.url;
-          this.$emit('onProfileImageUpdated', data.url);
+          // cache-bust so the new photo shows immediately in BOTH the form preview AND the
+          // top-bar avatar (S3 reuses the key → identical URL → would show the cached old image)
+          const busted = this.$bustCache(data.url);
+          this.imagePreview = busted;
+          this.$emit('onProfileImageUpdated', busted);
           this.$emit('onSuccessHandler', this.$t('msg.uploadSuccess'));
         } else {
           this.$emit('onErrorHandler', this.$t('msg.uploadFail'));

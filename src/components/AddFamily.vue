@@ -20,40 +20,32 @@
 
         <div class="scard af-card">
             <v-form ref="form">
-                <div class="form-grid">
-                    <div class="field">
-                        <v-text-field variant="solo-filled" v-model="firstname" :label="$t('addFamily.firstname')"
-                            type="text" :rules="requireRules" required></v-text-field>
-                    </div>
-                    <div class="field">
-                        <v-text-field variant="solo-filled" v-model="middlename" :label="$t('addFamily.middlename')"
-                            type="text"></v-text-field>
-                    </div>
-                    <div class="field">
-                        <v-text-field variant="solo-filled" v-model="lastname" :label="$t('addFamily.lastname')"
-                            type="text" :rules="requireRules" required></v-text-field>
-                    </div>
-                    <div class="field">
-                        <v-text-field variant="solo-filled" v-model="nickname" :label="$t('addFamily.nickname')"
-                            type="text" :rules="requireRules" required></v-text-field>
-                    </div>
-                    <div class="field">
-                        <v-text-field variant="solo-filled" v-model="school" :label="$t('addFamily.school')"
-                            type="text"></v-text-field>
-                    </div>
-                    <div class="field">
-                        <v-select v-model="gender" :label="$t('addFamily.gender')"
-                            :items="[{ title: $t('common.male'), value: 'ชาย' }, { title: $t('common.female'), value: 'หญิง' }]"
-                            variant="solo-filled" :rules="requireRules" required></v-select>
-                    </div>
-                    <div class="field full">
-                        <DatePicker :label="$t('addFamily.dob')" v-model="dateofbirth" :maxdate="new Date()"
-                            :rules="requireRules"></DatePicker>
-                    </div>
+                <div class="modal-sec"><span class="mdi mdi-card-account-details-outline"></span> {{ $t('addFamily.title') }}</div>
+                <div class="form-grid-3">
+                    <div class="field"><label>{{ $t('addFamily.firstname') }} <span class="req">*</span></label>
+                        <input class="id-input" v-model="firstname"></div>
+                    <div class="field"><label>{{ $t('addFamily.middlename') }}</label>
+                        <input class="id-input" v-model="middlename"></div>
+                    <div class="field"><label>{{ $t('addFamily.lastname') }} <span class="req">*</span></label>
+                        <input class="id-input" v-model="lastname"></div>
+                </div>
+                <div class="form-grid-3" style="margin-top:14px">
+                    <div class="field"><label>{{ $t('addFamily.nickname') }} <span class="req">*</span></label>
+                        <input class="id-input" v-model="nickname"></div>
+                    <div class="field"><label>{{ $t('addFamily.gender') }} <span class="req">*</span></label>
+                        <id-select v-model="gender" placeholder="— เลือก —"
+                            :options="[{ value: 'ชาย', label: $t('common.male') }, { value: 'หญิง', label: $t('common.female') }]"></id-select></div>
+                    <div class="field"><label>{{ $t('addFamily.dob') }} <span class="req">*</span></label>
+                        <id-date v-model="dateofbirth" placeholder="เลือกวันเกิด"></id-date></div>
+                </div>
+                <div class="form-grid" style="margin-top:14px">
+                    <div class="field full"><label>{{ $t('addFamily.school') }}</label>
+                        <input class="id-input" v-model="school"></div>
                 </div>
 
                 <div class="af-actions">
-                    <button type="button" class="id-btn id-btn-primary" @click="doSave">
+                    <button type="button" class="id-btn id-btn-primary"
+                        :disabled="!firstname || !lastname || !nickname || !gender || !dateofbirth" @click="doSave">
                         <span class="mdi mdi-content-save"></span> {{ $t('addFamily.submit') }}
                     </button>
                     <button type="button" class="id-btn id-btn-soft" @click="reset">
@@ -67,17 +59,12 @@
 
 <script>
 import axios from 'axios'
-import DatePicker from '@/components/DatePicker.vue'
 import moment from 'moment'
 import { mapGetters } from 'vuex';
 import { t } from '@/i18n';
 
 export default {
-    components: {
-        DatePicker,
-    },
     data: () => ({
-        date: null,
         firstname: '',
         middlename: '',
         lastname: '',
@@ -147,7 +134,16 @@ export default {
             this.$emit('onClickChangeState', 'list')
         },
         reset() {
-            this.$refs.form.reset()
+            // plain .id-input fields aren't Vuetify inputs, so v-form.reset() can't
+            // clear them — clear the bound data directly
+            this.firstname = ''
+            this.middlename = ''
+            this.lastname = ''
+            this.nickname = ''
+            this.school = ''
+            this.gender = ''
+            this.dateofbirth = null
+            if (this.$refs.form) this.$refs.form.resetValidation()
         },
         resetValidation() {
             this.$refs.form.resetValidation()
@@ -198,11 +194,6 @@ export default {
     max-width: 760px;
     margin: 0 auto;
     padding: 24px;
-}
-
-/* let the Vuetify fields fill their grid cell */
-.af-card .form-grid .field :deep(.v-input) {
-    width: 100%;
 }
 
 .af-actions {

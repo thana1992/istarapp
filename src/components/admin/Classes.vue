@@ -21,8 +21,10 @@
       :columns="headers"
       :rows="classlist"
       :search-keys="['coursename', 'classday']"
+      :filters="classFilters"
       :search-placeholder="$t('btn.search')"
       :add-label="$t('classes.newClass')"
+      :loading="loadingClasses"
       @add="dialog = true">
       <template #cell-actions="{ row }">
         <span class="mdi mdi-pencil" style="color:var(--c-info);cursor:pointer;font-size:20px;padding:0 5px" @click="editItem(row)"></span>
@@ -31,65 +33,34 @@
     </id-data-grid>
 
     <!-- add / edit dialog -->
-    <v-dialog v-model="dialog" max-width="500px">
-      <v-card>
-        <v-card-title>
-          <span>{{ formTitle }}</span>
-        </v-card-title>
-
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="12" sm="6" md="50">
-                <v-select v-model="editedItem.courseid" :label="$t('table.courseName')" item-title="coursename"
-                  item-value="courseid" :items="courseLookup" variant="solo-filled"
-                  :no-data-text="$t('common.noCourseData')" required></v-select>
-              </v-col>
-              <v-col cols="12" sm="6" md="50">
-                <v-text-field v-model="editedItem.classday" :label="$t('table.classDay')"
-                  variant="solo-filled"></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6" md="50">
-                <v-text-field v-model="editedItem.classtime" :label="$t('table.classTime')"
-                  variant="solo-filled"></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6" md="50">
-                <v-text-field v-model="editedItem.maxperson" :label="$t('table.maxStudent')"
-                  variant="solo-filled"></v-text-field>
-              </v-col>
-              <v-col cols="12" sm="6" md="50">
-                <v-text-field v-model="editedItem.adminflag" :label="$t('table.adminFlag')"
-                  variant="solo-filled"></v-text-field>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue-darken-1" variant="text" @click="close">
-            {{ $t('btn.cancel') }}
-          </v-btn>
-          <v-btn color="blue-darken-1" variant="text" @click="save">
-            {{ $t('btn.save') }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <id-modal v-model="dialog" size="md" icon="mdi-calendar-clock" :title="formTitle">
+      <div class="modal-sec"><span class="mdi mdi-calendar-edit"></span> ข้อมูลคลาสเรียน</div>
+      <div class="form-grid">
+        <div class="field full"><label>{{ $t('table.courseName') }} <span class="req">*</span></label>
+          <id-select v-model="editedItem.courseid" searchable placeholder="— เลือกคอร์ส —"
+            :options="courseLookup.map(c => ({ value: c.courseid, label: c.coursename }))"></id-select>
+        </div>
+        <div class="field"><label>{{ $t('table.classDay') }}</label><input class="id-input" v-model="editedItem.classday"></div>
+        <div class="field"><label>{{ $t('table.classTime') }}</label><input class="id-input" v-model="editedItem.classtime"></div>
+        <div class="field"><label>{{ $t('table.maxStudent') }}</label><input class="id-input" v-model="editedItem.maxperson"></div>
+        <div class="field"><label>{{ $t('table.adminFlag') }}</label><input class="id-input" v-model="editedItem.adminflag"></div>
+      </div>
+      <template #footer>
+        <button class="id-btn id-btn-ghost" @click="close">{{ $t('btn.cancel') }}</button>
+        <button class="id-btn id-btn-primary" :disabled="!editedItem.courseid" @click="save">
+          <span class="mdi mdi-content-save"></span> {{ $t('btn.save') }}</button>
+      </template>
+    </id-modal>
 
     <!-- delete confirm dialog -->
-    <v-dialog v-model="dialogDelete" persistent width="auto">
-      <v-card>
-        <v-card-title></v-card-title>
-        <v-card-text>{{ $t('classes.confirmDelete') }}</v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">{{ $t('btn.ok') }}</v-btn>
-          <v-btn color="#F44336" variant="tonal" @click="closeDelete">{{ $t('btn.cancel') }}</v-btn>
-          <v-spacer></v-spacer>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <id-modal v-model="dialogDelete" size="sm" icon="mdi-delete-alert-outline" title="ยืนยันการลบ" persistent>
+      <p style="margin:0">{{ $t('classes.confirmDelete') }}</p>
+      <template #footer>
+        <button class="id-btn id-btn-ghost" @click="closeDelete">{{ $t('btn.cancel') }}</button>
+        <button class="id-btn id-btn-primary" style="background:var(--c-error)" @click="deleteItemConfirm">
+          <span class="mdi mdi-delete"></span> {{ $t('btn.ok') }}</button>
+      </template>
+    </id-modal>
   </div>
 </template>
 <script>
@@ -125,6 +96,15 @@ export default {
     formTitle() {
       return this.editedIndex === -1 ? this.$t('classes.newClass') : this.$t('classes.editClass')
     },
+    // toolbar filters (client-side, handled by IdDataGrid): by class day + by course
+    classFilters() {
+      const uniq = (k) => [...new Set(this.classlist.map(r => r[k]).filter(v => v !== null && v !== ''))]
+        .map(v => ({ value: v, label: String(v) }))
+      return [
+        { key: 'classday', label: this.$t('table.classDay'), options: uniq('classday') },
+        { key: 'coursename', label: this.$t('table.courseName'), options: uniq('coursename') },
+      ]
+    },
     headers() {
       return [
         { title: this.$t('table.courseName'), align: 'start', key: 'coursename' },
@@ -155,7 +135,9 @@ export default {
 
   methods: {
     async initialize() {
-      this.$emit('onLoading', true)
+      // menu-entry load: grid skeleton (loadingClasses) shows for the real fetch
+      // only — NO artificial $minLoad here (that 1s delay is for grid page changes,
+      // not for navigating into the menu).
       this.loadingClasses = true
       const token = this.$store.getters.getToken;
       await axios
@@ -168,14 +150,12 @@ export default {
           if (response.data.success) {
             this.classlist = response.data.results
           }
-          this.loadingClasses = false
         })
         .catch(() => {
-          this.loadingClasses = false
           //console.error(error);
         });
       await this.getCourseLookup()
-      this.$emit('onLoading', false)
+      this.loadingClasses = false
     },
 
     async getCourseLookup() {

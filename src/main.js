@@ -14,14 +14,21 @@ import Vue3Autocounter from 'vue3-autocounter';
 import VueDatePicker from '@vuepic/vue-datepicker';
 import '@vuepic/vue-datepicker/dist/main.css';
 
-// iStar new design system (single theme). Order matters: design tokens first, then page/layout classes.
+// iStar new design system. Order matters: design tokens first, then page/layout
+// classes, then the seasonal theme overrides (they re-paint the tokens per festival).
 import './assets/istar-design.css';
 import './assets/istar-pages.css';
+import './assets/istar-themes.css';
 
 // iStar shared design components — registered globally so every page can use
 // <id-data-grid> / <id-calendar> in its <template> without touching its <script>.
 import IdDataGrid from './components/common/IdDataGrid.vue';
 import IdCalendar from './components/common/IdCalendar.vue';
+import IdPager from './components/common/IdPager.vue';
+import IdGridFooter from './components/common/IdGridFooter.vue';
+import IdModal from './components/common/IdModal.vue';
+import IdSelect from './components/common/IdSelect.vue';
+import IdDateField from './components/common/IdDateField.vue';
 
 const vuetify = createVuetify({
   components,
@@ -77,6 +84,18 @@ if (token) {
 
 //console.log("env.SERVER_URL ", env.SERVER_URL);
 app.config.globalProperties.baseURL = env.SERVER_URL;
+// $minLoad — keep a loading/skeleton state visible for at least `ms` (default 1000ms)
+// so fast responses don't make the skeleton flash. Call with the start timestamp:
+//   const t0 = Date.now(); ...await fetch...; await this.$minLoad(t0); this.loadingX = false;
+app.config.globalProperties.$minLoad = function (startedAt, ms = 1000) {
+  const elapsed = Date.now() - startedAt;
+  return elapsed >= ms ? Promise.resolve() : new Promise((r) => setTimeout(r, ms - elapsed));
+};
+// $bustCache — append a timestamp so a re-uploaded image (S3 reuses the same object key,
+// so the URL is byte-identical) is re-fetched instead of shown from the browser cache.
+app.config.globalProperties.$bustCache = function (url) {
+  return url ? url + (url.includes('?') ? '&' : '?') + 't=' + Date.now() : url;
+};
 app.config.globalProperties.$t = t;
 app.config.globalProperties.$setLocale = setLocale;
 app.config.globalProperties.$i18n = i18nState;
@@ -85,6 +104,11 @@ app
   .component('VueDatePicker', VueDatePicker)
   .component('IdDataGrid', IdDataGrid)
   .component('IdCalendar', IdCalendar)
+  .component('IdPager', IdPager)
+  .component('IdGridFooter', IdGridFooter)
+  .component('IdModal', IdModal)
+  .component('IdSelect', IdSelect)
+  .component('IdDate', IdDateField)
   .use(vuetify)
   .use(store)
   .mount('#app');

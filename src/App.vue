@@ -2,9 +2,10 @@
   <v-app>
     <LoadingDialog :isLoading="isLoading" />
 
-    <!-- ===== AUTH SCREENS (full-screen, no shell) ===== -->
+    <!-- ===== AUTH SCREENS (full-screen, no shell) =====
+         (the login screen renders its own seasonal decorations inside its hero) -->
     <Transition v-if="isAuthScreen" name="fade" mode="out-in">
-      <Login v-if="state == 'login'" @onAffterLogin="AffterLogin($event)"
+      <Login v-if="state == 'login'" :ui-theme="uiTheme" @onAffterLogin="AffterLogin($event)"
         @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
         @onResigterHandler="onClickChangeState($event)" @onLoading="onLoading($event)"></Login>
 
@@ -66,6 +67,16 @@
 
       <!-- main column -->
       <div class="main">
+        <!-- seasonal backdrops — sit behind the page content (z-index:-1), paint only -->
+        <MothersDayOverlay v-if="uiTheme === 'mothersday'" />
+        <LoyKrathongOverlay v-if="uiTheme === 'loykrathong'" />
+        <NewYearOverlay v-if="uiTheme === 'newyear'" />
+        <SongkranOverlay v-if="uiTheme === 'songkran'" />
+        <HalloweenOverlay v-if="uiTheme === 'halloween'" />
+        <ChristmasOverlay v-if="uiTheme === 'christmas'" />
+        <FathersDayOverlay v-if="uiTheme === 'fathersday'" />
+        <MuayThaiOverlay v-if="uiTheme === 'muaythai'" />
+
         <div class="topbar">
           <button class="id-btn id-btn-ghost id-btn-sm burger" @click="drawer = !drawer">
             <span class="mdi mdi-menu"></span>
@@ -75,11 +86,63 @@
           </button>
           <strong style="font-family:var(--font-head);color:var(--c-text-heading)">{{ screenTitle }}</strong>
           <div class="sp"></div>
-          <button class="lang-btn" @click="toggleLocale">
-            <span class="mdi mdi-translate"></span> {{ $i18n.locale === 'th' ? 'ไทย' : 'EN' }}
+
+          <!-- theme picker — system-wide setting, head/admin only -->
+          <div class="theme-wrap" v-if="canEditTheme">
+            <button class="lang-btn theme-btn" :title="$t('dialog.selectTheme')"
+              @click="themeMenu = !themeMenu">
+              <span class="mdi mdi-palette"></span>
+              <span class="theme-btn-label">{{ activeThemeName }}</span>
+            </button>
+            <template v-if="themeMenu">
+              <div class="theme-scrim" @click="themeMenu = false"></div>
+              <div class="popmenu theme-menu">
+                <div class="popmenu-head">
+                  <span class="popmenu-name">{{ $t('dialog.selectTheme') }}</span>
+                </div>
+                <button v-for="opt in themeOptions" :key="opt.id" class="popmenu-item theme-opt"
+                  :class="{ on: uiTheme === opt.id }" @click="selectTheme(opt.id)">
+                  <span class="theme-sw" :style="{ background: opt.swatch }"></span>
+                  <span class="theme-opt-tx">
+                    <span class="theme-opt-name">{{ opt.name }}</span>
+                    <span class="theme-opt-sub">{{ opt.sub }}</span>
+                  </span>
+                  <span v-if="uiTheme === opt.id" class="mdi mdi-check theme-opt-check"></span>
+                </button>
+                <div class="theme-note">
+                  <span class="mdi mdi-information-outline"></span>
+                  <span>{{ $t('dialog.themeNote') }}</span>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <button class="lang-circle" title="TH / EN" @click="toggleLocale">
+            {{ $i18n.locale === 'th' ? 'TH' : 'EN' }}
           </button>
-          <span class="tt-avatar" style="background:var(--c-primary);cursor:pointer"
-            @click="onClickChangeState('editprofile')">{{ (parent || '?').charAt(0) }}</span>
+          <!-- profile avatar → account menu (edit profile / logout) — the ONLY logout
+               path on mobile for parents, where the sidebar + burger are hidden -->
+          <div class="theme-wrap">
+            <span class="tt-avatar" style="background:var(--c-primary);cursor:pointer;overflow:hidden"
+              @click="userMenu = !userMenu">
+              <img v-if="userProfileImage" :src="userProfileImage" alt=""
+                   style="width:100%;height:100%;object-fit:cover;display:block" />
+              <template v-else>{{ (parent || '?').charAt(0) }}</template>
+            </span>
+            <template v-if="userMenu">
+              <div class="theme-scrim" @click="userMenu = false"></div>
+              <div class="popmenu theme-menu">
+                <div class="popmenu-head"><span class="popmenu-name">{{ parent }}</span></div>
+                <button class="popmenu-item" @click="userMenu = false; onClickChangeState('editprofile')">
+                  <span class="mdi mdi-account-edit"></span> {{ $t('nav.editProfile') }}
+                </button>
+                <div class="popmenu-divider"></div>
+                <button class="popmenu-item" @click="userMenu = false; onClickLogout()">
+                  <span class="mdi mdi-logout"></span> {{ $t('nav.logout') }}
+                </button>
+              </div>
+            </template>
+          </div>
         </div>
 
         <div class="page">
@@ -135,7 +198,7 @@
               @onInfoHandler="onShowInfoDialog($event)" @onLoading="onLoading($event)"></HolidayManagment>
 
             <EditProfile v-else-if="state == 'editprofile'"
-              @onErrorHandler="onError($event)" @onSuccessHandler="onSuccess($event)"
+              @onErrorHandler="onError($event)" @onSuccessHandler="onShowInfoDialog($event)"
               @onInfoHandler="onShowInfoDialog($event)" @onClickChangeState="onClickChangeState($event)"
               @onProfileImageUpdated="onProfileImageUpdated($event)"
               @onLoading="onLoading($event)"></EditProfile>
@@ -210,6 +273,14 @@ import Course from './components/admin/Courses.vue'
 import Classes from './components/admin/Classes.vue'
 import HolidayManagment from './components/admin/HolidayManagment.vue'
 import EditProfile from './components/EditProfile.vue'
+import MothersDayOverlay from './components/theme/MothersDayOverlay.vue'
+import LoyKrathongOverlay from './components/theme/LoyKrathongOverlay.vue'
+import NewYearOverlay from './components/theme/NewYearOverlay.vue'
+import SongkranOverlay from './components/theme/SongkranOverlay.vue'
+import HalloweenOverlay from './components/theme/HalloweenOverlay.vue'
+import ChristmasOverlay from './components/theme/ChristmasOverlay.vue'
+import FathersDayOverlay from './components/theme/FathersDayOverlay.vue'
+import MuayThaiOverlay from './components/theme/MuayThaiOverlay.vue'
 import { mapGetters } from 'vuex';
 import LoadingDialog from './components/LoadingDialog.vue';
 export default {
@@ -239,6 +310,10 @@ export default {
       loadingDialog: false,
       isLoading: false,
       collapsed: false,
+      // seasonal theme — persisted per-browser in localStorage (no backend sync)
+      uiTheme: localStorage.getItem('uiTheme') || 'default',
+      themeMenu: false,
+      userMenu: false,
       // twinkling stars rendered inside the side menu only (background decoration)
       sparks: Array.from({ length: 14 }, (_, i) => ({
         x: [10, 26, 16, 34, 8, 28, 46, 60, 80, 90, 70, 88, 78, 92][i],
@@ -274,6 +349,14 @@ export default {
     Classes,
     HolidayManagment,
     EditProfile,
+    MothersDayOverlay,
+    LoyKrathongOverlay,
+    NewYearOverlay,
+    SongkranOverlay,
+    HalloweenOverlay,
+    ChristmasOverlay,
+    FathersDayOverlay,
+    MuayThaiOverlay,
     LoadingDialog,
   },
   methods: {
@@ -285,6 +368,7 @@ export default {
         this.student = null;
         this.bookingAccessRestricted = !!this.userdata.access_restricted;
         this.fetchUserProfileImage();
+        this.fetchGlobalTheme();   // pick up the head-controlled global theme on login
         if (this.userdata.usertype == 0) { // head
           this.managerflag = true
           this.state = 'dashboard'
@@ -303,6 +387,9 @@ export default {
       }
     },
     async fetchUserProfileImage() {
+      // clear first so a previous user's photo never lingers when switching accounts
+      // (a new user with no photo would otherwise keep showing the old avatar)
+      this.userProfileImage = null;
       try {
         const userdata = JSON.parse(localStorage.getItem('userdata'));
         if (!userdata || !userdata.username) return;
@@ -414,12 +501,69 @@ export default {
       this.$setLocale(next);
       this.$vuetify.locale.current = next;
     },
+    // Swap the festival palette by toggling a class on <html>. The token
+    // overrides in istar-themes.css (html.theme-*) win over the :root base,
+    // so 'default' simply means "no festival class" → the iStar pink baseline.
+    applyUITheme(theme) {
+      const el = document.documentElement;
+      // every festival id has a matching html.theme-<id> block in istar-themes.css;
+      // 'default' = no class (the :root pink baseline)
+      const ids = ['mothersday', 'loykrathong', 'newyear', 'songkran', 'halloween', 'christmas', 'fathersday', 'muaythai'];
+      ids.forEach((id) => el.classList.remove('theme-' + id));
+      if (theme && ids.includes(theme)) el.classList.add('theme-' + theme);
+    },
+    selectTheme(theme) {
+      // System-wide theme: only head/admin may change it (backend must enforce too).
+      if (!this.canEditTheme) return;
+      this.uiTheme = theme;
+      this.applyUITheme(theme);
+      try { localStorage.setItem('uiTheme', theme); } catch (e) { /* storage unavailable */ }
+      this.themeMenu = false;
+      this.saveGlobalTheme(theme);
+    },
+    // Persist the global theme for everyone. Falls back silently when the backend
+    // endpoint isn't available yet — the change still applies locally + is cached,
+    // and will propagate to all users once /saveAppSettings exists.
+    async saveGlobalTheme(theme) {
+      try {
+        const token = this.$store.getters.getToken;
+        await axios.post(this.baseURL + '/saveAppSettings', { uiTheme: theme }, {
+          headers: { Authorization: 'Bearer ' + token },
+        });
+      } catch (e) {
+        // backend settings endpoint not ready — behaves per-browser until then
+      }
+    },
+    // Read the global theme set by the head and apply it to this user. No-op on
+    // failure (keeps the cached/default theme), so the app never breaks if the
+    // endpoint is missing.
+    async fetchGlobalTheme() {
+      try {
+        const token = this.$store.getters.getToken;
+        const res = await axios.post(this.baseURL + '/getAppSettings', {}, {
+          headers: token ? { Authorization: 'Bearer ' + token } : {},
+        });
+        const data = res && res.data ? (res.data.settings || res.data) : null;
+        const theme = data && data.uiTheme;
+        if (theme && ['default', 'mothersday', 'loykrathong'].includes(theme)) {
+          this.uiTheme = theme;
+          this.applyUITheme(theme);
+          try { localStorage.setItem('uiTheme', theme); } catch (e) { /* ignore */ }
+        }
+      } catch (e) {
+        // no global setting available — keep the cached / default theme
+      }
+    },
   },
   mounted() {
-    // Single theme app — iStar (Playful slot). Keep the playful base class for any
-    // not-yet-migrated pages; the new design system (istar-design.css) is always active.
+    // Keep the playful base class for any not-yet-migrated Vuetify pages; the new
+    // design system (istar-design.css) is always active on top of it.
     document.documentElement.classList.add('theme-playful');
     document.body.classList.add('theme-playful');
+    // Apply the cached seasonal theme instantly (no flash), then sync the
+    // head-controlled global theme from the backend.
+    this.applyUITheme(this.uiTheme);
+    this.fetchGlobalTheme();
   },
   created() {
   },
@@ -480,11 +624,12 @@ export default {
       return groups;
     },
     bottomTabs() {
+      // EditProfile lives in the top-bar avatar menu now, so the mobile bottom bar
+      // keeps just the 3 primary destinations
       return [
         { value: 'home', icon: 'mdi-home-account', label: this.$t('nav.home') },
         { value: 'viewclasses', icon: 'mdi-table-eye', label: this.$t('nav.viewClasses') },
         { value: 'familylist', icon: 'mdi-account-multiple', label: this.$t('nav.family') },
-        { value: 'editprofile', icon: 'mdi-account-edit', label: this.$t('nav.editProfile') },
       ];
     },
     screenTitle() {
@@ -500,6 +645,27 @@ export default {
     },
     iconUrl() {
       return this.userProfileImage || require('./assets/avatar/1.png');
+    },
+    themeOptions() {
+      return [
+        { id: 'default',     name: this.$t('theme.default'),     sub: this.$t('theme.defaultSub'),     swatch: 'linear-gradient(135deg,#ec4899,#a855f7)' },
+        { id: 'mothersday',  name: this.$t('theme.mothersday'),  sub: this.$t('theme.mothersdaySub'),  swatch: 'linear-gradient(135deg,#2f8fd6,#5470cf)' },
+        { id: 'loykrathong', name: this.$t('theme.loykrathong'), sub: this.$t('theme.loykrathongSub'), swatch: 'linear-gradient(135deg,#e08a2e,#6d3a63)' },
+        { id: 'newyear',     name: this.$t('theme.newyear'),     sub: this.$t('theme.newyearSub'),     swatch: 'linear-gradient(135deg,#1e2a52,#d9b14a)' },
+        { id: 'songkran',    name: this.$t('theme.songkran'),    sub: this.$t('theme.songkranSub'),    swatch: 'linear-gradient(135deg,#14a9b8,#2f9fe0)' },
+        { id: 'halloween',   name: this.$t('theme.halloween'),   sub: this.$t('theme.halloweenSub'),   swatch: 'linear-gradient(135deg,#e8731c,#7c3aed)' },
+        { id: 'christmas',   name: this.$t('theme.christmas'),   sub: this.$t('theme.christmasSub'),   swatch: 'linear-gradient(135deg,#c0392b,#1f7a4d)' },
+        { id: 'fathersday',  name: this.$t('theme.fathersday'),  sub: this.$t('theme.fathersdaySub'),  swatch: 'linear-gradient(135deg,#cd9b1d,#f0c233)' },
+        { id: 'muaythai',    name: this.$t('theme.muaythai'),    sub: this.$t('theme.muaythaiSub'),    swatch: 'linear-gradient(135deg,#b81d2c,#d4a01e)' },
+      ];
+    },
+    activeThemeName() {
+      const found = this.themeOptions.find((t) => t.id === this.uiTheme);
+      return found ? found.name : this.themeOptions[0].name;
+    },
+    // Theme is a system-wide setting — only the head (0) / admin (1) may change it.
+    canEditTheme() {
+      return this.managerflag || this.adminflag;
     },
   }
 }
@@ -544,6 +710,12 @@ export default {
   display: flex;
   flex-direction: column;
   background: var(--c-bg-grad);
+  /* establish a stacking context so the seasonal overlay (position:absolute;
+     z-index:-1) paints ABOVE this gradient but BELOW the topbar + page content.
+     Safe: every menu/dialog in the app is a Vuetify overlay teleported out of
+     here, so nothing in-page relies on escaping this context. */
+  position: relative;
+  z-index: 0;
 }
 
 /* taller, roomier top bar — fixed at the top of the main column */
@@ -554,6 +726,39 @@ export default {
 
 .topbar strong {
   font-size: 19px;
+}
+
+/* larger profile avatar on the top bar (the shared .tt-avatar stays 30px elsewhere) */
+.topbar .tt-avatar {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  font-size: 16px;
+}
+
+/* circular TH/EN language toggle */
+.lang-circle {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: 999px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text-heading);
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  display: inline-grid;
+  place-items: center;
+  box-shadow: var(--shadow-sm);
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.lang-circle:hover {
+  background: var(--c-surface-3);
+  border-color: var(--c-primary);
+  color: var(--c-primary);
 }
 
 /* the ONE scroll area: fills remaining height, scrolls vertically, clips wide content */

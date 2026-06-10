@@ -14,6 +14,7 @@
       :search-keys="['description']"
       :search-placeholder="$t('btn.search')"
       :add-label="$t('holidays.newHoliday')"
+      :loading="loadingHolidays"
       @add="showAddNewHoliday">
       <template #cell-holidaydate="{ row }">{{ format_date(row.holidaydate) }}</template>
       <template #cell-actions="{ row }">
@@ -21,53 +22,31 @@
       </template>
     </id-data-grid>
 
-    <!-- add / edit dialog -->
-    <v-dialog v-model="dialog" max-width="500px">
-      <v-card>
-        <v-card-title>
-          <span>{{ formTitle }}</span>
-        </v-card-title>
-
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="12" class="text-center">
-                <v-date-picker v-model="editedItem.holidaydate" :label="$t('table.holidayDate')" required></v-date-picker>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="12">
-                <v-text-field v-model="editedItem.description" :label="$t('table.description')" variant="solo-filled" required></v-text-field>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue-darken-1" variant="text" @click="close">
-            {{ $t('btn.cancel') }}
-          </v-btn>
-          <v-btn color="blue-darken-1" variant="text" @click="save">
-            {{ $t('btn.save') }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <!-- add dialog -->
+    <id-modal v-model="dialog" size="sm" icon="mdi-calendar-star" :title="formTitle">
+      <div class="modal-sec"><span class="mdi mdi-calendar-remove"></span> ข้อมูลวันหยุด</div>
+      <div class="form-grid">
+        <div class="field full"><label>{{ $t('table.holidayDate') }} <span class="req">*</span></label>
+          <id-date v-model="editedItem.holidaydate" placeholder="เลือกวันที่"></id-date></div>
+        <div class="field full"><label>{{ $t('table.description') }} <span class="req">*</span></label>
+          <input class="id-input" v-model="editedItem.description"></div>
+      </div>
+      <template #footer>
+        <button class="id-btn id-btn-ghost" @click="close">{{ $t('btn.cancel') }}</button>
+        <button class="id-btn id-btn-primary" :disabled="!editedItem.holidaydate || !editedItem.description" @click="save">
+          <span class="mdi mdi-content-save"></span> {{ $t('btn.save') }}</button>
+      </template>
+    </id-modal>
 
     <!-- delete confirm dialog -->
-    <v-dialog v-model="dialogHolidayDelete" persistent width="auto">
-      <v-card>
-        <v-card-title></v-card-title>
-        <v-card-text>{{ $t('holidays.confirmDelete', { date: editedItem.holidaydate }) }}</v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteHoliday">{{ $t('btn.ok') }}</v-btn>
-          <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteHoliday">{{ $t('btn.cancel') }}</v-btn>
-          <v-spacer></v-spacer>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <id-modal v-model="dialogHolidayDelete" size="sm" icon="mdi-delete-alert-outline" title="ยืนยันการลบ" persistent>
+      <p style="margin:0">{{ $t('holidays.confirmDelete', { date: format_date(editedItem.holidaydate) }) }}</p>
+      <template #footer>
+        <button class="id-btn id-btn-ghost" @click="clickCancelDeleteHoliday">{{ $t('btn.cancel') }}</button>
+        <button class="id-btn id-btn-primary" style="background:var(--c-error)" @click="clickConfirmDeleteHoliday">
+          <span class="mdi mdi-delete"></span> {{ $t('btn.ok') }}</button>
+      </template>
+    </id-modal>
   </div>
   </template>
   
@@ -111,6 +90,7 @@
     },
     methods: {
       async initialize() {
+        // menu-entry load: skeleton for the real fetch only (no artificial $minLoad)
         this.loadingHolidays = true;
         const token = this.$store.getters.getToken;
         await axios.get(this.baseURL+'/collectHolidays',{
@@ -120,12 +100,11 @@
         })
           .then(response => {
             this.holidayList = response.data.data;
-            this.loadingHolidays = false;
           })
           .catch(() => {
             //console.error(error);
-            this.loadingHolidays = false;
           });
+        this.loadingHolidays = false;
       },
       async deleteItem(item) {
         this.editedIndex = this.holidayList.indexOf(item);

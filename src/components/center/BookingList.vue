@@ -29,7 +29,7 @@
     </div>
 
     <!-- roster: one column per time-slot, one read-only pill per student cell (string markers) -->
-    <div v-else class="tt-grid-wrap">
+    <div v-else class="tt-grid-wrap id-fade-in" :key="classdate.getTime()">
       <div class="tt-row">
         <template v-for="(header, index) in bookingHeaders" :key="`booking-col-${index}`">
           <div v-if="header.key !== 'idx'" class="tt-col">
@@ -52,8 +52,8 @@
                     <template v-for="name in [raw.replace('(1)','').replace('(red)','').replace('(green)','').replace('(blue)','').replace('(yellow)','').replace('(pink)','').replace('(pay)','').trim()]" :key="name">
                       <span class="tt-avatar" style="background:var(--c-primary)">{{ (name || '?').replace('น้อง','').charAt(0) || '?' }}</span>
                       <div class="col" style="gap:0;flex:1;min-width:0">
-                        <span class="strong nowrap" style="font-size:13.5px;overflow:hidden;text-overflow:ellipsis">{{ name }}</span>
-                        <span v-if="item[header.key] && typeof item[header.key] === 'object' && item[header.key].msg" class="t-cap nowrap" style="font-size:11px">{{ item[header.key].msg }}</span>
+                        <span class="strong" style="font-size:13.5px;white-space:normal;overflow-wrap:anywhere">{{ name }}</span>
+                        <span v-if="item[header.key] && typeof item[header.key] === 'object' && item[header.key].msg" class="t-cap" style="font-size:11px;white-space:normal;overflow-wrap:anywhere">{{ item[header.key].msg }}</span>
                       </div>
                     </template>
                     <div class="row" style="gap:3px">

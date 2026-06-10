@@ -16,6 +16,7 @@
                     <id-calendar
                         :model-value="date ? (date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate()) : ''"
                         :holiday-keys="holidays.map(h => h.year() + '-' + (h.month() + 1) + '-' + h.date())"
+                        :min-date="minBookDate"
                         @update:model-value="key => { const p = key.split('-'); date = new Date(+p[0], +p[1] - 1, +p[2]); selectDate(); }">
                     </id-calendar>
                 </div>
@@ -36,12 +37,21 @@
                     <div v-else>
                         <div class="reserve-datebar">
                             <span class="mdi mdi-calendar-check"></span> รอบเวลาของ <b>{{ format_date(date) }}</b>
+                            <v-progress-circular v-if="loadingSlots" indeterminate size="16" width="2" color="primary" style="margin-left:8px"></v-progress-circular>
                         </div>
-                        <div v-if="!classtimesData.length" class="reserve-empty">
+                        <!-- loading: skeleton placeholders so the user sees data being re-fetched -->
+                        <div v-if="loadingSlots" class="cards3" style="grid-template-columns:1fr">
+                            <div v-for="i in 2" :key="'sk' + i" class="scard" style="padding:16px">
+                                <div class="id-skel" style="height:22px;width:52%;margin-bottom:14px"></div>
+                                <div class="id-skel" style="height:13px;width:38%;margin-bottom:16px"></div>
+                                <div class="id-skel" style="height:42px"></div>
+                            </div>
+                        </div>
+                        <div v-else-if="!classtimesData.length" class="reserve-empty">
                             <span class="mdi mdi-clock-alert-outline"></span>
                             <div>{{ $t('reservation.noClassTime') }}</div>
                         </div>
-                        <div v-else class="cards3" style="grid-template-columns:1fr">
+                        <div v-else class="cards3 id-fade-in" :key="SQLDate(date)" style="grid-template-columns:1fr">
                             <div v-for="s in classtimesData" :key="s.classid" class="scard" style="padding:16px">
                                 <div class="row" style="gap:8px;margin-bottom:8px">
                                     <span class="mdi mdi-clock-outline" style="color:var(--c-primary);font-size:20px"></span>
@@ -63,22 +73,14 @@
             </div>
         </v-form>
 
-        <v-dialog v-model="questionDialog" persistent width="auto">
-            <v-card>
-                <v-card-title class="text-h5">
-                </v-card-title>
-                <v-card-text><center>{{ $t('reservation.confirmBooking', { name: student.nickname, date: format_date(date), time: classtimeSelect.classtime }) }}</center></v-card-text>
-                <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="#4CAF50" size="large" variant="tonal" @click="submitReservation">
-                        {{ $t('reservation.confirmBtn') }}
-                    </v-btn>
-                    <v-btn color="#F44336" size="large" variant="tonal" @click="questionDialog = false">
-                        {{ $t('btn.cancel') }}
-                    </v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <id-modal v-model="questionDialog" size="sm" icon="mdi-calendar-check" :title="$t('reservation.title')" persistent>
+            <p style="margin:0;text-align:center">{{ $t('reservation.confirmBooking', { name: student.nickname, date: format_date(date), time: classtimeSelect.classtime }) }}</p>
+            <template #footer>
+                <button class="id-btn id-btn-ghost" @click="questionDialog = false">{{ $t('btn.cancel') }}</button>
+                <button class="id-btn id-btn-primary" @click="submitReservation">
+                    <span class="mdi mdi-check"></span> {{ $t('reservation.confirmBtn') }}</button>
+            </template>
+        </id-modal>
     </div>
 
 </template>
@@ -102,6 +104,7 @@ export default {
             previousYear: new Date().getFullYear(),
             classtimeSelect: null,
             classtimesData: [],
+            loadingSlots: false,
             people: '',
             classTimeRules: [
                 v => !!v || this.$t('common.required'),
@@ -165,6 +168,12 @@ export default {
         async validate() {
             let { valid } = await this.$refs.reserveForm.validate()
             if (!valid) return;
+            // hard guard: customers cannot book the past or today (calendar already
+            // disables those, but block here too in case date is set another way)
+            if (!this.date || this.date < this.minBookDate) {
+                this.$emit('onErrorHandler', 'จองได้ตั้งแต่พรุ่งนี้เป็นต้นไป')
+                return;
+            }
             if (this.people.remaining <= 0) {
                 this.$emit('onErrorHandler', this.$t('msg.noRemaining'))
                 return;
@@ -179,6 +188,8 @@ export default {
                 courseid: this.student.courseid
             };
 
+            this.loadingSlots = true;
+            const t0 = Date.now();
             const token = this.$store.getters.getToken;
             try {
                 const response = await axios.post(this.baseURL + '/getClassTime', req, {
@@ -192,6 +203,9 @@ export default {
                 }
             } catch (error) {
                 this.$emit('onErrorHandler', error.message);
+            } finally {
+                await this.$minLoad(t0);
+                this.loadingSlots = false;
             }
         },
         async getHolidayInformation() {
@@ -296,29 +310,14 @@ export default {
         ...mapGetters({
             token: 'getToken',
         }),
+        // customers may only book from TOMORROW onward — the past and today are blocked
+        minBookDate() {
+            const d = new Date();
+            d.setDate(d.getDate() + 1);
+            d.setHours(0, 0, 0, 0);
+            return d;
+        },
     }
 
 }
 </script>
-
-<style scoped>
-/* ============================================================
-   จองคลาส (reserve) — new iStar design.
-   Layout comes entirely from the global istar-pages.css
-   (.pg-head, .grid2-booking, .scard, .step-head, .reserve-*,
-   .cards3, .badge, .id-btn) and istar-design.css tokens; the
-   calendar is the global <id-calendar>. Only the confirm
-   <v-dialog> needs a light token re-skin below.
-   ============================================================ */
-:deep(.v-overlay__content > .v-card) {
-    border-radius: var(--radius-lg) !important;
-    box-shadow: var(--shadow-lg) !important;
-    border: 1px solid var(--c-border) !important;
-}
-:deep(.v-overlay__content .v-btn) {
-    border-radius: var(--radius-md) !important;
-    text-transform: none !important;
-    letter-spacing: normal !important;
-    font-weight: 700 !important;
-}
-</style>

@@ -28,6 +28,7 @@
       :search-keys="['coursename', 'course_shortname']"
       :search-placeholder="$t('btn.search')"
       :add-label="$t('courses.newCourse')"
+      :loading="loadingCourses"
       @add="dialog = true">
       <template #cell-actions="{ row }">
         <span class="mdi mdi-pencil" style="color:var(--c-info);cursor:pointer;font-size:20px;padding:0 5px" @click="editItem(row)"></span>
@@ -36,50 +37,30 @@
     </id-data-grid>
 
     <!-- add / edit dialog -->
-    <v-dialog v-model="dialog" max-width="500px">
-      <v-card>
-        <v-card-title>
-          <span>{{ formTitle }}</span>
-        </v-card-title>
-        <v-card-text>
-          <v-container>
-            <v-row>
-              <v-col cols="12">
-                <v-text-field v-model="editedItem.coursename" :label="$t('table.courseName')"
-                  variant="solo-filled"></v-text-field>
-              </v-col>
-              <v-col cols="12">
-                <v-text-field v-model="editedItem.course_shortname" :label="$t('table.courseShortName')"
-                  variant="solo-filled"></v-text-field>
-              </v-col>
-            </v-row>
-          </v-container>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="blue-darken-1" variant="text" @click="close">
-            {{ $t('btn.cancel') }}
-          </v-btn>
-          <v-btn color="blue-darken-1" variant="text" @click="save">
-            {{ $t('btn.save') }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <id-modal v-model="dialog" size="md" icon="mdi-book-plus-multiple-outline" :title="formTitle">
+      <div class="modal-sec"><span class="mdi mdi-book-open-variant"></span> ข้อมูลคอร์ส</div>
+      <div class="form-grid">
+        <div class="field full"><label>{{ $t('table.courseName') }} <span class="req">*</span></label>
+          <input class="id-input" v-model="editedItem.coursename"></div>
+        <div class="field full"><label>{{ $t('table.courseShortName') }}</label>
+          <input class="id-input" v-model="editedItem.course_shortname"></div>
+      </div>
+      <template #footer>
+        <button class="id-btn id-btn-ghost" @click="close">{{ $t('btn.cancel') }}</button>
+        <button class="id-btn id-btn-primary" :disabled="!editedItem.coursename" @click="save">
+          <span class="mdi mdi-content-save"></span> {{ $t('btn.save') }}</button>
+      </template>
+    </id-modal>
 
     <!-- delete confirm dialog -->
-    <v-dialog v-model="dialogDelete" persistent width="auto">
-      <v-card>
-        <v-card-title></v-card-title>
-        <v-card-text>{{ $t('courses.confirmDelete') }}</v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">{{ $t('btn.ok') }}</v-btn>
-          <v-btn color="#F44336" variant="tonal" @click="closeDelete">{{ $t('btn.cancel') }}</v-btn>
-          <v-spacer></v-spacer>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <id-modal v-model="dialogDelete" size="sm" icon="mdi-delete-alert-outline" title="ยืนยันการลบ" persistent>
+      <p style="margin:0">{{ $t('courses.confirmDelete') }}</p>
+      <template #footer>
+        <button class="id-btn id-btn-ghost" @click="closeDelete">{{ $t('btn.cancel') }}</button>
+        <button class="id-btn id-btn-primary" style="background:var(--c-error)" @click="deleteItemConfirm">
+          <span class="mdi mdi-delete"></span> {{ $t('btn.ok') }}</button>
+      </template>
+    </id-modal>
   </div>
 </template>
 <script>
@@ -134,7 +115,8 @@ export default {
 
   methods: {
     async initialize() {
-      this.$emit('onLoading', true)
+      // menu-entry load: skeleton for the real fetch only (no artificial $minLoad —
+      // the 1s delay is reserved for grid page changes, not menu navigation)
       this.loadingCourses = true;
       const token = this.$store.getters.getToken;
       await axios
@@ -147,13 +129,11 @@ export default {
           if (response.data.success) {
             this.courselist = response.data.results
           }
-          this.loadingCourses = false;
         })
         .catch(() => {
           //console.error(error);
-          this.loadingCourses = false
         });
-      this.$emit('onLoading', false)
+      this.loadingCourses = false;
     },
 
     editItem(item) {

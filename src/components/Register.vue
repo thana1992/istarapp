@@ -11,48 +11,39 @@
         </div>
         <h2 class="reg-heading"><span class="mdi mdi-account-plus"></span> {{ $t('register.title') }}</h2>
         <p class="reg-subhead">{{ $t('register.privacyOf') }}</p>
-        <v-card class="reg-card pa-6" rounded="xl" elevation="2">
+        <div class="scard reg-scard">
           <v-form ref="form">
-            <v-text-field variant="solo-filled" v-model="username" :label="$t('register.username')" :rules="usernameRules" @input="removeSpaces('username')" required></v-text-field>
+            <div class="modal-sec"><span class="mdi mdi-card-account-details-outline"></span> {{ $t('register.title') }}</div>
+            <div class="form-grid">
+              <div class="field full"><label>{{ $t('register.username') }} <span class="req">*</span></label>
+                <input class="id-input" v-model="username" @input="removeSpaces('username')"></div>
+              <div class="field full"><label>{{ $t('register.password') }} <span class="req">*</span></label>
+                <input class="id-input" type="password" v-model="password"></div>
+              <div class="field"><label>{{ $t('register.firstname') }} <span class="req">*</span></label>
+                <input class="id-input" v-model="firstname"></div>
+              <div class="field"><label>{{ $t('register.lastname') }} <span class="req">*</span></label>
+                <input class="id-input" v-model="lastname"></div>
+              <div class="field full"><label>{{ $t('register.middlename') }}</label>
+                <input class="id-input" v-model="middlename"></div>
+              <div class="field full"><label>{{ $t('register.address') }}</label>
+                <input class="id-input" v-model="address"></div>
+              <div class="field full"><label>{{ $t('register.email') }} <span class="req">*</span></label>
+                <input class="id-input" type="email" v-model="email" @input="removeSpaces('email')"></div>
+              <div class="field"><label>{{ $t('register.mobile') }} <span class="req">*</span></label>
+                <input class="id-input" v-model="mobileno" @input="acceptNumber"></div>
+              <div class="field"><label>{{ $t('register.code') }} <span class="req">*</span></label>
+                <input class="id-input" v-model="registercode" @input="removeSpaces('registercode')"></div>
+            </div>
 
-            <v-text-field variant="solo-filled" v-model="password" :label="$t('register.password')" type="password" :rules="passwordRules" required></v-text-field>
+            <label class="id-cbx" style="align-items:flex-start;margin-top:16px" @click="acceptPrivacyPolicy = !acceptPrivacyPolicy">
+              <span class="id-check" :class="{ on: acceptPrivacyPolicy }" style="margin-top:1px;flex:0 0 auto"><span class="mdi mdi-check"></span></span>
+              <span style="font-size:12.5px">{{ $t('register.privacyConsent') }}
+                <a href="https://pdpa.pro/policies/view/en/UPCCiojcXUZQNYALpC1phePL" target="_blank" @click.stop>
+                  {{ $t('register.privacyOf') }} {{ $t('register.privacyPolicy') }}</a>
+              </span>
+            </label>
 
-            <v-text-field variant="solo-filled" v-model="firstname" :label="$t('register.firstname')" :rules="nameRules" required></v-text-field>
-
-            <v-text-field variant="solo-filled" v-model="middlename" :label="$t('register.middlename')"></v-text-field>
-
-            <v-text-field variant="solo-filled" v-model="lastname" :label="$t('register.lastname')" :rules="nameRules" required></v-text-field>
-
-            <v-text-field variant="solo-filled" v-model="address" :label="$t('register.address')" type="text" required></v-text-field>
-
-            <v-text-field variant="solo-filled" v-model="email" :label="$t('register.email')" type="text" :rules="emailRules" @input="removeSpaces('email')" required></v-text-field>
-
-            <v-text-field variant="solo-filled" v-model="mobileno" :label="$t('register.mobile')" @input="acceptNumber" type="text" :rules="mobileRules" required></v-text-field>
-
-            <v-text-field variant="solo-filled" v-model="registercode" :label="$t('register.code')" type="text" @input="removeSpaces('registercode')" required></v-text-field>
-
-            <v-checkbox v-model="acceptPrivacyPolicy">
-              <template v-slot:label>
-                <div style="font-size: 12px;">
-                  {{ $t('register.privacyConsent') }}
-                  <v-tooltip location="bottom">
-                    <template v-slot:activator="{ props }">
-                      <a
-                        href="https://pdpa.pro/policies/view/en/UPCCiojcXUZQNYALpC1phePL"
-                        target="_blank"
-                        v-bind="props"
-                        @click.stop
-                      >
-                        {{ $t('register.privacyOf') }} {{ $t('register.privacyPolicy') }}
-                      </a>
-                    </template>
-                    {{ $t('register.privacyPolicy') }}
-                  </v-tooltip>
-                </div>
-              </template>
-            </v-checkbox>
-
-            <button type="button" class="id-btn id-btn-primary reg-btn mt-1" :disabled="!acceptPrivacyPolicy" @click="doRegister">
+            <button type="button" class="id-btn id-btn-primary reg-btn mt-4" :disabled="!acceptPrivacyPolicy" @click="doRegister">
               <span class="mdi mdi-account-plus"></span> {{ $t('register.submit') }}
             </button>
             <button type="button" class="id-btn id-btn-soft reg-btn mt-3" @click="reset">
@@ -62,7 +53,7 @@
               <span class="mdi mdi-arrow-left"></span> {{ $t('register.cancel') }}
             </button>
           </v-form>
-        </v-card>
+        </div>
       </div>
     </section>
   </div>
@@ -151,7 +142,18 @@ export default {
       this.mobileno = !x[2] ? x[1] : x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '');
     },
     reset() {
-      this.$refs.form.reset()
+      // plain .id-input fields aren't Vuetify inputs → clear the bound data directly
+      this.username = ''
+      this.password = ''
+      this.registercode = ''
+      this.firstname = ''
+      this.middlename = ''
+      this.lastname = ''
+      this.address = ''
+      this.email = ''
+      this.mobileno = ''
+      this.acceptPrivacyPolicy = false
+      if (this.$refs.form) this.$refs.form.resetValidation()
     },
     resetValidation() {
       this.$refs.form.resetValidation()
@@ -246,12 +248,6 @@ export default {
   color: var(--c-text-muted);
   margin: 0 0 18px;
   font-size: 13px;
-}
-
-.reg-form .reg-card.reg-card {
-  background: var(--c-surface) !important;
-  border: 1px solid var(--c-border);
-  box-shadow: var(--shadow-md) !important;
 }
 
 /* Full-width pill-style action buttons */

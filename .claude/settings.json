@@ -11,7 +11,15 @@
       "Bash(grep -n \"^/\\\\*\\\\|====\\\\|theme-istar\\\\b\" \"c:/iStarApp/istarapp_dev/src/styles/global-style.css\")",
       "Bash(echo \"=== exit:$? \\(no matches = clean\\) ===\")",
       "Bash(grep -nE \"^body \\\\{|^html \\\\{|^html,|^\\\\s*body,|^body\\\\.\" src/styles/global-style.css)",
-      "Bash(grep -rnE \"\\\\.login-page\\\\s*\\\\{|\\\\.login-page,|\\\\.login-page\\\\s\" src/styles/global-style.css src/components/Login.vue)"
+      "Bash(grep -rnE \"\\\\.login-page\\\\s*\\\\{|\\\\.login-page,|\\\\.login-page\\\\s\" src/styles/global-style.css src/components/Login.vue)",
+      "Bash(python3 -c \"from PIL import Image; print\\(Image.open\\('src/assets/logo/logo-2.png'\\).size\\)\")",
+      "Bash(git -c core.autocrlf=false diff HEAD -- src/)",
+      "Bash(grep -n 'pageWindow\\\\|\\\\.map\\(\\\\|computed\\\\|async\\\\|minLoad\\\\|$minLoad' 'C:\\\\Users\\\\thana\\\\.claude\\\\projects\\\\c--iStarApp-iStarApp-2026-iStarApp-2026\\\\b8b78319-52f2-442b-9cde-7346c646ec82\\\\tool-results\\\\bcsa1uhvp.txt')",
+      "Bash(git -c core.autocrlf=false diff HEAD -- src/components/AddFamily.vue)",
+      "Bash(git -c core.autocrlf=false diff HEAD -- src/components/AddFamily.vue src/components/EditProfile.vue src/components/FamilyList.vue)",
+      "Bash(git -c core.autocrlf=false diff HEAD -- src/components/admin/BookingManagement.vue src/components/admin/CustomerCourse.vue)",
+      "Bash(git -c core.autocrlf=false diff HEAD -- src/components/admin/BookingManagement.vue)",
+      "Bash(git -c core.autocrlf=false diff HEAD -- src/components/EditProfile.vue)"
     ]
   },
   "enabledPlugins": {

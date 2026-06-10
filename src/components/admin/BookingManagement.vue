@@ -30,7 +30,9 @@
                             :columns="BookingListHeaders"
                             :rows="sortedBookingList"
                             :search-keys="['fullname', 'coursename', 'classtime']"
-                            :search-placeholder="$t('btn.search')">
+                            :filters="bookingFilters"
+                            :search-placeholder="$t('btn.search')"
+                            :loading="loadingBooking">
                             <template #actions>
                                 <button class="id-btn id-btn-ghost id-btn-sm" @click="initialize">
                                     <span class="mdi mdi-refresh"></span> {{ $t('btn.refresh') }}
@@ -51,174 +53,88 @@
                             </template>
                         </id-data-grid>
                         <!-- booking dialogs (modals — teleported, so layout/placement is unaffected) -->
-                                            <v-dialog v-model="dialogBookingEdit" max-width="800px">
-                                                <v-card>
-                                                    <v-card-title class="sticky-header">
-                                                        <span v-if="editedBookingIndex == -1"
-                                                            class="mdi mdi-emoticon-plus-outline"></span>
-                                                        <span v-if="editedBookingIndex != -1"
-                                                            class="mdi mdi-human-edit"></span>
-                                                        <span>{{ formBookingTitle }}</span>
-                                                    </v-card-title>
-                                                    <v-card-text class="scrollable-content">
-                                                        <v-container>
-                                                            <v-form ref="bookingform">
-                                                                <v-row>
-                                                                    <v-col cols="12" sm="12" md="12">
-                                                                        <v-label :class="courseinfoColor">{{ editedBookingItem.courseinfo }}</v-label>
-                                                                    </v-col>
-                                                                    <v-col cols="12" sm="6" md="6">
-                                                                        <v-autocomplete v-model="editedBookingItem.studentid"
-                                                                            :label="$t('table.name')" item-title="name"
-                                                                            item-value="studentid"
-                                                                            :items="studentLookup" variant="solo-filled"
-                                                                            :no-data-text="$t('common.noStudentData')"
-                                                                            :rules="notNullRules"
-                                                                            @update:modelValue="onStudentChange"
-                                                                            :readonly="editedBookingIndex != -1"
-                                                                            filterable
-                                                                            required>
-                                                                        </v-autocomplete>
-                                                                    </v-col>
-                                                                    <v-col cols="12" sm="6" md="6">
-                                                                        <v-select v-model="editedBookingItem.courseid"
-                                                                            :label="$t('table.courseName')" item-title="coursename"
-                                                                            item-value="courseid" :items="courseLookup"
-                                                                            variant="solo-filled"
-                                                                            :no-data-text="$t('common.noCourseData')"
-                                                                            :rules="notNullRules"
-                                                                            :loading="loadingCourse"
-                                                                            @update:modelValue="getClassTime"
-                                                                            required></v-select>
-                                                                    </v-col>
-                                                                    <v-col cols="12" sm="6" md="4">
-                                                                        <DatePicker :label="$t('table.date')"
-                                                                            v-model="selectedDate" variant="solo-filled"
-                                                                            @update:modelValue="getClassTime" :rules="requireRules">
-                                                                        </DatePicker>
-                                                                    </v-col>
-                                                                    <v-col cols="12" sm="6" md="6">
-                                                                        <v-select v-model="editedBookingItem.classtime"
-                                                                            :label="$t('table.classTime')" item-title="text"
-                                                                            item-value="classid" :items="classtimesData"
-                                                                            variant="solo-filled" :rules="notNullRules"
-                                                                            :no-data-text="$t('common.noClassData')"
-                                                                            :loading="loadingClassTime"
-                                                                            return-object="true" required></v-select>
-                                                                    </v-col>
-                                                                    <v-col cols="4" sm="4" md="4">
-                                                                        <v-checkbox
-                                                                        v-model="editedBookingItem.freeflag"
-                                                                        :label="$t('bookingMgmt.freeClass')"
-                                                                        color="success"
-                                                                        class="ma-2"
-                                                                        :disabled="editedBookingIndex != -1"
-                                                                        :value="1"
-                                                                        />
-                                                                    </v-col>
-                                                                </v-row>
-                                                            </v-form>
-                                                        </v-container>
-                                                    </v-card-text>
-
-                                                    <v-card-actions class="sticky-footer">
-                                                        <v-spacer></v-spacer>
-                                                        <v-btn color="red-darken-1" variant="flat"
-                                                            @click="closeEditBooking">
-                                                            {{ $t('btn.cancel') }}
-                                                        </v-btn>
-                                                        <v-btn color="blue-darken-1" variant="flat"
-                                                            @click="doSaveNewBooking">
-                                                            {{ $t('btn.save') }}
-                                                        </v-btn>
-                                                    </v-card-actions>
-                                                </v-card>
-                                            </v-dialog>
-                                            <v-dialog v-model="dialogBookingDelete" persistent width="auto">
-                                                <v-card>
-                                                    <v-card-title></v-card-title>
-                                                    <v-card-text>{{ $t('bookingMgmt.confirmDelete', { name: editedBookingItem.fullname }) }}</v-card-text>
-                                                    <v-card-actions>
-                                                        <v-spacer></v-spacer>
-                                                        <v-btn color="#4CAF50" variant="tonal"
-                                                            @click="clickConfirmDeleteBooking">{{ $t('btn.ok') }}</v-btn>
-                                                        <v-btn color="#F44336" variant="tonal"
-                                                            @click="clickCancelDeleteBooking">{{ $t('btn.cancel') }}</v-btn>
-
-                                                        <v-spacer></v-spacer>
-                                                    </v-card-actions>
-                                                </v-card>
-                                            </v-dialog>
-                                            <v-dialog v-model="dialogCheckin" persistent width="auto">
-                                                <v-card>
-                                                    <v-card-title></v-card-title>
-                                                    <v-card-text>{{ $t('bookingMgmt.confirmCheckin', { name: editedBookingItem.fullname }) }}</v-card-text>
-                                                    <v-card-actions>
-                                                        <v-spacer></v-spacer>
-                                                        <v-btn color="#4CAF50" variant="tonal"
-                                                            @click="clickConfirmCheckinDialog">{{ $t('btn.ok') }}</v-btn>
-                                                        <v-btn color="#F44336" variant="tonal"
-                                                            @click="clickCancelCheckinDialog">{{ $t('btn.cancel') }}</v-btn>
-
-                                                        <v-spacer></v-spacer>
-                                                    </v-card-actions>
-                                                </v-card>
-                                            </v-dialog>
-                                            <v-dialog v-model="dialogUndoCheckin" persistent width="auto">
-                                                <v-card>
-                                                    <v-card-title></v-card-title>
-                                                    <v-card-text>{{ $t('bookingMgmt.confirmUndoCheckin', { name: editedBookingItem.fullname }) }}</v-card-text>
-                                                    <v-card-actions>
-                                                        <v-spacer></v-spacer>
-                                                        <v-btn color="#4CAF50" variant="tonal"
-                                                            @click="clickConfirmUndoCheckinDialog">{{ $t('btn.ok') }}</v-btn>
-                                                        <v-btn color="#F44336" variant="tonal"
-                                                            @click="clickCancelUndoCheckinDialog">{{ $t('btn.cancel') }}</v-btn>
-
-                                                        <v-spacer></v-spacer>
-                                                    </v-card-actions>
-                                                </v-card>
-                                            </v-dialog>
+                                            <id-modal v-model="dialogBookingEdit" size="lg" persistent
+                                                :icon="editedBookingIndex == -1 ? 'mdi-emoticon-plus-outline' : 'mdi-human-edit'"
+                                                :title="formBookingTitle">
+                                                <v-form ref="bookingform">
+                                                    <div v-if="editedBookingItem.courseinfo" class="t-cap" :class="courseinfoColor" style="margin-bottom:14px">{{ editedBookingItem.courseinfo }}</div>
+                                                    <div class="form-grid">
+                                                        <div class="field"><label>{{ $t('table.name') }} <span class="req">*</span></label>
+                                                            <id-select v-model="editedBookingItem.studentid" searchable :disabled="editedBookingIndex != -1"
+                                                                placeholder="— เลือกนักเรียน —" search-placeholder="พิมพ์ชื่อนักเรียน…"
+                                                                :options="studentLookup.map(s => ({ value: s.studentid, label: s.name }))"
+                                                                @update:model-value="onStudentChange"></id-select></div>
+                                                        <div class="field"><label>{{ $t('table.courseName') }} <span class="req">*</span></label>
+                                                            <id-select v-model="editedBookingItem.courseid" searchable placeholder="— เลือกคอร์ส —"
+                                                                :options="courseLookup.map(c => ({ value: c.courseid, label: c.coursename }))"
+                                                                @update:model-value="getClassTime"></id-select></div>
+                                                        <div class="field"><label>{{ $t('table.date') }}</label>
+                                                            <id-date v-model="selectedDate" placeholder="เลือกวันที่" @update:model-value="getClassTime"></id-date></div>
+                                                        <div class="field"><label>{{ $t('table.classTime') }} <span class="req">*</span></label>
+                                                            <id-select :model-value="editedBookingItem.classtime ? editedBookingItem.classtime.classid : ''"
+                                                                placeholder="— เลือกรอบเวลา —"
+                                                                :options="classtimesData.map(c => ({ value: c.classid, label: c.text }))"
+                                                                @update:model-value="id => editedBookingItem.classtime = classtimesData.find(c => c.classid === id)"></id-select></div>
+                                                    </div>
+                                                    <label class="id-cbx" style="margin-top:16px" :style="{ opacity: editedBookingIndex != -1 ? .5 : 1 }"
+                                                        @click="editedBookingIndex == -1 && (editedBookingItem.freeflag = editedBookingItem.freeflag ? 0 : 1)">
+                                                        <span class="id-check" :class="{ on: editedBookingItem.freeflag == 1 }"><span class="mdi mdi-check"></span></span>
+                                                        {{ $t('bookingMgmt.freeClass') }}
+                                                    </label>
+                                                </v-form>
+                                                <template #footer>
+                                                    <button class="id-btn id-btn-ghost" @click="closeEditBooking">{{ $t('btn.cancel') }}</button>
+                                                    <button class="id-btn id-btn-primary"
+                                                        :disabled="!editedBookingItem.studentid || !editedBookingItem.courseid || !editedBookingItem.classtime"
+                                                        @click="doSaveNewBooking">
+                                                        <span class="mdi mdi-content-save"></span> {{ $t('btn.save') }}</button>
+                                                </template>
+                                            </id-modal>
+                                            <id-modal v-model="dialogBookingDelete" size="sm" icon="mdi-delete-alert-outline" title="ยืนยันการลบ" persistent>
+                                                <p style="margin:0">{{ $t('bookingMgmt.confirmDelete', { name: editedBookingItem.fullname }) }}</p>
+                                                <template #footer>
+                                                    <button class="id-btn id-btn-ghost" @click="clickCancelDeleteBooking">{{ $t('btn.cancel') }}</button>
+                                                    <button class="id-btn id-btn-primary" style="background:var(--c-error)" @click="clickConfirmDeleteBooking"><span class="mdi mdi-delete"></span> {{ $t('btn.ok') }}</button>
+                                                </template>
+                                            </id-modal>
+                                            <id-modal v-model="dialogCheckin" size="sm" icon="mdi-check-circle-outline" :title="$t('bookingList.menuCheckin')" persistent>
+                                                <p style="margin:0">{{ $t('bookingMgmt.confirmCheckin', { name: editedBookingItem.fullname }) }}</p>
+                                                <template #footer>
+                                                    <button class="id-btn id-btn-ghost" @click="clickCancelCheckinDialog">{{ $t('btn.cancel') }}</button>
+                                                    <button class="id-btn id-btn-primary" @click="clickConfirmCheckinDialog"><span class="mdi mdi-check"></span> {{ $t('btn.ok') }}</button>
+                                                </template>
+                                            </id-modal>
+                                            <id-modal v-model="dialogUndoCheckin" size="sm" icon="mdi-undo-variant" :title="$t('bookingList.menuUndoCheckin')" persistent>
+                                                <p style="margin:0">{{ $t('bookingMgmt.confirmUndoCheckin', { name: editedBookingItem.fullname }) }}</p>
+                                                <template #footer>
+                                                    <button class="id-btn id-btn-ghost" @click="clickCancelUndoCheckinDialog">{{ $t('btn.cancel') }}</button>
+                                                    <button class="id-btn id-btn-primary" @click="clickConfirmUndoCheckinDialog"><span class="mdi mdi-check"></span> {{ $t('btn.ok') }}</button>
+                                                </template>
+                                            </id-modal>
                     </div>
                 </Transition>
             </div>
         </div>
-    <v-dialog width="500" v-model="errorDialog">
-        <template v-slot:default>
-            <v-card :title="$t('dialog.error')" color="#F44336">
-                <v-card-text>
-                    {{ errorMsg }}
-                </v-card-text>
-                <v-card-actions>
-                    <v-btn color="primary" variant="tonal" block @click="errorDialog = false">{{ $t('btn.close') }}</v-btn>
-                </v-card-actions>
-            </v-card>
+    <id-modal v-model="errorDialog" size="sm" icon="mdi-alert-circle-outline" :title="$t('dialog.error')">
+        <p style="margin:0">{{ errorMsg }}</p>
+        <template #footer>
+            <button class="id-btn id-btn-primary" @click="errorDialog = false">{{ $t('btn.close') }}</button>
         </template>
-    </v-dialog>
+    </id-modal>
 
-    <v-dialog width="500" v-model="infoDialog">
-        <template v-slot:default>
-            <v-card :title="$t('dialog.success')" color="#98FB98">
-                <v-card-text>
-                    {{ infoMsg }}
-                </v-card-text>
-                <v-card-actions>
-                    <v-btn color="primary" variant="tonal" block @click="infoDialog = false">{{ $t('btn.ok') }}</v-btn>
-                </v-card-actions>
-            </v-card>
+    <id-modal v-model="infoDialog" size="sm" icon="mdi-check-circle-outline" :title="$t('dialog.success')">
+        <p style="margin:0">{{ infoMsg }}</p>
+        <template #footer>
+            <button class="id-btn id-btn-primary" @click="infoDialog = false">{{ $t('btn.ok') }}</button>
         </template>
-    </v-dialog>
+    </id-modal>
     </div>
 </template>
 <script>
 import axios from 'axios'
-import DatePicker from '@/components/DatePicker.vue'
 import moment from 'moment'
 import { mapGetters } from 'vuex';
 export default ({
-    components: {
-        DatePicker,
-    },
     data() {
         return {
             search: '',
@@ -720,15 +636,18 @@ export default ({
         async getReservationList() {
             const reservedate = this.SQLDate(this.date)
             this.loadingBooking = true
+            const t0 = Date.now()
             const token = this.$store.getters.getToken;
             await DashboardAPI.fetchDataBooking({ token, reservedate })
-                .then(({ success, results, message }) => {
+                .then(async ({ success, results, message }) => {
                     if (success) {
                         this.BookingList = results
                         if (reservedate == this.SQLDate(this.date)) {
+                            await this.$minLoad(t0)
                             this.loadingBooking = false
                         }
                     } else {
+                        await this.$minLoad(t0)
                         this.loadingBooking = false
                         this.$emit('onErrorHandler', message || 'Get Reservation failed')
                     }
@@ -816,6 +735,17 @@ export default ({
         // (replaces the v-data-table :sort-by we removed in the grid conversion).
         sortedBookingList() {
             return [...this.BookingList].sort((a, b) => String(a.classtime).localeCompare(String(b.classtime)))
+        },
+        // toolbar filters (client-side, IdDataGrid): by course + by check-in status
+        bookingFilters() {
+            const courses = [...new Set(this.BookingList.map(b => b.coursename).filter(Boolean))].map(c => ({ value: c, label: c }))
+            return [
+                { key: 'coursename', label: this.$t('table.courseName'), options: courses },
+                { key: 'checkedin', label: this.$t('table.checkin'), options: [
+                    { value: 1, label: this.$t('bookingList.menuCheckedInBadge') },
+                    { value: 0, label: this.$t('bookingList.notCheckedIn') },
+                ] },
+            ]
         },
     }
 

@@ -185,27 +185,19 @@
             </div>
         </div>
 
-        <v-dialog width="500" v-model="errorDialog">
-            <v-card :title="$t('dialog.error')" color="#F44336">
-                <v-card-text>
-                    {{ errorMsg }}
-                </v-card-text>
-                <v-card-actions>
-                    <v-btn color="primary" variant="tonal" block @click="errorDialog = false">{{ $t('btn.close') }}</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <id-modal v-model="errorDialog" size="sm" icon="mdi-alert-circle-outline" :title="$t('dialog.error')">
+            <p style="margin:0">{{ errorMsg }}</p>
+            <template #footer>
+                <button class="id-btn id-btn-primary" @click="errorDialog = false">{{ $t('btn.close') }}</button>
+            </template>
+        </id-modal>
 
-        <v-dialog width="500" v-model="infoDialog">
-            <v-card :title="$t('dialog.success')" color="#98FB98">
-                <v-card-text>
-                    {{ infoMsg }}
-                </v-card-text>
-                <v-card-actions>
-                    <v-btn color="primary" variant="tonal" block @click="infoDialog = false">{{ $t('btn.ok') }}</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <id-modal v-model="infoDialog" size="sm" icon="mdi-check-circle-outline" :title="$t('dialog.success')">
+            <p style="margin:0">{{ infoMsg }}</p>
+            <template #footer>
+                <button class="id-btn id-btn-primary" @click="infoDialog = false">{{ $t('btn.ok') }}</button>
+            </template>
+        </id-modal>
     </div>
 </template>
 <script>

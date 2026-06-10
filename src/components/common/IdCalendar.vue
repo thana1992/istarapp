@@ -6,6 +6,8 @@
   Pick ANY date freely, but disable (un-pickable):
     • every Monday (disableMondays, default true) — date.getDay() === 1
     • holiday dates passed via :holiday-keys (key format 'YYYY-M-D')
+    • any date BEFORE :min-date (optional) — used by customer booking so the
+      past AND today can't be booked (pass tomorrow as min-date)
   Layout comes from global istar-pages.css (.cal-*) — no scoped CSS.
 
   Props:
@@ -13,12 +15,14 @@
     holidayKeys    Array   [string] disabled holiday keys
     markKeys       Array   [string] keys to show a dot under (e.g. days with bookings)
     disableMondays Boolean default true
+    minDate        Date    optional — dates before this day are disabled (and the
+                           calendar can't page back past its month)
   Emits: update:modelValue
 ============================================================ -->
 <template>
   <div class="idcal">
     <div class="cal-nav">
-      <span class="mdi mdi-chevron-left" @click="prev"></span>
+      <span class="mdi mdi-chevron-left" :class="{ 'cal-nav-off': !canPrev }" @click="prev"></span>
       <span>{{ monthLabel }}</span>
       <span class="mdi mdi-chevron-right" @click="next"></span>
     </div>
@@ -30,7 +34,7 @@
           v-else
           class="cal-cell"
           :class="{ on: c.key === modelValue, disabled: c.disabled, today: c.today }"
-          :title="c.disabled ? (c.mon ? 'วันจันทร์ — ปิดทำการ' : 'วันหยุด — ปิดทำการ') : ''"
+          :title="c.disabled ? (c.past ? 'จองได้ตั้งแต่พรุ่งนี้เป็นต้นไป' : c.mon ? 'วันจันทร์ — ปิดทำการ' : 'วันหยุด — ปิดทำการ') : ''"
           @click="pick(c)"
         >
           {{ c.n }}<span v-if="c.mark && !c.disabled" class="cal-dot"></span>
@@ -52,6 +56,7 @@ export default {
     holidayKeys: { type: Array, default: () => [] },
     markKeys: { type: Array, default: () => [] },
     disableMondays: { type: Boolean, default: true },
+    minDate: { type: Date, default: null },
   },
   emits: ['update:modelValue'],
   data() {
@@ -61,6 +66,15 @@ export default {
   computed: {
     monthLabel() { return TH_MONTHS[this.vm] + ' ' + (this.vy + 543); },
     todayKey() { return keyOf(new Date()); },
+    minTime() {
+      if (!this.minDate) return null;
+      return new Date(this.minDate.getFullYear(), this.minDate.getMonth(), this.minDate.getDate()).getTime();
+    },
+    canPrev() {
+      if (this.minTime === null) return true;
+      const m = new Date(this.minTime);
+      return this.vy > m.getFullYear() || (this.vy === m.getFullYear() && this.vm > m.getMonth());
+    },
     cells() {
       const offset = new Date(this.vy, this.vm, 1).getDay();
       const days = new Date(this.vy, this.vm + 1, 0).getDate();
@@ -69,11 +83,13 @@ export default {
       for (let n = 1; n <= days; n++) {
         const d = new Date(this.vy, this.vm, n);
         const k = keyOf(d);
+        const past = this.minTime !== null && d.getTime() < this.minTime;
         arr.push({
           n,
           key: k,
           mon: d.getDay() === 1,
-          disabled: (this.disableMondays && d.getDay() === 1) || this.holidayKeys.includes(k),
+          past,
+          disabled: (this.disableMondays && d.getDay() === 1) || this.holidayKeys.includes(k) || past,
           today: k === this.todayKey,
           mark: this.markKeys.includes(k),
         });
@@ -83,7 +99,7 @@ export default {
   },
   methods: {
     parse(k) { const p = k.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); },
-    prev() { if (this.vm === 0) { this.vm = 11; this.vy--; } else this.vm--; },
+    prev() { if (!this.canPrev) return; if (this.vm === 0) { this.vm = 11; this.vy--; } else this.vm--; },
     next() { if (this.vm === 11) { this.vm = 0; this.vy++; } else this.vm++; },
     pick(c) { if (!c || c.disabled) return; this.$emit('update:modelValue', c.key); },
   },
@@ -98,4 +114,6 @@ export default {
   max-width: 380px;
   margin: 0 auto;
 }
+/* prev arrow when the calendar can't page earlier than min-date */
+.cal-nav-off { opacity: .28; pointer-events: none; cursor: default; }
 </style>

@@ -1,0 +1,459 @@
+/* ============================================================
+   iStar Design System — SEASONAL THEMES
+   ------------------------------------------------------------
+   The base look ("Default" / iStar pink) lives in :root inside
+   istar-design.css. These blocks RE-PAINT that look for Thai
+   seasonal festivals by overriding the design TOKENS only.
+
+   PAINT-ONLY rule (see CLAUDE.md › Layout Consistency Rule):
+   a theme may change colors, gradients, shadows and the sidebar/
+   topbar palette — it must NEVER change a layout dimension. So we
+   deliberately do NOT touch radius / spacing / fonts, and we keep
+   the FUNCTIONAL status colors (success / warning / error / info)
+   and the roster markers (--c-trial blue, --c-session) identical
+   across every theme so the booking grid keeps reading the same.
+
+   Each `html.theme-*` selector (specificity 0,1,1) wins over the
+   `:root` block (0,1,0), so adding the class to <html> swaps the
+   palette instantly. Removing it restores the Default theme. The
+   always-on `theme-playful` class only defines legacy --pf-* vars,
+   so it never competes with these --c-* overrides.
+
+   Import ONCE in src/main.js AFTER istar-pages.css.
+   ============================================================ */
+
+/* ============================================================
+   วันแม่ — Mother's Day  (12 ส.ค.)
+   Thai Mother's Day colour = sky-blue (สีฟ้า, H.M. Queen Sirikit),
+   with white jasmine (ดอกมะลิ, the flower of motherly love) and a
+   warm jasmine-gold accent. Calm, gentle, regal.
+   ============================================================ */
+html.theme-mothersday {
+  /* brand — sky blue */
+  --c-primary:        #2f8fd6;
+  --c-primary-light:  #9ed3f4;
+  --c-primary-dark:   #1f6fb0;
+  --c-primary-deeper: #0c4a6e;
+  --c-secondary:      #6aa9e0;
+  --c-secondary-light:#bfe0f6;
+  --c-accent:         #e9bd3f;   /* jasmine-gold centre */
+
+  /* surfaces — airy sky → jasmine cream */
+  --c-bg:        #eef6fd;
+  --c-bg-grad:   linear-gradient(160deg, #e3f1fb 0%, #eef6fc 46%, #fffdf4 100%);
+  --c-surface:   #ffffff;
+  --c-surface-2: #f1f8fd;
+  --c-surface-3: #e3f1fb;
+  --c-surface-inset: #f3f9fe;
+  --c-primary-soft: #d8eefb;
+  --c-zebra:        #f4fafe;
+
+  /* text — deep sky-ink (reads on cream page AND on white cards) */
+  --c-text-heading: #0c4a6e;
+  --c-text-body:    #335b75;
+  --c-text-muted:   #8bb0c8;
+
+  /* lines & focus */
+  --c-border:        #cfe6f5;
+  --c-border-strong: #93c6ea;
+  --c-ring:          rgba(47, 143, 214, .35);
+
+  /* shadows — re-tinted sky blue */
+  --shadow-sm:  0 2px 8px  rgba(47, 143, 214, .12);
+  --shadow-md:  0 8px 24px rgba(47, 143, 214, .18);
+  --shadow-lg:  0 20px 48px rgba(31, 111, 176, .22);
+  --shadow-pop: 0 12px 32px rgba(12, 74, 110, .26);
+
+  /* shell — sky-blue sidebar fading to soft cornflower */
+  --sidebar-bg: linear-gradient(180deg, #2f8fd6 0%, #2b7fc4 55%, #5470cf 100%);
+  --sidebar-tx: #f0f9ff;
+  --sidebar-tx-muted: #c7e3f6;
+  --sidebar-active-bg: rgba(255, 255, 255, .22);
+  --sidebar-active-tx: #ffffff;
+  --sidebar-hover-bg: rgba(255, 255, 255, .12);
+  --topbar-bg: rgba(247, 252, 255, .82);
+  --topbar-border: #cfe6f5;
+}
+
+/* the pink page-icon / step badges read better in the deep-sky tone */
+html.theme-mothersday .pg-ico,
+html.theme-mothersday .step-num { background: var(--c-primary); }
+
+/* ============================================================
+   ลอยกระทง — Loy Krathong  (เพ็ญเดือน 12)
+   Night of the full moon: warm candle-gold light floating on dark
+   water, lotus-pink krathong, drifting sky-lanterns (โคมลอย).
+   Surfaces stay light so every card/table keeps its dark-on-light
+   legibility; the "night festival" mood lives in the warm page
+   wash, the twilight sidebar and the overlay (moon + lanterns).
+   ============================================================ */
+html.theme-loykrathong {
+  /* brand — marigold candle-gold + lotus pink */
+  --c-primary:        #e08a2e;
+  --c-primary-light:  #f4c98a;
+  --c-primary-dark:   #bd6a26;
+  --c-primary-deeper: #7c3a12;
+  --c-secondary:      #d65d92;   /* lotus pink */
+  --c-secondary-light:#f3b6d0;
+  --c-accent:         #f5b942;   /* gold */
+
+  /* surfaces — dusk lavender → warm candlelight (light enough for dark text) */
+  --c-bg:        #fff5e9;
+  --c-bg-grad:   linear-gradient(160deg, #efe3ff 0%, #ffe6d2 54%, #fff5e6 100%);
+  --c-surface:   #ffffff;
+  --c-surface-2: #fff6ea;
+  --c-surface-3: #ffeed8;
+  --c-surface-inset: #fff8f0;
+  --c-primary-soft: #ffe6c8;
+  --c-zebra:        #fff7ee;
+
+  /* text — deep terracotta (reads on warm cream AND on white cards) */
+  --c-text-heading: #7c3a12;
+  --c-text-body:    #5e4634;
+  --c-text-muted:   #b8966f;
+
+  /* lines & focus */
+  --c-border:        #f3ddc0;
+  --c-border-strong: #e9bd86;
+  --c-ring:          rgba(224, 138, 46, .35);
+
+  /* shadows — warm gold */
+  --shadow-sm:  0 2px 8px  rgba(189, 106, 38, .14);
+  --shadow-md:  0 8px 24px rgba(189, 106, 38, .20);
+  --shadow-lg:  0 20px 48px rgba(124, 58, 18, .24);
+  --shadow-pop: 0 12px 32px rgba(124, 58, 18, .28);
+
+  /* shell — night sky → warm horizon glow */
+  --sidebar-bg: linear-gradient(180deg, #382364 0%, #6d3a63 56%, #c06a34 100%);
+  --sidebar-tx: #fdeede;
+  --sidebar-tx-muted: #e9cbb2;
+  --sidebar-active-bg: rgba(255, 255, 255, .20);
+  --sidebar-active-tx: #ffffff;
+  --sidebar-hover-bg: rgba(255, 255, 255, .12);
+  --topbar-bg: rgba(255, 248, 240, .82);
+  --topbar-border: #f3ddc0;
+}
+
+html.theme-loykrathong .pg-ico,
+html.theme-loykrathong .step-num { background: var(--c-primary); }
+
+/* ============================================================
+   ปีใหม่ — New Year  (1 ม.ค.)
+   Midnight-blue night sky lit by champagne-gold fireworks. Surfaces
+   stay cool-white → champagne so cards keep dark-on-light contrast;
+   the "midnight" mood lives in the navy sidebar + fireworks overlay.
+   ============================================================ */
+html.theme-newyear {
+  --c-primary:        #bb8b27;
+  --c-primary-light:  #ecd58a;
+  --c-primary-dark:   #8e6818;
+  --c-primary-deeper: #533c0c;
+  --c-secondary:      #33406b;   /* midnight blue */
+  --c-secondary-light:#aab4d8;
+  --c-accent:         #d9b14a;   /* champagne gold */
+
+  --c-bg:        #f6f4ef;
+  --c-bg-grad:   linear-gradient(160deg, #eaeefb 0%, #f8f1d9 56%, #fffdf5 100%);
+  --c-surface:   #ffffff;
+  --c-surface-2: #f7f4ea;
+  --c-surface-3: #f0ead6;
+  --c-surface-inset: #faf7ef;
+  --c-primary-soft: #f3e7c2;
+  --c-zebra:        #faf7ee;
+
+  --c-text-heading: #2a2150;
+  --c-text-body:    #4a4368;
+  --c-text-muted:   #9a91b0;
+
+  --c-border:        #e6dcc0;
+  --c-border-strong: #d2bd86;
+  --c-ring:          rgba(187, 139, 39, .35);
+
+  --shadow-sm:  0 2px 8px  rgba(51, 64, 107, .14);
+  --shadow-md:  0 8px 24px rgba(51, 64, 107, .20);
+  --shadow-lg:  0 20px 48px rgba(42, 33, 80, .24);
+  --shadow-pop: 0 12px 32px rgba(42, 33, 80, .28);
+
+  --sidebar-bg: linear-gradient(180deg, #1e2a52 0%, #2c2150 55%, #9a7320 100%);
+  --sidebar-tx: #f7f1df;
+  --sidebar-tx-muted: #cfd2e6;
+  --sidebar-active-bg: rgba(255, 255, 255, .20);
+  --sidebar-active-tx: #ffffff;
+  --sidebar-hover-bg: rgba(255, 255, 255, .12);
+  --topbar-bg: rgba(250, 247, 239, .82);
+  --topbar-border: #e6dcc0;
+}
+html.theme-newyear .pg-ico,
+html.theme-newyear .step-num { background: var(--c-primary); }
+
+/* ============================================================
+   สงกรานต์ — Songkran  (13–15 เม.ย.)
+   Thai New Year water festival: cool aqua water splashing under a
+   bright summer sun. Surfaces stay airy aqua-white.
+   ============================================================ */
+html.theme-songkran {
+  --c-primary:        #14a9b8;
+  --c-primary-light:  #8fe1ea;
+  --c-primary-dark:   #0d8794;
+  --c-primary-deeper: #094f57;
+  --c-secondary:      #2f9fe0;   /* water blue */
+  --c-secondary-light:#aedcf6;
+  --c-accent:         #ffc83d;   /* summer sun */
+
+  --c-bg:        #e7f7f8;
+  --c-bg-grad:   linear-gradient(160deg, #dbf4f6 0%, #eafbfb 50%, #fffefa 100%);
+  --c-surface:   #ffffff;
+  --c-surface-2: #eef9fa;
+  --c-surface-3: #dcf2f4;
+  --c-surface-inset: #f1fafb;
+  --c-primary-soft: #c9eef2;
+  --c-zebra:        #f2fbfb;
+
+  --c-text-heading: #094f57;
+  --c-text-body:    #2c6068;
+  --c-text-muted:   #84b3b9;
+
+  --c-border:        #c9e9ec;
+  --c-border-strong: #8fd2da;
+  --c-ring:          rgba(20, 169, 184, .35);
+
+  --shadow-sm:  0 2px 8px  rgba(20, 169, 184, .14);
+  --shadow-md:  0 8px 24px rgba(20, 169, 184, .20);
+  --shadow-lg:  0 20px 48px rgba(13, 135, 148, .24);
+  --shadow-pop: 0 12px 32px rgba(9, 79, 87, .28);
+
+  --sidebar-bg: linear-gradient(180deg, #0fa6b4 0%, #1f8fce 60%, #2f6fd0 100%);
+  --sidebar-tx: #effdfe;
+  --sidebar-tx-muted: #c2eaf1;
+  --sidebar-active-bg: rgba(255, 255, 255, .22);
+  --sidebar-active-tx: #ffffff;
+  --sidebar-hover-bg: rgba(255, 255, 255, .12);
+  --topbar-bg: rgba(241, 252, 253, .82);
+  --topbar-border: #c9e9ec;
+}
+html.theme-songkran .pg-ico,
+html.theme-songkran .step-num { background: var(--c-primary); }
+
+/* ============================================================
+   ฮาโลวีน — Halloween  (31 ต.ค.)
+   Pumpkin orange + witchy purple. Surfaces stay light (pale lavender
+   → cream) per the layout rule; the spooky night lives in the dark
+   purple sidebar + the bats/pumpkin overlay.
+   ============================================================ */
+html.theme-halloween {
+  --c-primary:        #e8731c;   /* pumpkin */
+  --c-primary-light:  #f6b87a;
+  --c-primary-dark:   #bf5410;
+  --c-primary-deeper: #6e2f08;
+  --c-secondary:      #7c3aed;   /* witch purple */
+  --c-secondary-light:#c7adf6;
+  --c-accent:         #9a63f0;
+
+  --c-bg:        #f3edfb;
+  --c-bg-grad:   linear-gradient(160deg, #ece2fb 0%, #fbeede 55%, #fff7ec 100%);
+  --c-surface:   #ffffff;
+  --c-surface-2: #f7f1fc;
+  --c-surface-3: #efe6f8;
+  --c-surface-inset: #faf6fe;
+  --c-primary-soft: #fcdfc2;
+  --c-zebra:        #f8f3fc;
+
+  --c-text-heading: #4a2a6b;
+  --c-text-body:    #5b4a3a;
+  --c-text-muted:   #a594b0;
+
+  --c-border:        #e6d8f1;
+  --c-border-strong: #c3a9e0;
+  --c-ring:          rgba(232, 115, 28, .35);
+
+  --shadow-sm:  0 2px 8px  rgba(124, 58, 237, .14);
+  --shadow-md:  0 8px 24px rgba(124, 58, 237, .20);
+  --shadow-lg:  0 20px 48px rgba(74, 42, 107, .26);
+  --shadow-pop: 0 12px 32px rgba(74, 42, 107, .30);
+
+  --sidebar-bg: linear-gradient(180deg, #2a1840 0%, #1a1020 55%, #7a3a10 100%);
+  --sidebar-tx: #fbeede;
+  --sidebar-tx-muted: #d3c4e0;
+  --sidebar-active-bg: rgba(255, 255, 255, .18);
+  --sidebar-active-tx: #ffffff;
+  --sidebar-hover-bg: rgba(255, 255, 255, .10);
+  --topbar-bg: rgba(250, 246, 254, .82);
+  --topbar-border: #e6d8f1;
+}
+html.theme-halloween .pg-ico,
+html.theme-halloween .step-num { background: var(--c-primary); }
+
+/* ============================================================
+   คริสต์มาส — Christmas  (25 ธ.ค.)
+   Pine green + crimson + gold, snow on light surfaces.
+   ============================================================ */
+html.theme-christmas {
+  --c-primary:        #c0392b;   /* crimson */
+  --c-primary-light:  #ef9a93;
+  --c-primary-dark:   #99291e;
+  --c-primary-deeper: #5e160f;
+  --c-secondary:      #1f7a4d;   /* pine green */
+  --c-secondary-light:#9ad6b8;
+  --c-accent:         #d4af37;   /* gold */
+
+  --c-bg:        #eaf5ee;
+  --c-bg-grad:   linear-gradient(160deg, #e6f4ea 0%, #f4fbf6 50%, #fff8f6 100%);
+  --c-surface:   #ffffff;
+  --c-surface-2: #eff8f2;
+  --c-surface-3: #e1f0e7;
+  --c-surface-inset: #f4fbf6;
+  --c-primary-soft: #f8d9d4;
+  --c-zebra:        #f3faf5;
+
+  --c-text-heading: #14502f;
+  --c-text-body:    #3d5a48;
+  --c-text-muted:   #8aa896;
+
+  --c-border:        #d3e8da;
+  --c-border-strong: #9fcfb1;
+  --c-ring:          rgba(192, 57, 43, .32);
+
+  --shadow-sm:  0 2px 8px  rgba(31, 122, 77, .14);
+  --shadow-md:  0 8px 24px rgba(31, 122, 77, .20);
+  --shadow-lg:  0 20px 48px rgba(20, 80, 47, .24);
+  --shadow-pop: 0 12px 32px rgba(94, 22, 15, .26);
+
+  --sidebar-bg: linear-gradient(180deg, #0f3d27 0%, #1a5e3a 50%, #8e2820 100%);
+  --sidebar-tx: #f1faf3;
+  --sidebar-tx-muted: #bedfca;
+  --sidebar-active-bg: rgba(255, 255, 255, .20);
+  --sidebar-active-tx: #ffffff;
+  --sidebar-hover-bg: rgba(255, 255, 255, .12);
+  --topbar-bg: rgba(244, 251, 246, .82);
+  --topbar-border: #d3e8da;
+}
+html.theme-christmas .pg-ico,
+html.theme-christmas .step-num { background: var(--c-primary); }
+
+/* ============================================================
+   วันพ่อ — Father's Day  (5 ธ.ค.)
+   Thai Father's Day = royal yellow (สีประจำวันพระราชสมภพ ร.๙) and the
+   canna flower (ดอกพุทธรักษา). Warm, gentle, respectful gold tones.
+   ============================================================ */
+html.theme-fathersday {
+  --c-primary:        #cd9b1d;   /* royal amber-gold (readable on white text) */
+  --c-primary-light:  #f1d978;
+  --c-primary-dark:   #a3790f;
+  --c-primary-deeper: #6e5000;
+  --c-secondary:      #d98b12;   /* canna amber */
+  --c-secondary-light:#f3cf86;
+  --c-accent:         #f0c233;
+
+  --c-bg:        #fdf7df;
+  --c-bg-grad:   linear-gradient(160deg, #fbf2cf 0%, #fffae6 50%, #fffdf4 100%);
+  --c-surface:   #ffffff;
+  --c-surface-2: #fdf8e6;
+  --c-surface-3: #f8efd1;
+  --c-surface-inset: #fefbef;
+  --c-primary-soft: #f7ecc4;
+  --c-zebra:        #fdf9ec;
+
+  --c-text-heading: #6e5300;
+  --c-text-body:    #5e5232;
+  --c-text-muted:   #b6a467;
+
+  --c-border:        #efe2bb;
+  --c-border-strong: #ddc581;
+  --c-ring:          rgba(205, 155, 29, .35);
+
+  --shadow-sm:  0 2px 8px  rgba(205, 155, 29, .14);
+  --shadow-md:  0 8px 24px rgba(205, 155, 29, .20);
+  --shadow-lg:  0 20px 48px rgba(110, 83, 0, .22);
+  --shadow-pop: 0 12px 32px rgba(110, 83, 0, .26);
+
+  --sidebar-bg: linear-gradient(180deg, #caa015 0%, #b9881a 55%, #9a6a14 100%);
+  --sidebar-tx: #fffae8;
+  --sidebar-tx-muted: #efdfaf;
+  --sidebar-active-bg: rgba(255, 255, 255, .24);
+  --sidebar-active-tx: #ffffff;
+  --sidebar-hover-bg: rgba(255, 255, 255, .14);
+  --topbar-bg: rgba(254, 251, 239, .82);
+  --topbar-border: #efe2bb;
+}
+html.theme-fathersday .pg-ico,
+html.theme-fathersday .step-num { background: var(--c-primary); }
+
+/* ============================================================
+   มวยไทย — Muay Thai
+   Traditional Thai boxing: crimson red + blue corner + temple gold,
+   on a warm-sand light surface. Strong, proud, ceremonial.
+   ============================================================ */
+html.theme-muaythai {
+  --c-primary:        #b81d2c;   /* Thai crimson */
+  --c-primary-light:  #e88c95;
+  --c-primary-dark:   #8c1420;
+  --c-primary-deeper: #560c14;
+  --c-secondary:      #1c4f8f;   /* blue corner */
+  --c-secondary-light:#9cb8db;
+  --c-accent:         #d4a01e;   /* temple gold */
+
+  --c-bg:        #f6ece0;
+  --c-bg-grad:   linear-gradient(160deg, #f3e6d6 0%, #fbf4ea 50%, #fffdf8 100%);
+  --c-surface:   #ffffff;
+  --c-surface-2: #f8f0e6;
+  --c-surface-3: #f1e5d4;
+  --c-surface-inset: #fbf5ed;
+  --c-primary-soft: #f4d4d2;
+  --c-zebra:        #f9f3ec;
+
+  --c-text-heading: #7a1622;
+  --c-text-body:    #5a4438;
+  --c-text-muted:   #b29a86;
+
+  --c-border:        #ecdcc7;
+  --c-border-strong: #d9bd97;
+  --c-ring:          rgba(184, 29, 44, .32);
+
+  --shadow-sm:  0 2px 8px  rgba(184, 29, 44, .14);
+  --shadow-md:  0 8px 24px rgba(184, 29, 44, .20);
+  --shadow-lg:  0 20px 48px rgba(122, 22, 34, .24);
+  --shadow-pop: 0 12px 32px rgba(86, 12, 20, .28);
+
+  --sidebar-bg: linear-gradient(180deg, #7a1420 0%, #a01e2a 50%, #9a7016 100%);
+  --sidebar-tx: #fdeede;
+  --sidebar-tx-muted: #e6c8b4;
+  --sidebar-active-bg: rgba(255, 255, 255, .20);
+  --sidebar-active-tx: #ffffff;
+  --sidebar-hover-bg: rgba(255, 255, 255, .12);
+  --topbar-bg: rgba(251, 245, 237, .82);
+  --topbar-border: #ecdcc7;
+}
+html.theme-muaythai .pg-ico,
+html.theme-muaythai .step-num { background: var(--c-primary); }
+
+/* ============================================================
+   Theme picker (topbar) — shared chrome, palette-agnostic.
+   Lives here so it inherits the active theme's tokens.
+   ============================================================ */
+.theme-wrap { position: relative; display: inline-flex; }
+.theme-btn .mdi { color: var(--c-primary); }
+.theme-sw {
+  width: 22px; height: 22px; flex: 0 0 22px; border-radius: 999px;
+  border: 2px solid #fff; box-shadow: 0 0 0 1px var(--c-border), var(--shadow-sm);
+}
+.theme-menu {
+  position: absolute; top: calc(100% + 10px); right: 0; z-index: 2500;
+  min-width: 248px; animation: theme-pop .16s var(--ease) both;
+}
+@keyframes theme-pop { from { opacity: 0; transform: translateY(-6px) scale(.97); } to { opacity: 1; transform: none; } }
+.theme-scrim { position: fixed; inset: 0; z-index: 2490; background: transparent; }
+.theme-opt { gap: 12px; }
+.theme-opt-tx { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.theme-opt-name { font-weight: 700; color: var(--c-text-heading); font-family: var(--font-head); }
+.theme-opt-sub { font-size: 11.5px; color: var(--c-text-muted); }
+.theme-opt-check { margin-left: auto; color: var(--c-primary); font-size: 19px; }
+.theme-opt.on { background: var(--c-surface-3); }
+.theme-note {
+  display: flex; align-items: flex-start; gap: 6px;
+  margin: 6px 4px 2px; padding: 8px 10px;
+  border-radius: var(--radius-sm); background: var(--c-surface-2);
+  font-size: 11.5px; line-height: 1.4; color: var(--c-text-muted);
+}
+.theme-note .mdi { font-size: 15px; color: var(--c-primary); flex: 0 0 auto; margin-top: 1px; }
+@media (max-width: 560px) { .theme-btn-label { display: none; } }
+@media (prefers-reduced-motion: reduce) { .theme-menu { animation: none; } }

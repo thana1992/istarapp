@@ -11,7 +11,9 @@
     filters      Array  [{ key, label, options:[{value,label}] }]   (optional)
     searchKeys   Array  [string]  fields the search box matches
     addLabel     String (optional) shows a primary "+ Add" button on the right
-    perPage      Number rows per page (default 8)
+    perPage      Number initial rows per page (default 10; user can change it
+                        via the footer's items-per-page select)
+    loading      Boolean show skeleton rows instead of data while a fetch runs
   Slots:
     #cell-<key>="{ row }"   custom cell rendering (avatar, badge, toggle, actions)
     #actions                custom toolbar buttons on the right (refresh + add, etc.)
@@ -25,10 +27,9 @@
         <span class="mdi mdi-magnify"></span>
         <input class="id-input" v-model="q" :placeholder="searchPlaceholder" @input="page = 1" />
       </label>
-      <select v-for="f in filters" :key="f.key" class="id-select" v-model="fvals[f.key]" @change="page = 1">
-        <option value="">{{ f.label }}</option>
-        <option v-for="o in f.options" :key="String(o.value)" :value="o.value">{{ o.label }}</option>
-      </select>
+      <id-select v-for="f in filters" :key="f.key" class="grid-filter" v-model="fvals[f.key]"
+        :placeholder="f.label" :options="[{ value: '', label: f.label }, ...f.options]"
+        @update:model-value="page = 1"></id-select>
       <span class="grid-spacer"></span>
       <slot name="actions">
         <button v-if="addLabel" class="id-btn id-btn-primary id-btn-sm" @click="$emit('add')">
@@ -44,7 +45,12 @@
               <th v-for="col in columns" :key="col.key" :class="{ 'idt-action': isActionCol(col.key) }" :style="{ textAlign: col.align || 'left' }">{{ col.label || col.title }}</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody v-if="loading || paging" class="id-fade-in" key="sk">
+            <tr v-for="i in skelRows" :key="'sk' + i">
+              <td v-for="col in columns" :key="col.key"><div class="id-skel" style="height:18px"></div></td>
+            </tr>
+          </tbody>
+          <tbody v-else class="id-fade-in" :key="page + '-' + filtered.length">
             <tr v-for="(row, ri) in paged" :key="ri">
               <td v-for="col in columns" :key="col.key" :class="{ 'idt-action': isActionCol(col.key) }" :style="{ textAlign: col.align || 'left' }">
                 <slot :name="'cell-' + col.key" :row="row">{{ row[col.key] }}</slot>
@@ -53,15 +59,9 @@
           </tbody>
         </table>
       </div>
-      <div v-if="!filtered.length" class="grid-empty"><span class="mdi mdi-magnify-close"></span>ไม่พบข้อมูลที่ค้นหา</div>
-      <div class="grid-foot" v-if="filtered.length">
-        <span class="grid-count">แสดง {{ from }}–{{ to }} จาก {{ filtered.length }} รายการ</span>
-        <div class="grid-pager" v-if="pageCount > 1">
-          <button class="pager-btn" :disabled="page <= 1" @click="page--" aria-label="ก่อนหน้า"><span class="mdi mdi-chevron-left"></span></button>
-          <span class="pager-now"><b>{{ page }}</b> / {{ pageCount }}</span>
-          <button class="pager-btn" :disabled="page >= pageCount" @click="page++" aria-label="ถัดไป"><span class="mdi mdi-chevron-right"></span></button>
-        </div>
-      </div>
+      <div v-if="!loading && !paging && !filtered.length" class="grid-empty"><span class="mdi mdi-magnify-close"></span>ไม่พบข้อมูลที่ค้นหา</div>
+      <id-grid-footer v-if="!loading && filtered.length" :page="page" :page-count="pageCount" :per-page="pp" :total="filtered.length"
+        @update:page="goPage" @update:per-page="setPerPage" />
     </div>
   </div>
 </template>
@@ -76,11 +76,12 @@ export default {
     searchKeys: { type: Array, default: () => [] },
     searchPlaceholder: { type: String, default: 'ค้นหา...' },
     addLabel: { type: String, default: '' },
-    perPage: { type: Number, default: 8 },
+    perPage: { type: Number, default: 10 },
+    loading: { type: Boolean, default: false },
   },
   emits: ['add'],
   data() {
-    return { q: '', fvals: {}, page: 1 };
+    return { q: '', fvals: {}, page: 1, pp: this.perPage, paging: false };
   },
   created() {
     this.filters.forEach((f) => { this.fvals[f.key] = ''; });
@@ -96,15 +97,26 @@ export default {
       });
       return r;
     },
-    pageCount() { return Math.max(1, Math.ceil(this.filtered.length / this.perPage)); },
-    paged() { const s = (this.page - 1) * this.perPage; return this.filtered.slice(s, s + this.perPage); },
-    from() { return this.filtered.length ? (this.page - 1) * this.perPage + 1 : 0; },
-    to() { return Math.min(this.page * this.perPage, this.filtered.length); },
+    pageCount() { return Math.max(1, Math.ceil(this.filtered.length / this.pp)); },
+    paged() { const s = (this.page - 1) * this.pp; return this.filtered.slice(s, s + this.pp); },
+    skelRows() { return Math.min(this.pp, 8); },
   },
   watch: {
     filtered() { if (this.page > this.pageCount) this.page = 1; },
+    perPage(v) { this.pp = v; },
   },
   methods: {
+    // client-side grids slice instantly, but to match the server-tables UX every
+    // page / per-page change shows the skeleton for the standard ≥1s before the
+    // new rows fade in (so "changing page" always reads as a load, not a flash).
+    async runPaging() {
+      this.paging = true;
+      const t0 = Date.now();
+      await this.$minLoad(t0);
+      this.paging = false;
+    },
+    goPage(p) { if (p === this.page) return; this.page = p; this.runPaging(); },
+    setPerPage(n) { this.pp = n; this.page = 1; this.runPaging(); },
     isActionCol(key) {
       return ['actions', 'action', 'edit', 'delete', 'finish', 'enable', 'view', 'checkin', 'manage', 'approve', 'reject'].includes(key);
     },

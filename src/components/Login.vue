@@ -5,6 +5,15 @@
       <span class="lg-spark" style="left:14%;top:18%;--o:.6;font-size:22px"><span class="mdi mdi-star-four-points"></span></span>
       <span class="lg-spark" style="left:78%;top:30%;--o:.5;font-size:16px;animation-delay:1s"><span class="mdi mdi-star-four-points"></span></span>
       <span class="lg-spark" style="left:60%;top:72%;--o:.45;font-size:18px;animation-delay:.6s"><span class="mdi mdi-star-four-points"></span></span>
+      <!-- seasonal decorations (same layer as the sparkles, behind hero content) -->
+      <MothersDayOverlay v-if="uiTheme === 'mothersday'" class="lg-ov" />
+      <LoyKrathongOverlay v-if="uiTheme === 'loykrathong'" class="lg-ov" />
+      <NewYearOverlay v-if="uiTheme === 'newyear'" class="lg-ov" />
+      <SongkranOverlay v-if="uiTheme === 'songkran'" class="lg-ov" />
+      <HalloweenOverlay v-if="uiTheme === 'halloween'" class="lg-ov" />
+      <ChristmasOverlay v-if="uiTheme === 'christmas'" class="lg-ov" />
+      <FathersDayOverlay v-if="uiTheme === 'fathersday'" class="lg-ov" />
+      <MuayThaiOverlay v-if="uiTheme === 'muaythai'" class="lg-ov" />
       <div>
         <div class="lg-logo"><img src="../assets/logo/logo-2.png" alt="iStar" /></div>
         <div class="lg-brand">iStar Gymnastics</div>
@@ -24,6 +33,15 @@
       <span class="lg-form-spark" style="left:82%;top:22%;font-size:15px;animation-delay:1s"><span class="mdi mdi-star-four-points"></span></span>
       <span class="lg-form-spark" style="left:18%;top:80%;font-size:18px;animation-delay:.5s"><span class="mdi mdi-star-four-points"></span></span>
       <span class="lg-form-spark" style="left:74%;top:86%;font-size:14px;animation-delay:.8s"><span class="mdi mdi-star-four-points"></span></span>
+      <!-- seasonal decorations on the mobile canvas (hero is hidden on small screens) -->
+      <MothersDayOverlay v-if="uiTheme === 'mothersday'" class="lg-ov lg-ov-m" />
+      <LoyKrathongOverlay v-if="uiTheme === 'loykrathong'" class="lg-ov lg-ov-m" />
+      <NewYearOverlay v-if="uiTheme === 'newyear'" class="lg-ov lg-ov-m" />
+      <SongkranOverlay v-if="uiTheme === 'songkran'" class="lg-ov lg-ov-m" />
+      <HalloweenOverlay v-if="uiTheme === 'halloween'" class="lg-ov lg-ov-m" />
+      <ChristmasOverlay v-if="uiTheme === 'christmas'" class="lg-ov lg-ov-m" />
+      <FathersDayOverlay v-if="uiTheme === 'fathersday'" class="lg-ov lg-ov-m" />
+      <MuayThaiOverlay v-if="uiTheme === 'muaythai'" class="lg-ov lg-ov-m" />
       <div class="lg-card">
         <div class="lg-mbrand">
           <div class="lg-logo"><img src="../assets/logo/logo-2.png" alt="iStar" /></div>
@@ -70,7 +88,23 @@ import CryptoJS from 'crypto-js';
 import { mapActions } from "vuex";
 import { mapGetters } from "vuex";
 import { t } from "@/i18n";
+import MothersDayOverlay from './theme/MothersDayOverlay.vue';
+import LoyKrathongOverlay from './theme/LoyKrathongOverlay.vue';
+import NewYearOverlay from './theme/NewYearOverlay.vue';
+import SongkranOverlay from './theme/SongkranOverlay.vue';
+import HalloweenOverlay from './theme/HalloweenOverlay.vue';
+import ChristmasOverlay from './theme/ChristmasOverlay.vue';
+import FathersDayOverlay from './theme/FathersDayOverlay.vue';
+import MuayThaiOverlay from './theme/MuayThaiOverlay.vue';
 export default {
+  components: {
+    MothersDayOverlay, LoyKrathongOverlay, NewYearOverlay, SongkranOverlay,
+    HalloweenOverlay, ChristmasOverlay, FathersDayOverlay, MuayThaiOverlay,
+  },
+  props: {
+    // active seasonal theme (passed from App.vue) — drives the login decorations
+    uiTheme: { type: String, default: 'default' },
+  },
   data: () => ({
     LogginggIn: false,
     login_form: null,
@@ -247,5 +281,16 @@ export default {
 @media (max-width: 900px) {
   .lg-title { color: #fff; }
   .lg-welcome { color: rgba(255, 255, 255, 0.85); }
+}
+
+/* Seasonal decorations sit at the sparkle layer — above the gradient canvas,
+   below the hero/form content (which is z-index:1). The global rule
+   `.lg-hero > *:not(.lg-spark)` (and the mobile `.lg-form > *`) would otherwise
+   force position:relative + z-index:1 on the overlay, so we pin it here. The
+   `.lg-ov-m` copy lives in the form panel and shows only on mobile. */
+.lg-ov { position: absolute !important; inset: 0 !important; z-index: 0 !important; }
+.lg-ov-m { display: none; }
+@media (max-width: 900px) {
+  .lg-ov-m { display: block; }
 }
 </style>

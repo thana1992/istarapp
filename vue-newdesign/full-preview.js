@@ -65,10 +65,7 @@ document.addEventListener('DOMContentLoaded', function () {
             <span class="mdi mdi-magnify"></span>
             <input class="id-input" v-model="q" :placeholder="searchPlaceholder" @input="page=1" />
           </label>
-          <select v-for="f in filters" :key="f.key" class="id-select" v-model="fvals[f.key]" @change="page=1">
-            <option value="">{{ f.label }}</option>
-            <option v-for="o in f.options" :key="String(o.value)" :value="o.value">{{ o.label }}</option>
-          </select>
+          <id-select v-for="f in filters" :key="f.key" class="grid-filter" :model-value="fvals[f.key]" :options="f.options" :placeholder="f.label" @update:model-value="v => { fvals[f.key] = v; page = 1; }"></id-select>
           <span class="grid-spacer"></span>
           <slot name="actions">
             <button v-if="addLabel" class="id-btn id-btn-primary id-btn-sm" @click="$emit('add')">
@@ -154,7 +151,175 @@ document.addEventListener('DOMContentLoaded', function () {
             </div>
           </template>
         </div>
-        <div class="cal-legend"><span class="cal-legend-x">×</span> วันจันทร์และวันหยุด ปิดให้บริการอัตโนมัติ</div>
+        <div v-if="disableMondays" class="cal-legend"><span class="cal-legend-x">×</span> วันจันทร์และวันหยุด ปิดให้บริการอัตโนมัติ</div>
+      </div>`,
+  };
+
+  /* ============================================================
+     ID-MODAL — standard dialog. Two uses:
+       • form entry   → put .form-grid / .field inside the default slot
+       • grid inside  → wrap a table in .id-modal-grid > .id-modal-grid-scroll
+     Props: modelValue(Boolean), title, subtitle, icon(mdi class),
+            size('sm'|'md'|'lg'|'xl'), noFooter(Boolean)
+     Slots: default(body), footer(action buttons)
+     Behaviour: teleport to body, fade+rise transition, ESC + scrim-click close,
+                body scroll-lock while open.
+     ============================================================ */
+  const IdModal = {
+    props: {
+      modelValue: { type: Boolean, default: false },
+      title: { type: String, default: '' },
+      subtitle: { type: String, default: '' },
+      icon: { type: String, default: '' },
+      size: { type: String, default: 'md' },
+      noFooter: { type: Boolean, default: false },
+    },
+    emits: ['update:modelValue', 'close'],
+    methods: {
+      close() { this.$emit('update:modelValue', false); this.$emit('close'); },
+      onKey(e) { if (e.key === 'Escape' && this.modelValue) this.close(); },
+    },
+    watch: { modelValue(v) { document.body.style.overflow = v ? 'hidden' : ''; } },
+    mounted() { document.addEventListener('keydown', this.onKey); },
+    beforeUnmount() { document.removeEventListener('keydown', this.onKey); document.body.style.overflow = ''; },
+    template: `
+      <teleport to="body">
+        <transition name="modal-fade">
+          <div v-if="modelValue" class="id-modal-scrim" @mousedown.self="close">
+            <div class="id-modal" :class="size" role="dialog" aria-modal="true">
+              <div class="id-modal-head">
+                <div v-if="icon" class="id-modal-ico"><span class="mdi" :class="icon"></span></div>
+                <div class="id-modal-titles">
+                  <div class="id-modal-title">{{ title }}</div>
+                  <div v-if="subtitle" class="id-modal-sub">{{ subtitle }}</div>
+                </div>
+                <button class="id-modal-x" @click="close" aria-label="ปิด"><span class="mdi mdi-close"></span></button>
+              </div>
+              <div class="id-modal-body"><slot></slot></div>
+              <div v-if="!noFooter" class="id-modal-foot"><slot name="footer"></slot></div>
+            </div>
+          </div>
+        </transition>
+      </teleport>`,
+  };
+
+  /* ============================================================
+     ID-SELECT — styled dropdown (replaces native <select>).
+     Popover teleported to body (never clipped by modal scroll),
+     positioned under the trigger, flips up near viewport bottom.
+     Props: modelValue, options([{value,label}] or [string]), placeholder, disabled
+     ============================================================ */
+  const MONS_TH = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
+  const IdSelect = {
+    props: {
+      modelValue: { default: '' },
+      options: { type: Array, default: () => [] },
+      placeholder: { type: String, default: '— เลือก —' },
+      disabled: { type: Boolean, default: false },
+      searchable: { type: Boolean, default: false },
+      searchPlaceholder: { type: String, default: 'พิมพ์เพื่อค้นหา…' },
+    },
+    emits: ['update:modelValue'],
+    data() { return { open: false, pop: {}, q: '' }; },
+    computed: {
+      norm() { return this.options.map(o => (o && typeof o === 'object') ? o : { value: o, label: String(o) }); },
+      shown() { const q = this.q.trim().toLowerCase(); return q ? this.norm.filter(o => o.label.toLowerCase().includes(q)) : this.norm; },
+      selectedLabel() { const f = this.norm.find(o => String(o.value) === String(this.modelValue)); return f ? f.label : ''; },
+    },
+    methods: {
+      toggle() { if (this.disabled) return; this.open ? this.close() : this.openMenu(); },
+      close() { this.open = false; this.q = ''; },
+      openMenu() {
+        const r = this.$refs.trig.getBoundingClientRect();
+        const W = r.width, maxH = 280, gap = 6;
+        const below = window.innerHeight - r.bottom, above = r.top;
+        const listH = Math.min(maxH, this.norm.length * 40 + (this.searchable ? 52 : 12));
+        const up = below < listH + gap && above > below;
+        this.pop = { position: 'fixed', left: r.left + 'px', width: W + 'px', zIndex: 200,
+          [up ? 'bottom' : 'top']: (up ? (window.innerHeight - r.top + gap) : (r.bottom + gap)) + 'px',
+          maxHeight: maxH + 'px' };
+        this.open = true;
+        if (this.searchable) this.$nextTick(() => { this.$refs.search && this.$refs.search.focus(); });
+      },
+      pick(o) { this.$emit('update:modelValue', o.value); this.close(); },
+    },
+    template: `
+      <div class="id-dd" :class="{ open, disabled }">
+        <button ref="trig" type="button" class="id-dd-trigger" :class="{ placeholder: selectedLabel==='' }" @click="toggle">
+          <span class="id-dd-val">{{ selectedLabel || placeholder }}</span>
+          <span class="mdi mdi-chevron-down id-dd-caret"></span>
+        </button>
+        <teleport to="body">
+          <div v-if="open">
+            <div class="id-pop-backdrop" @mousedown="close"></div>
+            <transition name="dd-pop" appear>
+              <div class="id-dd-menu" :class="{ 'has-search': searchable }" :style="pop">
+                <div v-if="searchable" class="id-dd-search">
+                  <span class="mdi mdi-magnify"></span>
+                  <input ref="search" v-model="q" :placeholder="searchPlaceholder" @keydown.enter.prevent="shown.length && pick(shown[0])" />
+                </div>
+                <div class="id-dd-list">
+                  <button v-for="o in shown" :key="String(o.value)" type="button" class="id-dd-opt" :class="{ on: String(o.value)===String(modelValue) }" @click="pick(o)">
+                    <span>{{ o.label }}</span><span v-if="String(o.value)===String(modelValue)" class="mdi mdi-check"></span>
+                  </button>
+                  <div v-if="!shown.length" class="id-dd-empty">ไม่พบรายการ “{{ q }}”</div>
+                </div>
+              </div>
+            </transition>
+          </div>
+        </teleport>
+      </div>`,
+  };
+
+  /* ============================================================
+     ID-DATE — date field that opens the SAME calendar as the
+     Dashboard (IdCalendar) in a popover, for one consistent
+     date-picker system-wide. Form fields pick any day freely
+     (disableMondays=false); booking screens keep their rules.
+     Props: modelValue('Y-M-D'), placeholder, disableMondays, holidayKeys
+     ============================================================ */
+  const IdDateField = {
+    props: {
+      modelValue: { type: String, default: '' },
+      placeholder: { type: String, default: 'เลือกวันที่' },
+      disableMondays: { type: Boolean, default: false },
+      holidayKeys: { type: Array, default: () => [] },
+      disabled: { type: Boolean, default: false },
+    },
+    emits: ['update:modelValue'],
+    data() { return { open: false, pop: {} }; },
+    computed: {
+      label() { if (!this.modelValue) return ''; const p = this.modelValue.split('-'); return +p[2] + ' ' + MONS_TH[+p[1] - 1] + ' ' + (+p[0] + 543); },
+    },
+    methods: {
+      toggle() { if (this.disabled) return; this.open ? (this.open = false) : this.openPop(); },
+      openPop() {
+        const r = this.$refs.trig.getBoundingClientRect();
+        const W = 312, H = 360, gap = 8, vw = window.innerWidth;
+        let left = r.left; if (left + W > vw - 8) left = vw - 8 - W; left = Math.max(8, left);
+        const up = (r.bottom + gap + H > window.innerHeight - 8) && (r.top - gap - H > 0);
+        this.pop = { position: 'fixed', left: left + 'px', width: W + 'px', zIndex: 200,
+          [up ? 'bottom' : 'top']: (up ? (window.innerHeight - r.top + gap) : (r.bottom + gap)) + 'px' };
+        this.open = true;
+      },
+      pick(k) { this.$emit('update:modelValue', k); this.open = false; },
+    },
+    template: `
+      <div class="id-dd" :class="{ open, disabled }">
+        <button ref="trig" type="button" class="id-dd-trigger" :class="{ placeholder: !label }" @click="toggle">
+          <span class="id-dd-val">{{ label || placeholder }}</span>
+          <span class="mdi mdi-calendar-month-outline id-dd-caret" style="font-size:18px"></span>
+        </button>
+        <teleport to="body">
+          <div v-if="open">
+            <div class="id-pop-backdrop" @mousedown="open=false"></div>
+            <transition name="dd-pop" appear>
+              <div class="id-pop" :style="pop">
+                <id-calendar :model-value="modelValue" :disable-mondays="disableMondays" :holiday-keys="holidayKeys" @update:model-value="pick"></id-calendar>
+              </div>
+            </transition>
+          </div>
+        </teleport>
       </div>`,
   };
 
@@ -327,14 +492,42 @@ document.addEventListener('DOMContentLoaded', function () {
           { name: 'วันแรงงาน', start: '01/05/2026', end: '01/05/2026' },
           { name: 'ปิดปรับปรุงยิม', start: '20/06/2026', end: '22/06/2026' },
         ],
+        // ===== DIALOG demos (เดโมไดอะล็อกมาตรฐาน) =====
+        courseOptions: ['ยิมนาสติก ระดับกลาง', 'ยิมนาสติก เริ่มต้น', 'แอโรบิก', 'ตีลังกา'],
+        parentOptions: ['ploy.s', 'somchai88', 'napha_m', 'wipa.k'],
+        genderOptions: ['หญิง', 'ชาย'],
+        levelOptions: [{ value: 1, label: 'Level 1' }, { value: 2, label: 'Level 2' }, { value: 3, label: 'Level 3' }],
+        courseTypeOptions: ['รายเดือน', 'รายครั้ง', 'ทดลองเรียน'],
+        durationOptions: [{ value: 1, label: '1 เดือน' }, { value: 3, label: '3 เดือน' }, { value: 6, label: '6 เดือน' }, { value: 12, label: '12 เดือน' }],
+        timeSlotOptions: ['09:00–10:30', '11:00–12:30', '16:00–17:00', '17:00–18:00', '18:00–19:00'],
+        studentUsage: [
+          { date: '06/06/2026', course: 'ยิมนาสติก ระดับกลาง', time: '17:00', ok: true },
+          { date: '04/06/2026', course: 'ยิมนาสติก ระดับกลาง', time: '17:00', ok: true },
+          { date: '02/06/2026', course: 'ยิมนาสติก ระดับกลาง', time: '16:00', ok: false },
+          { date: '30/05/2026', course: 'ยิมนาสติก ระดับกลาง', time: '17:00', ok: true },
+        ],
+        dlgStudent: { open: false, mode: 'add', form: { firstName: '', middleName: '', lastName: '', nick: '', gender: 'หญิง', dob: '', age: '', level: 1, parent: '', note: '', courseNo: '', nextCourseNo: '', photo: '' } },
+        dlgEnroll: { open: false, q: '', picked: [] },
+        dlgCourse: { open: false, mode: 'add', form: { courseName: '', code: '', type: '', duration: '', remaining: '', start: '', end: '', oncePerDay: false, unpaid: false, payDate: '', slip: '', note: '' } },
+        dlgBooking: { open: false, mode: 'add', form: { student: '', course: '', date: '', time: '', note: '' } },
       };
     },
     created() {
       const first = this.firstSelectableKey();
       this.classDate = first; this.bookDate = first;
     },
+    watch: {
+      screen() {
+        // close any open dialog when navigating (prevents orphaned teleported modals)
+        if (this.dlgStudent) this.dlgStudent.open = false;
+        if (this.dlgEnroll) this.dlgEnroll.open = false;
+        if (this.dlgCourse) this.dlgCourse.open = false;
+        if (this.dlgBooking) this.dlgBooking.open = false;
+      },
+    },
     computed: {
       roleLabel() { return ROLE[this.usertype]; },
+      enrollList() { const q = this.dlgEnroll.q.trim().toLowerCase(); return q ? this.students.filter(s => (s.name + s.nick).toLowerCase().includes(q)) : this.students; },
       holidayKeys() {
         const out = [];
         const dmy = (s) => { const p = s.split('/'); return new Date(+p[2], +p[1] - 1, +p[0]); };
@@ -404,6 +597,20 @@ document.addEventListener('DOMContentLoaded', function () {
       onPhoto(e) { const f = e.target.files && e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { this.profile.photo = r.result; }; r.readAsDataURL(f); },
       removePhoto() { this.profile.photo = ''; },
       saveProfile() { this.toast('บันทึกข้อมูลโปรไฟล์แล้ว'); },
+      openAddStudent() { this.dlgStudent = { open: true, mode: 'add', form: { firstName: '', middleName: '', lastName: '', nick: '', gender: 'หญิง', dob: '', age: '', level: 1, parent: '', note: '', courseNo: '', nextCourseNo: '', photo: '' } }; },
+      openEditStudent(row) { this.dlgStudent = { open: true, mode: 'edit', form: Object.assign({ firstName: row.name, middleName: '', lastName: '', dob: '', parent: '', note: '', courseNo: row.course, nextCourseNo: '', photo: '' }, row) }; },
+      saveStudent() { const add = this.dlgStudent.mode === 'add'; this.dlgStudent.open = false; this.toast(add ? 'เพิ่มนักเรียนใหม่แล้ว' : 'บันทึกการแก้ไขแล้ว'); },
+      onStudentPhoto(e) { const f = e.target.files && e.target.files[0]; if (!f) return; const r = new FileReader(); r.onload = () => { this.dlgStudent.form.photo = r.result; }; r.readAsDataURL(f); },
+      openAddCourse() { this.dlgCourse = { open: true, mode: 'add', form: { courseName: '', code: '', type: '', duration: '', remaining: '', start: '', end: '', oncePerDay: false, unpaid: false, payDate: '', slip: '', note: '' } }; },
+      openEditCourse(row) { this.dlgCourse = { open: true, mode: 'edit', form: { courseName: row.name, code: row.code, type: 'รายเดือน', duration: 3, remaining: '12', start: '', end: '', oncePerDay: !row.enable, unpaid: false, payDate: '', slip: '', note: '' } }; },
+      saveCourse() { const add = this.dlgCourse.mode === 'add'; this.dlgCourse.open = false; this.toast(add ? 'เพิ่มคอร์สใหม่แล้ว' : 'บันทึกการแก้ไขคอร์สแล้ว'); },
+      onSlip(e) { const f = e.target.files && e.target.files[0]; if (!f) return; this.dlgCourse.form.slip = f.name; },
+      openAddBooking() { this.dlgBooking = { open: true, mode: 'add', form: { student: '', course: '', date: this.bookDate, time: '', note: '' } }; },
+      openEditBooking(row) { this.dlgBooking = { open: true, mode: 'edit', form: { student: row.name, course: row.course, date: this.bookDate, time: row.time, note: '' } }; },
+      saveBooking() { const add = this.dlgBooking.mode === 'add'; this.dlgBooking.open = false; this.toast(add ? 'เพิ่มการจองแล้ว' : 'บันทึกการแก้ไขแล้ว'); },
+      openEnroll() { this.dlgEnroll = { open: true, q: '', picked: [] }; },
+      togglePick(name) { const i = this.dlgEnroll.picked.indexOf(name); if (i < 0) this.dlgEnroll.picked.push(name); else this.dlgEnroll.picked.splice(i, 1); },
+      confirmEnroll() { const n = this.dlgEnroll.picked.length; this.dlgEnroll.open = false; this.toast('เพิ่ม ' + n + ' คนเข้าคลาสแล้ว'); },
       changePassword() {
         if (!this.canChangePw) return;
         this.toast('เปลี่ยนรหัสผ่านสำเร็จ');
@@ -414,5 +621,8 @@ document.addEventListener('DOMContentLoaded', function () {
   });
   app.component('id-grid', IdGrid);
   app.component('id-calendar', IdCalendar);
+  app.component('id-modal', IdModal);
+  app.component('id-select', IdSelect);
+  app.component('id-date', IdDateField);
   app.use(vuetify).mount('#app');
 });

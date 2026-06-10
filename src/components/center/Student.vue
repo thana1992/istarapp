@@ -17,7 +17,12 @@
             <div style="overflow-x:auto">
                 <table class="idt">
                     <thead><tr><th v-for="h in StudentListHeaders" :key="h.key" :style="{ textAlign: (h.align==='center'||h.align==='end') ? 'center' : 'left' }">{{ h.title }}</th></tr></thead>
-                    <tbody>
+                    <tbody v-if="loadingStudent" class="id-fade-in" key="sk">
+                        <tr v-for="i in 6" :key="'sk' + i">
+                            <td v-for="h in StudentListHeaders" :key="h.key"><div class="id-skel" style="height:18px"></div></td>
+                        </tr>
+                    </tbody>
+                    <tbody v-else class="id-fade-in" :key="tableOptions.page">
                         <tr v-for="item in StudentList" :key="item.studentid">
                             <td v-for="h in StudentListHeaders" :key="h.key" :style="{ textAlign: (h.align==='center'||h.align==='end') ? 'center' : 'left' }">
                                 <template v-if="h.key==='fullname'">{{ item.fullname }}</template>
@@ -33,225 +38,102 @@
             </div>
             <div v-if="!loadingStudent && StudentList.length===0" class="grid-empty"><span class="mdi mdi-account-off-outline"></span>{{ $t('common.noStudentList') }}</div>
             <!-- footer: server pagination เดิม (tableOptions + totalStudents) -->
-            <div class="grid-foot" v-if="totalStudents > 0">
-                <span class="grid-count">{{ totalStudents }}</span>
-                <div class="grid-pager">
-                    <button class="pager-btn" :disabled="tableOptions.page<=1" @click="tableOptions.page--; getStudentList(currentActive)"><span class="mdi mdi-chevron-left"></span></button>
-                    <span class="pager-now"><b>{{ tableOptions.page }}</b> / {{ Math.max(1, Math.ceil(totalStudents / tableOptions.itemsPerPage)) }}</span>
-                    <button class="pager-btn" :disabled="tableOptions.page >= Math.ceil(totalStudents / tableOptions.itemsPerPage)" @click="tableOptions.page++; getStudentList(currentActive)"><span class="mdi mdi-chevron-right"></span></button>
-                </div>
-            </div>
+            <id-grid-footer v-if="totalStudents > 0"
+                :page="tableOptions.page"
+                :page-count="Math.max(1, Math.ceil(totalStudents / tableOptions.itemsPerPage))"
+                :per-page="tableOptions.itemsPerPage" :total="totalStudents"
+                @update:page="(p) => { tableOptions.page = p; getStudentList(currentActive, true); }"
+                @update:per-page="(n) => { tableOptions.itemsPerPage = n; tableOptions.page = 1; getStudentList(currentActive, true); }" />
         </div>
 
         <!-- ===== ไดอะล็อกเดิมทั้งหมด คงไว้ ไม่แตะ logic (เปิดด้วยปุ่ม showAddNewStudent / clickEditStudent) ===== -->
-        <v-dialog v-model="dialogStudent" max-width="1080px" style="z-index: 999">
-                        <v-dialog v-model="dialogFinish" persistent width="auto">
-                            <v-card>
-                            <v-card-title></v-card-title>
-                            <v-card-text>{{ $t('gymnasts.confirmFinish') }}</v-card-text>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="#4CAF50" variant="tonal" @click="finishCourseConfirm">{{ $t('btn.confirm') }}</v-btn>
-                                <v-btn color="#F44336" variant="tonal" @click="closeFinish">{{ $t('btn.cancel') }}</v-btn>
+        <id-modal v-model="dialogStudent" size="xl" persistent
+                  :icon="editedStudentIndex == -1 ? 'mdi-emoticon-plus-outline' : 'mdi-human-edit'"
+                  :title="formStudentTitle">
+            <v-form ref="newstdform">
+                <div class="dlg-avatar" style="margin-bottom:20px">
+                    <div class="av-ph" @click="triggerFileInput">
+                        <img v-if="imagePreview" :src="imagePreview" />
+                        <span v-else class="mdi mdi-account"></span>
+                    </div>
+                    <label class="av-cam"><span class="mdi mdi-camera"></span>
+                        <input type="file" accept="image/*" hidden ref="fileInput" @change="onFileChange"></label>
+                </div>
 
-                                <v-spacer></v-spacer>
-                            </v-card-actions>
-                            </v-card>
-                        </v-dialog>
+                <div class="modal-sec"><span class="mdi mdi-card-account-details-outline"></span> {{ $t('table.studentInfo') }}</div>
+                <div class="form-grid-3">
+                    <div class="field"><label>{{ $t('table.firstname') }} <span class="req">*</span></label><input class="id-input" v-model="editedStudentItem.firstname"></div>
+                    <div class="field"><label>{{ $t('table.middlename') }}</label><input class="id-input" v-model="editedStudentItem.middlename"></div>
+                    <div class="field"><label>{{ $t('table.lastname') }} <span class="req">*</span></label><input class="id-input" v-model="editedStudentItem.lastname"></div>
+                </div>
+                <div class="form-grid-4" style="margin-top:14px">
+                    <div class="field"><label>{{ $t('table.nickname') }} <span class="req">*</span></label><input class="id-input" v-model="editedStudentItem.nickname"></div>
+                    <div class="field"><label>{{ $t('table.gender') }}</label>
+                        <id-select v-model="editedStudentItem.gender" placeholder="— เลือก —"
+                            :options="[{ value: 'ชาย', label: $t('common.male') }, { value: 'หญิง', label: $t('common.female') }]"></id-select></div>
+                    <div class="field"><label>{{ $t('table.dob') }}</label>
+                        <id-date v-model="editedStudentItem.dateofbirth" placeholder="เลือกวันเกิด" @update:model-value="calculateAgeNewStudent"></id-date></div>
+                    <div class="field"><label>{{ $t('table.age') }}</label><input class="id-input" :value="editedStudentItem.age" readonly></div>
+                </div>
+                <div class="form-grid" style="margin-top:14px">
+                    <div class="field"><label>{{ $t('table.level') }}</label><input class="id-input" type="number" v-model="editedStudentItem.level"></div>
+                    <div class="field"><label>{{ $t('table.parentUsername') }} <span class="req">*</span></label>
+                        <id-select v-model="editedStudentItem.familyid" searchable placeholder="— เลือก —" search-placeholder="พิมพ์ Username…"
+                            :options="familyLookup.map(f => ({ value: f.familyid, label: f.username }))"></id-select></div>
+                    <div class="field full"><label>{{ $t('table.shortNote') }}</label><textarea class="id-input id-textarea" v-model="editedStudentItem.shortnote"></textarea></div>
+                </div>
+                <div class="course-flow" style="margin-top:14px">
+                    <div class="field" style="flex:1"><label>{{ $t('table.courseRefer') }}</label>
+                        <id-select v-model="editedStudentItem.courserefer" searchable placeholder="— เลือก —"
+                            :options="customerCourseLookup.map(c => ({ value: c.courserefer, label: c.courserefer }))"
+                            @update:model-value="onCourseChange"></id-select></div>
+                    <div class="flow-arrow">{{ $t('common.nextCourse') }}<span class="mdi mdi-arrow-right"></span></div>
+                    <div class="field" style="flex:1"><label>{{ $t('table.continueCourseRefer') }}</label>
+                        <id-select v-model="editedStudentItem.courserefer2" searchable placeholder="— เลือก —"
+                            :options="customerCourseLookup.map(c => ({ value: c.courserefer, label: c.courserefer }))"></id-select></div>
+                    <button v-if="editedStudentIndex != -1" type="button" class="id-btn id-btn-ghost" style="flex:0 0 auto;align-self:flex-end" @click="finishCourse()">
+                        <span class="mdi mdi-check-circle"></span> {{ $t('table.finish') }}</button>
+                </div>
 
-                        <v-card>
-                            <v-card-title class="sticky-header">
-                                <span v-if="editedStudentIndex == -1" class="mdi mdi-emoticon-plus-outline"></span>
-                                <span v-if="editedStudentIndex != -1" class="mdi mdi-human-edit"></span>
-                                <span>{{ formStudentTitle }}</span>
-                            </v-card-title>
-                            <v-card-text class="scrollable-content">
-                                <v-container>
-                                    <v-form ref="newstdform">
-                                        <v-row>
-                                            <v-col cols="12" sm="12" md="12" style="text-align: center;">
-                                                <div style="
-                                                    min-height: 150px;
-                                                    display: ruby-text;
-                                                    cursor: pointer;
-                                                ">
-                                                    <v-img :src="imagePreview" class="info-photo rounded-circle"
-                                                        width="150" height="150" @click="triggerFileInput">
-                                                    </v-img>
-                                                </div>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row>
-                                            <v-col cols="12" sm="12" md="12">
-                                                <h3 class="group-header">{{ $t('table.studentInfo') }}</h3>
-                                                <v-divider class="border-opacity-100" color="success" thickness="3"></v-divider>
-                                                <v-divider color="#fffff" thickness="3"></v-divider>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedStudentItem.firstname" :label="$t('table.firstname')"
-                                                    variant="solo-filled" :rules="notNullRules" required></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedStudentItem.middlename" :label="$t('table.middlename')"
-                                                    variant="solo-filled" required></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="4">
-                                                <v-text-field v-model="editedStudentItem.lastname" :label="$t('table.lastname')"
-                                                    variant="solo-filled" :rules="notNullRules" required></v-text-field>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row>
-                                            <v-col cols="12" sm="6" md="3">
-                                                <v-text-field v-model="editedStudentItem.nickname" :label="$t('table.nickname')"
-                                                    variant="solo-filled" :rules="notNullRules" required></v-text-field>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="3">
-                                                <v-select v-model="editedStudentItem.gender" :label="$t('table.gender')"
-                                                    :items="[{ title: $t('common.male'), value: 'ชาย' }, { title: $t('common.female'), value: 'หญิง' }]" variant="solo-filled" :rules="notNullRules"
-                                                    required></v-select>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="3">
-                                                <DatePicker :label="$t('table.dob')" variant="solo-filled"
-                                                    v-model="editedStudentItem.dateofbirth" :maxdate="new Date()"
-                                                    @click="calculateAgeNewStudent" rules="notNullRules" required>
-                                                </DatePicker>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="3">
-                                                <v-text-field :label="$t('table.age')" v-model="editedStudentItem.age" readonly
-                                                    variant="solo-filled"></v-text-field>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row>
-                                            <v-col cols="12" sm="6" md="3">
-                                                <v-text-field :label="$t('table.level')" type="number" v-model="editedStudentItem.level" 
-                                                    variant="solo-filled" :rules="levelRules" ></v-text-field>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row>
-                                            <v-col cols="12" sm="6" md="12">
-                                                <v-textarea v-model="editedStudentItem.shortnote" :label="$t('table.shortNote')"
-                                                    variant="solo-filled" rows="4">
-                                                </v-textarea>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row>
-                                            <v-col cols="12" sm="6" md="5">
-                                                <v-autocomplete v-model="editedStudentItem.familyid" :label="$t('table.parentUsername')"
-                                                    item-title="username" item-value="familyid" :items="familyLookup"
-                                                    variant="solo-filled" :rules="notNullRules" required filterable>
-                                                </v-autocomplete>
-                                            </v-col>
-                                            <v-col cols="12" sm="6" md="7">
-                                                <v-file-input v-model="editedStudentItem.profile_image" :label="$t('table.profileImage')"
-                                                    accept="image/*" show-size outlined prepend-icon="mdi-camera"
-                                                    :loading="uploadLoading" @change="onFileChange"
-                                                    @click:clear="onFileClear" style="display: none" ref="fileInput">
-                                                </v-file-input>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row>
-                                            <v-col cols="12" sm="4" md="4">
-                                                <v-autocomplete v-model="editedStudentItem.courserefer"
-                                                    :label="$t('table.courseRefer')" item-title="courserefer"
-                                                    item-value="courserefer" :items="customerCourseLookup"
-                                                    variant="solo-filled" :no-data-text="$t('common.noCourseData')"
-                                                    editable @update:modelValue="onCourseChange"
-                                                    filterable></v-autocomplete>
-                                            </v-col>
-                                            <v-col cols="12" sm="4" md="4" class="arrow-col">
-                                                <div class="arrow">
-                                                    <span class="arrow-text">{{ $t('common.nextCourse') }}</span>
-                                                </div>
-                                            </v-col>
-                                            <v-col cols="12" sm="4" md="4">
-                                                <v-autocomplete v-model="editedStudentItem.courserefer2"
-                                                    :label="$t('table.continueCourseRefer')" item-title="courserefer"
-                                                    item-value="courserefer" :items="customerCourseLookup"
-                                                    variant="solo-filled" :no-data-text="$t('common.noCourseData')"
-                                                    editable
-                                                    filterable></v-autocomplete>
-                                            </v-col>
-                                            <v-col cols="12" sm="2" md="2" v-if="editedStudentIndex != -1">
-                                                <v-btn height="55"
-                                                    prepend-icon="mdi-check-circle"
-                                                    @click="finishCourse()"
-                                                    >
-                                                    <template v-slot:prepend>
-                                                        <v-icon color="success"></v-icon>
-                                                    </template>
-                                                    {{ $t('table.finish') }}
-                                                </v-btn>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row>
-                                            <v-col cols="12" sm="12" md="12">
-                                            <h3 class="group-header">{{ $t('table.courseUsageHistory') }}</h3>
-                                            <v-divider class="border-opacity-100" color="success" thickness="3"></v-divider>
-                                            <v-divider color="#fffff" thickness="3"></v-divider>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row>
-                                            <v-col cols="12" sm="12" md="12">
-                                                <v-label style="white-space: break-spaces">{{
-                                                    editedStudentItem.current_course_detail
-                                                }}</v-label>
-                                            </v-col>
-                                        </v-row>
-                                        <v-row>
-                                            <v-col cols="12" sm="12" md="12">
-                                                    <v-data-table :headers="CourseUsingHeaders" :items="CourseUsingtList" density="compact"
-                                                    :items-per-page="100" >
-                                                    <template v-slot:item.index="{ item }">
-                                                        {{ CourseUsingtList.indexOf(item) + 1 }}
-                                                    </template>
-                                                    <template v-slot:item.classdate="{ item }">
-                                                        <p>{{ format_date(item.classdate) }} </p>
-                                                    </template>
-                                                    <template #bottom></template>
-                                                </v-data-table>
-                                            </v-col>
-                                        </v-row>
-                                        
-                                    </v-form>
-                                </v-container>
-                            </v-card-text>
+                <div class="modal-sec mt"><span class="mdi mdi-history"></span> {{ $t('table.courseUsageHistory') }}</div>
+                <div v-if="editedStudentItem.current_course_detail" class="t-cap" style="white-space:break-spaces;margin-bottom:10px">{{ editedStudentItem.current_course_detail }}</div>
+                <div class="id-modal-grid"><div class="id-modal-grid-scroll" style="max-height:30vh">
+                    <v-data-table :headers="CourseUsingHeaders" :items="CourseUsingtList" density="compact" :items-per-page="100">
+                        <template v-slot:item.index="{ item }">{{ CourseUsingtList.indexOf(item) + 1 }}</template>
+                        <template v-slot:item.classdate="{ item }"><p>{{ format_date(item.classdate) }} </p></template>
+                        <template #bottom></template>
+                    </v-data-table>
+                </div></div>
+            </v-form>
+            <template #footer>
+                <button class="id-btn id-btn-ghost" @click="closeStudent">{{ $t('btn.cancel') }}</button>
+                <button class="id-btn id-btn-primary" :disabled="!editedStudentItem.firstname || !editedStudentItem.lastname || !editedStudentItem.nickname" @click="doSaveNewStudent">
+                    <span class="mdi mdi-content-save"></span> {{ $t('btn.save') }}</button>
+            </template>
+        </id-modal>
 
-                            <v-card-actions class="sticky-footer">
-                                <v-spacer></v-spacer>
-                                <v-btn color="red-darken-1" variant="flat" @click="closeStudent">
-                                    {{ $t('btn.cancel') }}
-                                </v-btn>
-                                <v-btn color="blue-darken-1" variant="flat" @click="doSaveNewStudent">
-                                    {{ $t('btn.save') }}
-                                </v-btn>
-                            </v-card-actions>
-                        </v-card>
-                    </v-dialog>
-                    <v-dialog v-model="dialogStudentDelete" persistent width="auto">
-                        <v-card>
-                            <v-card-title></v-card-title>
-                            <v-card-text>{{ $t('gymnasts.confirmDelete') }}</v-card-text>
-                            <v-card-actions>
-                                <v-spacer></v-spacer>
-                                <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteStd">{{ $t('btn.ok') }}</v-btn>
-                                <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteStd">{{ $t('btn.cancel') }}</v-btn>
-                                <v-spacer></v-spacer>
-                            </v-card-actions>
-                        </v-card>
-                    </v-dialog>
+        <id-modal v-model="dialogFinish" size="sm" icon="mdi-check-decagram-outline" :title="$t('table.finish')" persistent>
+            <p style="margin:0">{{ $t('gymnasts.confirmFinish') }}</p>
+            <template #footer>
+                <button class="id-btn id-btn-ghost" @click="closeFinish">{{ $t('btn.cancel') }}</button>
+                <button class="id-btn id-btn-primary" @click="finishCourseConfirm"><span class="mdi mdi-check"></span> {{ $t('btn.confirm') }}</button>
+            </template>
+        </id-modal>
+
+        <id-modal v-model="dialogStudentDelete" size="sm" icon="mdi-delete-alert-outline" title="ยืนยันการลบ" persistent>
+            <p style="margin:0">{{ $t('gymnasts.confirmDelete') }}</p>
+            <template #footer>
+                <button class="id-btn id-btn-ghost" @click="clickCancelDeleteStd">{{ $t('btn.cancel') }}</button>
+                <button class="id-btn id-btn-primary" style="background:var(--c-error)" @click="clickConfirmDeleteStd"><span class="mdi mdi-delete"></span> {{ $t('btn.ok') }}</button>
+            </template>
+        </id-modal>
     </div>
 </template>
 <script>
 import axios from "axios";
-import DatePicker from "@/components/DatePicker.vue";
 import moment from "moment";
 import { mapGetters } from "vuex";
 export default {
-    components: {
-        DatePicker,
-    },
     data() {
         return {
             search: "",
@@ -370,22 +252,26 @@ export default {
 
             this.$emit("onLoading", false);
         },
-        async getStudentList(active) {
+        // animate = true only for grid page / per-page changes → ≥1s skeleton.
+        async getStudentList(active, animate = false) {
             this.currentActive = active;
             this.loadingStudent = true;
+            const t0 = Date.now();
             const token = this.$store.getters.getToken;
             const { page, itemsPerPage, sortBy } = this.tableOptions;
             await ComponentAPI.fetchDataStudent({ token, active, page, itemsPerPage, search: this.search, sortBy })
-                .then(({ success, results, total, message }) => {
+                .then(async ({ success, results, total, message }) => {
                     if (success) {
                         this.StudentList = results;
                         this.totalStudents = total ?? 0;
                     } else {
                         this.$emit("onErrorHandler", message || this.$t("msg.studentListFail"));
                     }
+                    if (animate) await this.$minLoad(t0);
                     this.loadingStudent = false;
                 })
-                .catch((error) => {
+                .catch(async (error) => {
+                    if (animate) await this.$minLoad(t0);
                     this.loadingStudent = false;
                     if (error.response && error.response.status == 401) {
                         this.$emit("onErrorHandler", error.response.data.message);
