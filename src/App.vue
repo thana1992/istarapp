@@ -663,9 +663,9 @@ export default {
       const found = this.themeOptions.find((t) => t.id === this.uiTheme);
       return found ? found.name : this.themeOptions[0].name;
     },
-    // Theme is a system-wide setting — only the head (0) / admin (1) may change it.
+    // Theme is a system-wide setting — only the HEAD (usertype 0) may change it (not admins).
     canEditTheme() {
-      return this.managerflag || this.adminflag;
+      return this.managerflag;
     },
   }
 }
