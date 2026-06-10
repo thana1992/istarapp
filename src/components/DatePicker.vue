@@ -34,6 +34,7 @@ import { ref, computed, watch, defineProps, defineEmits } from "vue";
 import moment from "moment";
 import { t } from "@/i18n";
 
+// eslint-disable-next-line vue/no-setup-props-destructure
 const { label, color, modelValue, mindate, maxdate, required } = defineProps([
   "label",
   "color",
@@ -48,7 +49,7 @@ const emit = defineEmits("update:modelValue");
 const isMenuOpen = ref(false);
 const selectedDate = ref(modelValue);
 const formattedDate = computed(() => {
-  return selectedDate.value ? moment(String(selectedDate.value)).format('DD/MM/YYYY') : "";
+  return selectedDate.value ? moment(selectedDate.value).format('DD/MM/YYYY') : "";
 });
 
 const clearDate = () => {

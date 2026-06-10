@@ -1,68 +1,65 @@
 ﻿<template>
-  <div class="container">
-    <div class="container-header">
-      <h1><span class="mdi mdi-account-plus"></span> {{ $t('register.title') }}</h1>
-    </div>
-    <div class="container-content">
-      <v-divider color="#fffff" thickness="3"></v-divider>
-      <v-card class="reg-card card-opacity mx-auto mt-4 px-6 py-6">
-        <v-form ref="form">
-          <v-text-field variant="solo-filled" v-model="username" :label="$t('register.username')" :rules="usernameRules" @input="removeSpaces('username')" required></v-text-field>
+  <div class="lg-wrap reg-wrap">
+    <section class="lg-form reg-form">
+      <span class="lg-form-spark reg-spark reg-spark-1"><span class="mdi mdi-star-four-points"></span></span>
+      <span class="lg-form-spark reg-spark reg-spark-2"><span class="mdi mdi-star-four-points"></span></span>
+      <div class="lg-card reg-card-wrap">
+        <div class="lg-mbrand reg-mbrand">
+          <div class="lg-logo"><span class="mdi mdi-star-four-points"></span></div>
+          <div class="lg-brand">iStar Gymnastics</div>
+          <div class="lg-sub">Gymnastics · Class System</div>
+        </div>
+        <h2 class="reg-heading"><span class="mdi mdi-account-plus"></span> {{ $t('register.title') }}</h2>
+        <p class="reg-subhead">{{ $t('register.privacyOf') }}</p>
+        <div class="scard reg-scard">
+          <v-form ref="form">
+            <div class="modal-sec"><span class="mdi mdi-card-account-details-outline"></span> {{ $t('register.title') }}</div>
+            <div class="form-grid">
+              <div class="field full"><label>{{ $t('register.username') }} <span class="req">*</span></label>
+                <input class="id-input" v-model="username" @input="removeSpaces('username')"></div>
+              <div class="field full"><label>{{ $t('register.password') }} <span class="req">*</span></label>
+                <input class="id-input" type="password" v-model="password"></div>
+              <div class="field"><label>{{ $t('register.firstname') }} <span class="req">*</span></label>
+                <input class="id-input" v-model="firstname"></div>
+              <div class="field"><label>{{ $t('register.lastname') }} <span class="req">*</span></label>
+                <input class="id-input" v-model="lastname"></div>
+              <div class="field full"><label>{{ $t('register.middlename') }}</label>
+                <input class="id-input" v-model="middlename"></div>
+              <div class="field full"><label>{{ $t('register.address') }}</label>
+                <input class="id-input" v-model="address"></div>
+              <div class="field full"><label>{{ $t('register.email') }} <span class="req">*</span></label>
+                <input class="id-input" type="email" v-model="email" @input="removeSpaces('email')"></div>
+              <div class="field"><label>{{ $t('register.mobile') }} <span class="req">*</span></label>
+                <input class="id-input" v-model="mobileno" @input="acceptNumber"></div>
+              <div class="field"><label>{{ $t('register.code') }} <span class="req">*</span></label>
+                <input class="id-input" v-model="registercode" @input="removeSpaces('registercode')"></div>
+            </div>
 
-          <v-text-field variant="solo-filled" v-model="password" :label="$t('register.password')" type="password" :rules="passwordRules" required></v-text-field>
+            <label class="id-cbx" style="align-items:flex-start;margin-top:16px" @click="acceptPrivacyPolicy = !acceptPrivacyPolicy">
+              <span class="id-check" :class="{ on: acceptPrivacyPolicy }" style="margin-top:1px;flex:0 0 auto"><span class="mdi mdi-check"></span></span>
+              <span style="font-size:12.5px">{{ $t('register.privacyConsent') }}
+                <a href="https://pdpa.pro/policies/view/en/UPCCiojcXUZQNYALpC1phePL" target="_blank" @click.stop>
+                  {{ $t('register.privacyOf') }} {{ $t('register.privacyPolicy') }}</a>
+              </span>
+            </label>
 
-          <v-text-field variant="solo-filled" v-model="firstname" :label="$t('register.firstname')" :rules="nameRules" required></v-text-field>
-
-          <v-text-field variant="solo-filled" v-model="middlename" :label="$t('register.middlename')"></v-text-field>
-
-          <v-text-field variant="solo-filled" v-model="lastname" :label="$t('register.lastname')" :rules="nameRules" required></v-text-field>
-
-          <v-text-field variant="solo-filled" v-model="address" :label="$t('register.address')" type="text" required></v-text-field>
-
-          <v-text-field variant="solo-filled" v-model="email" :label="$t('register.email')" type="text" :rules="emailRules" @input="removeSpaces('email')" required></v-text-field>
-
-          <v-text-field variant="solo-filled" v-model="mobileno" :label="$t('register.mobile')" @input="acceptNumber" type="text" :rules="mobileRules" required></v-text-field>
-
-          <v-text-field variant="solo-filled" v-model="registercode" :label="$t('register.code')" type="text" @input="removeSpaces('registercode')" required></v-text-field>
-
-          <v-checkbox v-model="acceptPrivacyPolicy">
-            <template v-slot:label>
-              <div style="font-size: 12px;">
-                {{ $t('register.privacyConsent') }}
-                <v-tooltip location="bottom">
-                  <template v-slot:activator="{ props }">
-                    <a
-                      href="https://pdpa.pro/policies/view/en/UPCCiojcXUZQNYALpC1phePL"
-                      target="_blank"
-                      v-bind="props"
-                      @click.stop
-                    >
-                      {{ $t('register.privacyOf') }} {{ $t('register.privacyPolicy') }}
-                    </a>
-                  </template>
-                  {{ $t('register.privacyPolicy') }}
-                </v-tooltip>
-              </div>
-            </template>
-          </v-checkbox>
-
-          <v-btn color="blue" class="mt-1" :disabled="!acceptPrivacyPolicy" block @click="doRegister">
-            {{ $t('register.submit') }}
-          </v-btn>
-          <v-btn color="error" class="mt-4" block @click="reset">
-            {{ $t('register.clear') }}
-          </v-btn>
-          <v-btn color="grey" class="mt-4" block @click="cancel">
-            {{ $t('register.cancel') }}
-          </v-btn>
-        </v-form>
-      </v-card>
-    </div>
+            <button type="button" class="id-btn id-btn-primary reg-btn mt-4" :disabled="!acceptPrivacyPolicy" @click="doRegister">
+              <span class="mdi mdi-account-plus"></span> {{ $t('register.submit') }}
+            </button>
+            <button type="button" class="id-btn id-btn-soft reg-btn mt-3" @click="reset">
+              <span class="mdi mdi-restart"></span> {{ $t('register.clear') }}
+            </button>
+            <button type="button" class="id-btn id-btn-ghost reg-btn mt-3" @click="cancel">
+              <span class="mdi mdi-arrow-left"></span> {{ $t('register.cancel') }}
+            </button>
+          </v-form>
+        </div>
+      </div>
+    </section>
   </div>
 </template>
 
 <script>
-import { VBottomNavigation, VBottomSheet } from 'vuetify/lib/components/index.mjs'
 import axios from 'axios';
 import CryptoJS from 'crypto-js';
 import { t } from "@/i18n";
@@ -82,6 +79,7 @@ export default {
     usernameRules: [
       v => !!v || t('validation.usernameRequired'),
       v => !/\s/.test(v) || t('validation.usernameNoSpaces'),
+      // eslint-disable-next-line no-control-regex
       v => /^[\x00-\x7F]+$/.test(v) || t('validation.usernameEnglishOnly'),
     ],
     passwordRules: [
@@ -144,7 +142,18 @@ export default {
       this.mobileno = !x[2] ? x[1] : x[1] + '-' + x[2] + (x[3] ? '-' + x[3] : '');
     },
     reset() {
-      this.$refs.form.reset()
+      // plain .id-input fields aren't Vuetify inputs → clear the bound data directly
+      this.username = ''
+      this.password = ''
+      this.registercode = ''
+      this.firstname = ''
+      this.middlename = ''
+      this.lastname = ''
+      this.address = ''
+      this.email = ''
+      this.mobileno = ''
+      this.acceptPrivacyPolicy = false
+      if (this.$refs.form) this.$refs.form.resetValidation()
     },
     resetValidation() {
       this.$refs.form.resetValidation()
@@ -162,4 +171,92 @@ export default {
   },
 }
 </script>
-<style scoped></style>
+<style scoped>
+/* Full-screen pink-gradient auth page (no hero panel for Register).
+   Reuses the app-wide .lg-* / .id-btn classes from istar-pages.css +
+   istar-design.css; the reg-* modifiers below only force the single-column
+   gradient + always-visible brand at every viewport width and allow the tall
+   register form to scroll. Paint-only — no layout tokens overridden globally. */
+.reg-wrap {
+  grid-template-columns: 1fr;
+  min-height: 100vh;
+}
+
+.reg-form {
+  position: relative;
+  overflow-x: hidden;
+  overflow-y: auto;
+  min-height: 100vh;
+  align-items: flex-start;
+  padding: clamp(28px, 5vh, 56px) 20px clamp(28px, 5vh, 56px);
+  background: linear-gradient(160deg, #fde8f3 0%, #f3e9ff 55%, #fff7ed 100%);
+}
+
+.reg-form > *:not(.reg-spark) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Static decorative sparkles (no script data) */
+.reg-spark {
+  display: block;
+  position: absolute;
+  z-index: 0;
+  color: rgba(168, 85, 247, 0.35);
+  pointer-events: none;
+}
+.reg-spark .mdi { display: block; }
+.reg-spark-1 { top: 8%; left: 8%; font-size: 26px; }
+.reg-spark-2 { bottom: 10%; right: 9%; font-size: 34px; }
+
+.reg-card-wrap {
+  max-width: 460px;
+}
+
+/* Brand block always visible on this dedicated full-screen page */
+.reg-mbrand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  margin-bottom: 18px;
+}
+.reg-mbrand .lg-logo {
+  width: 84px;
+  height: 84px;
+  border-radius: 24px;
+  background: var(--sidebar-bg);
+}
+.reg-mbrand .lg-logo .mdi { font-size: 46px; color: #fff; }
+.reg-mbrand .lg-brand { color: var(--c-primary-dark); font-size: 24px; margin-top: 6px; }
+.reg-mbrand .lg-sub { color: var(--c-text-muted); }
+
+.reg-heading {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 24px;
+  color: var(--c-text-heading);
+  margin: 0 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.reg-heading .mdi { font-size: 26px; color: var(--c-primary); }
+
+.reg-subhead {
+  color: var(--c-text-muted);
+  margin: 0 0 18px;
+  font-size: 13px;
+}
+
+/* Full-width pill-style action buttons */
+.reg-btn {
+  width: 100%;
+  height: 46px;
+}
+.reg-btn[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+</style>

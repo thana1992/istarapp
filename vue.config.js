@@ -22,7 +22,11 @@ module.exports = defineConfig({
       new webpack.DefinePlugin({
         'env': {
           SERVER_URL: JSON.stringify(process.env.SERVER_URL)
-        }
+        },
+        // Vue 3.4+ esm-bundler feature flag — this app is a client-only SPA (no
+        // SSR/hydration), so set it to false. Silences the "feature flag not
+        // explicitly defined" console warning and improves production tree-shaking.
+        __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: 'false'
       })
     ]
   }

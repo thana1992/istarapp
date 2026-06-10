@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iStar — Full Preview (ทุกหน้า ดีไซน์ใหม่)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@3.4.11/dist/vuetify.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="istar-design.css" />
+  <style>
+    html, body, #app { height: 100%; margin: 0; }
+    body { font-family: var(--font-body); background: var(--c-bg-grad); }
+    /* force the system font on every form control (native ones default to OS font) */
+    #app input, #app select, #app textarea, #app .id-dd-trigger, #app .id-dd-opt { font-family: var(--font-body); }
+    /* login */
+    .lg-wrap { min-height: 100vh; display: grid; grid-template-columns: 1.05fr 1fr; }
+    @media (max-width: 900px){ .lg-wrap{ grid-template-columns: 1fr; } }
+    .lg-hero { position: relative; overflow: hidden; color:#fff; display:flex; flex-direction:column; justify-content:space-between;
+      padding: clamp(34px,5vw,54px) clamp(28px,5vw,52px) clamp(30px,4vw,44px); background: var(--sidebar-bg); }
+    .lg-hero > *:not(.lg-spark), .lg-mbrand > *:not(.lg-spark){ position:relative; z-index:1; }
+    .lg-spark { position:absolute; z-index:0; color:rgba(255,255,255,.92); animation: lg-tw 2.8s ease-in-out infinite; pointer-events:none; }
+    .lg-spark .mdi{ display:block; }
+    @keyframes lg-tw { 0%,100%{ opacity:var(--o,.6); transform:scale(1);} 50%{ opacity:.12; transform:scale(.55) rotate(12deg);} }
+    @media (prefers-reduced-motion: reduce){ .lg-spark{ animation:none; } }
+    .lg-logo { width:108px; height:108px; border-radius:28px; background:rgba(255,255,255,.16); display:grid; place-items:center; }
+    .lg-logo .mdi { font-size:60px; filter: drop-shadow(0 0 8px rgba(255,255,255,.7)) drop-shadow(0 0 22px rgba(249,168,212,.7)); }
+    .lg-brand { font-family:var(--font-head); font-weight:800; font-size:30px; margin-top:14px; }
+    .lg-sub { font-size:12px; letter-spacing:.26em; text-transform:uppercase; opacity:.85; margin-top:8px; }
+    .lg-tag { font-family:var(--font-head); font-weight:800; font-size:clamp(26px,3.4vw,36px); line-height:1.15; }
+    .lg-blurb { margin-top:14px; max-width:420px; line-height:1.6; opacity:.92; }
+    .lg-foot { font-size:12.5px; opacity:.8; }
+    .lg-form { display:flex; align-items:center; justify-content:center; padding:40px 28px; background:var(--c-bg); min-height:100vh; }
+    .lg-card { width:100%; max-width:420px; }
+    .lg-mbrand { display:none; }
+    .lg-logo img{ width:100%; height:100%; object-fit:contain; }
+    .lg-form-spark{ display:none; position:absolute; z-index:0; color:rgba(168,85,247,.45); animation:lg-tw 3s ease-in-out infinite; pointer-events:none; }
+    @media (max-width:900px){
+      .lg-hero{ display:none; }
+      .lg-form{ position:relative; overflow:hidden; background:linear-gradient(160deg,#fde8f3 0%,#f3e9ff 55%,#fff7ed 100%); }
+      .lg-form > *:not(.lg-form-spark){ position:relative; z-index:1; }
+      .lg-form-spark{ display:block; }
+      .lg-mbrand{ display:flex; flex-direction:column; align-items:center; gap:4px; text-align:center; margin-bottom:20px; }
+      .lg-mbrand .lg-logo{ width:94px; height:94px; background:transparent; border-radius:0; }
+      .lg-mbrand .lg-logo img{ filter: drop-shadow(0 4px 14px rgba(236,72,153,.35)); }
+      .lg-mbrand .lg-brand{ color:var(--c-primary-dark); font-size:24px; margin-top:6px; }
+      .lg-mbrand .lg-sub{ color:var(--c-text-muted); }
+      .lg-form .v-card{ background:transparent !important; box-shadow:none !important; }
+    }
+    /* shell */
+    .shell { display:flex; min-height:100vh; }
+    .side { width:264px; flex:0 0 264px; background:var(--sidebar-bg); color:var(--sidebar-tx); display:flex; flex-direction:column; padding:16px 12px; position:sticky; top:0; height:100vh; overflow:auto; }
+    .side-spark { position:absolute; z-index:0; color:rgba(255,255,255,.85); animation: lg-tw 2.8s ease-in-out infinite; pointer-events:none; }
+    .side > *:not(.side-spark){ position:relative; z-index:1; }
+    .side-brand { display:flex; align-items:center; gap:10px; padding:8px 10px 16px; }
+    .side-logo { width:40px; height:40px; border-radius:12px; background:rgba(255,255,255,.18); display:grid; place-items:center; }
+    .side-logo .mdi{ font-size:24px; }
+    .side-name { font-family:var(--font-head); font-weight:800; font-size:16px; }
+    .side-role { font-size:11px; opacity:.85; }
+    .nav-sec { font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; opacity:.7; margin:14px 10px 4px; }
+    .nav-item { display:flex; align-items:center; gap:11px; padding:10px 12px; border-radius:var(--radius-md); cursor:pointer; font-weight:600; font-size:14px; margin-bottom:2px; }
+    .nav-item:hover { background:var(--sidebar-hover-bg); }
+    .nav-item.on { background:var(--sidebar-active-bg); }
+    .nav-item .mdi { font-size:19px; }
+    .main { flex:1; min-width:0; display:flex; flex-direction:column; }
+    .topbar { height:60px; display:flex; align-items:center; gap:12px; padding:0 22px; background:var(--topbar-bg); border-bottom:1px solid var(--topbar-border); position:sticky; top:0; z-index:5; backdrop-filter:blur(10px); }
+    .topbar .sp { flex:1; }
+    .burger { display:inline-flex; }
+    .page { padding:24px; max-width:1180px; width:100%; margin:0 auto; }
+    @media (max-width:900px){
+      .side{ position:fixed; left:0; top:0; z-index:50; transform:translateX(-100%); transition:.25s; box-shadow:var(--shadow-lg); }
+      .side.open{ transform:none; }
+      .burger{ display:inline-flex; }
+    }
+    .scrim { display:none; }
+    .scrim.show { display:block; position:fixed; inset:0; background:rgba(0,0,0,.4); z-index:40; }
+    @media (min-width:901px){ .scrim, .scrim.show { display:none !important; } }
+    @media (min-width:901px){
+      .burger{ display:none !important; }
+      .shell.collapsed .side{ width:74px; flex-basis:74px; padding:16px 8px; overflow:visible; }
+      .shell.collapsed .side .nav-label, .shell.collapsed .side .nav-sec,
+      .shell.collapsed .side .side-brand > div:last-child{ display:none; }
+      .shell.collapsed .side .side-brand{ justify-content:center; padding:8px 0 14px; }
+      .shell.collapsed .side .nav-item{ justify-content:center; }
+      .shell.collapsed .side .nav-item:hover::after{ content:attr(data-label); position:absolute; left:100%; top:50%; transform:translateY(-50%); margin-left:12px; background:#22132f; color:#fff; padding:7px 11px; border-radius:9px; font-size:12.5px; font-weight:600; white-space:nowrap; z-index:60; box-shadow:var(--shadow-md); pointer-events:none; }
+      .shell.collapsed .side .nav-item:hover::before{ content:''; position:absolute; left:100%; top:50%; transform:translateY(-50%); margin-left:5px; border:6px solid transparent; border-right-color:#22132f; z-index:60; pointer-events:none; }
+    }
+    @media (max-width:900px){ .collapse-toggle{ display:none; } }
+    .side .nav-item{ position:relative; }
+    .side-divider{ height:1px; background:rgba(255,255,255,.16); margin:8px 6px; }
+    .nav-logout{ color:#ffe1ec; }
+    .nav-logout:hover{ background:rgba(255,255,255,.14); }
+    .nav-logout .mdi{ color:#ffd0e0; }
+    .collapse-toggle{ margin-top:6px; opacity:.92; }
+    .bottombar{ display:none; }
+    @media (max-width:900px){
+      .bottombar{ display:flex; position:fixed; left:0; right:0; bottom:0; z-index:45; background:var(--c-surface); border-top:1px solid var(--c-border); box-shadow:0 -4px 16px rgba(157,23,79,.10); padding:6px 4px; }
+      .bottombar .tab{ flex:1; display:flex; flex-direction:column; align-items:center; gap:2px; padding:6px 2px; cursor:pointer; color:var(--c-text-muted); font-size:10.5px; font-weight:600; border-radius:12px; }
+      .bottombar .tab .mdi{ font-size:22px; }
+      .bottombar .tab.on{ color:var(--c-primary); }
+      .shell.customer .side{ display:none; }
+      .shell.customer .burger{ display:none; }
+      .shell.customer .page{ padding-bottom:84px; }
+    }
+    /* generic */
+    .pg-head { display:flex; align-items:center; gap:12px; margin-bottom:18px; flex-wrap:wrap; }
+    .pg-ico { width:44px; height:44px; border-radius:13px; background:var(--c-primary); color:#fff; display:grid; place-items:center; }
+    .pg-ico .mdi{ font-size:22px; }
+    .pg-sub { font-size:13px; color:var(--c-text-muted); margin:2px 0 0; }
+    .idt { width:100%; border-collapse:collapse; font-size:13.5px; }
+    .idt th { text-align:left; font-family:var(--font-head); font-weight:700; color:var(--c-text-heading); padding:10px 12px; background:var(--c-surface-2); border-bottom:2px solid var(--c-border); white-space:nowrap; }
+    .idt td { padding:10px 12px; border-bottom:1px solid var(--c-border); white-space:nowrap; }
+    .idt tbody tr:hover td { background:var(--c-surface-3); }
+    .stat-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:14px; }
+    @media (max-width:1100px){ .stat-grid{ grid-template-columns:repeat(3,1fr);} }
+    @media (max-width:700px){ .stat-grid{ grid-template-columns:repeat(2,1fr);} }
+    .scard { position:relative; overflow:hidden; background:var(--c-surface); border:1px solid var(--c-border); border-radius:var(--radius-lg); box-shadow:var(--shadow-sm); padding:16px; }
+    .scard .acc { position:absolute; top:0; left:0; right:0; height:4px; }
+    .scard .lbl { font-size:12px; color:var(--c-text-muted); font-weight:600; }
+    .scard .val { font-family:var(--font-head); font-weight:800; font-size:30px; color:var(--c-text-heading); line-height:1; margin:10px 0 6px; }
+    .grid2 { display:grid; grid-template-columns:300px 1fr; gap:16px; align-items:start; }
+    @media (max-width:960px){ .grid2{ grid-template-columns:1fr; } }
+    .grid2-profile { grid-template-columns:320px 1fr; }
+    @media (max-width:960px){ .grid2-profile{ grid-template-columns:1fr; } }
+    .grid2-booking { grid-template-columns:300px 1fr; }
+    @media (max-width:960px){ .grid2-booking{ grid-template-columns:1fr; } }
+    .cards3 { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:16px; }
+    .quick-row{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:16px; }
+    @media(max-width:760px){ .quick-row{ grid-template-columns:repeat(2,1fr);} }
+    .quick-card{ display:flex; align-items:center; gap:12px; padding:16px; cursor:pointer; }
+    .quick-card:hover{ box-shadow:var(--shadow-md); transform:translateY(-2px); }
+    .q-ico{ width:38px; height:38px; border-radius:12px; display:grid; place-items:center; flex:0 0 38px; }
+    .q-ico .mdi{ font-size:20px; }
+    .cal-nav{ display:flex; align-items:center; justify-content:space-between; margin:6px 0 10px; color:var(--c-text-heading); font-family:var(--font-head); font-weight:700; }
+    .cal-nav .mdi{ cursor:pointer; font-size:22px; color:var(--c-primary); padding:2px 6px; border-radius:8px; }
+    .cal-nav .mdi:hover{ background:var(--c-surface-3); }
+    .cal-dow{ text-align:center; font-size:11px; font-weight:700; color:var(--c-text-muted); padding:2px 0; }
+    .cal-cell{ position:relative; aspect-ratio:1; display:grid; place-items:center; border-radius:9px; cursor:pointer; font-size:13px; font-weight:600; color:var(--c-text-body); }
+    .cal-cell:hover{ background:var(--c-surface-3); }
+    .cal-cell.on{ background:var(--c-primary); color:#fff; }
+    .cal-dot{ position:absolute; bottom:5px; left:50%; transform:translateX(-50%); width:5px; height:5px; border-radius:50%; background:var(--c-primary); }
+    .cal-cell.on .cal-dot{ background:#fff; }
+    /* id-calendar (full month picker, disabled days) */
+    .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+    .cal-empty{ cursor:default; }
+    .cal-cell.today:not(.on):not(.disabled){ box-shadow:inset 0 0 0 2px var(--c-primary-light); }
+    .cal-cell.disabled{ color:var(--c-text-muted); opacity:.4; cursor:not-allowed; text-decoration:line-through; }
+    .cal-cell.disabled:hover{ background:transparent; }
+    .cal-legend{ display:flex; align-items:center; gap:6px; margin-top:12px; padding-top:10px; border-top:1px dashed var(--c-border); font-size:11.5px; color:var(--c-text-muted); }
+    .cal-legend-x{ display:inline-grid; place-items:center; width:16px; height:16px; border-radius:5px; background:var(--c-surface-3); color:var(--c-text-muted); font-weight:700; }
+    /* ===== STANDARD DATA GRID — toolbar / search / filter / pagination ===== */
+    .grid-toolbar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+    .grid-toolbar > .id-btn { margin-left:auto; }
+    .grid-search { position:relative; flex:1 1 200px; min-width:160px; max-width:340px; }
+    .grid-search > .mdi { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--c-text-muted); font-size:19px; pointer-events:none; }
+    .id-input { width:100%; height:42px; border:1px solid var(--c-border); border-radius:var(--radius-md); background:var(--c-surface);
+      padding:0 14px; font-family:var(--font-body); font-size:14px; color:var(--c-text-body); outline:none; box-shadow:var(--shadow-sm);
+      transition:border-color .15s, box-shadow .15s; }
+    .grid-search .id-input { padding-left:42px; }
+    .id-input:focus { border-color:var(--c-primary); box-shadow:0 0 0 3px var(--c-ring); }
+    .id-input::placeholder { color:var(--c-text-muted); }
+    .id-select { height:42px; border:1px solid var(--c-border); border-radius:var(--radius-md); background-color:var(--c-surface);
+      padding:0 36px 0 14px; font-family:var(--font-body); font-size:14px; color:var(--c-text-body); cursor:pointer; outline:none; appearance:none; box-shadow:var(--shadow-sm);
+      background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23b08299' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+      background-repeat:no-repeat; background-position:right 12px center; transition:border-color .15s, box-shadow .15s; }
+    .id-select:focus { border-color:var(--c-primary); box-shadow:0 0 0 3px var(--c-ring); }
+    .grid-spacer { flex:1 1 auto; }
+    .grid-foot { display:flex; align-items:center; justify-content:space-between; gap:12px; padding-top:14px; margin-top:12px; border-top:1px solid var(--c-border); flex-wrap:wrap; }
+    .grid-count { font-size:13px; color:var(--c-text-muted); font-weight:600; white-space:nowrap; }
+    .grid-pager { display:flex; align-items:center; gap:4px; }
+    .pager-btn { width:34px; height:34px; border-radius:var(--radius-md); border:1px solid var(--c-border); background:var(--c-surface);
+      color:var(--c-text-body); cursor:pointer; display:inline-flex; align-items:center; justify-content:center; transition:background .15s, border-color .15s; }
+    .pager-btn:hover:not(:disabled) { background:var(--c-surface-3); border-color:var(--c-border-strong); }
+    .pager-btn:disabled { opacity:.35; cursor:default; }
+    .pager-btn .mdi { font-size:20px; }
+    .pager-now { min-width:74px; text-align:center; font-family:var(--font-head); font-weight:700; font-size:13.5px; color:var(--c-text-heading); }
+    .pager-now b { color:var(--c-primary); }
+    .grid-empty { text-align:center; padding:46px 16px; color:var(--c-text-muted); }
+    .grid-empty .mdi { font-size:42px; opacity:.45; display:block; margin-bottom:8px; }
+    /* compact CSS toggle (consistent row height; replaces v-switch in grids) */
+    .idsw { position:relative; display:inline-block; width:40px; height:22px; cursor:pointer; vertical-align:middle; }
+    .idsw .track { position:absolute; inset:0; background:var(--c-border-strong); border-radius:999px; transition:background .2s; }
+    .idsw .thumb { position:absolute; top:2px; left:2px; width:18px; height:18px; background:#fff; border-radius:50%; transition:left .2s; box-shadow:0 1px 3px rgba(0,0,0,.25); }
+    .idsw.on .track { background:var(--c-primary); }
+    .idsw.on .thumb { left:20px; }
+    /* profile — editable form + avatar upload */
+    .avatar-up { position:relative; width:108px; height:108px; margin:0 auto 14px; }
+    .avatar-up .av-img { width:108px; height:108px; border-radius:50%; object-fit:cover; display:block; }
+    .avatar-up .tt-avatar { width:108px; height:108px; border-radius:50%; font-size:40px; }
+    .avatar-cam { position:absolute; right:2px; bottom:2px; width:36px; height:36px; border-radius:50%; background:var(--c-primary); color:#fff; display:grid; place-items:center; cursor:pointer; border:3px solid var(--c-surface); transition:background .15s; }
+    .avatar-cam:hover { background:var(--c-primary-dark); }
+    .avatar-cam .mdi { font-size:18px; }
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    @media (max-width:620px){ .form-grid{ grid-template-columns:1fr; } }
+    .field { display:flex; flex-direction:column; gap:5px; }
+    .field.full { grid-column:1 / -1; }
+    .field > label { font-size:12.5px; font-weight:600; color:var(--c-text-muted); }
+    .pw-eye { position:absolute; right:13px; top:50%; transform:translateY(-50%); color:var(--c-text-muted); font-size:19px; cursor:pointer; }
+    .pw-eye:hover { color:var(--c-primary); }
+    .field > div .id-input { padding-right:42px; }
+    .field > .id-select { width:100%; }
+    .id-textarea { height:auto; min-height:86px; padding:10px 14px; line-height:1.55; resize:vertical; }
+    .field > label .req { color:var(--c-error); font-weight:700; }
+    .id-btn:disabled { opacity:.5; cursor:not-allowed; }
+    .id-btn:disabled:active { transform:none; }
+    /* ===== ID-MODAL — standard dialog (form entry + grid inside) ===== */
+    .id-modal-scrim { position:fixed; inset:0; z-index:120; background:rgba(131,24,67,.34); backdrop-filter:blur(3px);
+      display:flex; align-items:center; justify-content:center; padding:20px; }
+    .id-modal { width:100%; max-width:560px; max-height:calc(100vh - 40px); background:var(--c-surface);
+      border:1px solid var(--c-border); border-radius:var(--radius-lg); box-shadow:var(--shadow-lg);
+      display:flex; flex-direction:column; overflow:hidden; }
+    .id-modal.sm { max-width:430px; } .id-modal.lg { max-width:760px; } .id-modal.xl { max-width:980px; }
+    .id-modal-head { display:flex; align-items:center; gap:13px; padding:17px 20px; color:#fff;
+      background:linear-gradient(120deg, var(--c-primary), var(--c-primary-dark)); }
+    .id-modal-ico { width:42px; height:42px; flex:0 0 42px; border-radius:13px; background:rgba(255,255,255,.2); display:grid; place-items:center; }
+    .id-modal-ico .mdi { font-size:23px; }
+    .id-modal-titles { flex:1; min-width:0; }
+    .id-modal-title { font-family:var(--font-head); font-weight:800; font-size:19px; line-height:1.2; }
+    .id-modal-sub { font-size:12.5px; opacity:.92; margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .id-modal-x { width:34px; height:34px; flex:0 0 34px; border-radius:10px; border:none; cursor:pointer;
+      background:rgba(255,255,255,.16); color:#fff; display:grid; place-items:center; transition:background .15s; }
+    .id-modal-x:hover { background:rgba(255,255,255,.32); }
+    .id-modal-x .mdi { font-size:20px; }
+    .id-modal-body { padding:22px 20px; overflow-y:auto; }
+    .id-modal-foot { display:flex; align-items:center; justify-content:flex-end; gap:10px; padding:14px 20px;
+      border-top:1px solid var(--c-border); background:var(--c-surface-2); flex-wrap:wrap; }
+    .id-modal-grid { border:1px solid var(--c-border); border-radius:var(--radius-md); overflow:hidden; }
+    .id-modal-grid-scroll { max-height:46vh; overflow-y:auto; }
+    .id-modal-grid .idt th { position:sticky; top:0; z-index:1; }
+    .id-check { display:inline-grid; place-items:center; width:22px; height:22px; border-radius:7px; border:2px solid var(--c-border-strong); background:var(--c-surface); color:#fff; transition:.15s; }
+    .id-check .mdi { font-size:15px; opacity:0; }
+    .id-check.on { background:var(--c-primary); border-color:var(--c-primary); }
+    .id-check.on .mdi { opacity:1; }
+    /* ===== ID-SELECT (custom dropdown) + ID-DATE (calendar popover) ===== */
+    .id-dd { position:relative; width:100%; }
+    .id-dd.grid-filter { width:auto; min-width:175px; flex:0 0 auto; }
+    .id-dd-trigger { width:100%; height:42px; display:flex; align-items:center; gap:8px; padding:0 12px 0 14px;
+      border:1px solid var(--c-border); border-radius:var(--radius-md); background:var(--c-surface); cursor:pointer;
+      font-family:var(--font-body); font-size:14px; color:var(--c-text-body); box-shadow:var(--shadow-sm); text-align:left;
+      transition:border-color .15s, box-shadow .15s; }
+    .id-dd-trigger:hover { border-color:var(--c-border-strong); }
+    .id-dd.open .id-dd-trigger { border-color:var(--c-primary); box-shadow:0 0 0 3px var(--c-ring); }
+    .id-dd-trigger.placeholder { color:var(--c-text-muted); }
+    .id-dd-val { flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    .id-dd-caret { color:var(--c-text-muted); font-size:20px; transition:transform .2s, color .2s; flex:0 0 auto; }
+    .id-dd.open .id-dd-caret { transform:rotate(180deg); color:var(--c-primary); }
+    .id-dd.disabled { opacity:.55; pointer-events:none; }
+    .id-pop-backdrop { position:fixed; inset:0; z-index:199; }
+    .id-dd-menu { background:var(--c-surface); border:1px solid var(--c-border); border-radius:var(--radius-md);
+      box-shadow:var(--shadow-pop); padding:6px; overflow-y:auto; }
+    .id-dd-menu.has-search { padding:0; display:flex; flex-direction:column; overflow:hidden; }
+    .id-dd-menu.has-search .id-dd-list { overflow-y:auto; padding:6px; }
+    .id-dd-search { position:relative; padding:8px; border-bottom:1px solid var(--c-border); background:var(--c-surface); flex:0 0 auto; }
+    .id-dd-search .mdi { position:absolute; left:18px; top:50%; transform:translateY(-50%); color:var(--c-text-muted); font-size:18px; pointer-events:none; }
+    .id-dd-search input { width:100%; height:38px; border:1px solid var(--c-border); border-radius:var(--radius-sm);
+      background:var(--c-surface-2); padding:0 12px 0 38px; font-family:var(--font-body); font-size:14px; color:var(--c-text-body); outline:none; }
+    .id-dd-search input:focus { border-color:var(--c-primary); box-shadow:0 0 0 3px var(--c-ring); }
+    .id-dd-empty { padding:14px 11px; text-align:center; color:var(--c-text-muted); font-size:13px; }
+    .id-dd-opt { width:100%; display:flex; align-items:center; justify-content:space-between; gap:8px; padding:9px 11px;
+      border:none; background:transparent; border-radius:var(--radius-sm); cursor:pointer; font-family:var(--font-body);
+      font-size:14px; color:var(--c-text-body); text-align:left; }
+    .id-dd-opt:hover { background:var(--c-surface-3); }
+    .id-dd-opt.on { background:var(--c-primary-soft); color:var(--c-primary-dark); font-weight:600; }
+    .id-dd-opt .mdi { color:var(--c-primary); font-size:17px; }
+    .id-pop { background:var(--c-surface); border:1px solid var(--c-border); border-radius:var(--radius-lg);
+      box-shadow:var(--shadow-pop); padding:12px 14px 10px; }
+    .dd-pop-enter-active, .dd-pop-leave-active { transition:opacity .15s, transform .15s; }
+    .dd-pop-enter-from, .dd-pop-leave-to { opacity:0; transform:translateY(-6px); }
+    /* form section header (replaces old green/blue underline dividers) */
+    .modal-sec { display:flex; align-items:center; gap:8px; font-family:var(--font-head); font-weight:700; font-size:15px;
+      color:var(--c-text-heading); margin:2px 0 14px; padding-left:11px; border-left:4px solid var(--c-primary); }
+    .modal-sec.mt { margin-top:24px; }
+    .modal-sec .mdi { color:var(--c-primary); font-size:18px; }
+    .form-grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px; }
+    .form-grid-4 { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:14px; }
+    @media (max-width:680px){ .form-grid-3, .form-grid-4 { grid-template-columns:1fr 1fr; } }
+    @media (max-width:460px){ .form-grid-3, .form-grid-4 { grid-template-columns:1fr; } }
+    /* avatar upload inside dialog */
+    .dlg-avatar { width:96px; height:96px; margin:0 auto; position:relative; }
+    .dlg-avatar .av-ph { width:96px; height:96px; border-radius:50%; background:var(--c-surface-3); border:3px solid var(--c-border-strong);
+      display:grid; place-items:center; color:var(--c-primary-light); overflow:hidden; }
+    .dlg-avatar .av-ph .mdi { font-size:46px; }
+    .dlg-avatar .av-ph img { width:100%; height:100%; object-fit:cover; }
+    .dlg-avatar .av-cam { position:absolute; right:0; bottom:0; width:30px; height:30px; border-radius:50%; background:var(--c-primary);
+      color:#fff; display:grid; place-items:center; cursor:pointer; border:2px solid #fff; }
+    .dlg-avatar .av-cam .mdi { font-size:16px; }
+    /* labeled checkbox + upload-slip control */
+    .id-cbx { display:inline-flex; align-items:center; gap:9px; cursor:pointer; font-size:14px; color:var(--c-text-body); }
+    .id-upload { display:flex; align-items:center; gap:9px; height:42px; padding:0 14px; border:1.5px dashed var(--c-border-strong);
+      border-radius:var(--radius-md); background:var(--c-surface-2); color:var(--c-text-muted); cursor:pointer; font-size:13.5px; transition:border-color .15s, color .15s; }
+    .id-upload:hover { border-color:var(--c-primary); color:var(--c-primary); }
+    .id-upload .mdi { font-size:19px; }
+    .course-flow { display:flex; align-items:center; gap:10px; }
+    .course-flow .flow-arrow { display:flex; flex-direction:column; align-items:center; color:var(--c-text-muted); font-size:11px; flex:0 0 auto; padding-top:18px; }
+    .course-flow .flow-arrow .mdi { font-size:22px; color:var(--c-primary-light); }
+    @media (max-width:560px){ .course-flow { flex-direction:column; align-items:stretch; } .course-flow .flow-arrow { flex-direction:row; padding-top:0; } .course-flow .flow-arrow .mdi { transform:rotate(90deg); } }
+    .modal-fade-enter-active, .modal-fade-leave-active { transition:opacity .2s ease; }
+    .modal-fade-enter-from, .modal-fade-leave-to { opacity:0; }
+    .modal-fade-enter-active .id-modal, .modal-fade-leave-active .id-modal { transition:transform .22s cubic-bezier(.2,.8,.2,1); }
+    .modal-fade-enter-from .id-modal, .modal-fade-leave-to .id-modal { transform:translateY(16px) scale(.97); }
+    @media (max-width:600px){
+      .id-modal-scrim { padding:0; align-items:flex-end; }
+      .id-modal { max-width:none; max-height:92vh; border-radius:var(--radius-lg) var(--radius-lg) 0 0; }
+    }
+    /* topbar language toggle */
+    .lang-btn { display:inline-flex; align-items:center; gap:6px; height:34px; padding:0 12px; border-radius:999px; border:1px solid var(--c-border);
+      background:var(--c-surface); color:var(--c-text-body); font-family:var(--font-head); font-weight:700; font-size:13px; cursor:pointer; transition:background .15s, border-color .15s; }
+    .lang-btn:hover { background:var(--c-surface-3); border-color:var(--c-border-strong); }
+    .lang-btn .mdi { font-size:17px; color:var(--c-primary); }
+    /* booking flow — step header + date strip */
+    .step-head { display:flex; align-items:center; gap:10px; font-family:var(--font-head); font-weight:700; font-size:16px; color:var(--c-text-heading); margin:0 0 12px; }
+    .step-head.is-muted { color:var(--c-text-muted); }
+    .step-num { width:26px; height:26px; flex:0 0 26px; border-radius:50%; background:var(--c-primary); color:#fff; display:grid; place-items:center; font-family:var(--font-head); font-size:14px; }
+    .step-head.is-muted .step-num { background:var(--c-border-strong); }
+    .date-strip { display:flex; gap:10px; overflow-x:auto; padding:2px 2px 12px; scrollbar-width:thin; }
+    .date-chip { flex:0 0 auto; width:74px; display:flex; flex-direction:column; align-items:center; gap:3px; padding:12px 0 11px; border:1px solid var(--c-border); border-radius:var(--radius-md); background:var(--c-surface); cursor:pointer; box-shadow:var(--shadow-sm); transition:border-color .15s, transform .15s; position:relative; }
+    .date-chip:hover { border-color:var(--c-primary); transform:translateY(-2px); }
+    .date-chip.on { background:var(--c-primary); border-color:var(--c-primary); box-shadow:var(--shadow-md); }
+    .dc-dow { font-size:12px; font-weight:700; color:var(--c-text-muted); }
+    .dc-day { font-family:var(--font-head); font-weight:800; font-size:22px; color:var(--c-text-heading); line-height:1; }
+    .dc-mon { font-size:11px; color:var(--c-text-muted); }
+    .date-chip.on .dc-dow, .date-chip.on .dc-mon { color:rgba(255,255,255,.85); }
+    .date-chip.on .dc-day { color:#fff; }
+    .dc-today { position:absolute; top:-7px; left:50%; transform:translateX(-50%); background:var(--c-primary); color:#fff; font-size:9.5px; font-weight:700; padding:1px 7px; border-radius:999px; white-space:nowrap; }
+    .date-chip.on .dc-today { background:#fff; color:var(--c-primary); }
+    .reserve-empty { display:flex; flex-direction:column; align-items:center; gap:8px; padding:40px 16px; color:var(--c-text-muted); text-align:center; border:1.5px dashed var(--c-border-strong); border-radius:var(--radius-lg); background:var(--c-surface-2); }
+    .reserve-empty .mdi { font-size:40px; color:var(--c-primary-light); }
+    .reserve-datebar { display:flex; align-items:center; gap:8px; margin-bottom:14px; font-size:14px; color:var(--c-text-body); flex-wrap:wrap; }
+    .reserve-datebar .mdi { color:var(--c-primary); }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <!-- ================= LOGIN ================= -->
+    <div v-if="!loggedIn" class="lg-wrap">
+      <section class="lg-hero">
+        <span v-for="(s,i) in sparks" :key="'h'+i" class="lg-spark" :style="{ left:s.x+'%', top:s.y+'%', '--o':s.o, fontSize:s.sz+'px', animationDelay:s.d+'s', animationDuration:s.dur+'s' }"><span class="mdi mdi-star-four-points"></span></span>
+        <div>
+          <div class="lg-logo"><span class="mdi mdi-star-four-points"></span></div>
+          <div class="lg-brand">iStar Gymnastics</div>
+          <div class="lg-sub">Gymnastics · Class System</div>
+        </div>
+        <div>
+          <div class="lg-tag">จองคลาส เช็คอิน<br />จัดการคอร์ส<br />ครบ จบ ในที่เดียว</div>
+          <div class="lg-blurb">ผู้ปกครองจองคลาสให้ลูกได้เองบนมือถือ แอดมินดูตารางและเช็คอินได้ในจอเดียว</div>
+        </div>
+        <div class="lg-foot">© 2026 iStar Gymnastics</div>
+      </section>
+      <section class="lg-form">
+        <span v-for="(s,i) in sparks" :key="'f'+i" class="lg-form-spark" :style="{ left:s.x+'%', top:s.y+'%', '--o':(s.o*0.5), fontSize:(s.sz*0.8)+'px', animationDelay:s.d+'s', animationDuration:(s.dur+0.5)+'s' }"><span class="mdi mdi-star-four-points"></span></span>
+        <div class="lg-card">
+          <div class="lg-mbrand">
+            <div class="lg-logo"><img src="logo-istar.png" alt="iStar" /></div>
+            <div class="lg-brand">iStar Gymnastics</div>
+            <div class="lg-sub">Gymnastics · Class System</div>
+          </div>
+          <h2 style="font-family:var(--font-head);font-weight:700;font-size:26px;color:var(--c-text-heading);margin:0 0 4px">เข้าสู่ระบบ</h2>
+          <p style="color:var(--c-text-muted);margin:0 0 20px">ยินดีต้อนรับกลับมา เลือกบทบาทเพื่อเข้าชมเดโม</p>
+          <v-card class="pa-5" rounded="xl" elevation="2">
+            <v-text-field v-model="username" label="ชื่อผู้ใช้ หรือ เบอร์โทรศัพท์" variant="solo-filled" flat prepend-inner-icon="mdi-account-outline" class="mb-3" hide-details></v-text-field>
+            <v-text-field v-model="password" label="รหัสผ่าน" type="password" variant="solo-filled" flat prepend-inner-icon="mdi-lock-outline" class="mb-4" hide-details></v-text-field>
+            <div style="font-size:12px;color:var(--c-text-muted);font-weight:700;margin-bottom:8px">เข้าชมเป็นบทบาท (จำลอง usertype)</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+              <button class="id-btn id-btn-primary id-btn-sm" @click="login(1)"><span class="mdi mdi-shield-account"></span> แอดมิน</button>
+              <button class="id-btn id-btn-soft id-btn-sm" @click="login(0)"><span class="mdi mdi-crown"></span> หัวหน้า</button>
+              <button class="id-btn id-btn-soft id-btn-sm" @click="login(2)"><span class="mdi mdi-whistle"></span> โค้ช</button>
+              <button class="id-btn id-btn-primary id-btn-sm" @click="login(10)"><span class="mdi mdi-account-child"></span> ผู้ปกครอง</button>
+            </div>
+          </v-card>
+        </div>
+      </section>
+    </div>
+
+    <!-- ================= APP SHELL ================= -->
+    <div v-else class="shell" :class="{ customer: flags.customer, collapsed: collapsed }">
+      <div class="scrim" :class="{ show: drawer }" @click="drawer=false"></div>
+      <nav class="bottombar" v-if="flags.customer">
+        <div v-for="it in tabItems" :key="it.k" class="tab" :class="{ on: screen===it.k }" @click="go(it.k)">
+          <span class="mdi" :class="it.icon"></span><span>{{ it.label }}</span>
+        </div>
+      </nav>
+      <aside class="side" :class="{ open: drawer }">
+        <span v-for="(s,i) in sparks" :key="'s'+i" class="side-spark" :style="{ left:s.x+'%', top:s.y+'%', '--o':(s.o*0.8), fontSize:(s.sz*0.8)+'px', animationDelay:s.d+'s', animationDuration:s.dur+'s' }"><span class="mdi mdi-star-four-points"></span></span>
+        <div class="side-brand">
+          <div class="side-logo"><span class="mdi mdi-star-four-points"></span></div>
+          <div><div class="side-name">iStar Gymnastics</div><div class="side-role">{{ roleLabel }}</div></div>
+        </div>
+        <template v-for="(grp,gi) in nav" :key="gi">
+          <div class="nav-sec">{{ grp.label }}</div>
+          <div v-for="it in grp.items" :key="it.k" class="nav-item" :class="{ on: screen===it.k }" :data-label="it.label" @click="go(it.k)">
+            <span class="mdi" :class="it.icon"></span><span class="nav-label">{{ it.label }}</span>
+          </div>
+        </template>
+        <div class="nav-item collapse-toggle" :data-label="collapsed?'ขยายเมนู':'ย่อเมนู'" @click="collapsed=!collapsed"><span class="mdi" :class="collapsed?'mdi-chevron-right':'mdi-chevron-left'"></span><span class="nav-label">{{ collapsed?'ขยายเมนู':'ย่อเมนู' }}</span></div>
+        <div style="flex:1"></div>
+        <div class="side-divider"></div>
+        <div class="nav-item nav-logout" :data-label="'ออกจากระบบ'" @click="loggedIn=false"><span class="mdi mdi-logout"></span><span class="nav-label">ออกจากระบบ</span></div>
+      </aside>
+
+      <div class="main">
+        <div class="topbar">
+          <button class="id-btn id-btn-ghost id-btn-sm burger" @click="toggleNav"><span class="mdi mdi-menu"></span></button>
+          <strong style="font-family:var(--font-head);color:var(--c-text-heading)">{{ screenTitle }}</strong>
+          <div class="sp"></div>
+          <button class="lang-btn" @click="toggleLang"><span class="mdi mdi-translate"></span> {{ lang==='th'?'ไทย':'EN' }}</button>
+          <span class="badge badge-primary">{{ roleLabel }}</span>
+          <span class="tt-avatar" style="background:var(--c-primary)">{{ roleLabel.charAt(0) }}</span>
+        </div>
+        <div class="page">
+          <!-- SCREENS-START -->
+          <!-- ===== CUSTOMER: HOME ===== -->
+          <div v-if="screen==='home'">
+            <div class="pg-head"><div class="pg-ico"><span class="mdi mdi-home-account"></span></div><div><div class="id-h1">สวัสดีค่ะ คุณแม่พลอย 🌟</div><div class="pg-sub">ภาพรวมนักเรียนในครอบครัว</div></div></div>
+            <v-alert type="warning" variant="tonal" border="start" class="mb-5">น้องพราว เหลือ 1 ครั้ง และหมดอายุ 12 มิ.ย. 69 — รีบจองหรือต่อคอร์สนะคะ</v-alert>
+            <div class="isk-sec" style="margin-bottom:10px">นักเรียนในครอบครัว</div>
+            <div class="cards3" style="margin-bottom:24px">
+              <div v-for="c in children" :key="c.name" class="scard" style="padding:20px">
+                <div class="row" style="gap:12px;margin-bottom:12px">
+                  <span class="tt-avatar" style="width:52px;height:52px;font-size:20px" :style="{ background: ci(c.name) }">{{ c.nick }}</span>
+                  <div style="flex:1"><div class="strong" style="font-size:17px;color:var(--c-text-heading)">{{ c.name }}</div><div class="t-cap">{{ c.level }} · {{ c.age }} ขวบ</div></div>
+                  <span class="badge" :class="c.remaining<=2?'badge-warning':'badge-success'">{{ c.status }}</span>
+                </div>
+                <v-progress-linear :model-value="c.remaining/c.total*100" :color="c.remaining<=2?'#ef4444':'#ec4899'" height="8" rounded class="mb-2"></v-progress-linear>
+                <div class="row" style="justify-content:space-between;font-size:13px"><span class="muted">คงเหลือ</span><span class="strong">{{ c.remaining }} / {{ c.total }} ครั้ง</span></div>
+                <div class="row" style="justify-content:space-between;font-size:13px;margin-bottom:14px"><span>{{ c.course }}</span><span class="muted">หมด {{ c.expire }}</span></div>
+                <button class="id-btn id-btn-primary" style="width:100%" @click="go('reserve')"><span class="mdi mdi-calendar-plus"></span> จองคลาส</button>
+              </div>
+            </div>
+            <div class="isk-sec" style="margin-bottom:10px">ประวัติการเรียน</div>
+            <div class="scard" style="padding:0">
+              <div v-for="(h,i) in history" :key="i" class="row" style="justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--c-border)">
+                <div class="row" style="gap:10px"><span class="tt-avatar" :style="{ background: ci(h.child) }">{{ h.child.replace('น้อง','').charAt(0) }}</span><div class="col" style="gap:1px"><span class="strong">{{ h.child }} · {{ h.course }}</span><span class="t-cap"><span class="mdi mdi-calendar"></span> {{ h.date }} · {{ h.time }} น.</span></div></div>
+                <span class="badge" :class="h.status==='checked'?'badge-success':'badge-error'">{{ h.status==='checked'?'เข้าเรียน':'ขาดเรียน' }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== CUSTOMER: RESERVE (เลือกวันที่ → แล้วเลือกรอบเวลา) ===== -->
+          <div v-else-if="screen==='reserve'">
+            <div class="pg-head"><div class="pg-ico"><span class="mdi mdi-calendar-plus"></span></div><div><div class="id-h1">จองคลาส</div><div class="pg-sub">เลือกวันที่ก่อน แล้วจึงเลือกรอบเวลา</div></div></div>
+            <div class="grid2 grid2-booking">
+              <div class="scard" style="padding:18px;max-width:340px;width:100%;align-self:start">
+                <div class="step-head"><span class="step-num">1</span> เลือกวันที่</div>
+                <id-calendar v-model="reserveDate" :holiday-keys="holidayKeys"></id-calendar>
+              </div>
+              <div class="scard" style="padding:18px;align-self:start">
+                <div class="step-head" :class="{ 'is-muted': !reserveDate }"><span class="step-num">2</span> เลือกรอบเวลา</div>
+                <div v-if="!reserveDate" class="reserve-empty"><span class="mdi mdi-calendar-cursor"></span><div>กรุณาเลือกวันที่ทางซ้ายก่อน<br />จึงจะเลือกรอบเวลาเรียนได้</div></div>
+                <div v-else>
+                  <div class="reserve-datebar"><span class="mdi mdi-calendar-check"></span> รอบเวลาของ <b>{{ reserveDateLabel }}</b></div>
+                  <div class="cards3" style="grid-template-columns:1fr">
+                    <div v-for="s in slots" :key="s.time" class="scard" style="padding:16px">
+                      <div class="row" style="gap:8px;margin-bottom:8px"><span class="mdi mdi-clock-outline" style="color:var(--c-primary);font-size:20px"></span><span class="strong" style="font-size:18px">{{ s.time }}</span><div style="flex:1"></div><span class="badge" :class="s.booked>=s.max?'badge-error':'badge-neutral'">{{ s.booked }}/{{ s.max }}</span></div>
+                      <div class="t-cap" style="margin-bottom:14px">{{ s.course }}</div>
+                      <button class="id-btn" :class="s.booked>=s.max?'id-btn-ghost':'id-btn-primary'" style="width:100%" :disabled="s.booked>=s.max" @click="toast('จอง '+reserveDateLabel+' '+s.time+' สำเร็จ')">{{ s.booked>=s.max?'เต็มแล้ว':'จองรอบนี้' }}</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== CLASSES (timetable) — customer & coach ===== -->
+          <div v-else-if="screen==='classes'">
+            <div class="pg-head"><div class="pg-ico"><span class="mdi mdi-table-eye"></span></div><div><div class="id-h1">ตารางเรียน</div><div class="pg-sub">เลือกวันที่เพื่อดูตารางคลาส</div></div></div>
+            <div class="grid2 grid2-booking">
+              <div class="scard" style="padding:18px;max-width:340px;width:100%;align-self:start">
+                <div class="step-head"><span class="mdi mdi-calendar-month-outline" style="color:var(--c-primary);font-size:22px"></span> เลือกวันที่</div>
+                <id-calendar v-model="classDate" :holiday-keys="holidayKeys"></id-calendar>
+              </div>
+              <div class="scard" style="padding:16px;align-self:start">
+                <div class="reserve-datebar"><span class="mdi mdi-calendar-check"></span> ตารางคลาส <b>{{ classDateLabel }}</b></div>
+                <div class="tt-grid-wrap"><div class="tt-row">
+                  <div v-for="col in roster" :key="col.time" class="tt-col">
+                    <div class="tt-colhead"><div class="row" style="justify-content:space-between"><span class="strong row" style="gap:5px"><span class="mdi mdi-clock-outline"></span> {{ col.time }}</span><span class="badge badge-neutral" style="height:20px;font-size:11px">{{ col.items.length }}</span></div><div class="t-cap nowrap">{{ col.course }}</div></div>
+                    <div class="tt-cell"><div v-for="(s,i) in col.items" :key="i" class="tt-pill" :class="{ checked: s.chk, trial: s.trial, session: s.session }"><span class="tt-avatar" :style="{ background: ci(s.n) }">{{ s.n.replace('น้อง','').charAt(0) }}</span><div class="col" style="gap:0;flex:1;min-width:0"><span class="strong nowrap" style="font-size:13.5px">{{ s.n }}</span><span class="t-cap nowrap" style="font-size:11px">{{ s.lv }}</span></div></div></div>
+                  </div>
+                </div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== CUSTOMER: FAMILY ===== -->
+          <div v-else-if="screen==='family'">
+            <div class="pg-head"><div class="pg-ico"><span class="mdi mdi-account-multiple"></span></div><div><div class="id-h1">ครอบครัวของฉัน</div><div class="pg-sub">สมาชิกในความดูแล</div></div><div style="flex:1"></div><button class="id-btn id-btn-primary id-btn-sm" @click="toast('เพิ่มสมาชิก')"><span class="mdi mdi-account-plus"></span> เพิ่มสมาชิก</button></div>
+            <div class="scard" style="padding:0">
+              <div v-for="(c,i) in children" :key="c.name" class="row" style="justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--c-border)">
+                <div class="row" style="gap:12px"><span class="tt-avatar" style="width:46px;height:46px;font-size:17px" :style="{ background: ci(c.name) }">{{ c.nick }}</span><div class="col" style="gap:1px"><span class="strong" style="font-size:16px">{{ c.name }}</span><span class="t-cap">{{ c.level }} · {{ c.course }}</span></div></div>
+                <span class="badge" :class="c.remaining<=2?'badge-warning':'badge-success'">{{ c.remaining }} ครั้ง</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== PROFILE (editable + photo upload) ===== -->
+          <div v-else-if="screen==='profile'">
+            <div class="pg-head"><div class="pg-ico"><span class="mdi mdi-account-edit"></span></div><div><div class="id-h1">โปรไฟล์</div><div class="pg-sub">แก้ไขข้อมูลส่วนตัวและรูปโปรไฟล์</div></div></div>
+            <div class="grid2 grid2-profile">
+              <div class="scard" style="padding:26px;text-align:center">
+                <div class="avatar-up">
+                  <img v-if="profile.photo" :src="profile.photo" class="av-img" alt="รูปโปรไฟล์" />
+                  <span v-else class="tt-avatar" style="background:var(--c-primary)">{{ (profile.nick||profile.firstName||'?').charAt(0) }}</span>
+                  <label class="avatar-cam" title="เปลี่ยนรูป"><span class="mdi mdi-camera"></span><input type="file" accept="image/*" @change="onPhoto" style="display:none" /></label>
+                </div>
+                <div class="strong" style="font-size:18px;color:var(--c-text-heading)">{{ profile.firstName }} {{ profile.lastName }}</div>
+                <div class="t-cap" style="margin-bottom:14px">{{ roleLabel }} · {{ profile.gym }}</div>
+                <div class="col" style="gap:8px">
+                  <label class="id-btn id-btn-soft id-btn-sm" style="width:100%;cursor:pointer"><span class="mdi mdi-upload"></span> อัปโหลดรูปใหม่<input type="file" accept="image/*" @change="onPhoto" style="display:none" /></label>
+                  <button v-if="profile.photo" class="id-btn id-btn-ghost id-btn-sm" style="width:100%;color:var(--c-error)" @click="removePhoto"><span class="mdi mdi-trash-can-outline"></span> ลบรูป</button>
+                </div>
+              </div>
+              <div class="scard" style="padding:22px">
+                <div class="isk-sec" style="margin-bottom:16px"><span class="mdi mdi-card-account-details-outline" style="color:var(--c-primary)"></span> ข้อมูลส่วนตัว</div>
+                <div class="form-grid">
+                  <div class="field"><label>ชื่อ</label><input class="id-input" v-model="profile.firstName" /></div>
+                  <div class="field"><label>นามสกุล</label><input class="id-input" v-model="profile.lastName" /></div>
+                  <div class="field"><label>ชื่อเล่น</label><input class="id-input" v-model="profile.nick" /></div>
+                  <div class="field"><label>เบอร์โทรศัพท์</label><input class="id-input" v-model="profile.phone" inputmode="tel" /></div>
+                  <div class="field full"><label>อีเมล</label><input class="id-input" v-model="profile.email" type="email" /></div>
+                  <div class="field full"><label>ยิม</label><input class="id-input" v-model="profile.gym" disabled style="opacity:.7;cursor:not-allowed" /></div>
+                </div>
+                <div class="row" style="gap:10px;margin-top:20px;flex-wrap:wrap">
+                  <button class="id-btn id-btn-primary" @click="saveProfile"><span class="mdi mdi-content-save"></span> บันทึกข้อมูล</button>
+                </div>
+              </div>
+            </div>
+            <div class="scard" style="padding:22px;margin-top:16px">
+              <div class="isk-sec" style="margin-bottom:16px"><span class="mdi mdi-lock-outline" style="color:var(--c-primary)"></span> เปลี่ยนรหัสผ่าน</div>
+              <div class="form-grid">
+                <div class="field full">
+                  <label>รหัสผ่านปัจจุบัน</label>
+                  <div style="position:relative">
+                    <input class="id-input" :type="pwShow.cur?'text':'password'" v-model="pw.current" placeholder="กรอกรหัสผ่านเดิม" autocomplete="current-password" />
+                    <span class="mdi pw-eye" :class="pwShow.cur?'mdi-eye-off-outline':'mdi-eye-outline'" @click="pwShow.cur=!pwShow.cur"></span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>รหัสผ่านใหม่</label>
+                  <div style="position:relative">
+                    <input class="id-input" :type="pwShow.next?'text':'password'" v-model="pw.next" placeholder="อย่างน้อย 8 ตัวอักษร" autocomplete="new-password" />
+                    <span class="mdi pw-eye" :class="pwShow.next?'mdi-eye-off-outline':'mdi-eye-outline'" @click="pwShow.next=!pwShow.next"></span>
+                  </div>
+                </div>
+                <div class="field">
+                  <label>ยืนยันรหัสผ่านใหม่</label>
+                  <div style="position:relative">
+                    <input class="id-input" :type="pwShow.confirm?'text':'password'" v-model="pw.confirm" placeholder="พิมพ์รหัสผ่านใหม่อีกครั้ง" autocomplete="new-password"
+                      :style="{ borderColor: pw.confirm && pw.next!==pw.confirm ? 'var(--c-error)' : '' }" />
+                    <span class="mdi pw-eye" :class="pwShow.confirm?'mdi-eye-off-outline':'mdi-eye-outline'" @click="pwShow.confirm=!pwShow.confirm"></span>
+                  </div>
+                  <span v-if="pw.confirm && pw.next!==pw.confirm" style="font-size:12px;color:var(--c-error)">รหัสผ่านใหม่ไม่ตรงกัน</span>
+                </div>
+              </div>
+              <div style="margin-top:18px">
+                <button class="id-btn id-btn-primary" :disabled="!canChangePw" :style="{ opacity: canChangePw?1:.5, cursor: canChangePw?'pointer':'not-allowed' }" @click="changePassword"><span class="mdi mdi-lock-reset"></span> เปลี่ยนรหัสผ่าน</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== ADMIN: DASHBOARD ===== -->
+          <div v-else-if="screen==='dashboard'">
+            <div class="pg-head"><div class="pg-ico"><span class="mdi mdi-view-dashboard"></span></div><div><div class="id-h1">แดชบอร์ด</div><div class="pg-sub">ภาพรวมระบบจัดการคลาส iStar</div></div>
+              <div style="flex:1"></div>
+            </div>
+            <div class="stat-grid" style="margin-bottom:16px">
+              <div v-for="s in stats" :key="s.lbl" class="scard">
+                <div class="acc" :style="{ background: s.acc }"></div>
+                <div class="row" style="justify-content:space-between"><span class="lbl">{{ s.lbl }}</span><span class="mdi" :class="s.icon" style="color:var(--c-primary);font-size:20px"></span></div>
+                <div class="val">{{ s.val }}</div><div class="t-cap">{{ s.unit }}</div>
+              </div>
+            </div>
+            <div class="quick-row">
+              <div v-for="q in quick" :key="q.label" class="scard quick-card" @click="toast(q.label)">
+                <span class="q-ico" :style="{ background:q.bg, color:q.fg }"><span class="mdi" :class="q.icon"></span></span>
+                <span class="strong" style="color:var(--c-text-heading)">{{ q.label }}</span>
+              </div>
+            </div>
+            <div class="grid2">
+              <div class="scard" style="padding:16px">
+                <div style="font-family:var(--font-head);font-weight:700;color:var(--c-text-heading);display:flex;align-items:center;gap:8px;margin-bottom:6px"><span class="mdi mdi-calendar-month-outline" style="color:var(--c-primary)"></span> เลือกวันที่</div>
+                <div class="cal-nav"><span class="mdi mdi-chevron-left" @click="toast('เดือนก่อน')"></span><span>มิถุนายน 2569</span><span class="mdi mdi-chevron-right" @click="toast('เดือนถัดไป')"></span></div>
+                <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px">
+                  <div v-for="d in ['อา','จ','อ','พ','พฤ','ศ','ส']" :key="d" class="cal-dow">{{ d }}</div>
+                  <div v-for="n in 30" :key="n" class="cal-cell" :class="{ on: n===selDay }" @click="selDay=n">{{ n }}<span v-if="dots.includes(n)" class="cal-dot"></span></div>
+                </div>
+                <button class="id-btn id-btn-primary" style="width:100%;margin-top:14px" @click="toast('ตารางการจองรายวัน')"><span class="mdi mdi-calendar-text"></span> ตารางการจองรายวัน</button>
+                <button class="id-btn id-btn-soft" style="width:100%;margin-top:8px;justify-content:center" @click="go('approve')"><span class="mdi mdi-account-multiple-check"></span> อนุมัตินักเรียนใหม่ <span class="badge badge-error" style="margin-left:6px;height:20px">{{ pending.length }}</span></button>
+              </div>
+              <div class="scard" style="padding:16px">
+                <div class="row" style="margin-bottom:12px"><span class="mdi mdi-calendar-check" style="color:var(--c-primary)"></span><span class="strong" style="font-size:16px;color:var(--c-text-heading)">การจองวันนี้</span></div>
+                <div class="tt-grid-wrap"><div class="tt-row">
+                  <div v-for="col in roster" :key="col.time" class="tt-col">
+                    <div class="tt-colhead"><div class="row" style="justify-content:space-between"><span class="strong row" style="gap:5px"><span class="mdi mdi-clock-outline"></span> {{ col.time }}</span><span class="badge badge-neutral" style="height:20px;font-size:11px">{{ col.items.length }}</span></div><div class="t-cap nowrap">{{ col.course }}</div></div>
+                    <div class="tt-cell"><div v-for="(s,i) in col.items" :key="i" class="tt-pill" :class="{ checked: s.chk, trial: s.trial, session: s.session }" @click="toast('เมนู: '+s.n+' (เช็คอิน/แก้ไข)')"><span class="tt-avatar" :style="{ background: ci(s.n) }">{{ s.n.replace('น้อง','').charAt(0) }}</span><div class="col" style="gap:0;flex:1;min-width:0"><span class="strong nowrap" style="font-size:13.5px">{{ s.n }}</span><span class="t-cap nowrap" style="font-size:11px">{{ s.lv }}</span></div><span v-if="s.pay" class="mdi mdi-bell-ring" style="color:var(--c-warning)"></span><span v-if="s.chk" class="mdi mdi-check-circle" style="color:var(--c-success)"></span></div></div>
+                  </div>
+                </div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== ADMIN: STUDENTS — standard data grid ===== -->
+          <div v-else-if="screen==='students'">
+            <div class="pg-head"><div class="pg-ico"><span class="mdi mdi-account-group"></span></div><div><div class="id-h1">รายชื่อนักเรียน</div><div class="pg-sub">ทั้งหมด {{ students.length }} คน</div></div></div>
+            <id-grid :columns="studentCols" :rows="students" :filters="studentFilters" :search-keys="['name','nick','course','phone']" search-placeholder="ค้นหาชื่อ / ชื่อเล่น / คอร์ส / เบอร์">
+              <template #actions>
+                <button class="id-btn id-btn-ghost id-btn-sm" @click="openEnroll"><span class="mdi mdi-account-multiple-plus"></span> ลงทะเบียนเข้าคลาส</button>
+                <button class="id-btn id-btn-primary id-btn-sm" @click="openAddStudent"><span class="mdi mdi-emoticon-plus-outline"></span> เพิ่มนักเรียน</button>
+              </template>
+              <template #cell-name="{ row }"><div class="row" style="gap:8px"><span class="tt-avatar" :style="{ background: ci(row.name) }">{{ row.name.replace('น้อง','').charAt(0) }}</span><b>{{ row.name }}</b></div></template>
+              <template #cell-remaining="{ row }"><span class="badge" :class="row.remaining<=2?'badge-warning':'badge-primary'">{{ row.remaining }}</span></template>
+              <template #cell-expire="{ row }"><span :style="{ color: row.expire==='หมดอายุ'?'var(--c-error)':'inherit' }">{{ row.expire }}</span></template>
+              <template #cell-actions="{ row }"><span class="mdi mdi-pencil" style="color:var(--c-info);cursor:pointer;padding:0 5px" @click="openEditStudent(row)"></span><span class="mdi mdi-delete-forever" style="color:var(--c-error);cursor:pointer;padding:0 5px" @click="toast('ลบ '+row.name)"></span></template>
+            </id-grid>
+
+            <!-- ===== DIALOG 1: ฟอร์มนักเรียน (อวตาร + ฟอร์ม + กริดประวัติการใช้คอร์ส) ===== -->
+            <id-modal v-model="dlgStudent.open" size="xl" icon="mdi-account-plus"
+                      :title="dlgStudent.mode==='add' ? 'เพิ่มนักเรียนใหม่' : 'แก้ไขข้อมูลนักเรียน'"
+                      :subtitle="dlgStudent.mode==='add' ? 'กรอกข้อมูลเพื่อสร้างบัญชีนักเรียน' : dlgStudent.form.name">
+              <div class="dlg-avatar" style="margin-bottom:20px">
+                <div class="av-ph"><img v-if="dlgStudent.form.photo" :src="dlgStudent.form.photo" alt="" /><span v-else class="mdi mdi-account"></span></div>
+                <label class="av-cam" title="อัปโหลดรูป"><span class="mdi mdi-camera"></span><input type="file" accept="image/*" style="display:none" @change="onStudentPhoto" /></label>
+              </div>
+              <div class="modal-sec"><span class="mdi mdi-card-account-details-outline"></span> ข้อมูลนักเรียน</div>
+              <div class="form-grid-3">
+                <div class="field"><label>ชื่อ <span class="req">*</span></label><input class="id-input" v-model="dlgStudent.form.firstName" placeholder="ชื่อจริง" /></div>
+                <div class="field"><label>ชื่อกลาง</label><input class="id-input" v-model="dlgStudent.form.middleName" placeholder="(ถ้ามี)" /></div>
+                <div class="field"><label>นามสกุล <span class="req">*</span></label><input class="id-input" v-model="dlgStudent.form.lastName" placeholder="นามสกุล" /></div>
+              </div>
+              <div class="form-grid-4" style="margin-top:14px">
+                <div class="field"><label>ชื่อเล่น</label><input class="id-input" v-model="dlgStudent.form.nick" placeholder="ชื่อเล่น" /></div>
+                <div class="field"><label>เพศ</label><id-select v-model="dlgStudent.form.gender" :options="genderOptions"></id-select></div>
+                <div class="field"><label>วันเกิด</label><id-date v-model="dlgStudent.form.dob" placeholder="เลือกวันเกิด"></id-date></div>
+                <div class="field"><label>อายุ</label><input class="id-input" v-model="dlgStudent.form.age" placeholder="auto" disabled style="opacity:.7" /></div>
+              </div>
+              <div class="form-grid" style="margin-top:14px">
+                <div class="field"><label>ระดับ (Level)</label><id-select v-model="dlgStudent.form.level" :options="levelOptions"></id-select></div>
+                <div class="field"><label>Username ผู้ปกครอง</label><id-select v-model="dlgStudent.form.parent" :options="parentOptions" placeholder="— เลือกผู้ปกครอง —" searchable search-placeholder="พิมพ์ค้นหา userid…"></id-select></div>
+                <div class="field full"><label>หมายเหตุ</label><textarea class="id-input id-textarea" v-model="dlgStudent.form.note" placeholder="ข้อมูลเพิ่มเติม (ถ้ามี)"></textarea></div>
+              </div>
+              <div class="course-flow" style="margin-top:14px">
+                <div class="field" style="flex:1"><label>หมายเลขคอร์ส</label><id-select v-model="dlgStudent.form.courseNo" :options="courseOptions" placeholder="— เลือกคอร์ส —" searchable search-placeholder="พิมพ์ค้นหาหมายเลขคอร์ส…"></id-select></div>
+                <div class="flow-arrow">คอร์สถัดไป<span class="mdi mdi-arrow-right"></span></div>
+                <div class="field" style="flex:1"><label>หมายเลขคอร์สต่อเนื่อง</label><id-select v-model="dlgStudent.form.nextCourseNo" :options="courseOptions" placeholder="— ไม่มี —" searchable search-placeholder="พิมพ์ค้นหาหมายเลขคอร์ส…"></id-select></div>
+              </div>
+              <div class="modal-sec mt"><span class="mdi mdi-history"></span> ประวัติการใช้คอร์ส</div>
+              <div class="id-modal-grid"><div class="id-modal-grid-scroll" style="max-height:30vh">
+                <table class="idt">
+                  <thead><tr><th>วันที่</th><th>คอร์ส</th><th>เวลา</th><th style="text-align:center">สถานะ</th></tr></thead>
+                  <tbody>
+                    <tr v-for="(h,i) in studentUsage" :key="i">
+                      <td>{{ h.date }}</td><td>{{ h.course }}</td><td>{{ h.time }}</td>
+                      <td style="text-align:center"><span class="badge" :class="h.ok?'badge-success':'badge-error'">{{ h.ok?'เช็คชื่อแล้ว':'ขาด' }}</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div></div>
+              <template #footer>
+                <button class="id-btn id-btn-ghost" @click="dlgStudent.open=false">ยกเลิก</button>
+                <button class="id-btn id-btn-primary" :disabled="!dlgStudent.form.firstName || !dlgStudent.form.lastName" @click="saveStudent"><span class="mdi mdi-content-save"></span> {{ dlgStudent.mode==='add' ? 'บันทึกนักเรียน' : 'บันทึกการแก้ไข' }}</button>
+              </template>
+            </id-modal>
+
+            <!-- ===== DIALOG 2: กริดในไดอะล็อก (เลือกหลายรายการ) ===== -->
+            <id-modal v-model="dlgEnroll.open" size="lg" icon="mdi-account-multiple-plus"
+                      title="ลงทะเบียนนักเรียนเข้าคลาส" subtitle="ค้นหาแล้วเลือกนักเรียนที่ต้องการเพิ่มเข้าคลาส">
+              <div class="grid-toolbar" style="margin-bottom:12px">
+                <label class="grid-search"><span class="mdi mdi-magnify"></span><input class="id-input" v-model="dlgEnroll.q" placeholder="ค้นหาชื่อ / ชื่อเล่น" /></label>
+                <span class="grid-spacer"></span>
+                <span class="badge badge-primary" style="height:34px">เลือกแล้ว {{ dlgEnroll.picked.length }} คน</span>
+              </div>
+              <div class="id-modal-grid"><div class="id-modal-grid-scroll">
+                <table class="idt">
+                  <thead><tr><th style="width:46px"></th><th>ชื่อ</th><th>ชื่อเล่น</th><th style="text-align:center">Level</th><th>คอร์สปัจจุบัน</th></tr></thead>
+                  <tbody>
+                    <tr v-for="s in enrollList" :key="s.name" style="cursor:pointer" :style="{ background: dlgEnroll.picked.includes(s.name) ? 'var(--c-surface-3)' : '' }" @click="togglePick(s.name)">
+                      <td style="text-align:center"><span class="id-check" :class="{ on: dlgEnroll.picked.includes(s.name) }"><span class="mdi mdi-check"></span></span></td>
+                      <td><div class="row" style="gap:8px"><span class="tt-avatar" :style="{ background: ci(s.name) }">{{ s.name.replace('น้อง','').charAt(0) }}</span><b>{{ s.name }}</b></div></td>
+                      <td>{{ s.nick }}</td>
+                      <td style="text-align:center"><span class="badge badge-neutral">Lv {{ s.level }}</span></td>
+                      <td>{{ s.course }}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div></div>
+              <template #footer>
+                <button class="id-btn id-btn-ghost" @click="dlgEnroll.open=false">ยกเลิก</button>
+                <button class="id-btn id-btn-primary" :disabled="!dlgEnroll.picked.length" @click="confirmEnroll"><span class="mdi mdi-check"></span> เพิ่ม{{ dlgEnroll.picked.length ? ' '+dlgEnroll.picked.length+' ' : '' }}คนเข้าคลาส</button>
+              </template>
+            </id-modal>
+          </div>
+
+          <!-- ===== ADMIN: BOOKING MANAGEMENT (ปฏิทินเลือกวัน + ตารางรายชื่อ) ===== -->
+          <div v-else-if="screen==='booking'">
+            <div class="pg-head"><div class="pg-ico"><span class="mdi mdi-calendar-edit"></span></div><div><div class="id-h1">จัดการการจอง</div><div class="pg-sub">เลือกวันที่เพื่อดูรายชื่อผู้จองของวันนั้น</div></div></div>
+            <div class="row" style="justify-content:space-between;align-items:center;margin-bottom:12px;gap:10px;flex-wrap:wrap">
+              <div class="isk-sec">การจองคลาสทั้งหมด</div>
+              <div class="reserve-datebar" style="margin-bottom:0"><span class="mdi mdi-calendar-check"></span> รายชื่อผู้จองของ <b>{{ bookDateLabel }}</b></div>
+            </div>
+            <div class="grid2 grid2-booking">
+              <div class="scard" style="padding:16px;align-self:start;max-width:340px;width:100%">
+                <div class="step-head"><span class="mdi mdi-calendar-search" style="color:var(--c-primary);font-size:22px"></span> ดูการจองตามวันที่</div>
+                <id-calendar v-model="bookDate" :holiday-keys="holidayKeys" :mark-keys="bookMarkKeys"></id-calendar>
+              </div>
+              <div>
+                <id-grid :columns="bookingCols" :rows="bookingRows" :search-keys="['name','course']" search-placeholder="ค้นหาชื่อ / คอร์ส" :per-page="10">
+                  <template #actions>
+                    <button class="id-btn id-btn-ghost id-btn-sm" @click="toast('รีเฟรชข้อมูล')"><span class="mdi mdi-refresh"></span> รีเฟรช</button>
+                    <button class="id-btn id-btn-primary id-btn-sm" @click="openAddBooking"><span class="mdi mdi-plus"></span> เพิ่มการจอง</button>
+                  </template>
+                  <template #cell-name="{ row }"><b>{{ row.name }}</b></template>
+                  <template #cell-time="{ row }"><span class="badge badge-neutral">{{ row.time }}</span></template>
+                  <template #cell-checkin="{ row }">
+                    <span class="mdi" :class="row.chk?'mdi-check-circle':'mdi-close-circle-outline'" :style="{ color: row.chk?'var(--c-success)':'var(--c-error)', cursor:'pointer', fontSize:'20px' }" @click="row.chk=!row.chk; toast((row.chk?'เช็คชื่อ ':'ยกเลิกเช็คชื่อ ')+row.name)"></span>
+                  </template>
+                  <template #cell-edit="{ row }"><span class="mdi mdi-pencil" style="color:var(--c-info);cursor:pointer" @click="openEditBooking(row)"></span></template>
+                  <template #cell-delete="{ row }"><span class="mdi mdi-delete-forever" style="color:var(--c-error);cursor:pointer" @click="toast('ลบ '+row.name)"></span></template>
+                </id-grid>
+              </div>
+            </div>
+
+            <!-- ===== DIALOG: เพิ่ม/แก้ไขการจอง (ใช้ id-date = ปฏิทินเดียวกับ Dashboard) ===== -->
+            <id-modal v-model="dlgBooking.open" size="md" icon="mdi-calendar-plus"
+                      :title="dlgBooking.mode==='add' ? 'เพิ่มการจอง' : 'แก้ไขการจอง'"
+                      :subtitle="dlgBooking.mode==='add' ? 'เลือกนักเรียน คอร์ส และวันเวลา' : dlgBooking.form.student">
+              <div class="form-grid">
+                <div class="field full"><label>นักเรียน <span class="req">*</span></label><id-select v-model="dlgBooking.form.student" :options="students.map(s=>s.name)" placeholder="— เลือกนักเรียน —" searchable search-placeholder="พิมพ์ชื่อนักเรียน…"></id-select></div>
+                <div class="field full"><label>คอร์ส <span class="req">*</span></label><id-select v-model="dlgBooking.form.course" :options="courseOptions" placeholder="— เลือกคอร์ส —" searchable search-placeholder="พิมพ์ค้นหาคอร์ส…"></id-select></div>
+                <div class="field"><label>วันที่จอง <span class="req">*</span></label><id-date v-model="dlgBooking.form.date" :disable-mondays="true" :holiday-keys="holidayKeys" placeholder="เลือกวันที่"></id-date></div>
+                <div class="field"><label>รอบเวลา</label><id-select v-model="dlgBooking.form.time" :options="timeSlotOptions" placeholder="— เลือกเวลา —"></id-select></div>
+                <div class="field full"><label>หมายเหตุ</label><textarea class="id-input id-textarea" v-model="dlgBooking.form.note" placeholder="ข้อมูลเพิ่มเติม (ถ้ามี)"></textarea></div>
+              </div>
+              <template #footer>
+                <button class="id-btn id-btn-ghost" @click="dlgBooking.open=false">ยกเลิก</button>
+                <button class="id-btn id-btn-primary" :disabled="!dlgBooking.form.student || !dlgBooking.form.course || !dlgBooking.form.date" @click="saveBooking"><span class="mdi mdi-content-save"></span> {{ dlgBooking.mode==='add' ? 'บันทึกการจอง' : 'บันทึกการแก้ไข' }}</button>
+              </template>
+            </id-modal>
+          </div>
+
+          <!-- ===== ADMIN: APPROVE ===== -->
+          <div v-else-if="screen==='approve'">
+            <div class="pg-head"><div class="pg-ico"><span class="mdi mdi-account-clock"></span></div><div><div class="id-h1">อนุมัตินักเรียนใหม่</div><div class="pg-sub">{{ pending.length }} รายการรอตรวจสอบ</div></div></div>
+            <div class="scard" style="padding:0">
+              <div v-for="(p,i) in pending" :key="p.name" class="row" style="justify-content:space-between;padding:16px 18px;border-bottom:1px solid var(--c-border)">
+                <div class="row" style="gap:12px"><span class="tt-avatar" style="width:44px;height:44px" :style="{ background: ci(p.name) }">{{ p.name.replace('น้อง','').charAt(0) }}</span><div class="col" style="gap:1px"><span class="strong" style="font-size:16px">{{ p.name }}</span><span class="t-cap">{{ p.note }}</span></div></div>
+                <div class="row" style="gap:8px"><button class="id-btn id-btn-success id-btn-sm" @click="toast('อนุมัติ '+p.name)"><span class="mdi mdi-check"></span> อนุมัติ</button><button class="id-btn id-btn-ghost id-btn-sm" @click="toast('ปฏิเสธ '+p.name)">ปฏิเสธ</button></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- ===== ADMIN: PACKAGES (CustomerCourse) — standard data grid ===== -->
+          <div v-else-if="screen==='packages'">
+            <div class="pg-head"><div class="pg-ico"><span class="mdi mdi-book-account"></span></div><div><div class="id-h1">แพ็คเกจคอร์ส</div><div class="pg-sub">คอร์สของลูกค้า</div></div></div>
+            <id-grid :columns="packageCols" :rows="packages" :filters="packageFilters" :search-keys="['course','student','name']" search-placeholder="ค้นหาเลขคอร์ส / นักเรียน / คอร์ส" add-label="เพิ่มคอร์ส" @add="toast('เพิ่มคอร์ส')">
+              <template #cell-course="{ row }"><b>{{ row.course }}</b></template>
+              <template #cell-remaining="{ row }"><span class="badge" :class="row.remaining<=2?'badge-warning':'badge-primary'">{{ row.remaining }}</span></template>
+              <template #cell-expire="{ row }"><span :style="{ color: row.expire==='หมดอายุ'?'var(--c-error)':'inherit' }">{{ row.expire }}</span></template>
+              <template #cell-paid="{ row }"><span class="badge" :class="row.paid?'badge-success':'badge-error'">{{ row.paid?'จ่ายแล้ว':'ค้างจ่าย' }}</span></template>
+            </id-grid>
+          </div>
+
+          <!-- ===== ADMIN: COURSES — standard data grid ===== -->
+          <div v-else-if="screen==='courses'">
+            <div class="pg-head"><div class="pg-ico"><span class="mdi mdi-star-shooting-outline"></span></div><div><div class="id-h1">คอร์สเรียน</div><div class="pg-sub">ประเภทคอร์สในระบบ</div></div></div>
+            <id-grid :columns="courseCols" :rows="courses" :filters="courseFilters" :search-keys="['name','short','code']" search-placeholder="ค้นหาชื่อคอร์ส / ชื่อย่อ / รหัส" add-label="เพิ่มคอร์ส" @add="openAddCourse">
+              <template #cell-name="{ row }"><b>{{ row.name }}</b></template>
+              <template #cell-enable="{ row }"><span class="idsw" :class="{ on: row.enable }" @click="row.enable = !row.enable"><span class="track"></span><span class="thumb"></span></span></template>
+              <template #cell-actions="{ row }"><span class="mdi mdi-pencil" style="color:var(--c-info);cursor:pointer;padding:0 5px" @click="openEditCourse(row)"></span><span class="mdi mdi-delete-forever" style="color:var(--c-error);cursor:pointer;padding:0 5px" @click="toast('ลบ '+row.name)"></span></template>
+            </id-grid>
+
+            <!-- ===== DIALOG: ฟอร์มคอร์ส (ข้อมูลคอร์ส + ชำระเงิน) ===== -->
+            <id-modal v-model="dlgCourse.open" size="lg" icon="mdi-book-plus-multiple-outline"
+                      :title="dlgCourse.mode==='add' ? 'คอร์สใหม่' : 'แก้ไขคอร์ส'"
+                      :subtitle="dlgCourse.mode==='add' ? 'กรอกข้อมูลคอร์สและการชำระเงิน' : dlgCourse.form.courseName">
+              <div class="modal-sec"><span class="mdi mdi-book-open-variant"></span> ข้อมูลคอร์ส</div>
+              <div class="t-cap" style="margin-bottom:12px">หมายเลขคอร์ส: <b>{{ dlgCourse.mode==='add' ? '(สร้างอัตโนมัติเมื่อบันทึก)' : dlgCourse.form.code }}</b></div>
+              <div class="form-grid-3">
+                <div class="field"><label>ชื่อคอร์ส <span class="req">*</span></label><id-select v-model="dlgCourse.form.courseName" :options="courseOptions" placeholder="— เลือกคอร์ส —"></id-select></div>
+                <div class="field"><label>ประเภท</label><id-select v-model="dlgCourse.form.type" :options="courseTypeOptions" placeholder="— ประเภท —"></id-select></div>
+                <div class="field"><label>ระยะเวลา (เดือน)</label><id-select v-model="dlgCourse.form.duration" :options="durationOptions" placeholder="—"></id-select></div>
+              </div>
+              <div class="form-grid-3" style="margin-top:14px">
+                <div class="field"><label>คงเหลือ (ครั้ง)</label><input class="id-input" v-model="dlgCourse.form.remaining" inputmode="numeric" placeholder="เช่น 12" /></div>
+                <div class="field"><label>วันเริ่มต้น</label><id-date v-model="dlgCourse.form.start" placeholder="เลือกวันเริ่ม"></id-date></div>
+                <div class="field"><label>วันหมดอายุ</label><id-date v-model="dlgCourse.form.end" placeholder="เลือกวันหมดอายุ"></id-date></div>
+              </div>
+              <label class="id-cbx" style="margin-top:16px" @click="dlgCourse.form.oncePerDay=!dlgCourse.form.oncePerDay">
+                <span class="idsw" :class="{ on: dlgCourse.form.oncePerDay }"><span class="track"></span><span class="thumb"></span></span>
+                คอร์สเรียนนี้ สามารถเรียนได้ 1 รอบ/วัน
+              </label>
+              <div class="modal-sec mt"><span class="mdi mdi-cash-multiple"></span> ชำระเงิน</div>
+              <div class="form-grid-3" style="align-items:end">
+                <label class="id-cbx" style="height:42px" @click="dlgCourse.form.unpaid=!dlgCourse.form.unpaid">
+                  <span class="id-check" :class="{ on: dlgCourse.form.unpaid }"><span class="mdi mdi-check"></span></span> ยังไม่จ่าย
+                </label>
+                <div class="field"><label>วันที่ชำระ</label><id-date v-model="dlgCourse.form.payDate" :disabled="dlgCourse.form.unpaid" placeholder="เลือกวันที่"></id-date></div>
+                <div class="field"><label>สลิปการโอน</label><label class="id-upload"><span class="mdi mdi-camera-outline"></span> {{ dlgCourse.form.slip || 'อัปโหลดสลิป' }}<input type="file" accept="image/*" style="display:none" @change="onSlip" /></label></div>
+              </div>
+              <div class="field full" style="margin-top:14px"><label>หมายเหตุ</label><textarea class="id-input id-textarea" v-model="dlgCourse.form.note" placeholder="ข้อมูลเพิ่มเติม (ถ้ามี)"></textarea></div>
+              <template #footer>
+                <button class="id-btn id-btn-ghost" @click="dlgCourse.open=false">ยกเลิก</button>
+                <button class="id-btn id-btn-primary" :disabled="!dlgCourse.form.courseName" @click="saveCourse"><span class="mdi mdi-content-save"></span> {{ dlgCourse.mode==='add' ? 'บันทึกคอร์ส' : 'บันทึกการแก้ไข' }}</button>
+              </template>
+            </id-modal>
+          </div>
+
+          <!-- ===== ADMIN: CLASSES — standard data grid ===== -->
+          <div v-else-if="screen==='classadmin'">
+            <div class="pg-head"><div class="pg-ico"><span class="mdi mdi-view-dashboard-variant-outline"></span></div><div><div class="id-h1">คลาสเรียน</div><div class="pg-sub">ตารางคลาสประจำสัปดาห์</div></div></div>
+            <id-grid :columns="classCols" :rows="classes" :filters="classFilters" :search-keys="['name','course']" search-placeholder="ค้นหาชื่อคลาส / คอร์ส" add-label="เพิ่มคลาส" @add="toast('เพิ่มคลาส')">
+              <template #cell-name="{ row }"><b>{{ row.name }}</b></template>
+              <template #cell-course="{ row }"><span class="badge badge-primary">{{ row.course }}</span></template>
+              <template #cell-actions="{ row }"><span class="mdi mdi-pencil" style="color:var(--c-info);cursor:pointer;padding:0 5px" @click="toast('แก้ไข '+row.name)"></span><span class="mdi mdi-delete-forever" style="color:var(--c-error);cursor:pointer;padding:0 5px" @click="toast('ลบ '+row.name)"></span></template>
+            </id-grid>
+          </div>
+
+          <!-- ===== ADMIN: HOLIDAY — standard data grid ===== -->
+          <div v-else-if="screen==='holiday'">
+            <div class="pg-head"><div class="pg-ico"><span class="mdi mdi-calendar-remove"></span></div><div><div class="id-h1">วันหยุด</div><div class="pg-sub">วันที่ปิดทำการ</div></div></div>
+            <id-grid :columns="holidayCols" :rows="holidays" :filters="holidayFilters" :search-keys="['name']" search-placeholder="ค้นหาชื่อวันหยุด" add-label="เพิ่มวันหยุด" @add="toast('เพิ่มวันหยุด')">
+              <template #cell-name="{ row }"><b>{{ row.name }}</b></template>
+              <template #cell-actions="{ row }"><span class="mdi mdi-pencil" style="color:var(--c-info);cursor:pointer;padding:0 5px" @click="toast('แก้ไข '+row.name)"></span><span class="mdi mdi-delete-forever" style="color:var(--c-error);cursor:pointer;padding:0 5px" @click="toast('ลบ '+row.name)"></span></template>
+            </id-grid>
+          </div>
+          <!-- SCREENS-END -->
+          <div v-if="!knownScreens.includes(screen)" class="scard" style="text-align:center;padding:48px">
+            <span class="mdi mdi-tools" style="font-size:48px;color:var(--c-primary)"></span>
+            <div style="font-family:var(--font-head);font-weight:700;margin-top:8px">{{ screenTitle }}</div>
+            <div style="color:var(--c-text-muted)">หน้านี้กำลังเพิ่มในพรีวิว</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <v-snackbar v-model="sb" :timeout="2000" location="top" color="#ec4899">{{ sbText }}</v-snackbar>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.4.21/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@3.4.11/dist/vuetify.min.js"></script>
+  <script src="full-preview.js"></script>
+</body>
+</html>

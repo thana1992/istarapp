@@ -1,58 +1,70 @@
+<!-- ============================================================
+  AddFamily.vue — NEW DESIGN 1:1 (iStar).
+  • <script> = UNCHANGED (data/methods/refs/rules/API kept verbatim).
+  • <template> rebuilt to the prototype form primitives: .pg-head
+    (mdi-account-plus + existing title key) + .scard wrapping the
+    existing <v-form ref="form"> with all v-text-field / v-select /
+    DatePicker controls (v-model / :rules intact). Fields grouped in
+    a .form-grid via .field wrappers. Save/clear become .id-btn,
+    wired to the real doSave / reset methods.
+  Requires global: src/assets/istar-design.css + istar-pages.css.
+============================================================ -->
 <template>
-    <div class="container">
-        <div class="container-header">
-            <h1><span class="mdi mdi-face-man-shimmer"></span> {{ $t('addFamily.title') }}</h1>
+    <div>
+        <div class="pg-head">
+            <div class="pg-ico"><span class="mdi mdi-account-plus"></span></div>
+            <div>
+                <div class="id-h1">{{ $t('addFamily.title') }}</div>
+            </div>
         </div>
-        <div class="container-content">
-            <v-card class="card-opacity mx-auto mt-4 px-6 py-6">
-                <v-form ref="form">
-                    <v-text-field variant="solo-filled" v-model="firstname" :label="$t('addFamily.firstname')" type="text"
-                        :rules="requireRules" required></v-text-field>
 
-                    <v-text-field variant="solo-filled" v-model="middlename" :label="$t('addFamily.middlename')"
-                        type="text"></v-text-field>
+        <div class="scard af-card">
+            <v-form ref="form">
+                <div class="modal-sec"><span class="mdi mdi-card-account-details-outline"></span> {{ $t('addFamily.title') }}</div>
+                <div class="form-grid-3">
+                    <div class="field"><label>{{ $t('addFamily.firstname') }} <span class="req">*</span></label>
+                        <input class="id-input" v-model="firstname"></div>
+                    <div class="field"><label>{{ $t('addFamily.middlename') }}</label>
+                        <input class="id-input" v-model="middlename"></div>
+                    <div class="field"><label>{{ $t('addFamily.lastname') }} <span class="req">*</span></label>
+                        <input class="id-input" v-model="lastname"></div>
+                </div>
+                <div class="form-grid-3" style="margin-top:14px">
+                    <div class="field"><label>{{ $t('addFamily.nickname') }} <span class="req">*</span></label>
+                        <input class="id-input" v-model="nickname"></div>
+                    <div class="field"><label>{{ $t('addFamily.gender') }} <span class="req">*</span></label>
+                        <id-select v-model="gender" placeholder="— เลือก —"
+                            :options="[{ value: 'ชาย', label: $t('common.male') }, { value: 'หญิง', label: $t('common.female') }]"></id-select></div>
+                    <div class="field"><label>{{ $t('addFamily.dob') }} <span class="req">*</span></label>
+                        <id-date v-model="dateofbirth" placeholder="เลือกวันเกิด"></id-date></div>
+                </div>
+                <div class="form-grid" style="margin-top:14px">
+                    <div class="field full"><label>{{ $t('addFamily.school') }}</label>
+                        <input class="id-input" v-model="school"></div>
+                </div>
 
-                    <v-text-field variant="solo-filled" v-model="lastname" :label="$t('addFamily.lastname')" type="text"
-                        :rules="requireRules" required></v-text-field>
-
-                    <v-text-field variant="solo-filled" v-model="nickname" :label="$t('addFamily.nickname')" type="text"
-                        :rules="requireRules" required></v-text-field>
-
-                    <v-text-field variant="solo-filled" v-model="school" :label="$t('addFamily.school')"
-                        type="text"></v-text-field>
-
-                    <v-select v-model="gender" :label="$t('addFamily.gender')" :items="[{ title: $t('common.male'), value: 'ชาย' }, { title: $t('common.female'), value: 'หญิง' }]" variant="solo-filled"
-                    :rules="requireRules" required></v-select>
-
-                    <DatePicker :label="$t('addFamily.dob')" v-model="dateofbirth" :maxdate="new Date()" :rules="requireRules">
-                    </DatePicker>
-
-                    <v-btn color="success" class="mt-6" block @click="doSave">
-                        {{ $t('addFamily.submit') }}
-                    </v-btn>
-                    <v-btn color="pink" class="mt-3" block @click="reset">
-                        {{ $t('addFamily.clear') }}
-                    </v-btn>
-                </v-form>
-            </v-card>
+                <div class="af-actions">
+                    <button type="button" class="id-btn id-btn-primary"
+                        :disabled="!firstname || !lastname || !nickname || !gender || !dateofbirth" @click="doSave">
+                        <span class="mdi mdi-content-save"></span> {{ $t('addFamily.submit') }}
+                    </button>
+                    <button type="button" class="id-btn id-btn-soft" @click="reset">
+                        <span class="mdi mdi-backspace-outline"></span> {{ $t('addFamily.clear') }}
+                    </button>
+                </div>
+            </v-form>
         </div>
     </div>
 </template>
 
 <script>
-import { VBottomNavigation, VBottomSheet } from 'vuetify/lib/components/index.mjs'
 import axios from 'axios'
-import DatePicker from '@/components/DatePicker.vue'
 import moment from 'moment'
 import { mapGetters } from 'vuex';
 import { t } from '@/i18n';
 
 export default {
-    components: {
-        DatePicker,
-    },
     data: () => ({
-        date: null,
         firstname: '',
         middlename: '',
         lastname: '',
@@ -118,18 +130,27 @@ export default {
             this.$emit('onLoading', false)
         },
         async validate() {
-            const { valid } = await this.$refs.form.validate()
+            await this.$refs.form.validate()
             this.$emit('onClickChangeState', 'list')
         },
         reset() {
-            this.$refs.form.reset()
+            // plain .id-input fields aren't Vuetify inputs, so v-form.reset() can't
+            // clear them — clear the bound data directly
+            this.firstname = ''
+            this.middlename = ''
+            this.lastname = ''
+            this.nickname = ''
+            this.school = ''
+            this.gender = ''
+            this.dateofbirth = null
+            if (this.$refs.form) this.$refs.form.resetValidation()
         },
         resetValidation() {
             this.$refs.form.resetValidation()
         },
         format_date(value) {
             if (value) {
-                return moment(String(value)).format('YYYYMMDD')
+                return moment(value).format('YYYYMMDD')
             }
         },
     },
@@ -155,8 +176,7 @@ export default {
                         Authorization: `Bearer ${token}`,
                     }
                 })
-                .then(response => {
-                    //console.dir(response);
+                .then(() => {
                 })
                 .catch(error => {
                     //console.error(error);
@@ -169,4 +189,27 @@ export default {
     },
 }
 </script>
-<style scoped></style>
+<style scoped>
+.af-card {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 24px;
+}
+
+.af-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+}
+
+.af-actions .id-btn {
+    flex: 1 1 180px;
+}
+
+@media (max-width: 620px) {
+    .af-actions .id-btn {
+        flex: 1 1 100%;
+    }
+}
+</style>

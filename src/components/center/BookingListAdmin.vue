@@ -1,57 +1,74 @@
 <template>
-  <div class="text-center">
-    <v-row>
-      <v-col cols="12" sm="12" md="12" xl="12">
-        <div class="booking-admin-wrap">
-          <div class="header-card">
-            <div class="booking-date-title">{{ $t('bookingList.classBooking') }} {{ classdate.toLocaleDateString('en-US', options) }}</div>
-            <div class="booking-date-sub">{{ $t('bookingList.classBooking') }} {{ classdate.toLocaleDateString('th-TH', options) }}</div>
-          </div>
-          <div class="header-cell">
-            <div class="description-cell">
-              <div><v-icon class="blue-icon">mdi-circle-slice-8</v-icon> {{ $t('bookingList.legendTrial') }}</div>
-              <div><v-icon class="pink-icon">mdi-circle-slice-8</v-icon> {{ $t('bookingList.legendPerSession') }}</div>
-              <div><v-icon class="bell-icon">mdi-bell-ring</v-icon> {{ $t('bookingList.legendPayment') }}</div>
+  <div class="id-scope booking-roster">
+    <!-- date band + legend -->
+    <div class="roster-head">
+      <div class="col" style="gap:2px">
+        <h3 class="t-h3">{{ $t('bookingList.classBooking') }} {{ classdate.toLocaleDateString('th-TH', options) }}</h3>
+        <span class="t-cap">{{ classdate.toLocaleDateString('en-GB') }}</span>
+      </div>
+      <!-- legend -->
+      <div class="row gap3 wrap" style="font-size:12.5px">
+        <span class="row" style="gap:5px"><v-icon size="14" color="#3b82f6">mdi-circle-slice-8</v-icon><span class="muted">{{ $t('bookingList.legendTrial') }}</span></span>
+        <span class="row" style="gap:5px"><v-icon size="14" color="#ec4899">mdi-circle-slice-8</v-icon><span class="muted">{{ $t('bookingList.legendPerSession') }}</span></span>
+        <span class="row" style="gap:5px"><v-icon size="14" color="#10b981">mdi-check-circle</v-icon><span class="muted">{{ $t('bookingList.menuCheckedInBadge') }}</span></span>
+        <span class="row" style="gap:5px"><v-icon size="14" color="#f59e0b">mdi-bell-ring</v-icon><span class="muted">{{ $t('bookingList.legendPayment') }}</span></span>
+      </div>
+    </div>
+
+    <!-- loading skeleton -->
+    <div v-if="loadingBooking" class="tt-row" style="overflow:hidden">
+      <div v-for="i in 4" :key="i" style="min-width:188px;flex:0 0 188px">
+        <div class="id-skel" style="height:48px;margin-bottom:6px"></div>
+        <div v-for="j in 3" :key="j" class="id-skel" style="height:48px;margin-bottom:6px"></div>
+      </div>
+    </div>
+
+    <!-- empty -->
+    <div v-else-if="!bookingData || bookingData.length === 0" class="id-empty">
+      <div class="mdi mdi-calendar-blank-outline"></div>
+      <div style="margin-top:8px">{{ $t('bookingMgmt.noBooking') }}</div>
+    </div>
+
+    <!-- roster: one column per time-slot header, one pill per student cell -->
+    <div v-else class="tt-grid-wrap id-fade-in" :key="classdate.getTime()">
+      <div class="tt-row">
+        <template v-for="(header, index) in bookingHeaders" :key="`booking-col-${index}`">
+          <div v-if="header.key !== 'idx'" class="tt-col">
+            <div class="tt-colhead">
+              <div class="row" style="justify-content:space-between">
+                <span class="strong row" style="gap:5px"><v-icon size="15">mdi-clock-outline</v-icon> {{ header.title }}</span>
+              </div>
+            </div>
+            <div class="tt-cell">
+              <template v-for="(item, rowIndex) in bookingData" :key="`${header.key}-${rowIndex}`">
+                <div v-if="item[header.key] && typeof item[header.key] === 'object' && item[header.key].name"
+                  class="tt-pill cell-clickable"
+                  :class="{
+                    checked: item[header.key].name && item[header.key].name.includes('(1)'),
+                    trial: item[header.key].name && item[header.key].name.includes('(blue)'),
+                    session: item[header.key].name && item[header.key].name.includes('(pink)'),
+                  }"
+                  @click="handleCellClick($event, item[header.key], header.key)">
+                  <span class="tt-avatar" style="background:var(--c-primary)">
+                    {{ (parseName(item[header.key]) || '?').replace('น้อง','').charAt(0) || '?' }}
+                  </span>
+                  <div class="col" style="gap:0;flex:1;min-width:0">
+                    <span class="strong" style="font-size:13.5px;white-space:normal;overflow-wrap:anywhere">{{ parseName(item[header.key]) }}</span>
+                    <span v-if="parseWarningText(item[header.key])" class="t-cap" style="font-size:11px;white-space:normal;overflow-wrap:anywhere">{{ parseWarningText(item[header.key]) }}</span>
+                  </div>
+                  <div class="row" style="gap:3px">
+                    <v-icon v-if="item[header.key].name && item[header.key].name.includes('(pay)')" size="15" color="#f59e0b">mdi-bell-ring</v-icon>
+                    <v-icon v-if="item[header.key].name && item[header.key].name.includes('(1)')" size="16" color="#10b981">mdi-check-circle</v-icon>
+                  </div>
+                </div>
+              </template>
             </div>
           </div>
-          <v-data-table :loading="loadingBooking" :headers="bookingHeaders" :items="bookingData" items-per-page="20" class="elevation-1">
-            <template v-slot:loading>
-              <v-skeleton-loader type="table-row@20"></v-skeleton-loader>
-            </template>
-            <template v-slot:no-data>
-              {{ $t('bookingMgmt.noBooking') }}
-            </template>
-            <template v-for="(header, index) in bookingHeaders" :key="`booking-col-${index}`" v-slot:[`item.${header.key}`]="{ item }" >
-              <td :class="[getClass(item[header.key]), { 'cell-clickable': isClickableCell(item[header.key]) }]"
-                @click="handleCellClick($event, item[header.key], header.key)">
+        </template>
+      </div>
+    </div>
 
-                <label :class="[getClass(item[header.key]), { 'no-hover': !item[header.key] || typeof item[header.key] ==='number' }]"
-                name="col-center">
-                {{
-                  typeof item[header.key] === 'object' && item[header.key] !== null
-                    ? parseName(item[header.key])
-                    : item[header.key]
-                }}
-                </label>
-                <label class="tooltip">
-                  <v-icon v-if="typeof item[header.key] === 'object' && item[header.key] !== null && item[header.key].name.includes('(pay)')" class="bell-icon">mdi-bell-ring</v-icon>
-                  <v-span class="tooltiptext">
-                    {{
-                      typeof item[header.key] === 'object' && item[header.key] !== null
-                        ? parseWarningText(item[header.key])
-                        : item[header.key]
-                    }}
-                  </v-span>
-                </label>
-              </td>
-            </template>
-          </v-data-table>
-
-        </div>
-      </v-col>
-    </v-row>
-
-    <!-- Quick action menu: anchored to the clicked name -->
+    <!-- Quick action menu: anchored to the clicked pill -->
     <v-menu
       v-model="menuOpen"
       :target="menuTarget"
@@ -62,45 +79,40 @@
       transition="scale-transition"
       origin="top left"
     >
-      <div class="quick-menu" :class="{ 'is-checked': isCheckedIn }">
-        <div class="quick-menu__header">
-          <span class="quick-menu__name">{{ selectedStudentName || '—' }}</span>
-          <span class="quick-menu__status" v-if="isCheckedIn">
+      <div class="popmenu quick-menu">
+        <div class="popmenu-head">
+          <span class="popmenu-name">{{ selectedStudentName || '—' }}</span>
+          <span v-if="isCheckedIn" class="badge badge-success" style="height:20px;font-size:11px">
             <v-icon size="12">mdi-check-decagram</v-icon>{{ $t('bookingList.menuCheckedInBadge') }}
           </span>
         </div>
 
-        <button class="quick-menu__item quick-menu__item--checkin" @click="onChooseCheckin">
-          <span class="quick-menu__dot"></span>
-          <v-icon size="18">{{ isCheckedIn ? 'mdi-undo-variant' : 'mdi-check-bold' }}</v-icon>
-          <span class="quick-menu__label">{{ isCheckedIn ? $t('bookingList.menuUndoCheckin') : $t('bookingList.menuCheckin') }}</span>
+        <button class="popmenu-item" @click="onChooseCheckin">
+          <span class="pm-ico"><v-icon size="18" :color="isCheckedIn ? '#b45309' : '#047857'">{{ isCheckedIn ? 'mdi-undo-variant' : 'mdi-check-bold' }}</v-icon></span>
+          {{ isCheckedIn ? $t('bookingList.menuUndoCheckin') : $t('bookingList.menuCheckin') }}
         </button>
 
-        <button class="quick-menu__item quick-menu__item--edit" @click="onChooseEdit">
-          <span class="quick-menu__dot"></span>
-          <v-icon size="18">mdi-account-edit</v-icon>
-          <span class="quick-menu__label">{{ $t('bookingList.menuEdit') }}</span>
+        <div class="popmenu-divider"></div>
+
+        <button class="popmenu-item" @click="onChooseEdit">
+          <span class="pm-ico"><v-icon size="18" color="#6366f1">mdi-account-edit</v-icon></span>
+          {{ $t('bookingList.menuEdit') }}
         </button>
       </div>
     </v-menu>
 
     <!-- Check-in / Undo check-in confirmation -->
-    <v-dialog v-model="checkinConfirmDialog" persistent width="auto">
-      <v-card>
-        <v-card-title></v-card-title>
-        <v-card-text>
-          {{ isCheckedIn
-            ? $t('bookingMgmt.confirmUndoCheckin', { name: selectedStudentName })
-            : $t('bookingMgmt.confirmCheckin', { name: selectedStudentName }) }}
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="#4CAF50" variant="tonal" @click="confirmCheckin">{{ $t('btn.ok') }}</v-btn>
-          <v-btn color="#F44336" variant="tonal" @click="checkinConfirmDialog = false">{{ $t('btn.cancel') }}</v-btn>
-          <v-spacer></v-spacer>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <id-modal v-model="checkinConfirmDialog" size="sm" persistent
+      :icon="isCheckedIn ? 'mdi-undo-variant' : 'mdi-check-circle'"
+      :title="isCheckedIn ? $t('bookingList.menuUndoCheckin') : $t('bookingList.menuCheckin')">
+      <p style="margin:0">{{ isCheckedIn
+        ? $t('bookingMgmt.confirmUndoCheckin', { name: selectedStudentName })
+        : $t('bookingMgmt.confirmCheckin', { name: selectedStudentName }) }}</p>
+      <template #footer>
+        <button class="id-btn id-btn-ghost" @click="checkinConfirmDialog = false">{{ $t('btn.cancel') }}</button>
+        <button class="id-btn id-btn-primary" @click="confirmCheckin"><span class="mdi mdi-check"></span> {{ $t('btn.ok') }}</button>
+      </template>
+    </id-modal>
   </div>
 </template>
 
@@ -119,7 +131,6 @@ export default {
         day: 'numeric',
 
       },
-      classdate: new Date(),
       menuOpen: false,
       menuTarget: null,
       checkinConfirmDialog: false,
@@ -264,10 +275,10 @@ export default {
     },
     format_date(value) {
       if (value) {
-        return moment(String(value)).format('DD/MM/YYYY')
+        return moment(value).format('DD/MM/YYYY')
       }
     },
-    highlightCell(item, header) {
+    highlightCell() {
       return 'highlighted-cell';
     },
     parseName(value) {
@@ -311,7 +322,7 @@ export default {
 
       if (value !== undefined) {
         if (typeof value === 'number') {
-          
+          /* no-op */
         } else {
           classes.push('cell-nickname hover-cell');
         }
@@ -321,376 +332,11 @@ export default {
     }
   },
 };
-
-import { Promise } from 'core-js';
-const BookingListAPI = {
-  baseURL: process.env.SERVER_URL,
-  fetchDataBooking({ token, classday, classdate }) {
-    return new Promise(resolve => {
-      //console.log('DashboardAPI : ' + this.baseURL + '/getBookingList' + ' classday : ' + classday + ' classdate : ' + classdate)
-      axios
-        .post(this.baseURL + '/getBookingListAdmin', {
-          classday: classday,
-          classdate: classdate
-        },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            }
-          })
-        .then(response => {
-          //console.log('fetchDataBooking result', response);
-          if (response.data.success) {
-            resolve({ success: true, results: response.data.bookinglist })
-          } else {
-            resolve({ success: true, results: [] })
-          }
-        })
-        .catch(error => {
-          resolve({ success: false, error: error })
-        });
-    });
-  },
-}
 </script>
 
 <style scoped>
-/* ===== Neumorphic theme integration — blend with parent content-card ===== */
-/* Outer wrap — transparent, inherits parent card styling */
-.booking-admin-wrap {
-  background: transparent;
-}
-
-/* Header date band */
-.header-card {
-  background: linear-gradient(145deg, #eef0f5, #dde2eb);
-  color: #334155;
-  padding: 12px 16px 8px;
-  border-bottom: 1px solid rgba(163, 177, 198, 0.18);
-}
-
-.booking-date-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: #334155;
-}
-
-.booking-date-sub {
-  font-size: 0.8rem;
-  color: #64748b;
-  margin-top: 2px;
-}
-
-/* Legend row */
-.header-cell {
-  background: linear-gradient(180deg, rgba(255,255,255,0.4), rgba(238,240,245,0.3));
-  font-weight: bold;
-  padding: 8px 16px;
-  border-bottom: 1px solid rgba(163, 177, 198, 0.1);
-}
-
-:deep(.v-data-table),
-:deep(.v-data-table__wrapper),
-:deep(.v-table) {
-  background: transparent !important;
-  box-shadow: none !important;
-}
-
-/* RULE: thead tr MUST stay transparent — any background creates a floating "card on card" look */
-:deep(.v-table > .v-table__wrapper > table > thead > tr) {
-  background: transparent !important;
-}
-
-:deep(.v-table > .v-table__wrapper > table > thead > tr > th) {
-  background: transparent !important;
-  background-color: transparent !important;
-  color: #334155 !important;
-  font: bold 13px 'Kodchasan', sans-serif;
-  border-bottom: 2px solid rgba(163, 177, 198, 0.4) !important;
-}
-
-:deep(.v-table > .v-table__wrapper > table > tbody > tr > td) {
-  background: transparent !important;
-}
-
-:deep(.v-data-table-footer) {
-  background: transparent !important;
-  box-shadow: inset 0 1px 2px rgba(163, 177, 198, 0.1);
-}
-
-.v-progress-circular {
-  margin: 1rem;
-}
-
-.bold-cell {
-  font-weight: bold;
-  min-width: 10px !important;
-}
-
-.highlighted-blackground {
-  font-weight: bold;
-  background-color: rgb(128, 233, 128);
-
-}
-
-.highlighted-cell-green {
-  color: green
-}
-
-.highlighted-cell-red {
-  color: red;
-}
-
-.highlighted-cell-blue {
-  color: blue;
-}
-
-.highlighted-cell-yellow {
-  color: yellow
-}
-
-.highlighted-cell-pink {
-  color: #eb697f;
-}
-
-.cell-nickname {
-  white-space: normal;
-  padding: 0.75em 0.25em;
-  border-radius: 0.25em 0.75em;
-  min-width: 150px;
-}
-
-.hover-cell {
-  transition: background-color 0.5s, color 0.5s;
-}
-
-.hover-cell:hover {
-  color: red; /* เปลี่ยนสีพื้นหลังให้สว่างขึ้น */
-  cursor: pointer; /* เปลี่ยน cursor เมื่อ hover */
-}
-
-.no-hover {
-  cursor: default; /* ไม่เปลี่ยน cursor เมื่อ hover */
-}
-
-/* Whole-cell click target — extends clickable area beyond the name text */
-:deep(.v-table > .v-table__wrapper > table > tbody > tr > td.cell-clickable) {
-  cursor: pointer;
-  transition: background-color 0.18s ease;
-}
-
-:deep(.v-table > .v-table__wrapper > table > tbody > tr > td.cell-clickable:hover) {
-  background: rgba(99, 102, 241, 0.06) !important;
-}
-
-.bell-icon {
-  color: gold;
-  animation: swing 2s ease-in-out infinite;
-  transform-origin: top center;
-  filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
-  padding-left: 5px;
-}
-
-.header-cell {
-  font-weight: bold;
-}
-
-.description-cell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.description-cell div {
-  margin-right: 20px; /* กำหนดระยะห่างระหว่างไอคอน */
-}
-
-.description-cell div:last-child {
-  margin-right: 0; /* ลบระยะห่างของไอคอนสุดท้าย */
-}
-.blue-icon {
-  color: blue;
-}
-
-.pink-icon {
-  color: #eb697f;
-}
-
-.v-data-table
-  /deep/
-  tbody
-  /deep/
-  tr:hover:not(.v-data-table__expanded__content) {
-  background: #ffffff !important;
-}
-.tooltip {
-  position: relative;
-  display: inline-block;
-}
-
-.tooltip .tooltiptext {
-  visibility: hidden;
-  width: auto;
-  background-color: rgba(0, 0, 0, 0.75);
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px 0;
-
-  /* Position the tooltip */
-  position: absolute;
-  z-index: 1;
-  bottom: 100%;
-  left: 50%;
-  margin-left: -5vw;
-}
-
-.tooltip:hover .tooltiptext {
-  visibility: visible;
-  white-space: nowrap;
-  padding: 3px 10px;
-}
-
-@keyframes swing {
-  0% { transform: rotate(15deg); }
-  25% { transform: rotate(-15deg); }
-  50% { transform: rotate(15deg); }
-  75% { transform: rotate(-15deg); }
-  100% { transform: rotate(15deg); }
-}
-
-/* ============================================================
-   Quick action dropdown — anchored next to the clicked name
-   ============================================================ */
-.quick-menu {
-  min-width: 200px;
-  background: linear-gradient(155deg, #ffffff 0%, #eef2f8 100%);
-  border-radius: 14px;
-  padding: 6px;
-  box-shadow:
-    0 14px 36px -10px rgba(15, 23, 42, 0.28),
-    0 4px 10px -6px rgba(15, 23, 42, 0.18),
-    inset 0 1px 0 rgba(255, 255, 255, 0.75);
-  border: 1px solid rgba(163, 177, 198, 0.2);
-  color: #1e293b;
-  font-family: inherit;
-}
-
-.quick-menu__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 6px 10px 8px;
-  border-bottom: 1px dashed rgba(100, 116, 139, 0.22);
-  margin-bottom: 4px;
-}
-
-.quick-menu__name {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: #0f172a;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 140px;
-}
-
-.quick-menu__status {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  font-size: 0.65rem;
-  font-weight: 600;
-  color: #047857;
-  background: rgba(16, 185, 129, 0.12);
-  padding: 1px 6px;
-  border-radius: 999px;
-  white-space: nowrap;
-}
-
-.quick-menu__item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 8px 10px;
-  border: none;
-  background: transparent;
-  border-radius: 8px;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 0.88rem;
-  color: #1e293b;
-  text-align: left;
-  position: relative;
-  transition: background 0.15s ease, transform 0.1s ease;
-}
-
-.quick-menu__item:hover {
-  background: rgba(99, 102, 241, 0.08);
-}
-
-.quick-menu__item:active {
-  transform: scale(0.98);
-}
-
-.quick-menu__dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
-
-.quick-menu__item--checkin .quick-menu__dot {
-  background: #10b981;
-  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
-}
-
-.quick-menu.is-checked .quick-menu__item--checkin .quick-menu__dot {
-  background: #f59e0b;
-  box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18);
-}
-
-.quick-menu__item--checkin :deep(.v-icon),
-.quick-menu__item--checkin .v-icon {
-  color: #047857;
-}
-
-.quick-menu.is-checked .quick-menu__item--checkin :deep(.v-icon),
-.quick-menu.is-checked .quick-menu__item--checkin .v-icon {
-  color: #b45309;
-}
-
-.quick-menu__item--edit .quick-menu__dot {
-  background: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18);
-}
-
-.quick-menu__item--edit :deep(.v-icon),
-.quick-menu__item--edit .v-icon {
-  color: #4338ca;
-}
-
-.quick-menu__label {
-  font-weight: 600;
-  letter-spacing: 0.01em;
-}
-
-</style>
-
-<style lang="scss">
-  tbody {
-     tr:hover {
-        background-color: transparent !important;
-     }
-  }
-</style>
-
-<style lang="scss">  
-  tbody {
-     tr:hover {
-        background-color: transparent !important;
-     }
-  }
+.booking-roster { padding: 4px; }
+.roster-head { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  padding: 4px 4px 14px; }
+.booking-roster :deep(.v-overlay__content) { box-shadow: none; }
 </style>

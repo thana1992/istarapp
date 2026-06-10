@@ -1,68 +1,65 @@
 <template>
-  <v-div class="main-container">
-    <img src="../assets/logo/logo-2.png" alt="iStar Logo" class="istar-logo">
-    <div class="main-greeting">
-      <h1>{{ $t('forgot.title') }}</h1>
-      <p>{{ $t('forgot.subtitle') }}</p>
-    </div>
-    <v-card class="main-form px-3 py-3 mb-12">
-      <v-form ref="forgotpassword_form" v-model="forgotpassword_form" v-if="firstProcess">
-        <v-row justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="username" :label="$t('forgot.username')"
-          :rules="nameRules" @input="removeSpaces('username')" :readonly="verifyBtn" required></v-text-field>
-        </v-row>
-        <v-row justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="phonenumber" @input="debouncedAcceptNumber" :label="$t('forgot.phone')"
-            :rules="phonenumberRules" :readonly="verifyBtn" required></v-text-field>
-        </v-row>
-        <transition>
-          <v-row v-if="phoneMatchError" justify="space-around" class="ma-1 pa-1">
-            <v-alert type="error" class="mt-1">
-              {{ phoneMatchError }}
-            </v-alert>
-          </v-row>
-        </transition>
+  <div class="lg-wrap fp-wrap">
+    <section class="lg-form fp-form">
+      <span class="lg-form-spark fp-spark fp-spark-a"><span class="mdi mdi-star-four-points"></span></span>
+      <span class="lg-form-spark fp-spark fp-spark-b"><span class="mdi mdi-star-four-points"></span></span>
+      <div class="lg-card">
+        <div class="lg-mbrand">
+          <div class="lg-logo"><img src="../assets/logo/logo-2.png" alt="iStar" /></div>
+          <div class="lg-brand">iStar Gymnastics</div>
+          <div class="lg-sub">Gymnastics · Class System</div>
+        </div>
+        <h2 class="fp-title">{{ $t('forgot.title') }}</h2>
+        <p class="fp-subtitle">{{ $t('forgot.subtitle') }}</p>
+        <div class="scard fp-scard">
+          <div v-if="firstProcess">
+            <div class="field full"><label>{{ $t('forgot.username') }} <span class="req">*</span></label>
+              <input class="id-input" v-model="username" @input="removeSpaces('username')" :readonly="verifyBtn"></div>
+            <div class="field full" style="margin-top:14px"><label>{{ $t('forgot.phone') }} <span class="req">*</span></label>
+              <input class="id-input" v-model="phonenumber" @input="debouncedAcceptNumber" :readonly="verifyBtn"></div>
 
-        <transition>
-        <v-row v-if="!requestOTPBtn" justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="otppassword" ref="otpField" type="number" counter="6" @input="onInputOTP" :label="$t('forgot.otp')"
-            :rules="otpRules" :disabled="requestOTPBtn" required></v-text-field>
-        </v-row>
-      </transition>
+            <div v-if="phoneMatchError" class="fp-alert">
+              <span class="mdi mdi-alert-circle-outline"></span> {{ phoneMatchError }}
+            </div>
 
-        <v-row justify="space-around" class="ma-3 pa-3">
-          <v-btn v-show="verifyBtn" id="verrify" color="success" class="mt-4" block @click="doVerify">
-            {{ $t('forgot.submit') }}
-          </v-btn>
-          <v-btn v-show="requestOTPBtn" id="request-otp" color="info" class="mt-4" block @click="doRequestOTP" :disabled="!isPhoneMatched">
-            {{ $t('forgot.requestOTP') }}
-          </v-btn>
-          <v-btn color="grey" class="mt-4" block @click="cancel">
-            {{ $t('forgot.cancel') }}
-          </v-btn>
-        </v-row>
-      </v-form>
-      <v-form ref="changepassword_form" v-model="changepassword_form" v-else>
-        <v-row justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="newPassword" ref="newPassword" :type="show1 ? 'text' : 'password'" :label="$t('forgot.newPassword')"
-          :rules="newPassRules" :append-inner-icon="show1 ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="show1 = !show1" required></v-text-field>
-        </v-row>
-        <v-row justify="space-around" class="ma-1 pa-1">
-          <v-text-field variant="solo-filled" v-model="confirmNewPassword" :type="show2 ? 'text' : 'password'" :label="$t('forgot.confirmPassword')"
-            :rules="newPassRules" :append-inner-icon="show2 ? 'mdi-eye' : 'mdi-eye-off'" @click:append-inner="show2 = !show2" required></v-text-field>
-        </v-row>
+            <div v-if="!requestOTPBtn" class="field full" style="margin-top:14px"><label>{{ $t('forgot.otp') }} <span class="req">*</span></label>
+              <input class="id-input" v-model="otppassword" ref="otpField" type="number" inputmode="numeric"></div>
 
-        <v-row justify="space-around" class="ma-3 pa-3">
-          <v-btn color="success" class="mt-4" block @click="doChangePassword">
-            {{ $t('forgot.submit') }}
-          </v-btn>
-          <v-btn color="grey" class="mt-4" block @click="cancel">
-            {{ $t('forgot.cancel') }}
-          </v-btn>
-        </v-row>
-      </v-form>
-    </v-card>
-  </v-div>
+            <button v-show="verifyBtn" id="verrify" class="id-btn id-btn-success fp-btn" @click.prevent="doVerify">
+              <span class="mdi mdi-check"></span> {{ $t('forgot.submit') }}
+            </button>
+            <button v-show="requestOTPBtn" id="request-otp" class="id-btn id-btn-primary fp-btn"
+              :disabled="!isPhoneMatched" @click.prevent="doRequestOTP">
+              <span class="mdi mdi-message-text-outline"></span> {{ $t('forgot.requestOTP') }}
+            </button>
+            <button class="id-btn id-btn-ghost fp-btn" @click.prevent="cancel">
+              <span class="mdi mdi-arrow-left"></span> {{ $t('forgot.cancel') }}
+            </button>
+          </div>
+
+          <div v-else>
+            <div class="field full"><label>{{ $t('forgot.newPassword') }} <span class="req">*</span></label>
+              <div class="id-pass">
+                <input class="id-input" :type="show1 ? 'text' : 'password'" v-model="newPassword" ref="newPassword">
+                <button type="button" class="id-eye" @click="show1 = !show1"><span class="mdi" :class="show1 ? 'mdi-eye' : 'mdi-eye-off'"></span></button>
+              </div></div>
+            <div class="field full" style="margin-top:14px"><label>{{ $t('forgot.confirmPassword') }} <span class="req">*</span></label>
+              <div class="id-pass">
+                <input class="id-input" :type="show2 ? 'text' : 'password'" v-model="confirmNewPassword">
+                <button type="button" class="id-eye" @click="show2 = !show2"><span class="mdi" :class="show2 ? 'mdi-eye' : 'mdi-eye-off'"></span></button>
+              </div></div>
+
+            <button class="id-btn id-btn-success fp-btn" @click.prevent="doChangePassword">
+              <span class="mdi mdi-check"></span> {{ $t('forgot.submit') }}
+            </button>
+            <button class="id-btn id-btn-ghost fp-btn" @click.prevent="cancel">
+              <span class="mdi mdi-arrow-left"></span> {{ $t('forgot.cancel') }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
 </template>
 
 <script>
@@ -93,6 +90,7 @@ export default {
       nameRules: [
         v => !!v || this.$t('validation.usernameRequired'),
         v => !/\s/.test(v) || this.$t('validation.usernameNoSpaces'),
+        // eslint-disable-next-line no-control-regex
         v => /^[\x00-\x7F]+$/.test(v) || this.$t('validation.usernameEnglishOnly'),
       ],
       phonenumberRules: [
@@ -260,4 +258,136 @@ export default {
 .v-leave-to {
   opacity: 0;
 }
+
+/* ForgotPassword: no hero panel — single full-screen pink-gradient
+   stage with a centered card, on every viewport size. */
+.fp-wrap {
+  grid-template-columns: 1fr;
+}
+
+.fp-form {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(160deg, #fde8f3 0%, #f3e9ff 55%, #fff7ed 100%);
+}
+
+.fp-form > *:not(.fp-spark) {
+  position: relative;
+  z-index: 1;
+}
+
+/* Show the mobile brand block on all sizes (no hero here to carry it). */
+.fp-form .lg-mbrand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.fp-form .lg-mbrand .lg-logo {
+  width: 94px;
+  height: 94px;
+  background: transparent;
+  border-radius: 0;
+}
+
+.fp-form .lg-mbrand .lg-logo img {
+  filter: drop-shadow(0 4px 14px rgba(236, 72, 153, .35));
+}
+
+.fp-form .lg-mbrand .lg-brand {
+  color: var(--c-primary-dark);
+  font-size: 24px;
+  margin-top: 6px;
+}
+
+.fp-form .lg-mbrand .lg-sub {
+  color: var(--c-text-muted);
+}
+
+.fp-title {
+  font-family: var(--font-head);
+  font-weight: 700;
+  font-size: 26px;
+  color: var(--c-text-heading);
+  margin: 0 0 4px;
+  text-align: center;
+}
+
+.fp-subtitle {
+  color: var(--c-text-muted);
+  margin: 0 0 20px;
+  text-align: center;
+}
+
+.fp-btn {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.fp-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+/* Static decorative sparkles (no script data) — display:block to override
+   the .lg-form-spark default of display:none. */
+.fp-spark {
+  display: block;
+  position: absolute;
+  z-index: 0;
+  color: rgba(168, 85, 247, .45);
+  pointer-events: none;
+  font-size: 30px;
+  animation: lg-tw 3.2s ease-in-out infinite;
+}
+
+.fp-spark-a {
+  left: 12%;
+  top: 16%;
+  animation-delay: .2s;
+}
+
+.fp-spark-b {
+  right: 14%;
+  bottom: 18%;
+  font-size: 22px;
+  animation-delay: 1.1s;
+}
+
+/* password field with a show/hide eye, built on the themed .id-input */
+.id-pass { position: relative; }
+.id-pass .id-input { padding-right: 44px; }
+.id-eye {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--c-text-muted);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+}
+.id-eye .mdi { font-size: 19px; }
+.id-eye:hover { color: var(--c-primary); }
+
+/* inline error (phone mismatch) */
+.fp-alert {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--c-error);
+  font-size: 13px;
+}
+.fp-alert .mdi { font-size: 17px; flex: 0 0 auto; }
 </style>

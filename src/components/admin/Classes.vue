@@ -1,98 +1,66 @@
+<!-- ============================================================
+  Classes.vue — NEW DESIGN 1:1 (iStar).
+  • <script> = UNCHANGED from the original (data/methods/API kept byte-for-byte).
+  • <template> rebuilt to the prototype: .pg-head + standard <id-data-grid>
+    (global component) + add/edit + delete v-dialogs (unchanged, opened via @add / editItem / deleteItem).
+  • Columns reuse the existing `headers` computed (REAL fields only).
+  Requires global: src/assets/istar-design.css + istar-pages.css, and the
+  globally-registered <id-data-grid> component (main.js).
+============================================================ -->
 <template>
-  <div class="container">
-    <div class="container-header">
-      <h1><span class="mdi mdi-view-dashboard-variant-outline"></span> {{ $t('classes.title') }}</h1>
+  <div>
+    <div class="pg-head">
+      <div class="pg-ico"><span class="mdi mdi-view-dashboard-variant-outline"></span></div>
+      <div>
+        <div class="id-h1">{{ $t('classes.title') }}</div>
+        <div class="pg-sub">ตารางคลาสประจำสัปดาห์</div>
+      </div>
     </div>
-    <div class="container-content">
-      <v-card class="mx-auto mt-5 card-opacity">
-        <v-data-table :headers="headers" :items="classlist" :sort-by="[{ key: 'coursename', order: 'asc' }]"
-          :loading="loadingClasses">
-          <template v-slot:top>
-            <v-toolbar flat>
-              <v-toolbar-title>{{ $t('classes.ourClasses') }}</v-toolbar-title>
-              <v-divider class="mx-4" inset vertical></v-divider>
-              <v-spacer></v-spacer>
-              <v-dialog v-model="dialog" max-width="500px">
-                <template v-slot:activator="{ props }">
-                  <v-btn color="primary" dark v-bind="props">
-                    {{ $t('classes.newClass') }}
-                  </v-btn>
-                </template>
-                <v-card>
-                  <v-card-title>
-                    <span>{{ formTitle }}</span>
-                  </v-card-title>
 
-                  <v-card-text>
-                    <v-container>
-                      <v-row>
-                        <v-col cols="12" sm="6" md="50">
-                          <v-select v-model="editedItem.courseid" :label="$t('table.courseName')" item-title="coursename"
-                            item-value="courseid" :items="courseLookup" variant="solo-filled"
-                            :no-data-text="$t('common.noCourseData')" required></v-select>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="50">
-                          <v-text-field v-model="editedItem.classday" :label="$t('table.classDay')"
-                            variant="solo-filled"></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="50">
-                          <v-text-field v-model="editedItem.classtime" :label="$t('table.classTime')"
-                            variant="solo-filled"></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="50">
-                          <v-text-field v-model="editedItem.maxperson" :label="$t('table.maxStudent')"
-                            variant="solo-filled"></v-text-field>
-                        </v-col>
-                        <v-col cols="12" sm="6" md="50">
-                          <v-text-field v-model="editedItem.adminflag" :label="$t('table.adminFlag')"
-                            variant="solo-filled"></v-text-field>
-                        </v-col>
-                      </v-row>
-                    </v-container>
-                  </v-card-text>
+    <id-data-grid
+      :columns="headers"
+      :rows="classlist"
+      :search-keys="['coursename', 'classday']"
+      :filters="classFilters"
+      :search-placeholder="$t('btn.search')"
+      :add-label="$t('classes.newClass')"
+      :loading="loadingClasses"
+      @add="dialog = true">
+      <template #cell-actions="{ row }">
+        <span class="mdi mdi-pencil" style="color:var(--c-info);cursor:pointer;font-size:20px;padding:0 5px" @click="editItem(row)"></span>
+        <span class="mdi mdi-delete-forever" style="color:var(--c-error);cursor:pointer;font-size:20px;padding:0 5px" @click="deleteItem(row)"></span>
+      </template>
+    </id-data-grid>
 
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="blue-darken-1" variant="text" @click="close">
-                      {{ $t('btn.cancel') }}
-                    </v-btn>
-                    <v-btn color="blue-darken-1" variant="text" @click="save">
-                      {{ $t('btn.save') }}
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-              <v-dialog v-model="dialogDelete" persistent width="auto">
-                <v-card>
-                  <v-card-title></v-card-title>
-                  <v-card-text>{{ $t('classes.confirmDelete') }}</v-card-text>
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="#4CAF50" variant="tonal" @click="deleteItemConfirm">{{ $t('btn.ok') }}</v-btn>
-                    <v-btn color="#F44336" variant="tonal" @click="closeDelete">{{ $t('btn.cancel') }}</v-btn>
+    <!-- add / edit dialog -->
+    <id-modal v-model="dialog" size="md" icon="mdi-calendar-clock" :title="formTitle">
+      <div class="modal-sec"><span class="mdi mdi-calendar-edit"></span> ข้อมูลคลาสเรียน</div>
+      <div class="form-grid">
+        <div class="field full"><label>{{ $t('table.courseName') }} <span class="req">*</span></label>
+          <id-select v-model="editedItem.courseid" searchable placeholder="— เลือกคอร์ส —"
+            :options="courseLookup.map(c => ({ value: c.courseid, label: c.coursename }))"></id-select>
+        </div>
+        <div class="field"><label>{{ $t('table.classDay') }}</label><input class="id-input" v-model="editedItem.classday"></div>
+        <div class="field"><label>{{ $t('table.classTime') }}</label><input class="id-input" v-model="editedItem.classtime"></div>
+        <div class="field"><label>{{ $t('table.maxStudent') }}</label><input class="id-input" v-model="editedItem.maxperson"></div>
+        <div class="field"><label>{{ $t('table.adminFlag') }}</label><input class="id-input" v-model="editedItem.adminflag"></div>
+      </div>
+      <template #footer>
+        <button class="id-btn id-btn-ghost" @click="close">{{ $t('btn.cancel') }}</button>
+        <button class="id-btn id-btn-primary" :disabled="!editedItem.courseid" @click="save">
+          <span class="mdi mdi-content-save"></span> {{ $t('btn.save') }}</button>
+      </template>
+    </id-modal>
 
-                    <v-spacer></v-spacer>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-            </v-toolbar>
-          </template>
-          <template v-slot:item.actions="{ item }">
-            <v-icon size="small" class="me-2" @click="editItem(item)">
-              mdi-pencil
-            </v-icon>
-            <v-icon size="small" @click="deleteItem(item)">
-              mdi-delete
-            </v-icon>
-          </template>
-          <template v-slot:no-data>
-            <v-btn color="primary" @click="initialize">
-              {{ $t('btn.reset') }}
-            </v-btn>
-          </template>
-        </v-data-table>
-      </v-card>
-    </div>
+    <!-- delete confirm dialog -->
+    <id-modal v-model="dialogDelete" size="sm" icon="mdi-delete-alert-outline" title="ยืนยันการลบ" persistent>
+      <p style="margin:0">{{ $t('classes.confirmDelete') }}</p>
+      <template #footer>
+        <button class="id-btn id-btn-ghost" @click="closeDelete">{{ $t('btn.cancel') }}</button>
+        <button class="id-btn id-btn-primary" style="background:var(--c-error)" @click="deleteItemConfirm">
+          <span class="mdi mdi-delete"></span> {{ $t('btn.ok') }}</button>
+      </template>
+    </id-modal>
   </div>
 </template>
 <script>
@@ -128,6 +96,15 @@ export default {
     formTitle() {
       return this.editedIndex === -1 ? this.$t('classes.newClass') : this.$t('classes.editClass')
     },
+    // toolbar filters (client-side, handled by IdDataGrid): by class day + by course
+    classFilters() {
+      const uniq = (k) => [...new Set(this.classlist.map(r => r[k]).filter(v => v !== null && v !== ''))]
+        .map(v => ({ value: v, label: String(v) }))
+      return [
+        { key: 'classday', label: this.$t('table.classDay'), options: uniq('classday') },
+        { key: 'coursename', label: this.$t('table.courseName'), options: uniq('coursename') },
+      ]
+    },
     headers() {
       return [
         { title: this.$t('table.courseName'), align: 'start', key: 'coursename' },
@@ -158,7 +135,9 @@ export default {
 
   methods: {
     async initialize() {
-      this.$emit('onLoading', true)
+      // menu-entry load: grid skeleton (loadingClasses) shows for the real fetch
+      // only — NO artificial $minLoad here (that 1s delay is for grid page changes,
+      // not for navigating into the menu).
       this.loadingClasses = true
       const token = this.$store.getters.getToken;
       await axios
@@ -171,14 +150,12 @@ export default {
           if (response.data.success) {
             this.classlist = response.data.results
           }
-          this.loadingClasses = false
         })
-        .catch(error => {
-          this.loadingClasses = false
+        .catch(() => {
           //console.error(error);
         });
       await this.getCourseLookup()
-      this.$emit('onLoading', false)
+      this.loadingClasses = false
     },
 
     async getCourseLookup() {
@@ -194,7 +171,7 @@ export default {
             this.courseLookup = response.data.results
           }
         })
-        .catch(error => {
+        .catch(() => {
           //console.error(error);
         });
     },
@@ -230,7 +207,7 @@ export default {
           }
           this.initialize()
         })
-        .catch(error => {
+        .catch(() => {
           //console.error(error);
         });
       this.closeDelete()

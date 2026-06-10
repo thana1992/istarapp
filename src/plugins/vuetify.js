@@ -1,4 +1,3 @@
-import { createVuetify } from 'vuetify'
 import { aliases, mdi } from 'vuetify/iconsets/mdi'
 import Vue from 'vue';
 import Vuetify from 'vuetify/lib';

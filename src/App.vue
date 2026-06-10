@@ -1,327 +1,256 @@
 <template>
   <v-app>
     <LoadingDialog :isLoading="isLoading" />
-    
-    <!-- App Bar - ต้องอยู่นอก v-card เพื่อให้ fixed ได้ -->
-    <v-app-bar :elevation="20" app v-if="isLoggedIn" style="position: fixed !important;">
-      <v-btn v-if="!black" @click.stop="drawer = !drawer" variant="plain"><span class="mdi mdi-menu"
-          style="font-size: large;"></span></v-btn>
-      <v-btn v-if="black" @click="onClickBack(recentState)" variant="plain"><span class="mdi mdi-arrow-left"
-          style="font-size: large;"></span></v-btn>
-      <template v-slot:append v-if="isLoggedIn">
-        <v-dialog 
-          v-model="ConfirmLogoutDialog" 
-          persistent 
-          width="auto"
-          :z-index="2400"
-          scrim="rgba(0,0,0,0.5)"
-        >
-          <template v-slot:activator="{ props }">
-            <v-btn icon="mdi-logout" @click="onClickLogout()"></v-btn>
-          </template>
-          <v-card>
-            <v-card-text>{{ $t('auth.logoutConfirm') }}</v-card-text>
-            <v-card-actions>
-              <v-spacer></v-spacer>
-              <v-btn color="green-darken-1" variant="text" @click="logout()">
-                {{ $t('common.yes') }}
-              </v-btn>
-              <v-btn color="green-darken-1" variant="text" @click="ConfirmLogoutDialog = false">
-                {{ $t('common.no') }}
-              </v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
-      </template>
-    </v-app-bar>
 
-    <!-- Navigation Drawer -->
-    <v-navigation-drawer 
-      v-model="drawer" 
-      temporary
-      location="left"
-      width="280"
-      scrim="rgba(0,0,0,0.5)"
-      @update:model-value="(val) => console.log('Drawer model-value:', val)"
-    >
-    <v-list-item v-if="isLoggedIn" :prepend-avatar="iconUrl" :title="parent" class="drawer-avatar-row"
-      @click.stop.prevent="onClickChangeState('editprofile')"></v-list-item>
-    <v-list-item v-else :prepend-avatar="iconUrl" :title="parent"></v-list-item>
-    <v-divider></v-divider>
-    <v-list density="compact" nav v-model:selected="selectedMenu" @click="handleListClick">
-      <v-label v-if="managerflag || customerflag">{{ $t('nav.mainMenu') }}</v-label>
-      <v-list-item v-if="managerflag || customerflag" prepend-icon="mdi-home-account" :title="$t('nav.home')" value="home"
-        @click.stop.prevent="onClickChangeState('home')">
-      </v-list-item>
-      <v-list-item v-if="managerflag || customerflag" prepend-icon="mdi-account-multiple" :title="$t('nav.family')"
-        value="familylist" @click.stop.prevent="onClickChangeState('familylist')">
-      </v-list-item>
-      <v-label v-if="managerflag || customerflag || coachflag">{{ $t('nav.checkingMenu') }}</v-label>
-      <v-list-item v-if="managerflag || customerflag || coachflag" prepend-icon="mdi-table-eye" :title="$t('nav.viewClasses')"
-        value="viewclasses" @click.stop.prevent="onClickChangeState('viewclasses')">
-      </v-list-item>
-      <v-label v-if="managerflag || adminflag">{{ $t('nav.adminMenu') }}</v-label>
-      <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-view-dashboard" :title="$t('nav.dashboard')"
-        value="dashboard" @click.stop.prevent="onClickChangeState('dashboard')">
-      </v-list-item>
-      <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-gymnastics" :title="$t('nav.gymnasts')"
-        value="gymnastmanager" @click.stop.prevent="onClickChangeState('gymnastmanager')">
-      </v-list-item>
-      <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-calendar-edit" :title="$t('nav.bookingManagement')"
-        value="bookingmanager" @click.stop.prevent="onClickChangeState('bookingmanager')">
-      </v-list-item>
-      <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-book-account" :title="$t('nav.customerCourse')"
-        value="customercourse" @click.stop.prevent="onClickChangeState('customercourse')">
-      </v-list-item>
-      <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-clipboard-text-clock" :title="$t('nav.courseHistory')"
-        value="customercoursefinished" @click.stop.prevent="onClickChangeState('customercoursefinished')">
-      </v-list-item>
+    <!-- ===== AUTH SCREENS (full-screen, no shell) =====
+         (the login screen renders its own seasonal decorations inside its hero) -->
+    <Transition v-if="isAuthScreen" name="fade" mode="out-in">
+      <Login v-if="state == 'login'" :ui-theme="uiTheme" @onAffterLogin="AffterLogin($event)"
+        @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
+        @onResigterHandler="onClickChangeState($event)" @onLoading="onLoading($event)"></Login>
 
-      <v-label v-if="managerflag || adminflag">{{ $t('nav.managementMenu') }}</v-label>
-      <v-list-item v-if="managerflag" prepend-icon="mdi-star-shooting-outline" :title="$t('nav.courses')" value="course"
-        @click.stop.prevent="onClickChangeState('course')">
-      </v-list-item>
-      <v-list-item v-if="managerflag" prepend-icon="mdi-view-dashboard-variant-outline" :title="$t('nav.classes')"
-        value="classes" @click.stop.prevent="onClickChangeState('classes')">
-      </v-list-item>
-      <v-list-item v-if="managerflag || adminflag" prepend-icon="mdi-calendar-remove" :title="$t('nav.holidays')"
-        value="holidaymanager" @click.stop.prevent="onClickChangeState('holidaymanager')">
-      </v-list-item>
-      <br>
-      <hr>
-      <!-- Edit profile — any logged-in user -->
-      <v-list-item v-if="isLoggedIn" prepend-icon="mdi-account-edit"
-        :title="$t('nav.editProfile')"
-        @click.stop.prevent="onClickChangeState('editprofile')">
-      </v-list-item>
-      <!-- UI Theme Picker — admin only -->
-      <v-list-item
-        v-if="managerflag || adminflag"
-        prepend-icon="mdi-palette"
-        :title="$t('nav.theme') + ': ' + currentThemeLabel"
-        @click.stop.prevent="openThemePicker"
-      ></v-list-item>
-      <!-- Language Toggle -->
-      <v-list-item
-        prepend-icon="mdi-translate"
-        :title="$t('nav.language')"
-        @click.stop.prevent="toggleLocale"
-      ></v-list-item>
-      <v-list-item v-if="isLoggedIn" prepend-icon="mdi-logout" :title="$t('nav.logout')" @click="onClickLogout()">
-      </v-list-item>
-    </v-list>
-  </v-navigation-drawer>
+      <ForgotPassword v-else-if="state == 'forgotpassword'" @onErrorHandler="onError($event)"
+        @onSuccessHandler="onSuccess($event)" @onForgotHandler="onClickChangeState($event)"
+        @onLoading="onLoading($event)"></ForgotPassword>
 
-  <v-card class="app-root-card" style="width: 100%; max-width: 100%; overflow-x: hidden;">
-    <v-layout style="width: 100%; max-width: 100%; overflow-x: hidden;">
-      <!-- Floating Christmas Music Control -->
-      <v-div class="theme-toggle-global" v-if="isChristmasOn">
-        <v-btn
-          size="small"
-          variant="tonal"
-          color="red-darken-2"
-          @click="toggleChristmasMusic"
-          :icon="currentThemeMusicPlaying ? 'mdi-volume-high' : 'mdi-volume-off'"
-          class="christmas-music-btn"
-          :title="currentThemeMusicPlaying ? 'หยุดเพลง' : 'เล่นเพลง'"
-        ></v-btn>
-      </v-div>
-      <v-main class="root-container" :style="isLoggedIn ? 'padding-top: 64px; width: 100%; max-width: 100%; overflow-x: hidden;' : 'width: 100%; max-width: 100%; overflow-x: hidden;'">
-        <Transition name="fade" mode="out-in">
-        <Login v-if="state == 'login'" @onAffterLogin="AffterLogin($event)" :user_details="user_details"
-          @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
-          @onResigterHandler="onClickChangeState($event)" @onLoading="onLoading($event)"></Login>
+      <Register v-else-if="state == 'register'" @onBacktoLogin="backToLogin" @onErrorHandler="onError($event)"
+        @onSuccessHandler="onSuccess($event)" @onCancelHandler="onClickChangeState($event)"
+        @onLoading="onLoading($event)"></Register>
+    </Transition>
 
-        <ForgotPassword v-else-if="state == 'forgotpassword'" @onErrorHandler="onError($event)" 
-          @onSuccessHandler="onSuccess($event)" @onForgotHandler="onClickChangeState($event)"
-          @onLoading="onLoading($event)"></ForgotPassword>
+    <!-- ===== iStar APP SHELL (logged-in) ===== -->
+    <div v-else class="shell" :class="{ customer: customerflag, collapsed: collapsed }">
+      <div class="scrim" :class="{ show: drawer }" @click="drawer = false"></div>
 
-        <Register v-else-if="state == 'register'" @onBacktoLogin="backToLogin" @onErrorHandler="onError($event)"
-          @onSuccessHandler="onSuccess($event)" @onCancelHandler="onClickChangeState($event)"
-          @onLoading="onLoading($event)"></Register>
-        </Transition>
-        <Transition name="fade" mode="out-in">
-        <Home v-if="state == 'home'" @collectData="collectData($event)" @initBack="initBlackButton($event)"
-          @onInvalidToken="invalidToken($event)" @onClickChangeState="onClickChangeState($event)"
-          @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)" :student="student"
-          @onLoading="onLoading($event)"></Home>
+      <!-- customer mobile bottom bar -->
+      <nav class="bottombar" v-if="customerflag">
+        <div v-for="it in bottomTabs" :key="it.value" class="tab" :class="{ on: state === it.value }"
+          @click="onClickChangeState(it.value)">
+          <span class="mdi" :class="it.icon"></span><span>{{ it.label }}</span>
+        </div>
+      </nav>
 
-        <ViewClasses v-else-if="state == 'viewclasses'" @collectData="collectData($event)"
-          @initBack="initBlackButton($event)" @onInvalidToken="invalidToken($event)"
-          @onClickChangeState="onClickChangeState($event)" @onErrorHandler="onError($event)"
-          @onInfoHandler="onShowInfoDialog($event)" @onLoading="onLoading($event)">
-        </ViewClasses>
-
-        <Reservation v-else-if="state == 'reservation'" @initBack="initBlackButton($event)"
-          @onInvalidToken="invalidToken($event)" @onErrorHandler="onError($event)"
-          @onInfoHandler="onShowInfoDialog($event)" @onSuccessHandler="onClickBack($event)" :student="student"
-          @onLoading="onLoading($event)"></Reservation>
-
-        <FamilyList v-else-if="state == 'familylist'" @initBack="initBlackButton($event)"
-          @onClickChangeState="onClickChangeState($event)" @onErrorHandler="onError($event)"
-          @onInfoHandler="onShowInfoDialog($event)" @onLoading="onLoading($event)"></FamilyList>
-
-        <AddFamily v-else-if="state == 'addfamilymember'" @initBack="initBlackButton($event)"
-          @onClickChangeState="onClickChangeState($event)" @onErrorHandler="onError($event)"
-          @onInfoHandler="onShowInfoDialog($event)" @onLoading="onLoading($event)"></AddFamily>
-
-        <Dashboard v-else-if="state == 'dashboard'" @onErrorHandler="onError($event)"
-          @onInfoHandler="onShowInfoDialog($event)" @onClickChangeState="onClickChangeState($event)" @onLoading="onLoading($event)"></Dashboard>
-
-        <BookingManagement v-else-if="state == 'bookingmanager'" @onErrorHandler="onError($event)"
-          @onInfoHandler="onShowInfoDialog($event)" @onClickChangeState="onClickChangeState($event)"
-          @onLoading="onLoading($event)"></BookingManagement>
-
-        <GymnastManagement v-else-if="state == 'gymnastmanager'" @onErrorHandler="onError($event)"
-          @onInfoHandler="onShowInfoDialog($event)" @onClickChangeState="onClickChangeState($event)"
-          @onLoading="onLoading($event)"></GymnastManagement>
-
-        <CustomerCourse v-else-if="state == 'customercourse'" @onErrorHandler="onError($event)"
-          @onInfoHandler="onShowInfoDialog($event)" @onClickChangeState="onClickChangeState($event)"
-          @onLoading="onLoading($event)"></CustomerCourse>
-
-        <CustomerCourseFinished v-else-if="state == 'customercoursefinished'" @onErrorHandler="onError($event)"></CustomerCourseFinished>
-
-        <Course v-else-if="state == 'course'" @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
-          @onLoading="onLoading($event)"></Course>
-
-        <Classes v-else-if="state == 'classes'" @onErrorHandler="onError($event)"
-          @onInfoHandler="onShowInfoDialog($event)" @onLoading="onLoading($event)"></Classes>
-
-        <HolidayManagment v-else-if="state == 'holidaymanager'" @onErrorHandler="onError($event)"
-          @onInfoHandler="onShowInfoDialog($event)" @onLoading="onLoading($event)"></HolidayManagment>
-
-        <EditProfile v-else-if="state == 'editprofile'"
-          @onErrorHandler="onError($event)" @onSuccessHandler="onSuccess($event)"
-          @onInfoHandler="onShowInfoDialog($event)" @onClickChangeState="onClickChangeState($event)"
-          @onProfileImageUpdated="onProfileImageUpdated($event)"
-          @onLoading="onLoading($event)"></EditProfile>
-        </Transition>
-      </v-main>
-    </v-layout>
-
-    <HalloweenOverlay
-      v-if="isHalloweenOn"
-      ref="halo"
-      :behind="true"
-      :minDecor="9"
-      :maxDecor="16"
-      :skullRatio="0.35"
-    />
-
-    <ChristmasOverlay
-      v-if="isChristmasOn"
-      ref="xmas"
-      :behind="true"
-      :minDecor="7"
-      :maxDecor="12"
-      @audioStateChanged="onChristmasMusicStateChanged"
-    />
-
-    <PlayfulOverlay
-      v-if="isPlayfulOn"
-      :behind="true"
-      :count="58"
-    />
-
-    <PrideOverlay
-      v-if="isPrideOn"
-      :behind="true"
-      :count="48"
-    />
-
-    <IstarOverlay
-      v-if="isIstarOn"
-      :behind="true"
-      :count="37"
-      :shootCount="5"
-    />
-
-    <NeumorphicOverlay
-      v-if="isNeumorphicOn"
-      :behind="true"
-      :count="30"
-    />
-  </v-card>
-
-  <!-- Theme Picker Dialog — admin only -->
-  <v-dialog
-    v-model="themePickerDialog"
-    max-width="400"
-    :z-index="2400"
-    scrim="rgba(0,0,0,0.5)"
-  >
-    <v-card class="card-opacity theme-picker-card">
-      <div class="app-dialog-header" style="background: linear-gradient(to right, #eef0f5, #e5e9f0); color: #334155;">
-        <v-icon size="20" color="#6366f1">mdi-palette</v-icon>
-        <span>{{ $t('dialog.selectTheme') }}</span>
-      </div>
-      <v-card-text class="pa-4">
-        <div class="theme-grid">
-          <div
-            v-for="theme in availableThemes"
-            :key="theme.id"
-            class="theme-tile"
-            :class="{ 'theme-tile--active': uiTheme === theme.id }"
-            @click="setUITheme(theme.id)"
-          >
-            <div class="theme-tile-preview" :style="{ background: theme.gradient }">
-              <v-icon size="30" :color="theme.previewIconColor" class="theme-tile-icon">{{ theme.icon }}</v-icon>
-            </div>
-            <div class="theme-tile-label">
-              <span>{{ theme.name }}</span>
-              <v-icon v-if="uiTheme === theme.id" size="16" color="success">mdi-check-circle</v-icon>
-            </div>
+      <!-- sidebar -->
+      <aside class="side" :class="{ open: drawer }">
+        <!-- twinkling stars — sit behind the nav (.side > *:not(.side-spark) raises the rest) -->
+        <span v-for="(s, i) in sparks" :key="'s' + i" class="side-spark"
+          :style="{ left: s.x + '%', top: s.y + '%', '--o': (s.o * 0.8), fontSize: (s.sz * 0.8) + 'px', animationDelay: s.d + 's', animationDuration: s.dur + 's' }">
+          <span class="mdi mdi-star-four-points"></span>
+        </span>
+        <div class="side-brand">
+          <div class="side-logo"><span class="mdi mdi-star-four-points"></span></div>
+          <div>
+            <div class="side-name">iStar Gymnastics</div>
+            <div class="side-role">{{ parent }}</div>
           </div>
         </div>
-        <p class="theme-note mt-3">{{ $t('dialog.themeNote') }}</p>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
 
-  <v-dialog
-    width="500"
-    v-model="errorDialog"
-    :z-index="2400"
-    scrim="rgba(0,0,0,0.5)"
-  >
-    <template v-slot:default="{ isActive }">
-      <v-card>
-        <div class="app-dialog-header app-dialog-header--error">
-          <v-icon size="22" color="#dc2626">mdi-alert-circle</v-icon>
-          <span>{{ $t('dialog.error') }}</span>
+        <template v-for="(grp, gi) in navGroups" :key="gi">
+          <div class="nav-sec">{{ grp.label }}</div>
+          <div v-for="it in grp.items" :key="it.value" class="nav-item" :class="{ on: state === it.value }"
+            :data-label="it.label" @click="onClickChangeState(it.value)">
+            <span class="mdi" :class="it.icon"></span><span class="nav-label">{{ it.label }}</span>
+          </div>
+        </template>
+
+        <div class="nav-item collapse-toggle" :data-label="collapsed ? 'ขยายเมนู' : 'ย่อเมนู'"
+          @click="collapsed = !collapsed">
+          <span class="mdi" :class="collapsed ? 'mdi-chevron-right' : 'mdi-chevron-left'"></span>
+          <span class="nav-label">{{ collapsed ? 'ขยายเมนู' : 'ย่อเมนู' }}</span>
         </div>
-        <v-card-text class="app-dialog-body">
-          {{ errorMsg }}
-        </v-card-text>
+        <div style="flex:1"></div>
+        <div class="side-divider"></div>
+        <div class="nav-item nav-logout" :data-label="$t('nav.logout')" @click="onClickLogout()">
+          <span class="mdi mdi-logout"></span><span class="nav-label">{{ $t('nav.logout') }}</span>
+        </div>
+      </aside>
+
+      <!-- main column -->
+      <div class="main">
+        <!-- seasonal backdrops — sit behind the page content (z-index:-1), paint only -->
+        <MothersDayOverlay v-if="uiTheme === 'mothersday'" />
+        <LoyKrathongOverlay v-if="uiTheme === 'loykrathong'" />
+        <NewYearOverlay v-if="uiTheme === 'newyear'" />
+        <SongkranOverlay v-if="uiTheme === 'songkran'" />
+        <HalloweenOverlay v-if="uiTheme === 'halloween'" />
+        <ChristmasOverlay v-if="uiTheme === 'christmas'" />
+        <FathersDayOverlay v-if="uiTheme === 'fathersday'" />
+        <MuayThaiOverlay v-if="uiTheme === 'muaythai'" />
+
+        <div class="topbar">
+          <button class="id-btn id-btn-ghost id-btn-sm burger" @click="drawer = !drawer">
+            <span class="mdi mdi-menu"></span>
+          </button>
+          <button v-if="black" class="id-btn id-btn-ghost id-btn-sm" @click="onClickBack(recentState)">
+            <span class="mdi mdi-arrow-left"></span>
+          </button>
+          <strong style="font-family:var(--font-head);color:var(--c-text-heading)">{{ screenTitle }}</strong>
+          <div class="sp"></div>
+
+          <!-- theme picker — system-wide setting, head/admin only -->
+          <div class="theme-wrap" v-if="canEditTheme">
+            <button class="lang-btn theme-btn" :title="$t('dialog.selectTheme')"
+              @click="themeMenu = !themeMenu">
+              <span class="mdi mdi-palette"></span>
+              <span class="theme-btn-label">{{ activeThemeName }}</span>
+            </button>
+            <template v-if="themeMenu">
+              <div class="theme-scrim" @click="themeMenu = false"></div>
+              <div class="popmenu theme-menu">
+                <div class="popmenu-head">
+                  <span class="popmenu-name">{{ $t('dialog.selectTheme') }}</span>
+                </div>
+                <button v-for="opt in themeOptions" :key="opt.id" class="popmenu-item theme-opt"
+                  :class="{ on: uiTheme === opt.id }" @click="selectTheme(opt.id)">
+                  <span class="theme-sw" :style="{ background: opt.swatch }"></span>
+                  <span class="theme-opt-tx">
+                    <span class="theme-opt-name">{{ opt.name }}</span>
+                    <span class="theme-opt-sub">{{ opt.sub }}</span>
+                  </span>
+                  <span v-if="uiTheme === opt.id" class="mdi mdi-check theme-opt-check"></span>
+                </button>
+                <div class="theme-note">
+                  <span class="mdi mdi-information-outline"></span>
+                  <span>{{ $t('dialog.themeNote') }}</span>
+                </div>
+              </div>
+            </template>
+          </div>
+
+          <button class="lang-circle" title="TH / EN" @click="toggleLocale">
+            {{ $i18n.locale === 'th' ? 'TH' : 'EN' }}
+          </button>
+          <!-- profile avatar → account menu (edit profile / logout) — the ONLY logout
+               path on mobile for parents, where the sidebar + burger are hidden -->
+          <div class="theme-wrap">
+            <span class="tt-avatar" style="background:var(--c-primary);cursor:pointer;overflow:hidden"
+              @click="userMenu = !userMenu">
+              <img v-if="userProfileImage" :src="userProfileImage" alt=""
+                   style="width:100%;height:100%;object-fit:cover;display:block" />
+              <template v-else>{{ (parent || '?').charAt(0) }}</template>
+            </span>
+            <template v-if="userMenu">
+              <div class="theme-scrim" @click="userMenu = false"></div>
+              <div class="popmenu theme-menu">
+                <div class="popmenu-head"><span class="popmenu-name">{{ parent }}</span></div>
+                <button class="popmenu-item" @click="userMenu = false; onClickChangeState('editprofile')">
+                  <span class="mdi mdi-account-edit"></span> {{ $t('nav.editProfile') }}
+                </button>
+                <div class="popmenu-divider"></div>
+                <button class="popmenu-item" @click="userMenu = false; onClickLogout()">
+                  <span class="mdi mdi-logout"></span> {{ $t('nav.logout') }}
+                </button>
+              </div>
+            </template>
+          </div>
+        </div>
+
+        <div class="page">
+            <!-- no page transition: out-in deadlocks into a permanent blank if a child errors during enter -->
+            <Home v-if="state == 'home'" @collectData="collectData($event)" @initBack="initBlackButton($event)"
+              @onInvalidToken="invalidToken($event)" @onClickChangeState="onClickChangeState($event)"
+              @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)" :student="student"
+              @onLoading="onLoading($event)"></Home>
+
+            <ViewClasses v-else-if="state == 'viewclasses'" @collectData="collectData($event)"
+              @initBack="initBlackButton($event)" @onInvalidToken="invalidToken($event)"
+              @onClickChangeState="onClickChangeState($event)" @onErrorHandler="onError($event)"
+              @onInfoHandler="onShowInfoDialog($event)" @onLoading="onLoading($event)">
+            </ViewClasses>
+
+            <Reservation v-else-if="state == 'reservation'" @initBack="initBlackButton($event)"
+              @onInvalidToken="invalidToken($event)" @onErrorHandler="onError($event)"
+              @onInfoHandler="onShowInfoDialog($event)" @onSuccessHandler="onClickBack($event)" :student="student"
+              @onLoading="onLoading($event)"></Reservation>
+
+            <FamilyList v-else-if="state == 'familylist'" @initBack="initBlackButton($event)"
+              @onClickChangeState="onClickChangeState($event)" @onErrorHandler="onError($event)"
+              @onInfoHandler="onShowInfoDialog($event)" @onLoading="onLoading($event)"></FamilyList>
+
+            <AddFamily v-else-if="state == 'addfamilymember'" @initBack="initBlackButton($event)"
+              @onClickChangeState="onClickChangeState($event)" @onErrorHandler="onError($event)"
+              @onInfoHandler="onShowInfoDialog($event)" @onLoading="onLoading($event)"></AddFamily>
+
+            <Dashboard v-else-if="state == 'dashboard'" @onErrorHandler="onError($event)"
+              @onInfoHandler="onShowInfoDialog($event)" @onClickChangeState="onClickChangeState($event)" @onLoading="onLoading($event)"></Dashboard>
+
+            <BookingManagement v-else-if="state == 'bookingmanager'" @onErrorHandler="onError($event)"
+              @onInfoHandler="onShowInfoDialog($event)" @onClickChangeState="onClickChangeState($event)"
+              @onLoading="onLoading($event)"></BookingManagement>
+
+            <GymnastManagement v-else-if="state == 'gymnastmanager'" @onErrorHandler="onError($event)"
+              @onInfoHandler="onShowInfoDialog($event)" @onClickChangeState="onClickChangeState($event)"
+              @onLoading="onLoading($event)"></GymnastManagement>
+
+            <CustomerCourse v-else-if="state == 'customercourse'" @onErrorHandler="onError($event)"
+              @onInfoHandler="onShowInfoDialog($event)" @onClickChangeState="onClickChangeState($event)"
+              @onLoading="onLoading($event)"></CustomerCourse>
+
+            <CustomerCourseFinished v-else-if="state == 'customercoursefinished'" @onErrorHandler="onError($event)"></CustomerCourseFinished>
+
+            <Course v-else-if="state == 'course'" @onErrorHandler="onError($event)" @onInfoHandler="onShowInfoDialog($event)"
+              @onLoading="onLoading($event)"></Course>
+
+            <Classes v-else-if="state == 'classes'" @onErrorHandler="onError($event)"
+              @onInfoHandler="onShowInfoDialog($event)" @onLoading="onLoading($event)"></Classes>
+
+            <HolidayManagment v-else-if="state == 'holidaymanager'" @onErrorHandler="onError($event)"
+              @onInfoHandler="onShowInfoDialog($event)" @onLoading="onLoading($event)"></HolidayManagment>
+
+            <EditProfile v-else-if="state == 'editprofile'"
+              @onErrorHandler="onError($event)" @onSuccessHandler="onShowInfoDialog($event)"
+              @onInfoHandler="onShowInfoDialog($event)" @onClickChangeState="onClickChangeState($event)"
+              @onProfileImageUpdated="onProfileImageUpdated($event)"
+              @onLoading="onLoading($event)"></EditProfile>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== centralized dialogs ===== -->
+    <v-dialog v-model="ConfirmLogoutDialog" persistent width="auto" :z-index="2400" scrim="rgba(0,0,0,0.5)">
+      <v-card>
+        <v-card-text>{{ $t('auth.logoutConfirm') }}</v-card-text>
         <v-card-actions>
-          <v-btn color="#dc2626" variant="tonal" block @click="errorDialog = false">{{ $t('common.close') }}</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="green-darken-1" variant="text" @click="logout()">{{ $t('common.yes') }}</v-btn>
+          <v-btn color="green-darken-1" variant="text" @click="ConfirmLogoutDialog = false">{{ $t('common.no') }}</v-btn>
         </v-card-actions>
       </v-card>
-    </template>
-  </v-dialog>
+    </v-dialog>
 
-  <v-dialog
-    width="500"
-    v-model="successDialog"
-    :z-index="2400"
-    scrim="rgba(0,0,0,0.5)"
-  >
-    <template v-slot:default="{ isActive }">
-      <v-card>
-        <div class="app-dialog-header app-dialog-header--success">
-          <v-icon size="22" color="#16a34a">mdi-check-circle</v-icon>
-          <span>{{ $t('dialog.success') }}</span>
-        </div>
-        <v-card-text class="app-dialog-body">
-          {{ infoMsg }}
-        </v-card-text>
-        <v-card-actions>
-          <v-btn color="#16a34a" variant="tonal" block @click="successDialog = false">{{ $t('common.ok') }}</v-btn>
-        </v-card-actions>
-      </v-card>
-    </template>
-  </v-dialog>
+    <v-dialog width="500" v-model="errorDialog" :z-index="2400" scrim="rgba(0,0,0,0.5)">
+      <template v-slot:default>
+        <v-card>
+          <div class="app-dialog-header app-dialog-header--error">
+            <v-icon size="22" color="#dc2626">mdi-alert-circle</v-icon>
+            <span>{{ $t('dialog.error') }}</span>
+          </div>
+          <v-card-text class="app-dialog-body">
+            {{ errorMsg }}
+          </v-card-text>
+          <v-card-actions>
+            <v-btn color="#dc2626" variant="tonal" block @click="errorDialog = false">{{ $t('common.close') }}</v-btn>
+          </v-card-actions>
+        </v-card>
+      </template>
+    </v-dialog>
+
+    <v-dialog width="500" v-model="successDialog" :z-index="2400" scrim="rgba(0,0,0,0.5)">
+      <template v-slot:default>
+        <v-card>
+          <div class="app-dialog-header app-dialog-header--success">
+            <v-icon size="22" color="#16a34a">mdi-check-circle</v-icon>
+            <span>{{ $t('dialog.success') }}</span>
+          </div>
+          <v-card-text class="app-dialog-body">
+            {{ infoMsg }}
+          </v-card-text>
+          <v-card-actions>
+            <v-btn color="#16a34a" variant="tonal" block @click="successDialog = false">{{ $t('common.ok') }}</v-btn>
+          </v-card-actions>
+        </v-card>
+      </template>
+    </v-dialog>
   </v-app>
 </template>
 
@@ -344,16 +273,16 @@ import Course from './components/admin/Courses.vue'
 import Classes from './components/admin/Classes.vue'
 import HolidayManagment from './components/admin/HolidayManagment.vue'
 import EditProfile from './components/EditProfile.vue'
-import CryptoJS from 'crypto-js';
-import { ref, computed, onMounted, inject } from 'vue';
+import MothersDayOverlay from './components/theme/MothersDayOverlay.vue'
+import LoyKrathongOverlay from './components/theme/LoyKrathongOverlay.vue'
+import NewYearOverlay from './components/theme/NewYearOverlay.vue'
+import SongkranOverlay from './components/theme/SongkranOverlay.vue'
+import HalloweenOverlay from './components/theme/HalloweenOverlay.vue'
+import ChristmasOverlay from './components/theme/ChristmasOverlay.vue'
+import FathersDayOverlay from './components/theme/FathersDayOverlay.vue'
+import MuayThaiOverlay from './components/theme/MuayThaiOverlay.vue'
 import { mapGetters } from 'vuex';
 import LoadingDialog from './components/LoadingDialog.vue';
-import HalloweenOverlay from '@/components/theme/HalloweenOverlay.vue';
-import ChristmasOverlay from '@/components/theme/ChristmasOverlay.vue';
-import PlayfulOverlay from '@/components/theme/PlayfulOverlay.vue';
-import PrideOverlay from '@/components/theme/PrideOverlay.vue';
-import IstarOverlay from '@/components/theme/IstarOverlay.vue';
-import NeumorphicOverlay from '@/components/theme/NeumorphicOverlay.vue';
 export default {
   data() {
     return {
@@ -380,60 +309,20 @@ export default {
       ConfirmLogoutDialog: false,
       loadingDialog: false,
       isLoading: false,
-      isHalloweenOn: false,
-      isChristmasOn: false,
-      isPlayfulOn: false,
-      isPrideOn: false,
-      isIstarOn: false,
-      isNeumorphicOn: false,
-      currentTheme: 'none',
-      christmasMusicPlaying: false,
-      uiTheme: 'neumorphic',
-      themePickerDialog: false,
-      availableThemes: [
-        {
-          id: 'neumorphic',
-          name: 'Neumorphic',
-          icon: 'mdi-diamond-stone',
-          previewIconColor: '#6366f1',
-          gradient: 'linear-gradient(145deg, #ffffff 0%, #e8ebf1 100%)',
-        },
-        {
-          id: 'playful',
-          name: 'Playful',
-          icon: 'mdi-creation',
-          previewIconColor: '#f43f5e',
-          gradient: 'linear-gradient(135deg, #fce7f3 0%, #ede9fe 60%, #fff8f0 100%)',
-        },
-        {
-          id: 'halloween',
-          name: 'Halloween',
-          icon: 'mdi-ghost',
-          previewIconColor: '#ff8c00',
-          gradient: 'linear-gradient(145deg, #0d0114 0%, #2d0a50 60%, #3d1800 100%)',
-        },
-        {
-          id: 'christmas',
-          name: 'Christmas',
-          icon: 'mdi-pine-tree',
-          previewIconColor: '#4ade80',
-          gradient: 'linear-gradient(145deg, #0a1f0a 0%, #1a3a1a 50%, #4a0d0d 100%)',
-        },
-        {
-          id: 'istar',
-          name: 'iStar Gymnastics',
-          icon: 'mdi-star-shooting',
-          previewIconColor: '#ec4899',
-          gradient: 'linear-gradient(135deg, #fce7f3 0%, #ec4899 55%, #dc2626 100%)',
-        },
-        {
-          id: 'pride',
-          name: 'Pride Month',
-          icon: 'mdi-looks',
-          previewIconColor: '#ffffff',
-          gradient: 'linear-gradient(120deg, #e40303 0%, #ff8c00 20%, #ffd60a 40%, #00a651 60%, #0066ff 80%, #8a2be2 100%)',
-        },
-      ],
+      collapsed: false,
+      // seasonal theme — persisted per-browser in localStorage (no backend sync)
+      uiTheme: localStorage.getItem('uiTheme') || 'default',
+      themeMenu: false,
+      userMenu: false,
+      // twinkling stars rendered inside the side menu only (background decoration)
+      sparks: Array.from({ length: 14 }, (_, i) => ({
+        x: [10, 26, 16, 34, 8, 28, 46, 60, 80, 90, 70, 88, 78, 92][i],
+        y: [12, 28, 52, 72, 86, 94, 18, 8, 14, 30, 44, 58, 76, 88][i],
+        sz: 12 + (i % 4) * 5,
+        o: 0.4 + (i % 3) * 0.18,
+        d: ((i * 0.33) % 3).toFixed(2),
+        dur: 2.4 + (i % 4) * 0.5,
+      })),
     }
   },
   watch: {
@@ -460,17 +349,18 @@ export default {
     Classes,
     HolidayManagment,
     EditProfile,
-    LoadingDialog,
+    MothersDayOverlay,
+    LoyKrathongOverlay,
+    NewYearOverlay,
+    SongkranOverlay,
     HalloweenOverlay,
     ChristmasOverlay,
-    PlayfulOverlay,
-    PrideOverlay,
-    IstarOverlay,
-    NeumorphicOverlay,
+    FathersDayOverlay,
+    MuayThaiOverlay,
+    LoadingDialog,
   },
   methods: {
     async AffterLogin() {
-      await this.loadAppTheme();
       this.userdata = JSON.parse(localStorage.getItem('userdata'))
       //console.log("userdata", this.userdata);
       if(this.userdata) {
@@ -478,6 +368,7 @@ export default {
         this.student = null;
         this.bookingAccessRestricted = !!this.userdata.access_restricted;
         this.fetchUserProfileImage();
+        this.fetchGlobalTheme();   // pick up the head-controlled global theme on login
         if (this.userdata.usertype == 0) { // head
           this.managerflag = true
           this.state = 'dashboard'
@@ -496,6 +387,9 @@ export default {
       }
     },
     async fetchUserProfileImage() {
+      // clear first so a previous user's photo never lingers when switching accounts
+      // (a new user with no photo would otherwise keep showing the old avatar)
+      this.userProfileImage = null;
       try {
         const userdata = JSON.parse(localStorage.getItem('userdata'));
         if (!userdata || !userdata.username) return;
@@ -544,7 +438,7 @@ export default {
     backToLogin() {
       this.state = 'login'
     },
-    invalidToken(state) {
+    invalidToken() {
       this.$router.push('/')
     },
     onError(msg) {
@@ -574,8 +468,7 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         })
-          .then(response => {
-            //console.log(response)
+          .then(() => {
             this.$store.dispatch('logout');
             localStorage.removeItem('userdata');
             localStorage.removeItem('token');
@@ -603,389 +496,301 @@ export default {
     handleListClick(event) {
       console.log('List clicked:', event);
     },
-    toggleTheme() {
-      const now = new Date();
-      const monthNumber = now.toLocaleString('en-US', { month: 'numeric' });
-      if(monthNumber == 10) {
-        this.setHalloween(!this.isHalloweenOn);
-      } else if(monthNumber == 12) {
-        this.setChristmas(!this.isChristmasOn);
-      }
-    },
-    setHalloween(v) {
-      this.isHalloweenOn = v;
-      this.isChristmasOn = false;
-      this.currentTheme = v ? 'halloween' : 'none';
-      localStorage.setItem('currentTheme', this.currentTheme);
-      
-      document.documentElement.classList.toggle('theme-halloween', v);
-      document.body.classList.toggle('theme-halloween', v);
-      document.documentElement.classList.remove('theme-christmas');
-      document.body.classList.remove('theme-christmas');
-      
-      if (this.$refs.halo && this.$refs.halo.setVisible) {
-        this.$refs.halo.setVisible(v);
-      }
-      if (this.$refs.xmas && this.$refs.xmas.setVisible) {
-        this.$refs.xmas.setVisible(false);
-      }
-    },
-    setChristmas(v) {
-      this.isChristmasOn = v;
-      this.isHalloweenOn = false;
-      this.currentTheme = v ? 'christmas' : 'none';
-      localStorage.setItem('currentTheme', this.currentTheme);
-      
-      document.documentElement.classList.toggle('theme-christmas', v);
-      document.body.classList.toggle('theme-christmas', v);
-      document.documentElement.classList.remove('theme-halloween');
-      document.body.classList.remove('theme-halloween');
-      
-      if (this.$refs.xmas && this.$refs.xmas.setVisible) {
-        this.$refs.xmas.setVisible(v);
-      }
-      if (this.$refs.halo && this.$refs.halo.setVisible) {
-        this.$refs.halo.setVisible(false);
-      }
-      
-      // อัปเดตสถานะเพลงตามการเปิด/ปิดธีม
-      if (!v) {
-        this.christmasMusicPlaying = false;
-      } else {
-        // เมื่อเปิดธีม รอ audioStateChanged event จาก overlay
-        // หรือตรวจสอบ state หลังจาก setVisible เรียก playAudio()
-        setTimeout(() => {
-          if (this.$refs.xmas) {
-            this.christmasMusicPlaying = this.$refs.xmas.audioPlaying;
-            console.log('🎵 Initial music state:', this.christmasMusicPlaying);
-          }
-        }, 500); // รอครึ่งวินาทีให้ playAudio() ทำงาน
-      }
-    },
-    
-    toggleChristmasMusic() {
-      console.log('🔘 Music button clicked in App.vue');
-      if (this.$refs.xmas) {
-        this.$refs.xmas.toggleAudio();
-      }
-    },
-    
-    onChristmasMusicStateChanged(isPlaying) {
-      console.log('🎵 Music state changed:', isPlaying);
-      this.christmasMusicPlaying = isPlaying;
-    },
     toggleLocale() {
       const next = this.$i18n.locale === 'th' ? 'en' : 'th';
       this.$setLocale(next);
       this.$vuetify.locale.current = next;
     },
-    openThemePicker() {
-      this.drawer = false;
-      this.$nextTick(() => { this.themePickerDialog = true; });
+    // Swap the festival palette by toggling a class on <html>. The token
+    // overrides in istar-themes.css (html.theme-*) win over the :root base,
+    // so 'default' simply means "no festival class" → the iStar pink baseline.
+    applyUITheme(theme) {
+      const el = document.documentElement;
+      // every festival id has a matching html.theme-<id> block in istar-themes.css;
+      // 'default' = no class (the :root pink baseline)
+      const ids = ['mothersday', 'loykrathong', 'newyear', 'songkran', 'halloween', 'christmas', 'fathersday', 'muaythai'];
+      ids.forEach((id) => el.classList.remove('theme-' + id));
+      if (theme && ids.includes(theme)) el.classList.add('theme-' + theme);
     },
-    setUITheme(theme) {
+    selectTheme(theme) {
+      // System-wide theme: only head/admin may change it (backend must enforce too).
+      if (!this.canEditTheme) return;
       this.uiTheme = theme;
       this.applyUITheme(theme);
-      this.saveAppTheme(theme);
-      this.themePickerDialog = false;
+      try { localStorage.setItem('uiTheme', theme); } catch (e) { /* storage unavailable */ }
+      this.themeMenu = false;
+      this.saveGlobalTheme(theme);
     },
-    applyUITheme(theme) {
-      localStorage.setItem('uiTheme', theme);
-      document.documentElement.classList.remove('theme-playful', 'theme-halloween', 'theme-christmas', 'theme-istar', 'theme-pride');
-      document.body.classList.remove('theme-playful', 'theme-halloween', 'theme-christmas', 'theme-istar', 'theme-pride');
-      if (theme !== 'neumorphic') {
-        document.documentElement.classList.add(`theme-${theme}`);
-        document.body.classList.add(`theme-${theme}`);
-      }
-      this.isHalloweenOn = theme === 'halloween';
-      this.isChristmasOn = theme === 'christmas';
-      this.isPlayfulOn = theme === 'playful';
-      this.isPrideOn = theme === 'pride';
-      this.isIstarOn = theme === 'istar';
-      this.isNeumorphicOn = theme === 'neumorphic';
-    },
-    async saveAppTheme(theme) {
+    // Persist the global theme for everyone. Falls back silently when the backend
+    // endpoint isn't available yet — the change still applies locally + is cached,
+    // and will propagate to all users once /saveAppSettings exists.
+    async saveGlobalTheme(theme) {
       try {
         const token = this.$store.getters.getToken;
         await axios.post(this.baseURL + '/saveAppSettings', { uiTheme: theme }, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: { Authorization: 'Bearer ' + token },
         });
       } catch (e) {
-        // backend ยังไม่รองรับ — ใช้ localStorage ไปก่อน
+        // backend settings endpoint not ready — behaves per-browser until then
       }
     },
-    async loadAppTheme() {
-      // localStorage เป็น authoritative — ใช้ค่าล่าสุดที่ user เลือกในเครื่องนี้
-      // (กันเคส API save ล้มเหลวเงียบๆ แล้วโหลด login กลับมาธีมเก่า)
-      const savedLocal = localStorage.getItem('uiTheme');
-      if (savedLocal) {
-        this.uiTheme = savedLocal;
-        this.applyUITheme(savedLocal);
-        return;
-      }
-      // ไม่มีค่าใน localStorage (เครื่องใหม่/login ครั้งแรก) → ลองจาก API
+    // Read the global theme set by the head and apply it to this user. No-op on
+    // failure (keeps the cached/default theme), so the app never breaks if the
+    // endpoint is missing.
+    async fetchGlobalTheme() {
       try {
         const token = this.$store.getters.getToken;
         const res = await axios.post(this.baseURL + '/getAppSettings', {}, {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: token ? { Authorization: 'Bearer ' + token } : {},
         });
-        if (res.data.success && res.data.uiTheme) {
-          this.uiTheme = res.data.uiTheme;
-          this.applyUITheme(res.data.uiTheme);
-          return;
+        const data = res && res.data ? (res.data.settings || res.data) : null;
+        const theme = data && data.uiTheme;
+        if (theme && ['default', 'mothersday', 'loykrathong'].includes(theme)) {
+          this.uiTheme = theme;
+          this.applyUITheme(theme);
+          try { localStorage.setItem('uiTheme', theme); } catch (e) { /* ignore */ }
         }
       } catch (e) {
-        // backend ยังไม่รองรับ — ใช้ default
+        // no global setting available — keep the cached / default theme
       }
-      this.uiTheme = 'neumorphic';
-      this.applyUITheme('neumorphic');
     },
   },
   mounted() {
-    const savedTheme = localStorage.getItem('uiTheme') || 'neumorphic';
-    this.uiTheme = savedTheme;
-    this.applyUITheme(savedTheme);
+    // Keep the playful base class for any not-yet-migrated Vuetify pages; the new
+    // design system (istar-design.css) is always active on top of it.
+    document.documentElement.classList.add('theme-playful');
+    document.body.classList.add('theme-playful');
+    // Apply the cached seasonal theme instantly (no flash), then sync the
+    // head-controlled global theme from the backend.
+    this.applyUITheme(this.uiTheme);
+    this.fetchGlobalTheme();
   },
   created() {
-    //this.onLoading(true)
-    // this.user_details = JSON.parse(localStorage.getItem('userdata'))
-    // //console.log("user_details", this.user_details);
-    // //console.log("env ", env.SERVER_URL)
-    // if (this.user_details) {
-    //   this.parent = this.user_details.firstname
-    //   this.student = null;
-    //   if (this.user_details.usertype == 1) {
-    //       this.adminflag = true
-    //       this.state = 'dashboard'
-    //     } else {
-    //       this.adminflag = false
-    //       this.state = 'home'
-    //     }
-    // }
   },
 
   computed: {
     ...mapGetters({
       isLoggedIn: 'isLoggedIn',
     }),
-    selectedMenu() {
-      return [this.state];
+    isAuthScreen() {
+      return ['login', 'register', 'forgotpassword'].includes(this.state);
+    },
+    navGroups() {
+      const groups = [];
+      if (this.managerflag || this.customerflag) {
+        groups.push({
+          label: this.$t('nav.mainMenu'),
+          items: [
+            { value: 'home', icon: 'mdi-home-account', label: this.$t('nav.home') },
+            { value: 'familylist', icon: 'mdi-account-multiple', label: this.$t('nav.family') },
+          ],
+        });
+      }
+      if (this.managerflag || this.customerflag || this.coachflag) {
+        groups.push({
+          label: this.$t('nav.checkingMenu'),
+          items: [
+            { value: 'viewclasses', icon: 'mdi-table-eye', label: this.$t('nav.viewClasses') },
+          ],
+        });
+      }
+      if (this.managerflag || this.adminflag) {
+        groups.push({
+          label: this.$t('nav.adminMenu'),
+          items: [
+            { value: 'dashboard', icon: 'mdi-view-dashboard', label: this.$t('nav.dashboard') },
+            { value: 'gymnastmanager', icon: 'mdi-gymnastics', label: this.$t('nav.gymnasts') },
+            { value: 'bookingmanager', icon: 'mdi-calendar-edit', label: this.$t('nav.bookingManagement') },
+            { value: 'customercourse', icon: 'mdi-book-account', label: this.$t('nav.customerCourse') },
+            { value: 'customercoursefinished', icon: 'mdi-clipboard-text-clock', label: this.$t('nav.courseHistory') },
+          ],
+        });
+        const mgmt = [];
+        if (this.managerflag) {
+          mgmt.push({ value: 'course', icon: 'mdi-star-shooting-outline', label: this.$t('nav.courses') });
+          mgmt.push({ value: 'classes', icon: 'mdi-view-dashboard-variant-outline', label: this.$t('nav.classes') });
+        }
+        mgmt.push({ value: 'holidaymanager', icon: 'mdi-calendar-remove', label: this.$t('nav.holidays') });
+        groups.push({ label: this.$t('nav.managementMenu'), items: mgmt });
+      }
+      if (this.isLoggedIn) {
+        groups.push({
+          label: 'บัญชี',
+          items: [
+            { value: 'editprofile', icon: 'mdi-account-edit', label: this.$t('nav.editProfile') },
+          ],
+        });
+      }
+      return groups;
+    },
+    bottomTabs() {
+      // EditProfile lives in the top-bar avatar menu now, so the mobile bottom bar
+      // keeps just the 3 primary destinations
+      return [
+        { value: 'home', icon: 'mdi-home-account', label: this.$t('nav.home') },
+        { value: 'viewclasses', icon: 'mdi-table-eye', label: this.$t('nav.viewClasses') },
+        { value: 'familylist', icon: 'mdi-account-multiple', label: this.$t('nav.family') },
+      ];
+    },
+    screenTitle() {
+      for (const g of this.navGroups) {
+        const hit = g.items.find((i) => i.value === this.state);
+        if (hit) return hit.label;
+      }
+      const extra = {
+        reservation: 'จองคลาส',
+        addfamilymember: this.$t('nav.family'),
+      };
+      return extra[this.state] || '';
     },
     iconUrl() {
       return this.userProfileImage || require('./assets/avatar/1.png');
     },
-    // เช็คว่าธีมปัจจุบันมีเพลงหรือไม่
-    currentThemeHasMusic() {
-      // Christmas theme มีเพลงเสมอ
-      if (this.isChristmasOn) {
-        return true;
-      }
-      // Halloween theme ไม่มีเพลง
-      if (this.isHalloweenOn) {
-        return false;
-      }
-      return false;
+    themeOptions() {
+      return [
+        { id: 'default',     name: this.$t('theme.default'),     sub: this.$t('theme.defaultSub'),     swatch: 'linear-gradient(135deg,#ec4899,#a855f7)' },
+        { id: 'mothersday',  name: this.$t('theme.mothersday'),  sub: this.$t('theme.mothersdaySub'),  swatch: 'linear-gradient(135deg,#2f8fd6,#5470cf)' },
+        { id: 'loykrathong', name: this.$t('theme.loykrathong'), sub: this.$t('theme.loykrathongSub'), swatch: 'linear-gradient(135deg,#e08a2e,#6d3a63)' },
+        { id: 'newyear',     name: this.$t('theme.newyear'),     sub: this.$t('theme.newyearSub'),     swatch: 'linear-gradient(135deg,#1e2a52,#d9b14a)' },
+        { id: 'songkran',    name: this.$t('theme.songkran'),    sub: this.$t('theme.songkranSub'),    swatch: 'linear-gradient(135deg,#14a9b8,#2f9fe0)' },
+        { id: 'halloween',   name: this.$t('theme.halloween'),   sub: this.$t('theme.halloweenSub'),   swatch: 'linear-gradient(135deg,#e8731c,#7c3aed)' },
+        { id: 'christmas',   name: this.$t('theme.christmas'),   sub: this.$t('theme.christmasSub'),   swatch: 'linear-gradient(135deg,#c0392b,#1f7a4d)' },
+        { id: 'fathersday',  name: this.$t('theme.fathersday'),  sub: this.$t('theme.fathersdaySub'),  swatch: 'linear-gradient(135deg,#cd9b1d,#f0c233)' },
+        { id: 'muaythai',    name: this.$t('theme.muaythai'),    sub: this.$t('theme.muaythaiSub'),    swatch: 'linear-gradient(135deg,#b81d2c,#d4a01e)' },
+      ];
     },
-    // สถานะเพลงของธีมปัจจุบัน
-    currentThemeMusicPlaying() {
-      if (this.isChristmasOn) {
-        return this.christmasMusicPlaying;
-      }
-      return false;
+    activeThemeName() {
+      const found = this.themeOptions.find((t) => t.id === this.uiTheme);
+      return found ? found.name : this.themeOptions[0].name;
     },
-    currentThemeLabel() {
-      const map = {
-        neumorphic: 'Neumorphic',
-        playful: 'Playful',
-        halloween: 'Halloween',
-        christmas: 'Christmas',
-        istar: 'iStar Gymnastics',
-        pride: 'Pride Month',
-      };
-      return map[this.uiTheme] || 'Neumorphic';
+    // Theme is a system-wide setting — only the head (0) / admin (1) may change it.
+    canEditTheme() {
+      return this.managerflag || this.adminflag;
     },
   }
 }
 </script>
 <style src="./styles/global-style.css"></style>
 <style scoped>
-.slide-up-enter-active,
-.slide-up-leave-active {
-  transition: all 0.5s ease-out;
+/* ===== FIXED-HEIGHT APP SHELL =====
+   Shell fills the viewport and does NOT scroll. The sidebar and topbar are
+   fixed flex children that stay put; ONLY .page scrolls. Result: one scrollbar
+   (the content area), pinned menu + topbar regardless of page length, and
+   horizontal overflow contained — no position:sticky, no body overflow hacks. */
+.shell {
+  width: 100%;
+  max-width: 100vw;
+  height: 100vh;
+  max-height: 100vh;
+  /* NOTE: do NOT set overflow:hidden here — it clips the collapsed-sidebar hover
+     tooltips that escape to the right. Children are height:100vh so nothing
+     overflows the shell anyway; .page handles its own scroll. */
 }
 
-.slide-up-enter-from {
-  opacity: 0;
-  transform: translateY(30px);
+.side {
+  height: 100vh;
+  z-index: 100; /* keep collapsed-hover tooltips above page cards */
+  /* compact spacing so the manager's long menu fits without needing a scrollbar */
+  padding: 10px 10px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.35) transparent;
+}
+.side::-webkit-scrollbar { width: 5px; }
+.side::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.35); border-radius: 3px; }
+.side::-webkit-scrollbar-track { background: transparent; }
+.side-brand { padding: 6px 8px 8px; }
+.nav-sec { margin: 7px 10px 2px; }
+.nav-item { padding: 7px 11px; margin-bottom: 1px; }
+.side-divider { margin: 5px 6px; }
+
+.main {
+  min-width: 0;
+  max-width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--c-bg-grad);
+  /* establish a stacking context so the seasonal overlay (position:absolute;
+     z-index:-1) paints ABOVE this gradient but BELOW the topbar + page content.
+     Safe: every menu/dialog in the app is a Vuetify overlay teleported out of
+     here, so nothing in-page relies on escaping this context. */
+  position: relative;
+  z-index: 0;
 }
 
-.slide-up-leave-to {
-  opacity: 0;
-  transform: translateY(-30px);
+/* taller, roomier top bar — fixed at the top of the main column */
+.topbar {
+  height: 78px;
+  flex-shrink: 0;
 }
 
+.topbar strong {
+  font-size: 19px;
+}
+
+/* larger profile avatar on the top bar (the shared .tt-avatar stays 30px elsewhere) */
+.topbar .tt-avatar {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  font-size: 16px;
+}
+
+/* circular TH/EN language toggle */
+.lang-circle {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 42px;
+  border-radius: 999px;
+  border: 1px solid var(--c-border);
+  background: var(--c-surface);
+  color: var(--c-text-heading);
+  font-family: var(--font-head);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  display: inline-grid;
+  place-items: center;
+  box-shadow: var(--shadow-sm);
+  transition: background var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease);
+}
+.lang-circle:hover {
+  background: var(--c-surface-3);
+  border-color: var(--c-primary);
+  color: var(--c-primary);
+}
+
+/* the ONE scroll area: fills remaining height, scrolls vertically, clips wide content */
+.page {
+  flex: 1 1 auto;
+  width: 100%;
+  max-width: 100%;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  /* always reserve the scrollbar gutter so content width doesn't change when the
+     scrollbar appears/disappears — prevents aspect-ratio calendars from oscillating */
+  scrollbar-gutter: stable;
+}
+
+/* ROOT FIX: not-yet-migrated pages wrap content in .container-content which is
+   width:98vw — too wide now that the sidebar takes 264px. Make those fill the
+   page instead of the viewport so they no longer spill under the sidebar. */
+.page :deep(.container),
+.page :deep(.container-header),
+.page :deep(.container-content) {
+  width: 100%;
+  max-width: 100%;
+}
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity 0.5s ease;
+  transition: opacity 0.35s ease;
 }
 
 .fade-enter-from,
 .fade-leave-to {
   opacity: 0;
 }
-.theme-toggle-global{
-  position: fixed;
-  left: max(12px, env(safe-area-inset-left));
-  bottom: max(12px, env(safe-area-inset-bottom));
-  z-index: 50; /* ลดลงเพื่อไม่บล็อก navigation drawer (1000) */
-  pointer-events: auto; /* ให้คลิกได้ */
-  display: flex;
-  gap: 8px; /* ระยะห่างระหว่างปุ่ม */
-}
-
-/* กำหนดขนาดปุ่มให้เท่ากัน - ใช้ icon-only button */
-.theme-toggle-btn,
-.theme-music-btn {
-  min-width: 40px !important;
-  width: 40px !important;
-  height: 40px !important;
-  padding: 0 !important;
-  flex-shrink: 0; /* ห้ามหด */
-}
-
-/* ซ่อนปุ่มเพลงธีมด้วย visibility เพื่อไม่ให้ layout shift */
-.theme-music-btn.btn-hidden {
-  visibility: hidden;
-  pointer-events: none;
-}
-
-/* Theme Picker Grid */
-.theme-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.theme-tile {
-  border-radius: 14px;
-  overflow: hidden;
-  cursor: pointer;
-  border: 2.5px solid transparent;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.theme-tile:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.15);
-}
-
-.theme-tile--active {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-}
-
-.theme-tile-preview {
-  height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.theme-tile-label {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 12px;
-  font-size: 13px;
-  font-weight: 600;
-  color: #334155;
-  background: rgba(255, 255, 255, 0.92);
-}
-
-.theme-note {
-  font-size: 12px;
-  color: #94a3b8;
-  text-align: center;
-  margin-bottom: 0;
-}
-
-/* Force navigation drawer to be overlay style */
-:deep(.v-navigation-drawer--temporary) {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  height: 100vh !important;
-  z-index: 1000 !important; /* ลดจาก 2000 เป็น 1000 เพื่อให้ dialog (2400+) อยู่เหนือ */
-}
-
-:deep(.v-navigation-drawer--temporary.v-navigation-drawer--left) {
-  transform: translateX(-100%);
-  transition: transform 0.3s ease-in-out;
-}
-
-:deep(.v-navigation-drawer--temporary.v-navigation-drawer--left.v-navigation-drawer--active) {
-  transform: translateX(0);
-}
-
-/* Fix width shift - บังคับ v-main ให้ไม่ใช้ flex-grow และใช้ width คงที่ */
-:deep(.v-main) {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  overflow-x: hidden !important;
-  box-sizing: border-box !important;
-  flex-grow: 0 !important; /* ปิด flex-grow */
-  flex-shrink: 0 !important;
-  flex-basis: 100% !important;
-}
-
-:deep(.root-container) {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  overflow-x: hidden !important;
-  box-sizing: border-box !important;
-}
-
-:deep(.v-application) {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  overflow-x: hidden !important;
-  box-sizing: border-box !important;
-}
-
-:deep(.v-card) {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  overflow-x: hidden !important;
-  box-sizing: border-box !important;
-}
-
-:deep(.v-layout) {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  overflow-x: hidden !important;
-  box-sizing: border-box !important;
-}
-
-/* Z-index hierarchy */
-
-/* Navigation Drawer - ระดับ 1000 */
-:deep(.v-navigation-drawer) {
-  z-index: 1000 !important;
-}
-
-/* Drawer scrim/backdrop - ระบุแบบเจาะจงเฉพาะ scrim ของ drawer */
-:deep(.v-navigation-drawer__scrim) {
-  z-index: 999 !important; /* ต่ำกว่า drawer (1000) แต่สูงกว่า content */
-}
-
-/* อย่าแก้ v-overlay ทั้งหมด เพราะจะรบกวน dialog */
-
-/* Dialog ใช้ :z-index="2400" prop เพื่อให้อยู่เหนือ drawer */
 </style>

@@ -1,248 +1,141 @@
 <template>
-  <div class="container">
-    <div class="container-header">
-      <h1><span class="mdi mdi-clipboard-text-clock"></span> {{ $t('courseHistory.title') }}</h1>
+  <div>
+    <div class="pg-head">
+      <div class="pg-ico"><span class="mdi mdi-clipboard-text-clock"></span></div>
+      <div>
+        <div class="id-h1">{{ $t('courseHistory.title') }}</div>
+        <div class="pg-sub">{{ $t('courseHistory.ourCourses') }}</div>
+      </div>
     </div>
-    <div class="container-content">
-      <v-card class="mx-auto mt-5 card-opacity">
-        <v-data-table-server :headers="headers" :items="courselist" :loading="loadingCustomerCourse"
-          :items-length="totalItems" :page="tableOptions.page" :items-per-page="tableOptions.itemsPerPage"
-          @update:options="onTableOptions">
-          <template v-slot:top>
-            <v-toolbar flat>
-              <v-toolbar-title>{{ $t('courseHistory.ourCourses') }}</v-toolbar-title>
-              <v-spacer></v-spacer>
-              <v-btn color="primary" @click="initialize">
-                <v-icon left>mdi-refresh</v-icon>
-                {{ $t('btn.refresh') }}
-              </v-btn>
-              <v-dialog v-model="dialog" max-width="950px">
-                <v-card>
-                  <v-card-title class="sticky-header">
-                    <span class="mdi mdi-book-plus-multiple"></span><span>{{ formTitle }}</span>
-                  </v-card-title>
-                  <v-card-text class="scrollable-content">
-                    <v-container>
-                      <v-form ref="courseform">
-                        <v-row>
-                          <v-col cols="12" sm="12" md="12">
-                            <h3 class="group-header">{{ $t('courseHistory.courseInfo') }}</h3>
-                            <v-divider class="border-opacity-100" color="info" thickness="3"></v-divider>
-                            <v-divider color="#fffff" thickness="3"></v-divider>
-                          </v-col>
-                        </v-row>
-                        <v-row></v-row>
-                        <v-row>
-                          <v-col cols="12" sm="6" md="6">
-                            <v-label>{{ $t('table.courseRefer') }} :
-                              {{ editedItem.courserefer }}</v-label>
-                          </v-col>
-                          <v-col cols="12" sm="6" md="6">
-                            <v-label>{{ editedItem.course_user }}</v-label>
-                          </v-col>
-                        </v-row>
-                        <v-row>
-                          <v-col cols="12" sm="4" md="5">
-                            <v-select v-model="editedItem.course" :label="$t('table.courseName')" item-title="coursename"
-                              item-value="course" :items="courseLookup" variant="solo-filled" :no-data-text="$t('common.noCourseData')"
-                              disabled ></v-select>
-                          </v-col>
-                          <v-col cols="12" sm="4" md="4">
-                            <v-select v-model="editedItem.coursetype" :label="$t('table.courseType')" item-title="coursetype"
-                              item-value="coursetype" :items="['Monthly', 'Limited']" variant="solo-filled"
-                              disabled></v-select>
-                          </v-col>
-                          <v-col cols="12" sm="4" md="3">
-                            <v-select v-model="editedItem.period" :label="$t('customerCourse.period')" item-title="period"
-                              item-value="period" :items="[1, 2, 3, 6, 12]" variant="solo-filled" :rules="notNullRules" disabled></v-select>
-                          </v-col>
-                          
-                        </v-row>
-                      </v-form>
-                        <v-row>
-                          <v-col cols="12" sm="3" md="3">
-                            <v-text-field v-model="editedItem.remaining" :label="$t('table.remaining')" variant="solo-filled" disabled
-                              ></v-text-field>
-                          </v-col>
-                          <v-col cols="12" sm="3" md="3">
-                            <v-text-field v-model="editedItem.startdate" :label="$t('table.startDate')" variant="solo-filled" disabled></v-text-field>
 
-                          </v-col>
-
-                          <v-col cols="12" sm="3" md="3">
-                            <v-text-field v-model="editedItem.expiredate" :label="$t('table.expireDate')" variant="solo-filled" disabled></v-text-field>
-                          </v-col>
-                        </v-row>
-                        <v-row>
-                          <v-col cols="12" sm="12" md="12">
-                            <h3 class="group-header">{{ $t('table.payment') }}</h3>
-                            <v-divider class="border-opacity-100" color="info" thickness="3"></v-divider>
-                            <v-divider color="#fffff" thickness="3"></v-divider>
-                          </v-col>
-                        </v-row>
-                        <v-row>
-                          <v-col cols="3" sm="3" md="3">
-                            <v-checkbox
-                              v-model="editedItem.paid"
-                              :label="editedItem.paid ? $t('customerCourse.paid') : $t('customerCourse.unpaid')"
-                              color="success"
-                              class="ma-2"
-                              :value="1"
-                              disabled
-                            />
-                          </v-col>
-                          <v-col cols="12" sm="3" md="3">
-                            <v-text-field v-model="editedItem.paydate" :label="$t('customerCourse.payDate')" variant="solo-filled" disabled></v-text-field>
-                          </v-col>
-
-                          <v-col cols="12" sm="6" md="6">
-                            <v-file-input
-                              v-model="editedItem.slip_customer"
-                              :label="$t('customerCourse.uploadSlip')"
-                              accept="image/*"
-                              prepend-icon="mdi-camera"
-                              outlined
-                              disabled
-                            ></v-file-input>
-                            <div v-if="editedItem.slip_image_url">
-                              <a @click.prevent="showSlipDialog = true" href="#">
-                                <v-icon>mdi-image-search</v-icon> {{ $t('customerCourse.viewSlip') }}
-                              </a>
-                              <v-dialog v-model="showSlipDialog" max-width="500">
-                                <v-card>
-                                  <v-card-title class="headline">{{ $t('customerCourse.slipTitle') }}</v-card-title>
-                                  <v-card-text>
-                                    <v-img :src="editedItem.slip_image_url" width="100%" height="auto"></v-img>
-                                  </v-card-text>
-                                  <v-card-actions>
-                                    <v-spacer></v-spacer>
-                                    <v-btn color="primary" text @click="showSlipDialog = false">{{ $t('btn.close') }}</v-btn>
-                                  </v-card-actions>
-                                </v-card>
-                              </v-dialog>
-                            </div>
-                          </v-col>
-                        </v-row>
-                        <v-row>
-                          <v-col cols="12" sm="12" md="12">
-                            <v-textarea v-model="editedItem.shortnote" :label="$t('customerCourse.shortNote')" variant="solo-filled" rows="2" readonly></v-textarea>
-                          </v-col>
-                        </v-row>
-                        <v-row v-if="editedIndex > -1">
-                          <v-col cols="12" sm="12" md="12">
-                            <h3 class="group-header">{{ $t('table.courseUsageHistory') }}</h3>
-                            <v-divider class="border-opacity-100" color="success" thickness="3"></v-divider>
-                            <v-divider color="#fffff" thickness="3"></v-divider>
-                          </v-col>
-                        </v-row>
-                        <v-row v-if="editedIndex > -1">
-                          <v-col cols="12" sm="12" md="12">
-                                  <v-data-table :headers="CourseUsingHeaders" :items="CourseUsingtList" density="compact"
-                                  :items-per-page="1000" >
-                                  <template v-slot:item.index="{ item }">
-                                      {{ CourseUsingtList.indexOf(item) + 1 }}
-                                  </template>
-                                  <template v-slot:item.classdate="{ item }">
-                                      <p>{{ format_date(item.classdate) }} </p>
-                                  </template>
-                                  <template #bottom></template>
-                              </v-data-table>
-                          </v-col>
-                      </v-row>
-                    
-                    </v-container>
-                  </v-card-text>
-
-                  <v-card-actions class="sticky-footer">
-                    <v-spacer></v-spacer>
-                    <v-btn color="red-darken-1" variant="flat" @click="close">
-                      {{ $t('btn.close') }}
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-              <v-dialog v-model="dialogDelete" persistent width="auto">
-                <v-card>
-                  <v-card-title></v-card-title>
-                  <v-card-text>{{ $t('courseHistory.confirmDelete') }}</v-card-text>
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="#4CAF50" variant="tonal" @click="checkBeforeDelete">{{ $t('btn.confirm') }}</v-btn>
-                    <v-btn color="#F44336" variant="tonal" @click="closeDelete">{{ $t('btn.cancel') }}</v-btn>
-
-                    <v-spacer></v-spacer>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-              <v-dialog v-model="dialogFinish" persistent width="auto">
-                <v-card>
-                  <v-card-title></v-card-title>
-                  <v-card-text>{{ $t('gymnasts.confirmFinish') }}</v-card-text>
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn color="#4CAF50" variant="tonal" @click="finishCourseConfirm">{{ $t('btn.confirm') }}</v-btn>
-                    <v-btn color="#F44336" variant="tonal" @click="closeFinish">{{ $t('btn.cancel') }}</v-btn>
-
-                    <v-spacer></v-spacer>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-            </v-toolbar>
-            <div class="table-search-row">
-              <v-text-field v-model="search" density="compact" :label="$t('btn.search')" prepend-inner-icon="mdi-magnify"
-                variant="solo-filled" flat hide-details single-line></v-text-field>
-            </div>
-          </template>
-          <template v-slot:item.startdate="{ item }">
-              <p>{{ format_date(item.startdate) }}</p>
-          </template>
-          <template v-slot:item.expiredate="{ item }">
-                <p :class="{ 'highlighted-red': item.expiredate != null && isExpiredDate(item.expiredate) }">
-                    {{ expireDateLeft(item.expiredate) }}
-                </p>
-            </template>
-          <template v-slot:item.remaining="{ item }">
-            <span v-if="item.coursetype === 'Monthly'">{{ $t('home.monthly') }}</span>
-            <span v-else-if="item.remaining !== null && item.remaining !== ''">{{ item.remaining }} {{ $t('common.times') }}</span>
-            <span v-else>-</span>
-          </template>
-          <!-- <template v-slot:item.actions="{ item }">
-            <v-icon size="small" class="me-2" @click="editItem(item)">
-              mdi-pencil
-            </v-icon>
-            <v-icon size="small" @click="deleteItem(item)"> mdi-delete </v-icon>
-          </template> -->
-          <template v-slot:no-data>
-            {{ $t('customerCourse.noCourseList') }}
-            <br /><br />
-            <v-btn color="primary" @click="initialize"> {{ $t('btn.reset') }} </v-btn>
-          </template>
-          <template v-slot:item.paid="{ item }">
-            <v-chip color="success" v-if="item.paid == 1">{{ $t('customerCourse.paid') }}</v-chip>
-            <v-chip color="error" v-else>{{ $t('customerCourse.unpaid') }}</v-chip>
-          </template>
-          <template v-slot:item.view="{ item }">
-              <v-icon size="large" color="info" @click="editItem(item)">mdi-eye</v-icon>
-          </template>
-          <template v-slot:item.finish="{ item }">
-              <v-icon size="large" color="error" @click="finishCourse(item)">mdi-check</v-icon>
-          </template>
-          <template v-slot:loading><v-skeleton-loader type="table-row@20"></v-skeleton-loader></template>
-        </v-data-table-server>
-      </v-card>
+    <!-- server-side search + pagination preserved (getCustomerCourseList / tableOptions / totalItems / search watcher) -->
+    <div class="grid-toolbar">
+      <label class="grid-search"><span class="mdi mdi-magnify"></span>
+        <input class="id-input" v-model="search" :placeholder="$t('btn.search')" /></label>
+      <id-select class="grid-filter" v-model="filterCoursetype" placeholder="ประเภททั้งหมด" @update:model-value="applyFilter"
+        :options="[{ value: '', label: 'ประเภททั้งหมด' }, { value: 'Monthly', label: 'Monthly' }, { value: 'Limited', label: 'Limited' }]"></id-select>
+      <span class="grid-spacer"></span>
+      <button class="id-btn id-btn-sm" @click="initialize"><span class="mdi mdi-refresh"></span> {{ $t('btn.refresh') }}</button>
     </div>
+    <div class="scard" style="padding:14px">
+      <div style="overflow-x:auto">
+        <table class="idt">
+          <thead>
+            <tr>
+              <th v-for="h in headers" :key="h.key" :class="{ 'idt-action': ['view', 'edit', 'delete', 'finish'].includes(h.key) }" :style="{ textAlign: (h.align === 'center' || h.align === 'end') ? 'center' : 'left' }">{{ h.title }}</th>
+            </tr>
+          </thead>
+          <tbody v-if="loadingCustomerCourse" class="id-fade-in" key="sk">
+            <tr v-for="i in 6" :key="'sk' + i">
+              <td v-for="h in headers" :key="h.key"><div class="id-skel" style="height:18px"></div></td>
+            </tr>
+          </tbody>
+          <tbody v-else class="id-fade-in" :key="tableOptions.page">
+            <tr v-for="item in courselist" :key="item.courserefer">
+              <td v-for="h in headers" :key="h.key" :class="{ 'idt-action': ['view', 'edit', 'delete', 'finish'].includes(h.key) }" :style="{ textAlign: (h.align === 'center' || h.align === 'end') ? 'center' : 'left' }">
+                <template v-if="h.key === 'courserefer'"><span class="id-copy">{{ item.courserefer }}<span class="mdi mdi-content-copy id-copy-btn" :title="$t('btn.copy')" @click="copyToClipboard(item.courserefer)"></span></span></template>
+                <template v-else-if="h.key === 'startdate'">{{ format_date(item.startdate) }}</template>
+                <template v-else-if="h.key === 'expiredate'"><span :style="{ color: (item.expiredate != null && isExpiredDate(item.expiredate)) ? 'var(--c-error)' : '' }">{{ expireDateLeft(item.expiredate) }}</span></template>
+                <template v-else-if="h.key === 'remaining'">
+                  <span v-if="item.coursetype === 'Monthly'" class="badge badge-primary">{{ $t('home.monthly') }}</span>
+                  <span v-else-if="item.remaining !== null && item.remaining !== ''" class="badge badge-primary">{{ item.remaining }} {{ $t('common.times') }}</span>
+                  <span v-else>-</span>
+                </template>
+                <template v-else-if="h.key === 'paid'">
+                  <span v-if="item.paid == 1" class="badge badge-success">{{ $t('customerCourse.paid') }}</span>
+                  <span v-else class="badge badge-error">{{ $t('customerCourse.unpaid') }}</span>
+                </template>
+                <template v-else-if="h.key === 'view'"><span class="mdi mdi-eye" style="color:var(--c-info);cursor:pointer;font-size:20px" @click="editItem(item)"></span></template>
+                <template v-else>{{ item[h.key] }}</template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div v-if="!loadingCustomerCourse && courselist.length === 0" class="grid-empty"><span class="mdi mdi-book-off-outline"></span>{{ $t('customerCourse.noCourseList') }}</div>
+      <id-grid-footer v-if="totalItems > 0"
+        :page="tableOptions.page"
+        :page-count="Math.max(1, Math.ceil(totalItems / tableOptions.itemsPerPage))"
+        :per-page="tableOptions.itemsPerPage" :total="totalItems"
+        @update:page="(p) => { tableOptions.page = p; getCustomerCourseList(true); }"
+        @update:per-page="(n) => { tableOptions.itemsPerPage = n; tableOptions.page = 1; getCustomerCourseList(true); }" />
+    </div>
+
+    <id-modal v-model="dialog" size="lg" icon="mdi-book-check-outline" :title="formTitle">
+      <div class="modal-sec"><span class="mdi mdi-book-open-variant"></span> {{ $t('courseHistory.courseInfo') }}</div>
+      <div class="t-cap" style="margin-bottom:12px">{{ $t('table.courseRefer') }} : <b>{{ editedItem.courserefer }}</b><template v-if="editedItem.course_user"> · {{ editedItem.course_user }}</template></div>
+      <div class="form-grid-3">
+        <div class="field"><label>{{ $t('table.courseName') }}</label>
+          <input class="id-input" :value="editedItem.coursename || (editedItem.course && editedItem.course.coursename)" disabled></div>
+        <div class="field"><label>{{ $t('table.courseType') }}</label><input class="id-input" :value="editedItem.coursetype" disabled></div>
+        <div class="field"><label>{{ $t('customerCourse.period') }}</label><input class="id-input" :value="editedItem.period" disabled></div>
+      </div>
+      <div class="form-grid-3" style="margin-top:14px">
+        <div class="field"><label>{{ $t('table.remaining') }}</label><input class="id-input" :value="editedItem.remaining" disabled></div>
+        <div class="field"><label>{{ $t('table.startDate') }}</label><input class="id-input" :value="editedItem.startdate" disabled></div>
+        <div class="field"><label>{{ $t('table.expireDate') }}</label><input class="id-input" :value="editedItem.expiredate" disabled></div>
+      </div>
+
+      <div class="modal-sec mt"><span class="mdi mdi-cash-multiple"></span> {{ $t('table.payment') }}</div>
+      <div class="form-grid-3" style="align-items:end">
+        <label class="id-cbx" style="height:42px">
+          <span class="id-check" :class="{ on: editedItem.paid == 1 }"><span class="mdi mdi-check"></span></span>
+          {{ editedItem.paid ? $t('customerCourse.paid') : $t('customerCourse.unpaid') }}
+        </label>
+        <div class="field"><label>{{ $t('customerCourse.payDate') }}</label><input class="id-input" :value="editedItem.paydate" disabled></div>
+        <div class="field"><label>{{ $t('customerCourse.uploadSlip') }}</label>
+          <a v-if="editedItem.slip_image_url" @click.prevent="showSlipDialog = true" href="#" style="font-size:13px">
+            <span class="mdi mdi-image-search"></span> {{ $t('customerCourse.viewSlip') }}</a>
+          <span v-else class="t-cap">-</span>
+        </div>
+      </div>
+      <div class="field full" style="margin-top:14px"><label>{{ $t('customerCourse.shortNote') }}</label>
+        <textarea class="id-input id-textarea" :value="editedItem.shortnote" readonly></textarea></div>
+
+      <template v-if="editedIndex > -1">
+        <div class="modal-sec mt"><span class="mdi mdi-history"></span> {{ $t('table.courseUsageHistory') }}</div>
+        <div class="id-modal-grid"><div class="id-modal-grid-scroll" style="max-height:30vh">
+          <v-data-table :headers="CourseUsingHeaders" :items="CourseUsingtList" density="compact" :items-per-page="1000">
+            <template v-slot:item.index="{ item }">{{ CourseUsingtList.indexOf(item) + 1 }}</template>
+            <template v-slot:item.classdate="{ item }"><p>{{ format_date(item.classdate) }} </p></template>
+            <template #bottom></template>
+          </v-data-table>
+        </div></div>
+      </template>
+      <template #footer>
+        <button class="id-btn id-btn-ghost" @click="close">{{ $t('btn.close') }}</button>
+      </template>
+    </id-modal>
+
+    <id-modal v-model="showSlipDialog" size="md" icon="mdi-image-search" :title="$t('customerCourse.slipTitle')">
+      <img v-if="editedItem.slip_image_url" :src="editedItem.slip_image_url" style="width:100%;height:auto;border-radius:var(--radius-md)" />
+      <template #footer>
+        <button class="id-btn id-btn-primary" @click="showSlipDialog = false">{{ $t('btn.close') }}</button>
+      </template>
+    </id-modal>
+
+    <id-modal v-model="dialogDelete" size="sm" icon="mdi-delete-alert-outline" title="ยืนยันการลบ" persistent>
+      <p style="margin:0">{{ $t('courseHistory.confirmDelete') }}</p>
+      <template #footer>
+        <button class="id-btn id-btn-ghost" @click="closeDelete">{{ $t('btn.cancel') }}</button>
+        <button class="id-btn id-btn-primary" style="background:var(--c-error)" @click="checkBeforeDelete"><span class="mdi mdi-delete"></span> {{ $t('btn.confirm') }}</button>
+      </template>
+    </id-modal>
+    <id-modal v-model="dialogFinish" size="sm" icon="mdi-check-decagram-outline" :title="$t('table.finish')" persistent>
+      <p style="margin:0">{{ $t('gymnasts.confirmFinish') }}</p>
+      <template #footer>
+        <button class="id-btn id-btn-ghost" @click="closeFinish">{{ $t('btn.cancel') }}</button>
+        <button class="id-btn id-btn-primary" @click="finishCourseConfirm"><span class="mdi mdi-check"></span> {{ $t('btn.confirm') }}</button>
+      </template>
+    </id-modal>
   </div>
 </template>
 <script>
 import axios from "axios";
 import { mapGetters } from "vuex";
-import DatePicker from "@/components/DatePicker.vue";
 import moment from "moment";
 import { t } from "@/i18n";
 export default {
-  components: {
-    DatePicker,
-  },
   data: () => ({
     search: "",
     dialog: false,
@@ -295,6 +188,7 @@ export default {
     ],
     totalItems: 0,
     tableOptions: { page: 1, itemsPerPage: 10, sortBy: [] },
+    filterCoursetype: '',   // server filter — backend /getFinishedCustomerCourseList must read `coursetype`
     searchTimer: null,
     isMounted: false,
   }),
@@ -402,7 +296,7 @@ export default {
           .then(() => {
             //consol.log('คัดลอกคอร์สใหม่เรียบร้อยแล้ว');
           })
-          .catch(err => {
+          .catch(() => {
             //console.error('ไม่สามารถคัดลอกได้: ', err);
           });
       } else {
@@ -466,7 +360,7 @@ export default {
           }
           this.initialize();
         })
-        .catch((error) => {
+        .catch(() => {
           //console.error(error);
         });
       this.$emit("onLoading", false);
@@ -564,28 +458,33 @@ export default {
       );
       this.editedItem.course_shortname = course.course_shortname;
     },
-    async getCustomerCourseList() {
+    applyFilter() { this.tableOptions.page = 1; this.getCustomerCourseList(); },
+    // animate = true only for grid page / per-page changes → ≥1s skeleton.
+    async getCustomerCourseList(animate = false) {
       this.loadingCustomerCourse = true;
+      const t0 = Date.now();
       const token = this.$store.getters.getToken;
       const { page, itemsPerPage, sortBy } = this.tableOptions;
       await axios
         .post(
           this.baseURL + "/getFinishedCustomerCourseList",
-          { page, itemsPerPage, search: this.search, sortBy },
+          { page, itemsPerPage, search: this.search, sortBy, coursetype: this.filterCoursetype },
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
           }
         )
-        .then((response) => {
+        .then(async (response) => {
           if (response.data.success) {
             this.courselist = response.data.results ?? [];
             this.totalItems = response.data.total ?? 0;
           }
+          if (animate) await this.$minLoad(t0);
           this.loadingCustomerCourse = false;
         })
-        .catch((error) => {
+        .catch(async (error) => {
+          if (animate) await this.$minLoad(t0);
           this.loadingCustomerCourse = false;
           if (error.response?.status == 401) {
             this.$emit("onErrorHandler", error.response.data.message);
@@ -609,7 +508,7 @@ export default {
     },
     format_date(value) {
       if (value) {
-        return moment(String(value)).format("DD/MM/YYYY");
+        return moment(value).format("DD/MM/YYYY");
       }
     },
     expireDateLeft(value) {

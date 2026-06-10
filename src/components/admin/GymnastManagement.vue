@@ -1,23 +1,14 @@
 <template>
-    <div class="container">
-        <div class="container-header">
-            <h1><span class="mdi mdi-gymnastics"></span> {{ $t('gymnasts.title') }}</h1>
-        </div>
-        <div class="container-content card-opacity">
-            <Student @onErrorHandler="onErrorHandler" @onInfoHandler="onShowInfoDialog" @onLoading="onLoading($event)">
-            </Student>
-        </div>
-    </div>
+    <!-- pure pass-through: Student.vue renders its own .pg-head + toolbar + table -->
+    <Student @onErrorHandler="onErrorHandler" @onInfoHandler="onShowInfoDialog" @onLoading="onLoading($event)"></Student>
 </template>
 <script>
 import axios from 'axios'
-import DatePicker from '@/components/DatePicker.vue'
 import Student from '../center/Student.vue';
 import { mapGetters } from 'vuex';
 
 export default {
     components: {
-        DatePicker,
         Student,
     },
     data() {
@@ -91,4 +82,27 @@ export default {
     align-items: center;
 }
 </style>
-```
+
+<style scoped>
+/* ============================================================
+   iStar NEW DESIGN reskin (single theme) — layered overrides.
+   Appended on top of the original styles so layout is preserved
+   while colours / radius / shadow / fonts adopt the new design.
+   Pulls tokens from the global src/assets/istar-design.css.
+   ============================================================ */
+:deep(.v-card){ border-radius: var(--radius-lg) !important; box-shadow: var(--shadow-sm) !important; border: 1px solid var(--c-border) !important; }
+:deep(.v-btn){ border-radius: var(--radius-md) !important; text-transform: none !important; letter-spacing: normal !important; font-weight: 700 !important; }
+:deep(.v-btn.bg-primary), :deep(.v-btn--variant-elevated){ box-shadow: var(--shadow-sm) !important; }
+:deep(.v-field){ border-radius: 14px !important; }
+:deep(.v-field--variant-solo-filled){ background: var(--c-surface-2) !important; box-shadow: none !important; }
+:deep(.v-toolbar){ background: transparent !important; }
+:deep(.v-toolbar-title){ font-family: var(--font-head) !important; font-weight: 800 !important; color: var(--c-text-heading) !important; }
+:deep(.v-table){ background: transparent !important; }
+:deep(.v-table > .v-table__wrapper > table > thead > tr > th){ background: var(--c-surface-2) !important; color: var(--c-text-heading) !important; font-family: var(--font-head) !important; font-weight: 700 !important; border-bottom: 2px solid var(--c-border) !important; }
+:deep(.v-table > .v-table__wrapper > table > tbody > tr > td){ border-bottom: 1px solid var(--c-border) !important; }
+:deep(.v-table > .v-table__wrapper > table > tbody > tr:hover > td){ background: var(--c-surface-3) !important; }
+:deep(.v-chip){ font-weight: 600; }
+:deep(.v-tab){ text-transform: none !important; font-weight: 700 !important; }
+:deep(.v-list){ background: transparent !important; }
+:deep(.group-header){ font-family: var(--font-head) !important; font-weight: 700 !important; color: var(--c-text-heading) !important; }
+</style>

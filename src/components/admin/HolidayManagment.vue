@@ -1,82 +1,53 @@
 <template>
-    <div class="container">
-      <div class="container-header">
-        <h1><span class="mdi mdi-calendar-remove"></span> {{ $t('holidays.title') }}</h1>
-        <h3 class="program-description">{{ $t('holidays.description') }}</h3>
-      </div>
-      <div class="container-content">
-        <v-card class="mx-auto mt-5 card-opacity">
-          <v-data-table :headers="headers" :items="holidayList" :loading="loadingHolidays">
-            <template v-slot:top>
-              <v-toolbar flat>
-                <v-toolbar-title>{{ $t('holidays.ourHolidays') }}</v-toolbar-title>
-                <v-spacer></v-spacer>
-                <v-dialog v-model="dialog" max-width="500px">
-                  <template v-slot:activator="{ props }">
-                    <v-btn color="primary" dark v-bind="props">
-                      {{ $t('holidays.newHoliday') }}
-                    </v-btn>
-                  </template>
-                  <v-card>
-                    <v-card-title>
-                      <span>{{ formTitle }}</span>
-                    </v-card-title>
-    
-                    <v-card-text>
-                      <v-container>
-                        <v-row>
-                          <v-col cols="12" class="text-center">
-                            <v-date-picker v-model="editedItem.holidaydate" :label="$t('table.holidayDate')" required></v-date-picker>
-                          </v-col>
-                        </v-row> 
-                        <v-row>
-                          <v-col cols="12">
-                            <v-text-field v-model="editedItem.description" :label="$t('table.description')" variant="solo-filled" required></v-text-field>
-                          </v-col>
-                        </v-row>
-                      </v-container>
-                    </v-card-text>
-    
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn color="blue-darken-1" variant="text" @click="close">
-                        {{ $t('btn.cancel') }}
-                      </v-btn>
-                      <v-btn color="blue-darken-1" variant="text" @click="save">
-                        {{ $t('btn.save') }}
-                      </v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-dialog>
-                <v-dialog v-model="dialogHolidayDelete" persistent width="auto">
-                  <v-card>
-                      <v-card-title></v-card-title>
-                      <v-card-text>{{ $t('holidays.confirmDelete', { date: editedItem.holidaydate }) }}</v-card-text>
-                      <v-card-actions>
-                          <v-spacer></v-spacer>
-                          <v-btn color="#4CAF50" variant="tonal" @click="clickConfirmDeleteHoliday">{{ $t('btn.ok') }}</v-btn>
-                          <v-btn color="#F44336" variant="tonal" @click="clickCancelDeleteHoliday">{{ $t('btn.cancel') }}</v-btn>
-                          <v-spacer></v-spacer>
-                      </v-card-actions>
-                  </v-card>
-              </v-dialog>
-              </v-toolbar>
-            </template>
-            <template v-slot:[`item.holidaydate`]="{ item }">
-              {{ format_date(item.holidaydate) }}
-            </template>
-            <template v-slot:item.actions="{ item }">
-              <v-icon size="large" color="error" @click="deleteItem(item)">mdi-delete-forever</v-icon>
-            </template>
-            <template v-slot:no-data>
-              <v-btn color="primary" @click="initialize">
-                Reset
-              </v-btn>
-            </template>
-          </v-data-table>
-        </v-card>
+  <div>
+    <div class="pg-head">
+      <div class="pg-ico"><span class="mdi mdi-calendar-remove"></span></div>
+      <div>
+        <div class="id-h1">{{ $t('holidays.title') }}</div>
+        <div class="pg-sub">วันที่ปิดทำการ</div>
       </div>
     </div>
+
+    <id-data-grid
+      :columns="headers"
+      :rows="holidayList"
+      :search-keys="['description']"
+      :search-placeholder="$t('btn.search')"
+      :add-label="$t('holidays.newHoliday')"
+      :loading="loadingHolidays"
+      @add="showAddNewHoliday">
+      <template #cell-holidaydate="{ row }">{{ format_date(row.holidaydate) }}</template>
+      <template #cell-actions="{ row }">
+        <span class="mdi mdi-delete-forever" style="color:var(--c-error);cursor:pointer;font-size:20px;padding:0 5px" @click="deleteItem(row)"></span>
+      </template>
+    </id-data-grid>
+
+    <!-- add dialog -->
+    <id-modal v-model="dialog" size="sm" icon="mdi-calendar-star" :title="formTitle">
+      <div class="modal-sec"><span class="mdi mdi-calendar-remove"></span> ข้อมูลวันหยุด</div>
+      <div class="form-grid">
+        <div class="field full"><label>{{ $t('table.holidayDate') }} <span class="req">*</span></label>
+          <id-date v-model="editedItem.holidaydate" placeholder="เลือกวันที่"></id-date></div>
+        <div class="field full"><label>{{ $t('table.description') }} <span class="req">*</span></label>
+          <input class="id-input" v-model="editedItem.description"></div>
+      </div>
+      <template #footer>
+        <button class="id-btn id-btn-ghost" @click="close">{{ $t('btn.cancel') }}</button>
+        <button class="id-btn id-btn-primary" :disabled="!editedItem.holidaydate || !editedItem.description" @click="save">
+          <span class="mdi mdi-content-save"></span> {{ $t('btn.save') }}</button>
+      </template>
+    </id-modal>
+
+    <!-- delete confirm dialog -->
+    <id-modal v-model="dialogHolidayDelete" size="sm" icon="mdi-delete-alert-outline" title="ยืนยันการลบ" persistent>
+      <p style="margin:0">{{ $t('holidays.confirmDelete', { date: format_date(editedItem.holidaydate) }) }}</p>
+      <template #footer>
+        <button class="id-btn id-btn-ghost" @click="clickCancelDeleteHoliday">{{ $t('btn.cancel') }}</button>
+        <button class="id-btn id-btn-primary" style="background:var(--c-error)" @click="clickConfirmDeleteHoliday">
+          <span class="mdi mdi-delete"></span> {{ $t('btn.ok') }}</button>
+      </template>
+    </id-modal>
+  </div>
   </template>
   
   <script>
@@ -119,6 +90,7 @@
     },
     methods: {
       async initialize() {
+        // menu-entry load: skeleton for the real fetch only (no artificial $minLoad)
         this.loadingHolidays = true;
         const token = this.$store.getters.getToken;
         await axios.get(this.baseURL+'/collectHolidays',{
@@ -128,12 +100,11 @@
         })
           .then(response => {
             this.holidayList = response.data.data;
-            this.loadingHolidays = false;
           })
-          .catch(error => {
+          .catch(() => {
             //console.error(error);
-            this.loadingHolidays = false;
           });
+        this.loadingHolidays = false;
       },
       async deleteItem(item) {
         this.editedIndex = this.holidayList.indexOf(item);
@@ -151,7 +122,7 @@
           .then(() => {
             this.initialize();
           })
-          .catch(error => {
+          .catch(() => {
             //console.error(error);
           });
           this.dialogHolidayDelete = false;
@@ -203,7 +174,7 @@
         },
         format_date(value) {
             if (value) {
-                return moment(String(value)).format('DD/MM/YYYY')
+                return moment(value).format('DD/MM/YYYY')
             }
         },
     },

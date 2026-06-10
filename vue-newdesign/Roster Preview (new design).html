@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iStar — Roster (BookingListAdmin) · พรีวิวดีไซน์ใหม่</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Mali:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.4.47/css/materialdesignicons.min.css" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/vuetify@3.4.11/dist/vuetify.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="istar-design.css" />
+  <style>
+    body { margin: 0; background: var(--c-bg-grad); min-height: 100vh; font-family: var(--font-body); }
+    .preview-shell { max-width: 1080px; margin: 0 auto; padding: 26px 20px 60px; }
+    .preview-note { background: #fff; border: 1px solid var(--c-border); border-radius: var(--radius-md);
+      padding: 12px 16px; margin-bottom: 18px; font-size: 13px; color: var(--c-text-body); box-shadow: var(--shadow-sm); }
+    .preview-note b { color: var(--c-primary-dark); }
+    .roster-card { background: var(--c-surface); border: 1px solid var(--c-border); border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-md); padding: 16px; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="preview-shell">
+      <div class="preview-note">
+        🔎 <b>พรีวิว BookingListAdmin (ดีไซน์ใหม่)</b> — นี่คือ component จริงที่จะวางใน repo Vue ของคุณ (mock data)
+        · <b>คลิกที่ชื่อนักเรียน</b> → เมนูเช็คอิน / แก้ไข · ลองย่อ-ขยายหน้าต่างเพื่อดูการเลื่อนแนวนอน
+      </div>
+      <div class="roster-card">
+        <booking-roster :classdate="classdate" :booking-headers="headers" :booking-data="rows" :loading-booking="false"
+          @student-clicked="onEdit"></booking-roster>
+      </div>
+    </div>
+    <v-snackbar v-model="sb" :timeout="2400" location="top" color="#ec4899">{{ sbText }}</v-snackbar>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/vue@3.4.21/dist/vue.global.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vuetify@3.4.11/dist/vuetify.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+    const { createApp } = Vue;
+    const vuetify = Vuetify.createVuetify();
+
+    // tiny i18n shim (so the real component's $t calls resolve in the preview)
+    const T = {
+      'bookingList.classBooking': 'การจองคลาส', 'bookingMgmt.bookings': 'รายการ',
+      'bookingList.legend': 'สัญลักษณ์', 'bookingList.legendNormal': 'ปกติ',
+      'bookingList.legendTrial': 'ทดลองเรียน', 'bookingList.legendPerSession': 'เรียนรายครั้ง',
+      'bookingList.legendChecked': 'เช็คอินแล้ว', 'bookingList.legendPayment': 'ต้องชำระเงิน',
+      'bookingMgmt.noBooking': 'ยังไม่มีการจองในวันนี้',
+      'bookingList.menuCheckedInBadge': 'เช็คอินแล้ว', 'bookingList.menuCheckin': 'เช็คอิน',
+      'bookingList.menuUndoCheckin': 'ยกเลิกเช็คอิน', 'bookingList.menuEdit': 'แก้ไขข้อมูลการจอง',
+      'bookingMgmt.confirmCheckin': p => `ยืนยันการเช็คอินของ ${p.name}?`,
+      'bookingMgmt.confirmUndoCheckin': p => `ยกเลิกการเช็คอินของ ${p.name}?`,
+      'btn.ok': 'ยืนยัน', 'btn.cancel': 'ยกเลิก',
+    };
+    const $t = (k, p) => { const v = T[k]; return typeof v === 'function' ? v(p || {}) : (v || k); };
+
+    // ---- the real BookingListAdmin component (script ported 1:1; axios stubbed for preview) ----
+    const BookingRoster = {
+      template: document.getElementById('tpl-roster').innerHTML,
+      props: {
+        classdate: { type: Date, required: true },
+        bookingHeaders: { type: Array, required: false },
+        bookingData: { type: Array, required: false },
+        loadingBooking: { type: Boolean, required: false },
+      },
+      data() {
+        return {
+          options: { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' },
+          menuOpen: false, menuPos: { x: 0, y: 0 }, checkinConfirmDialog: false,
+          selectedStudent: null, selectedSlotKey: '',
+        };
+      },
+      mounted() {
+        document.addEventListener('mousedown', this.onDocumentMousedown, true);
+        document.addEventListener('keydown', this.onDocumentKeydown);
+      },
+      beforeUnmount() {
+        document.removeEventListener('mousedown', this.onDocumentMousedown, true);
+        document.removeEventListener('keydown', this.onDocumentKeydown);
+      },
+      computed: {
+        columns() {
+          const cols = [];
+          (this.bookingHeaders || []).forEach(h => {
+            if (h.key === 'idx') return;
+            const items = [];
+            (this.bookingData || []).forEach(row => { const v = row[h.key]; if (v && typeof v === 'object') items.push(v); });
+            const checkedN = items.filter(s => this.isCellChecked(s)).length;
+            cols.push({ key: h.key, time: h.title, items, checkedN, courses: this.courseSummary(items) });
+          });
+          return cols;
+        },
+        totalCount() { return this.columns.reduce((n, c) => n + c.items.length, 0); },
+        menuStyle() { return { position: 'fixed', left: this.menuPos.x + 'px', top: this.menuPos.y + 'px', zIndex: 2400 }; },
+        selectedStudentName() {
+          const s = this.selectedStudent; if (!s) return '';
+          if (typeof s === 'object' && s.name) return this.stripMarkers(s.name); return '';
+        },
+        isCheckedIn() {
+          const s = this.selectedStudent; if (!s || typeof s !== 'object') return false;
+          if (s.checkedin !== undefined && s.checkedin !== null) return parseInt(s.checkedin) === 1;
+          return typeof s.name === 'string' && s.name.includes('(1)');
+        },
+      },
+      methods: {
+        $t,
+        onPillClick(event, value, key) {
+          if (!value || typeof value !== 'object') return;
+          const pad = 8, menuW = 210, menuH = 150;
+          let x = event.clientX, y = event.clientY;
+          if (x + menuW > window.innerWidth - pad) x = window.innerWidth - menuW - pad;
+          if (y + menuH > window.innerHeight - pad) y = window.innerHeight - menuH - pad;
+          this.menuPos = { x, y }; this.selectedStudent = value; this.selectedSlotKey = key; this.menuOpen = true;
+        },
+        onDocumentMousedown(e) { if (!this.menuOpen) return; const t = e.target;
+          if (t && t.closest && (t.closest('.popmenu') || t.closest('.tt-pill'))) return; this.menuOpen = false; },
+        onDocumentKeydown(e) { if (e.key === 'Escape' && this.menuOpen) this.menuOpen = false; },
+        onChooseEdit() { const v = this.selectedStudent, k = this.selectedSlotKey; this.menuOpen = false;
+          this.$nextTick(() => this.$emit('student-clicked', v, k)); },
+        onChooseCheckin() { this.menuOpen = false; this.$nextTick(() => { this.checkinConfirmDialog = true; }); },
+        confirmCheckin() {  // preview: toggle locally instead of axios
+          const s = this.selectedStudent; this.checkinConfirmDialog = false;
+          if (s) s.checkedin = this.isCellChecked(s) ? 0 : 1;
+        },
+        stripMarkers(n) { if (typeof n !== 'string') return '';
+          return n.replace('(1)','').replace('(red)','').replace('(green)','').replace('(blue)','').replace('(yellow)','').replace('(pink)','').replace('(pay)','').trim(); },
+        displayName(s) { return s && typeof s === 'object' ? this.stripMarkers(s.name) : ''; },
+        warningText(s) { return s && typeof s === 'object' && s.msg ? s.msg : ''; },
+        isCellChecked(s) { if (!s || typeof s !== 'object') return false;
+          if (s.checkedin !== undefined && s.checkedin !== null) return parseInt(s.checkedin) === 1;
+          return typeof s.name === 'string' && s.name.includes('(1)'); },
+        needPay(s) { return s && typeof s === 'object' && typeof s.name === 'string' && s.name.includes('(pay)'); },
+        pillClass(s) { const c = []; if (this.isCellChecked(s)) c.push('checked');
+          if (s && typeof s.name === 'string') { if (s.name.includes('(blue)')) c.push('trial'); else if (s.name.includes('(pink)')) c.push('session'); } return c; },
+        avatarInitial(s) { const n = this.displayName(s); return n ? n.replace('น้อง','').charAt(0) : '?'; },
+        avatarColor(s) { const p = ['#ec4899','#a855f7','#3b82f6','#10b981','#f59e0b','#06b6d4']; const n = this.displayName(s);
+          let h = 0; for (let i=0;i<n.length;i++) h = (h*31 + n.charCodeAt(i)) % p.length; return p[h]; },
+        courseSummary(items) { const set = [...new Set(items.map(s => (s && s.coursename) || '').filter(Boolean))]; return set.join(', '); },
+      },
+    };
+
+    function mk(name, opts) { return Object.assign({ name, reservationid: Math.random(), studentid: Math.random() }, opts); }
+    const headers = [
+      { title: 'No.', key: 'idx' },
+      { title: '16:00', key: '16:00' }, { title: '17:00', key: '17:00' },
+      { title: '18:00', key: '18:00' }, { title: '19:00', key: '19:00' },
+    ];
+    const slot = {
+      '16:00': [ mk('น้องเฟิร์น(1)', { checkedin: 1, coursename: 'ยิมนาสติก ระดับกลาง' }), mk('น้องเกรซ(blue)', { coursename: 'ทดลองเรียน', msg: 'ทดลองเรียน' }), mk('น้องบีม(pay)', { coursename: 'ยิมนาสติก ระดับกลาง', msg: 'คอร์สหมดอายุ' }), mk('น้องข้าวปุ้น', { coursename: 'ยิมนาสติก ระดับกลาง' }) ],
+      '17:00': [ mk('น้องโตโต้(1)', { checkedin: 1, coursename: 'ยิมนาสติก เริ่มต้น' }), mk('น้องพีพี', { coursename: 'ยิมนาสติก เริ่มต้น' }), mk('น้องเอม(pink)', { coursename: 'เรียนรายครั้ง', msg: 'เรียนรายครั้ง' }) ],
+      '18:00': [ mk('น้องนาโน(1)', { checkedin: 1, coursename: 'แอโรบิก' }), mk('น้องริว', { coursename: 'แอโรบิก' }), mk('น้องใบเฟิร์น', { coursename: 'แอโรบิก' }), mk('น้องมะลิ', { coursename: 'แอโรบิก' }), mk('น้องกัปตัน(pay)', { coursename: 'แอโรบิก', msg: 'เหลือ 0 ครั้ง' }) ],
+      '19:00': [ mk('น้องอลิส', { coursename: 'ตีลังกา' }), mk('น้องเจได', { coursename: 'ตีลังกา' }) ],
+    };
+    const maxLen = Math.max(...Object.values(slot).map(a => a.length));
+    const rows = Array.from({ length: maxLen }, (_, i) => {
+      const r = { idx: i + 1 };
+      headers.forEach(h => { if (h.key !== 'idx') r[h.key] = slot[h.key][i] || ''; });
+      return r;
+    });
+
+    createApp({
+      components: { BookingRoster },
+      data() { return { classdate: new Date(), headers, rows, sb: false, sbText: '' }; },
+      methods: { onEdit(student) { this.sbText = 'เปิดฟอร์มแก้ไข: ' + (student.name || '').replace(/\(\w+\)/g, '').trim() + ' (เดโม)'; this.sb = true; } },
+    }).use(vuetify).mount('#app');
+    });
+  </script>
+
+  <!-- the component's template (identical markup to BookingListAdmin.vue <template>) -->
+  <script type="text/x-template" id="tpl-roster">
+    <div class="id-scope booking-roster">
+      <div class="roster-head">
+        <div class="col" style="gap:2px">
+          <h3 class="t-h3">{{ $t('bookingList.classBooking') }} {{ classdate.toLocaleDateString('th-TH', options) }}</h3>
+          <span class="t-cap">{{ classdate.toLocaleDateString('en-GB') }} · {{ totalCount }} {{ $t('bookingMgmt.bookings') }}</span>
+        </div>
+        <div class="row gap3 wrap" style="font-size:12.5px">
+          <span class="t-cap strong">{{ $t('bookingList.legend') }}:</span>
+          <span class="row" style="gap:5px"><span class="dot" style="background:var(--c-text-muted)"></span><span class="muted">{{ $t('bookingList.legendNormal') }}</span></span>
+          <span class="row" style="gap:5px"><v-icon size="14" color="#3b82f6">mdi-circle-slice-8</v-icon><span class="muted">{{ $t('bookingList.legendTrial') }}</span></span>
+          <span class="row" style="gap:5px"><v-icon size="14" color="#ec4899">mdi-circle-slice-8</v-icon><span class="muted">{{ $t('bookingList.legendPerSession') }}</span></span>
+          <span class="row" style="gap:5px"><v-icon size="14" color="#10b981">mdi-check-circle</v-icon><span class="muted">{{ $t('bookingList.legendChecked') }}</span></span>
+          <span class="row" style="gap:5px"><v-icon size="14" color="#f59e0b">mdi-bell-ring</v-icon><span class="muted">{{ $t('bookingList.legendPayment') }}</span></span>
+        </div>
+      </div>
+
+      <div v-if="loadingBooking" class="tt-row" style="overflow:hidden">
+        <div v-for="i in 4" :key="i" style="min-width:188px;flex:0 0 188px">
+          <div class="id-skel" style="height:48px;margin-bottom:6px"></div>
+          <div v-for="j in 3" :key="j" class="id-skel" style="height:48px;margin-bottom:6px"></div>
+        </div>
+      </div>
+
+      <div v-else-if="columns.length === 0" class="id-empty">
+        <div class="mdi mdi-calendar-blank-outline"></div>
+        <div style="margin-top:8px">{{ $t('bookingMgmt.noBooking') }}</div>
+      </div>
+
+      <div v-else class="tt-grid-wrap">
+        <div class="tt-row">
+          <div v-for="col in columns" :key="col.key" class="tt-col">
+            <div class="tt-colhead">
+              <div class="row" style="justify-content:space-between">
+                <span class="strong row" style="gap:5px"><v-icon size="15">mdi-clock-outline</v-icon> {{ col.time }}</span>
+                <span class="badge badge-neutral" style="height:20px;font-size:11px">{{ col.items.length }}</span>
+              </div>
+              <div class="t-cap nowrap" style="overflow:hidden;text-overflow:ellipsis">{{ col.courses }}</div>
+              <div v-if="col.checkedN > 0" class="t-cap" style="color:var(--c-success-tx)">
+                <v-icon size="12" color="#047857">mdi-check</v-icon> {{ col.checkedN }}/{{ col.items.length }} {{ $t('bookingList.legendChecked') }}
+              </div>
+            </div>
+            <div class="tt-cell">
+              <div v-for="(s, i) in col.items" :key="i" class="tt-pill" :class="pillClass(s)" @click="onPillClick($event, s, col.key)">
+                <span class="tt-avatar" :style="{ background: avatarColor(s) }">{{ avatarInitial(s) }}</span>
+                <div class="col" style="gap:0;flex:1;min-width:0">
+                  <span class="strong nowrap" style="font-size:13.5px;overflow:hidden;text-overflow:ellipsis">{{ displayName(s) }}</span>
+                  <span v-if="warningText(s)" class="t-cap nowrap" style="font-size:11px">{{ warningText(s) }}</span>
+                </div>
+                <div class="row" style="gap:3px">
+                  <v-icon v-if="needPay(s)" size="15" color="#f59e0b">mdi-bell-ring</v-icon>
+                  <v-icon v-if="isCellChecked(s)" size="16" color="#10b981">mdi-check-circle</v-icon>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="menuOpen" class="popmenu" :style="menuStyle" @click.stop>
+        <div class="popmenu-head">
+          <span class="popmenu-name">{{ selectedStudentName || '—' }}</span>
+          <span v-if="isCheckedIn" class="badge badge-success" style="height:20px;font-size:11px">
+            <v-icon size="12">mdi-check-decagram</v-icon>{{ $t('bookingList.menuCheckedInBadge') }}
+          </span>
+        </div>
+        <button class="popmenu-item" @click="onChooseCheckin">
+          <span class="pm-ico"><v-icon size="18" :color="isCheckedIn ? '#b45309' : '#047857'">{{ isCheckedIn ? 'mdi-undo-variant' : 'mdi-check-bold' }}</v-icon></span>
+          {{ isCheckedIn ? $t('bookingList.menuUndoCheckin') : $t('bookingList.menuCheckin') }}
+        </button>
+        <div class="popmenu-divider"></div>
+        <button class="popmenu-item" @click="onChooseEdit">
+          <span class="pm-ico"><v-icon size="18" color="#6366f1">mdi-account-edit</v-icon></span>
+          {{ $t('bookingList.menuEdit') }}
+        </button>
+      </div>
+
+      <v-dialog v-model="checkinConfirmDialog" persistent width="auto">
+        <div class="id-card id-card-pad" style="max-width:420px">
+          <div class="row" style="gap:12px;margin-bottom:14px">
+            <v-icon size="34" :color="isCheckedIn ? '#f59e0b' : '#10b981'">{{ isCheckedIn ? 'mdi-undo-variant' : 'mdi-check-circle' }}</v-icon>
+            <div class="id-h2">{{ isCheckedIn ? $t('bookingList.menuUndoCheckin') : $t('bookingList.menuCheckin') }}</div>
+          </div>
+          <div style="color:var(--c-text-body);margin-bottom:18px">
+            {{ isCheckedIn ? $t('bookingMgmt.confirmUndoCheckin', { name: selectedStudentName }) : $t('bookingMgmt.confirmCheckin', { name: selectedStudentName }) }}
+          </div>
+          <div class="row" style="justify-content:flex-end;gap:8px">
+            <button class="id-btn id-btn-ghost id-btn-sm" @click="checkinConfirmDialog = false">{{ $t('btn.cancel') }}</button>
+            <button class="id-btn id-btn-primary id-btn-sm" @click="confirmCheckin">{{ $t('btn.ok') }}</button>
+          </div>
+        </div>
+      </v-dialog>
+    </div>
+  </script>
+</body>
+</html>

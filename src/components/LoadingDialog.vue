@@ -16,15 +16,9 @@
 </template>
 
 <script>
-import { TrinityRingsSpinner, HollowDotsSpinner, CirclesToRhombusesSpinner, LoopingRhombusesSpinner, FlowerSpinner, OrbitSpinner, HalfCircleSpinner } from 'epic-spinners'
+import { HalfCircleSpinner } from 'epic-spinners'
 export default {
   components: {
-    TrinityRingsSpinner,
-    HollowDotsSpinner,
-    CirclesToRhombusesSpinner,
-    LoopingRhombusesSpinner,
-    FlowerSpinner,
-    OrbitSpinner,
     HalfCircleSpinner
   },
   props: {

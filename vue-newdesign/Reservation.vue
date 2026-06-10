@@ -1,0 +1,325 @@
+<!-- ============================================================
+  Reservation.vue — NEW DESIGN reskin (single iStar theme)
+  Drop-in replacement for src/components/Reservation.vue
+  • <template> + <script> = UNCHANGED from the original (logic + all API
+    calls kept byte-for-byte). A new-design <style scoped> override block
+    is appended at the end to adopt the iStar look.
+  • Requires global: src/assets/istar-design.css  (+ Vuetify theme primary=#ec4899)
+============================================================ -->
+<template>
+    <div class="container">
+        <div class="container-header">
+            <h1><span class="mdi mdi-account-plus"></span> {{ $t('reservation.title') }}</h1>
+        </div>
+        <div class="container-content">
+            <v-divider color="#fffff" thickness="3"></v-divider>
+
+            <v-card class="res-card card-opacity mx-auto mt-4">
+                <v-form ref="reserveForm">
+                    <div class="istar-deco-stars">
+                        <span class="mdi mdi-star-four-points deco-star-side"></span>
+                        <span class="mdi mdi-star-shooting deco-star-main"></span>
+                        <span class="mdi mdi-star-four-points deco-star-side"></span>
+                    </div>
+                    <div class="px-6 pt-5 pb-1">
+                        <p class="booking-for-text">{{ $t('reservation.bookingFor', { name: student.firstname + ' ' + student.lastname }) }}</p>
+                    </div>
+                    <v-container>
+                        <v-row justify="space-around">
+                            <v-date-picker v-model="date" :min="minDate" :allowed-dates="isDateAllowed" @update:month="handleMonthChange" @click="selectDate"></v-date-picker>
+                        </v-row>
+                    </v-container>
+                    <div class="px-6 pt-4 pb-6">
+                        <v-select v-model="classtimeSelect" :label="$t('home.classTime')" item-title="text"
+                            item-value="classid" :items="classtimesData" variant="outlined" :rules="classTimeRules"
+                            :no-data-text="$t('reservation.noClassTime')" return-object required></v-select>
+                        <v-btn class="mt-4 neu-action-btn" size="large" block @click="validate" required>
+                            <v-icon class="btn-icon-default">mdi-emoticon-plus</v-icon>
+                            <v-icon class="btn-icon-istar">mdi-star-shooting</v-icon>
+                            &nbsp;{{ $t('home.bookClass') }}
+                        </v-btn>
+                    </div>
+                </v-form>
+            </v-card>
+        </div>
+    
+        <v-dialog v-model="questionDialog" persistent width="auto">
+            <v-card>
+                <v-card-title class="text-h5">
+                </v-card-title>
+                <v-card-text><center>{{ $t('reservation.confirmBooking', { name: student.nickname, date: format_date(date), time: classtimeSelect.classtime }) }}</center></v-card-text>
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn color="#4CAF50" size="large" variant="tonal" @click="submitReservation">
+                        {{ $t('reservation.confirmBtn') }}
+                    </v-btn>
+                    <v-btn color="#F44336" size="large" variant="tonal" @click="questionDialog = false">
+                        {{ $t('btn.cancel') }}
+                    </v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+    </div>
+
+</template>
+
+<script>
+import axios from 'axios'
+import moment from 'moment'
+import { mapGetters } from 'vuex';
+export default {
+    props: {
+        student: {
+            type: Object,
+            required: true
+        }
+    },
+    data() {
+        return {
+            date: null,
+            minDate: null,
+            previousMonth: new Date().getMonth(),
+            previousYear: new Date().getFullYear(),
+            classtimeSelect: null,
+            classtimesData: [],
+            people: '',
+            classTimeRules: [
+                v => !!v || this.$t('common.required'),
+                v => !v || (v.available > 0) || this.$t('home.errorNoRemaining')
+            ],
+            //weekday:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+            questionDialog: false,
+            holidays: [],
+        }
+    },
+    async created() {
+        await this.fetchHolidays();
+        this.date = new Date();
+        this.date.setDate(this.date.getDate() + 1);
+        this.minDate = new Date();        
+        await this.getHolidayInformation();
+        await this.getClassTime();
+    },
+    methods: {
+        async selectDate() {
+            this.classtimeSelect = null;
+            await this.getClassTime();
+        },
+        handleMonthChange(newDate) {
+            //console.log("handleMonthChange", newDate);
+            const newMonth = new Date(newDate).getMonth();
+            const newYear = new Date(newDate).getFullYear();
+
+            // ตรวจสอบเดือนและปีที่เลือกใหม่
+            if (newMonth !== this.previousMonth || newYear !== this.previousYear) {
+                // หากเดือนหรือปีเปลี่ยนแปลง ให้เรียก API
+                this.getHolidayInformation();
+                
+                // อัปเดตค่าของเดือนและปี
+                this.previousMonth = newMonth;
+                this.previousYear = newYear;
+            }
+        },
+        isDateAllowed(date) {
+            const isMonday = moment(date).day() === 1;  // ตรวจสอบว่าวันที่นั้นเป็นวันจันทร์หรือไม่
+            const isHoliday = this.holidays.some(holiday => moment(date).isSame(holiday, 'day')); // ตรวจสอบว่าวันที่เป็นวันหยุดหรือไม่
+            //console.log('Checking date:', moment(date).format('YYYY-MM-DD'), 'isMonday:', isMonday, 'isHoliday:', isHoliday);
+            return !isMonday && !isHoliday;
+        },
+        async fetchHolidays() {
+            try {
+                const token = this.$store.getters.getToken;
+                const response = await axios.get(this.baseURL + '/holidaysList', {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                
+                if (response.data.success) {
+                    this.holidays = response.data.holidays.map(date => moment(date).startOf('day'));
+                } else {
+                    this.$emit('onErrorHandler', response.data.message);
+                }
+            } catch (error) {
+                this.$emit('onErrorHandler', error.message);
+            }
+        },
+        async validate() {
+            let { valid } = await this.$refs.reserveForm.validate()
+            if (!valid) return;
+            if (this.people.remaining <= 0) {
+                this.$emit('onErrorHandler', this.$t('msg.noRemaining'))
+                return;
+            }
+            this.questionDialog = true
+            //await this.submitReservation()
+        },
+        async getClassTime() {
+            const req = {
+                classdate: this.SQLDate(this.date),
+                classday: new Date(this.date).toLocaleDateString('en-US', { weekday: 'long' }),
+                courseid: this.student.courseid
+            };
+
+            const token = this.$store.getters.getToken;
+            try {
+                const response = await axios.post(this.baseURL + '/getClassTime', req, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                if (response.data.success) {
+                    this.classtimesData = response.data.results.length ? response.data.results : [];
+                } else {
+                    this.classtimesData = [];
+                }
+            } catch (error) {
+                this.$emit('onErrorHandler', error.message);
+            }
+        },
+        async getHolidayInformation() {
+            const token = this.$store.getters.getToken;
+            await axios.post(this.baseURL + '/getHolidayInformation', {
+                selectdate: this.SQLDate(this.date),
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+                })
+                .then(response => {
+                    console.dir(response);
+                    
+                })
+        },
+        getNextAvailableDate(date) {
+            let nextDate = new Date(date);
+            nextDate.setDate(nextDate.getDate() + 1); // เริ่มจากวันพรุ่งนี้
+            while (this.isHoliday(nextDate) || moment(nextDate).day() === 1) { // ตรวจสอบวันหยุดและวันจันทร์
+                nextDate.setDate(nextDate.getDate() + 1);
+            }
+            return nextDate;
+        },
+        isHoliday(date) {
+            return this.holidays.some(holiday => moment(date).isSame(holiday, 'day'));
+        },
+        async submitReservation() {
+            this.$emit('onLoading', true)
+            this.questionDialog = false;
+            let isDuplicate = false;
+            const reservaObj = {
+                studentid: this.student.studentid,
+                classdate: this.SQLDate(this.date),
+                classtime: this.classtimeSelect.classtime,
+                classid: this.classtimeSelect.classid,
+                courseid: this.student.courseid,
+                classday: new Date(this.date).toLocaleDateString('en-US', { weekday: 'long' }),
+                studentname: this.student.firstname + ' ' + this.student.lastname,
+                studentnickname: this.student.nickname,
+            }
+            //console.log('checkDuplicateReservation : ', reservaObj)
+            const token = this.$store.getters.getToken;
+            await axios.post(this.baseURL + '/checkDuplicateReservation', reservaObj, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+                .then(response => {
+                    //console.dir(response);
+                    if (!response.data.success) {
+                        this.$emit('onErrorHandler', this.$t('msg.bookingDuplicate', { date: this.format_date(this.date) }))
+                        isDuplicate = true;
+                    }
+                });
+
+            if (!isDuplicate) {
+                const token = this.$store.getters.getToken;
+                await axios.post(this.baseURL + '/addBookingByCustomer', reservaObj, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                })
+                    .then(response => {
+                        //console.dir(response);
+                        if (response.data.success) {
+                            this.$emit('onInfoHandler', this.$t('msg.bookingSuccess'))
+                            this.$emit('onSuccessHandler', 'home')
+                        } else {
+                            this.$emit('onErrorHandler', response.data.message || 'Reservation failed')
+                        }
+                    })
+                    .catch(error => {
+                        //console.error(error);
+                        this.$emit('onErrorHandler', error.message || 'Reservation failed')
+                    });
+            }
+            this.$emit('onClickChangeState', this.student)
+            this.$emit('onLoading', false)
+        },
+        SQLDate(value) {
+            if (value) {
+                return moment(String(value)).format('YYYYMMDD')
+            }
+        },
+        format_date(value) {
+            if (value) {
+                const userLocale = navigator.language || 'en'; // ดึง locale จากการตั้งค่าของอุปกรณ์
+                return moment(String(value)).locale(userLocale).format('dddd D MMMM YYYY');
+            }
+        },
+        
+    },
+    watch: {
+        date(newDate) {
+            if (this.isHoliday(newDate) || moment(newDate).day() === 1) {
+                this.date = this.getNextAvailableDate(newDate);
+            }
+        }
+    },
+    computed: {
+        ...mapGetters({
+            token: 'getToken',
+        }),
+    }
+
+}
+</script>
+
+<style>
+/* .v-picker-title,
+.v-date-picker-header__content {
+    display: none;
+} */
+
+/* .v-date-picker-month__day {
+    height: auto !important;
+} */
+</style>
+
+<style scoped>
+.booking-for-text {
+    margin: 0;
+    font-size: 14px;
+    color: #475569;
+}
+</style>
+
+<style scoped>
+/* ============================================================
+   iStar NEW DESIGN reskin (single theme) — layered overrides.
+   Appended on top of the original styles so layout is preserved
+   while colours / radius / shadow / fonts adopt the new design.
+   Pulls tokens from the global src/assets/istar-design.css.
+   ============================================================ */
+:deep(.v-card){ border-radius: var(--radius-lg) !important; box-shadow: var(--shadow-sm) !important; border: 1px solid var(--c-border) !important; }
+:deep(.v-btn){ border-radius: var(--radius-md) !important; text-transform: none !important; letter-spacing: normal !important; font-weight: 700 !important; }
+:deep(.v-btn.bg-primary), :deep(.v-btn--variant-elevated){ box-shadow: var(--shadow-sm) !important; }
+:deep(.v-field){ border-radius: 14px !important; }
+:deep(.v-field--variant-solo-filled){ background: var(--c-surface-2) !important; box-shadow: none !important; }
+:deep(.v-toolbar){ background: transparent !important; }
+:deep(.v-toolbar-title){ font-family: var(--font-head) !important; font-weight: 800 !important; color: var(--c-text-heading) !important; }
+:deep(.v-table){ background: transparent !important; }
+:deep(.v-table > .v-table__wrapper > table > thead > tr > th){ background: var(--c-surface-2) !important; color: var(--c-text-heading) !important; font-family: var(--font-head) !important; font-weight: 700 !important; border-bottom: 2px solid var(--c-border) !important; }
+:deep(.v-table > .v-table__wrapper > table > tbody > tr > td){ border-bottom: 1px solid var(--c-border) !important; }
+:deep(.v-table > .v-table__wrapper > table > tbody > tr:hover > td){ background: var(--c-surface-3) !important; }
+:deep(.v-chip){ font-weight: 600; }
+:deep(.v-tab){ text-transform: none !important; font-weight: 700 !important; }
+:deep(.v-list){ background: transparent !important; }
+:deep(.group-header){ font-family: var(--font-head) !important; font-weight: 700 !important; color: var(--c-text-heading) !important; }
+</style>

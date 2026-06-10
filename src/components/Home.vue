@@ -1,164 +1,154 @@
 <template>
-    <div class="container">
-        <div class="container-header">
-            <h1><span class="mdi mdi-home-account"></span> {{ $t('home.title') }}</h1>
+    <div class="id-scope home-page">
+        <!-- ── Greeting header ── -->
+        <div class="pg-head">
+            <div class="pg-ico"><span class="mdi mdi-home-account"></span></div>
+            <div>
+                <div class="id-h1">{{ $t('home.title') }} 🌟</div>
+                <div class="pg-sub">{{ $t('home.familySection') }}</div>
+            </div>
         </div>
 
-        <div class="container-content">
-            <!-- Empty state -->
-            <div v-if="familylist == null || familylist.length === 0" class="empty-state">
-                <v-icon color="#94a3b8" size="48">mdi-account-off-outline</v-icon>
-                <p>{{ $t('home.addFamilyHint') }}</p>
+        <!-- ── Proactive alerts: expired / low sessions / expiring soon ── -->
+        <template v-if="expiryWarnings.length">
+            <v-alert v-for="w in expiryWarnings" :key="'warn-' + w.studentid"
+                     :type="w.kind === 'expired' ? 'error' : 'warning'"
+                     variant="tonal" border="start" density="comfortable" class="mb-3">
+                {{ warningText(w) }}
+            </v-alert>
+        </template>
+
+        <!-- ── Empty state ── -->
+        <div v-if="familylist == null || familylist.length === 0" class="scard" style="padding:0">
+            <div class="id-empty">
+                <div class="mdi mdi-account-off-outline"></div>
+                <div style="margin-top:8px">{{ $t('home.addFamilyHint') }}</div>
             </div>
+        </div>
 
-            <!-- ── Unified card ── -->
-            <v-card v-else class="card-opacity home-card">
-
-                <!-- ── iStar Gymnastics theme decoration (3 stars) ── -->
-                <div class="istar-deco-stars">
-                    <span class="mdi mdi-star-four-points deco-star-side"></span>
-                    <span class="mdi mdi-star-shooting deco-star-main"></span>
-                    <span class="mdi mdi-star-four-points deco-star-side"></span>
-                </div>
-
-                <!-- ── Family selector ── -->
-                <div class="home-section-header">
-                    <span class="mdi mdi-account-group"></span> {{ $t('home.familySection') }}
-                </div>
-                <div class="family-selector">
-                    <div v-for="p in familylist" :key="p.studentid"
-                         class="family-row"
-                         :class="{ 'family-row--active': p.studentid === studentid }"
-                         @click="selectChild(p)">
-                        <div class="avatar-wrap">
-                            <v-img :src="p.profile_image_url || (p.gender === 'หญิง' ? profileGirl : profileBoy)" cover
-                                   width="46" height="46"></v-img>
-                        </div>
-                        <div class="family-row-info">
-                            <span class="member-name">{{ p.fullname }}</span>
-                            <span v-if="p.course_shortname" class="member-course">{{ p.course_shortname }}</span>
-                        </div>
-                        <v-icon v-if="p.studentid === studentid" color="primary" size="18">mdi-chevron-right</v-icon>
-                    </div>
-                </div>
-
-                <!-- ── No selection hint ── -->
-                <div v-if="!studentSelected" class="no-selection-hint">
-                    <v-icon color="#94a3b8" size="32">mdi-gesture-tap</v-icon>
-                    <p>{{ $t('home.selectMember') }}</p>
-                </div>
-
-                <!-- ── Information (appears when member selected) ── -->
-                <template v-if="studentSelected">
-                    <v-divider></v-divider>
-
-                    <!-- Section header -->
-                    <div class="home-section-header">
-                        <span class="mdi mdi-information-outline"></span> {{ $t('home.information') }}
-                    </div>
-
-                    <!-- Profile photo -->
-                    <div class="info-photo">
-                        <div class="profile-container">
-                            <div class="profile-wrap">
-                                <v-img :src="imagePreview || (studentSelected.gender === 'หญิง' ? profileGirl : profileBoy)"
-                                       cover width="130" height="130"></v-img>
+        <template v-else>
+            <!-- ── Family students ── -->
+            <div class="isk-sec" style="margin-bottom:10px">{{ $t('home.familySection') }}</div>
+            <div class="cards3" style="margin-bottom:24px">
+                <div v-for="p in familylist" :key="p.studentid"
+                     class="scard home-scard"
+                     :class="{ 'home-scard--active': p.studentid === studentid }"
+                     style="padding:20px"
+                     @click="selectChild(p)">
+                    <div class="row" style="gap:12px;margin-bottom:12px">
+                        <span class="tt-avatar home-card-avatar" style="background:var(--c-primary)">
+                            <v-img v-if="p.profile_image_url"
+                                   :src="p.profile_image_url" cover width="52" height="52"></v-img>
+                            <v-img v-else
+                                   :src="p.gender === 'หญิง' ? profileGirl : profileBoy" cover width="52" height="52"></v-img>
+                        </span>
+                        <div style="flex:1;min-width:0">
+                            <div class="strong" style="font-size:17px;color:var(--c-text-heading)">{{ p.fullname }}</div>
+                            <div class="t-cap">
+                                <template v-if="p.course_shortname">{{ p.course_shortname }} · </template>{{ $t('home.genderAge', { gender: p.gender, age: calculateAge(p.dateofbirth) }) }}
                             </div>
-                            <label class="profile-upload-btn" :for="`upload-main-${studentSelected.studentid}`">
-                                <v-icon size="16">mdi-camera</v-icon>
-                            </label>
-                            <input :id="`upload-main-${studentSelected.studentid}`" type="file" accept="image/*"
-                                   style="display:none"
-                                   @change="(e) => uploadPhotoFile(e.target.files[0], studentSelected.studentid)">
+                        </div>
+                        <span class="badge"
+                              :class="!p.courserefer ? 'badge-neutral' : (p.expiredate && isExpire(p.expiredate)) ? 'badge-error' : p.coursetype === 'Monthly' ? 'badge-success' : (p.remaining <= 0) ? 'badge-error' : (p.remaining <= 2) ? 'badge-warning' : 'badge-success'">
+                            <template v-if="!p.courserefer">{{ $t('home.noCourse') }}</template>
+                            <template v-else-if="p.expiredate && isExpire(p.expiredate)">{{ $t('home.expired') }}</template>
+                            <template v-else-if="p.coursetype === 'Monthly'">{{ $t('home.monthly') }}</template>
+                            <template v-else-if="p.remaining <= 0">{{ $t('home.usedUp') }}</template>
+                            <template v-else>{{ $t('home.remainBadge', { n: p.remaining }) }}</template>
+                        </span>
+                    </div>
+
+                    <!-- per-session: remaining count + segmented "pips" (one block per session,
+                         filled = remaining; empties as classes are used = "ค่อยๆ พร่องลง") -->
+                    <div v-if="p.courserefer && p.coursetype !== 'Monthly'" style="margin-bottom:10px">
+                        <div class="row" style="justify-content:space-between;font-size:12.5px;margin-bottom:5px">
+                            <span class="muted">{{ $t('table.remaining') }}</span>
+                            <span class="strong">{{ remainingText(p) }}</span>
+                        </div>
+                        <!-- used (faded) pips sit at the FRONT, remaining (filled) at the BACK;
+                             as sessions are used the filled part recedes toward the back -->
+                        <div class="quota-pips" :aria-label="remainingText(p)">
+                            <span v-for="i in pipCount(p)" :key="i" class="quota-pip"
+                                  :class="{ on: i > pipCount(p) - remainNum(p) }"
+                                  :style="i > pipCount(p) - remainNum(p) ? { background: pipFill(p) } : null"></span>
                         </div>
                     </div>
-
-                    <!-- Name & age -->
-                    <div class="info-text">
-                        <p class="member-fullname">{{ studentSelected.fullname }}</p>
-                        <p class="member-age">{{ $t('home.genderAge', { gender: studentSelected.gender, age: calculateAge(studentSelected.dateofbirth) }) }}</p>
-                    </div>
-
-                    <!-- Course info -->
-                    <div v-if="studentSelected.courserefer">
-                        <div class="home-section-header" style="margin-top: 4px;">
-                            <span class="mdi mdi-book-open-variant"></span> {{ $t('home.courseInfo') }}
+                    <!-- monthly: time-to-expiry bar (falls back to the current month when no expiry is stored) -->
+                    <div v-else-if="p.courserefer && p.coursetype === 'Monthly'" style="margin-bottom:10px">
+                        <div class="row" style="justify-content:space-between;font-size:12.5px;margin-bottom:5px">
+                            <span class="muted">{{ $t('home.timeLeftLabel') }}</span>
+                            <span class="strong">{{ monthlyDaysText(p) }}</span>
                         </div>
-                        <div class="course-chip-list">
-                            <span class="course-chip">{{ $t('table.courseRef') }} {{ studentSelected.courserefer }}</span>
-                            <span class="course-chip">{{ studentSelected.coursename }}</span>
-                            <span v-if="studentSelected.coursetype === 'Monthly'" class="course-chip">{{ $t('home.monthly') }}</span>
-                            <span v-else class="course-chip">{{ $t('table.remaining') }} {{ studentSelected.remaining }}</span>
-                            <span v-if="studentSelected.expiredate" class="course-chip">
-                                {{ $t('table.expireDate') }} {{ new Date(studentSelected.expiredate).toLocaleDateString('th-TH', options) }}
-                            </span>
-                            <span v-if="studentSelected.expiredate && isExpire(studentSelected.expiredate)"
-                                  class="course-chip expired-chip">{{ $t('home.expired') }}</span>
+                        <!-- remaining time sits on the RIGHT and recedes right as days pass
+                             (same "draining" direction as the per-session pips) -->
+                        <div class="quota-bar">
+                            <div class="quota-bar-fill" :style="{ width: monthlyPct(p) + '%', background: monthlyFill(p) }"></div>
                         </div>
                     </div>
-
-                    <!-- ── Reservation ── -->
-                    <v-divider></v-divider>
-
-                    <div class="home-section-header">
-                        <span class="mdi mdi-calendar-check"></span> {{ $t('home.reservation') }}
+                    <div class="row" style="justify-content:space-between;font-size:13px;margin-bottom:14px">
+                        <span>{{ p.coursename || p.course_shortname || $t('home.noCourse') }}</span>
+                        <span v-if="p.expiredate" class="muted">{{ $t('table.expireDate') }} {{ format_date(p.expiredate) }}</span>
                     </div>
 
-                    <div v-if="memberReservationDetail && memberReservationDetail.length > 0">
-                        <div class="reservation-header">
-                            <span>{{ $t('home.date') }}</span>
-                            <span>{{ $t('home.classTime') }}</span>
-                        </div>
-                        <div v-for="item in memberReservationDetail" :key="item.classdate + item.classtime"
-                             class="reservation-row">
-                            <span class="res-date">{{ format_date(item.classdate) }}</span>
-                            <span class="res-time">{{ item.classtime }}</span>
-                        </div>
-                    </div>
-                    <div v-else class="reservation-empty">
-                        <v-icon color="#94a3b8" size="24">mdi-calendar-blank-outline</v-icon>
-                        <span>{{ $t('home.noBooking') }}</span>
-                    </div>
-
-                </template>
-
-            </v-card>
-
-            <!-- CTA button — outside card -->
-            <div v-if="studentSelected" class="below-card-cta">
-                <v-btn v-if="studentSelected.expiredate && isExpire(studentSelected.expiredate)"
-                       block class="pulse-button" size="large"
-                       style="background: linear-gradient(145deg,#f87171,#dc2626)!important; color:#fff!important; border-radius:14px!important; font-weight:700!important; box-shadow:5px 5px 14px rgba(220,38,38,0.35),-4px -4px 10px rgba(255,255,255,0.75)!important;">
-                    <v-icon>mdi-close-thick</v-icon>
-                    &nbsp;{{ $t('home.courseExpired') }}
-                </v-btn>
-                <v-btn v-else block class="pulse-button neu-action-btn" size="large"
-                       @click="doReservation">
-                    <v-icon class="btn-icon-default">mdi-emoticon-plus</v-icon>
-                    <v-icon class="btn-icon-istar">mdi-star-shooting</v-icon>
-                    &nbsp;{{ $t('home.bookClass') }}
-                </v-btn>
+                    <button class="id-btn id-btn-primary" style="width:100%"
+                            @click.stop="selectChild(p); doReservation()">
+                        <span class="mdi mdi-calendar-plus"></span> {{ $t('home.bookClass') }}
+                    </button>
+                </div>
             </div>
-        </div>
+
+            <!-- ── Reservation schedule of selected member ── -->
+            <div class="isk-sec" style="margin-bottom:10px">{{ $t('home.reservation') }}</div>
+            <div class="scard" style="padding:0">
+                <div v-if="!studentSelected" class="id-empty">
+                    <div class="mdi mdi-gesture-tap"></div>
+                    <div style="margin-top:8px">{{ $t('home.selectMember') }}</div>
+                </div>
+                <!-- loading: skeleton rows so switching members feels like a fresh fetch, not a flash -->
+                <div v-else-if="loadingHistory">
+                    <div v-for="i in 3" :key="'hsk' + i" class="row" style="gap:10px;padding:14px 18px;border-bottom:1px solid var(--c-border)">
+                        <div class="id-skel" style="width:30px;height:30px;border-radius:50%"></div>
+                        <div class="col" style="gap:6px;flex:1">
+                            <div class="id-skel" style="height:13px;width:45%"></div>
+                            <div class="id-skel" style="height:11px;width:30%"></div>
+                        </div>
+                        <div class="id-skel" style="height:20px;width:74px;border-radius:999px"></div>
+                    </div>
+                </div>
+                <div v-else-if="memberReservationDetail && memberReservationDetail.length > 0" class="id-fade-in" :key="studentid">
+                    <div v-for="item in memberReservationDetail" :key="item.classdate + item.classtime"
+                         class="row home-hist-row" style="justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--c-border)">
+                        <div class="row" style="gap:10px">
+                            <span class="tt-avatar" style="background:var(--c-primary)">
+                                <v-img v-if="imagePreview" :src="imagePreview" cover width="30" height="30"></v-img>
+                                <template v-else>{{ (studentSelected.fullname || '?').replace('น้อง','').charAt(0) }}</template>
+                            </span>
+                            <div class="col" style="gap:1px">
+                                <span class="strong">{{ studentSelected.fullname }}<template v-if="studentSelected.course_shortname"> · {{ studentSelected.course_shortname }}</template></span>
+                                <span class="t-cap"><span class="mdi mdi-calendar"></span> {{ format_date(item.classdate) }} · {{ item.classtime }}</span>
+                            </div>
+                        </div>
+                        <span class="badge badge-info">{{ item.classtime }}</span>
+                    </div>
+                </div>
+                <div v-else class="id-empty">
+                    <div class="mdi mdi-calendar-blank-outline"></div>
+                    <div style="margin-top:8px">{{ $t('home.noBooking') }}</div>
+                </div>
+            </div>
+        </template>
     </div>
 </template>
 
 <script>
-import { VBottomNavigation, VBottomSheet } from 'vuetify/lib/components/index.mjs'
-import { ref, computed, onMounted, inject } from 'vue';
+import { computed } from 'vue';
 import axios from 'axios';
 import moment from 'moment'
 import { mapGetters } from 'vuex';
-import { TrinityRingsSpinner } from 'epic-spinners'
 export default {
     setup() {
         const isAuthenticated = computed(() => !!localStorage.getItem('token'));
         return { isAuthenticated };
-    },
-    components: {
-        VBottomNavigation,
-        VBottomSheet,
-        TrinityRingsSpinner
     },
     methods: {
         selectChild(student) {
@@ -208,7 +198,7 @@ export default {
                         this.loadFamilyImages()
                     }
                 })
-                .catch(error => {
+                .catch(() => {
                     //console.error(error);
                 });
             this.$emit('onLoading', false)
@@ -261,6 +251,8 @@ export default {
         },
         async getReservationDetail(studentid) {
             const token = this.$store.getters.getToken;
+            this.loadingHistory = true
+            const t0 = Date.now()
             await axios
                 .post(this.baseURL + '/getMemberReservationDetail', {
                     studentid: studentid,
@@ -276,13 +268,17 @@ export default {
                         this.memberReservationDetail = []
                     }
                 })
-                .catch(error => {
+                .catch(() => {
                     //console.error(error);
+                })
+                .finally(async () => {
+                    await this.$minLoad(t0)
+                    this.loadingHistory = false
                 });
         },
         format_date(value) {
             if (value) {
-                return moment(String(value)).format('DD/MM/YYYY')
+                return moment(value).format('DD/MM/YYYY')
             }
         },
         calculateAge(birthDate) {
@@ -304,6 +300,69 @@ export default {
             const today = new Date();
             const expirationDate = new Date(expdate);
             return expirationDate < today;
+        },
+        daysUntil(d) {
+            if (!d) return null;
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const target = new Date(d); target.setHours(0, 0, 0, 0);
+            return Math.round((target - today) / 86400000);
+        },
+        warningText(w) {
+            if (w.kind === 'expired') return this.$t('home.alertExpired', { name: w.name });
+            if (w.kind === 'low') return this.$t('home.alertLow', { name: w.name, n: w.remaining, date: this.format_date(w.expiredate) });
+            return this.$t('home.alertExpireSoon', { name: w.name, date: this.format_date(w.expiredate) });
+        },
+        // `total` = original purchased quota from getFamilyMember (Limited courses;
+        // NULL for Monthly, = remaining for trial owners). Fall back to a last-~8-
+        // sessions gauge only on the rare chance it's missing.
+        courseTotal(p) {
+            const remaining = Number(p.remaining) || 0;
+            const total = Number(p.total);
+            return total > 0 ? total : Math.max(remaining, 8);
+        },
+        remainPct(p) {
+            const remaining = Number(p.remaining) || 0;
+            return Math.max(0, Math.min(100, (remaining / this.courseTotal(p)) * 100));
+        },
+        remainColor(p) {
+            const r = Number(p.remaining) || 0;
+            if (r <= 2) return '#ef4444';
+            if (r <= 4) return '#f59e0b';
+            return 'primary';
+        },
+        // segmented quota "pips": one block per purchased session, filled = remaining
+        pipCount(p) { return Math.max(1, this.courseTotal(p)); },
+        remainNum(p) { return Math.max(0, Number(p.remaining) || 0); },
+        pipFill(p) { const c = this.remainColor(p); return c === 'primary' ? 'var(--c-primary)' : c; },
+        monthlyFill(p) { const c = this.monthlyColor(p); return c === 'primary' ? 'var(--c-primary)' : c; },
+        remainingText(p) {
+            const remaining = Number(p.remaining) || 0;
+            if (Number(p.total) > 0) return this.$t('home.remainOf', { n: remaining, total: Number(p.total) });
+            return this.$t('home.remainBadge', { n: remaining });
+        },
+        // Monthly courses are unlimited but time-boxed — show progress toward expiry.
+        // If the backend stores an expiry date we drain toward it over a ~30-day window;
+        // otherwise the subscription is assumed valid through the end of the current
+        // calendar month, so the bar always renders (consistent across every card).
+        monthlyRemain(p) {
+            if (p.expiredate) return { daysLeft: this.daysUntil(p.expiredate), totalDays: 30 };
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+            return { daysLeft: lastDay - today.getDate(), totalDays: lastDay };
+        },
+        monthlyDaysText(p) {
+            const { daysLeft } = this.monthlyRemain(p);
+            return daysLeft > 0 ? this.$t('home.daysValue', { n: daysLeft }) : this.$t('home.expired');
+        },
+        monthlyPct(p) {
+            const { daysLeft, totalDays } = this.monthlyRemain(p);
+            return Math.max(0, Math.min(100, ((daysLeft || 0) / totalDays) * 100));
+        },
+        monthlyColor(p) {
+            const { daysLeft } = this.monthlyRemain(p);
+            if (daysLeft === null || daysLeft <= this.NEAR_DAYS) return '#ef4444';
+            if (daysLeft <= 14) return '#f59e0b';
+            return 'primary';
         },
         async uploadPhotoFile(file, studentid) {
             if (!file) return;
@@ -352,7 +411,10 @@ export default {
             userdetail: null,
             memberReservationDetail: null,
             studentSelected: null,
+            loadingHistory: false,
             studentid: null,
+            LOW_SESSIONS: 2,   // per-session courses with ≤ this many left → warn
+            NEAR_DAYS: 7,      // expiry within this many days → warn
             options: {
                 weekday: 'long',
                 year: 'numeric',
@@ -371,6 +433,29 @@ export default {
         profileBoy() {
             return require('@/assets/avatar/4.png')
         },
+        // family members needing attention: expired / used-up / low sessions / expiring soon
+        expiryWarnings() {
+            if (!this.familylist) return [];
+            const out = [];
+            for (const p of this.familylist) {
+                if (!p.courserefer) continue;
+                const perSession = p.coursetype !== 'Monthly';
+                const remaining = Number(p.remaining) || 0;
+                const expired = p.expiredate && this.isExpire(p.expiredate);
+                const usedUp = perSession && remaining <= 0;
+                const daysLeft = this.daysUntil(p.expiredate);
+                const nearExpiry = daysLeft !== null && daysLeft >= 0 && daysLeft <= this.NEAR_DAYS;
+                const lowSessions = perSession && remaining > 0 && remaining <= this.LOW_SESSIONS;
+                if (expired || usedUp) {
+                    out.push({ studentid: p.studentid, name: p.fullname, kind: 'expired' });
+                } else if (lowSessions) {
+                    out.push({ studentid: p.studentid, name: p.fullname, kind: 'low', remaining, expiredate: p.expiredate });
+                } else if (nearExpiry) {
+                    out.push({ studentid: p.studentid, name: p.fullname, kind: 'soon', expiredate: p.expiredate });
+                }
+            }
+            return out;
+        },
     },
     async created() {
         this.$emit('onLoading', true)
@@ -384,7 +469,7 @@ export default {
                 .post(this.baseURL + '/verifyToken', {}, {
                     headers: { Authorization: `Bearer ${token}` }
                 })
-                .then(response => {
+                .then(() => {
                     this.getFamilyMember()
                     if (this.student != null) {
                         this.selectChild(this.student)
@@ -402,269 +487,55 @@ export default {
 </script>
 
 <style scoped>
-.home-card {
+/* segmented quota meter — one pip per session, filled = remaining (drains as used) */
+.quota-pips { display: flex; flex-wrap: wrap; gap: 3px; }
+.quota-pip { flex: 1 1 8px; min-width: 8px; height: 8px; border-radius: 3px; background: var(--c-surface-3); transition: background .2s ease; }
+/* monthly: continuous draining bar — fill anchored to the right, recedes as days pass */
+.quota-bar { display: flex; justify-content: flex-end; height: 8px; border-radius: 4px; background: var(--c-surface-3); overflow: hidden; }
+.quota-bar-fill { height: 100%; border-radius: 4px; transition: width .3s ease; }
+
+/* ── Student card (selectable) ── */
+.home-scard {
+    cursor: pointer;
+    transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+    /* flex column so the "Book a class" button can be pinned to the bottom — cards
+       in a grid row are equal height (align-items:stretch), so every button lines up */
+    display: flex;
+    flex-direction: column;
+}
+
+/* pin the booking button to the bottom of every card regardless of content height */
+.home-scard > .id-btn-primary {
+    margin-top: auto;
+}
+
+.home-scard:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.home-scard--active {
+    border-color: var(--c-primary);
+    box-shadow: 0 0 0 1px var(--c-primary), var(--shadow-md);
+}
+
+/* clip the profile image inside the round avatar chip */
+.home-card-avatar {
+    width: 52px;
+    height: 52px;
+    flex: 0 0 52px;
+    font-size: 20px;
+    overflow: hidden;
+}
+
+.tt-avatar :deep(.v-img),
+.tt-avatar :deep(.v-responsive) {
     width: 100%;
+    height: 100%;
+    border-radius: inherit;
 }
 
-/* Section header band — same style as toolbar in admin pages */
-.home-section-header {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 10px 16px;
-    font-size: 12px;
-    font-weight: 700;
-    color: #475569;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    background: linear-gradient(to right, #eef0f5, #f5f7fb);
-    border-bottom: 1px solid rgba(163, 177, 198, 0.18);
-}
-
-.home-section-header .mdi {
-    color: #6366f1;
-    font-size: 15px;
-}
-
-/* ── Family rows ── */
-.family-row {
-    display: flex;
-    align-items: center;
-    padding: 10px 16px;
-    cursor: pointer;
-    border-bottom: 1px solid rgba(163, 177, 198, 0.1);
-    transition: background 0.15s ease;
-}
-
-.family-row:last-child {
-    border-bottom: none;
-}
-
-.family-row:active {
-    background: rgba(99, 102, 241, 0.06);
-}
-
-.family-row--active {
-    background: rgba(99, 102, 241, 0.07);
-    border-left: 3px solid #6366f1;
-}
-
-.avatar-container {
-    position: relative;
-    width: 46px;
-    height: 46px;
-    flex-shrink: 0;
-}
-
-.avatar-wrap {
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    overflow: hidden;
-    background: #e0e5ec;
-}
-
-.avatar-upload-btn {
-    position: absolute;
-    bottom: -2px;
-    right: -2px;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: #f43f5e;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
-    z-index: 1;
-}
-
-.family-row-info {
-    flex: 1;
-    margin-left: 12px;
-    display: flex;
-    flex-direction: column;
-}
-
-.member-name {
-    font-weight: 600;
-    color: #334155;
-    font-size: 14px;
-}
-
-.member-course {
-    font-size: 12px;
-    color: #94a3b8;
-    margin-top: 2px;
-}
-
-/* ── No selection hint ── */
-.no-selection-hint {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    padding: 24px;
-    color: #94a3b8;
-    font-size: 13px;
-}
-
-/* ── Profile photo ── */
-.info-photo {
-    padding: 20px 0 12px;
-    display: flex;
-    justify-content: center;
-}
-
-.profile-container {
-    position: relative;
-    display: inline-block;
-}
-
-.profile-wrap {
-    width: 130px;
-    height: 130px;
-    border-radius: 50%;
-    overflow: hidden;
-    background: #e0e5ec;
-}
-
-.profile-upload-btn {
-    position: absolute;
-    bottom: 4px;
-    right: 4px;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: #f43f5e;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(244, 63, 94, 0.45);
-}
-
-/* ── Info text ── */
-.info-text {
-    text-align: center;
-    padding: 4px 16px 12px;
-}
-
-.member-fullname {
-    font-size: 16px;
-    font-weight: 700;
-    color: #334155;
-    margin: 0 0 4px;
-}
-
-.member-age {
-    font-size: 13px;
-    color: #64748b;
-    margin: 0;
-}
-
-/* ── Course chips ── */
-.course-chip-list {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    padding: 12px 16px 16px;
-}
-
-.course-chip {
-    background: linear-gradient(145deg, #f0f3f8, #e8ebf1);
-    padding: 5px 16px;
-    border-radius: 8px;
-    color: #475569;
-    font-weight: 500;
-    font-size: 13px;
-    display: inline-block;
-}
-
-.expired-chip {
-    background: linear-gradient(145deg, #fee2e2, #fecaca) !important;
-    color: #dc2626 !important;
-    font-weight: 700;
-}
-
-/* ── Reservation ── */
-.reservation-header {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 16px;
-    font-size: 11px;
-    font-weight: 700;
-    color: #94a3b8;
-    text-transform: uppercase;
-    letter-spacing: 0.4px;
-    border-bottom: 1px solid rgba(163, 177, 198, 0.15);
-}
-
-.reservation-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 11px 16px;
-    border-bottom: 1px solid rgba(163, 177, 198, 0.1);
-    font-size: 14px;
-}
-
-.reservation-row:last-child {
-    border-bottom: none;
-}
-
-.res-date {
-    color: #334155;
-    font-weight: 500;
-}
-
-.res-time {
-    color: #6366f1;
-    font-weight: 600;
-    background: rgba(99, 102, 241, 0.08);
-    padding: 3px 12px;
-    border-radius: 6px;
-    font-size: 13px;
-}
-
-.reservation-empty {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 20px;
-    color: #94a3b8;
-    font-size: 13px;
-}
-
-/* ── CTA below card ── */
-.below-card-cta {
-    padding: 16px 0 8px;
-}
-
-/* ── Empty state ── */
-.empty-state {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 12px;
-    padding: 40px 20px;
-    color: #94a3b8;
-    font-size: 14px;
-    text-align: center;
-}
-
-@keyframes pulse {
-    0% { transform: scale(1); }
-    50% { transform: scale(1.02); }
-    100% { transform: scale(1); }
-}
-
-.pulse-button {
-    animation: pulse 1.5s infinite;
+.home-hist-row:last-child {
+    border-bottom: none !important;
 }
 </style>
