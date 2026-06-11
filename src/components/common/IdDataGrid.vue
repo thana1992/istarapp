@@ -42,7 +42,12 @@
         <table class="idt">
           <thead>
             <tr>
-              <th v-for="col in columns" :key="col.key" :class="{ 'idt-action': isActionCol(col.key) }" :style="{ textAlign: col.align || 'left' }">{{ col.label || col.title }}</th>
+              <th v-for="col in columns" :key="col.key"
+                :class="{ 'idt-action': isActionCol(col.key), 'idt-sortable': sortableCol(col), 'idt-sorted': sortKey === col.key }"
+                :style="{ textAlign: col.align || 'left' }" @click="toggleSort(col)">
+                {{ col.label || col.title }}
+                <span v-if="sortKey === col.key" class="mdi idt-sort-ico" :class="sortDir === 'desc' ? 'mdi-arrow-down' : 'mdi-arrow-up'"></span>
+              </th>
             </tr>
           </thead>
           <tbody v-if="loading || paging" class="id-fade-in" key="sk">
@@ -50,7 +55,7 @@
               <td v-for="col in columns" :key="col.key"><div class="id-skel" style="height:18px"></div></td>
             </tr>
           </tbody>
-          <tbody v-else class="id-fade-in" :key="page + '-' + filtered.length">
+          <tbody v-else class="id-fade-in" :key="page + '-' + filtered.length + '-' + sortKey + sortDir">
             <tr v-for="(row, ri) in paged" :key="ri">
               <td v-for="col in columns" :key="col.key" :class="{ 'idt-action': isActionCol(col.key) }" :style="{ textAlign: col.align || 'left' }">
                 <slot :name="'cell-' + col.key" :row="row">{{ row[col.key] }}</slot>
@@ -81,7 +86,7 @@ export default {
   },
   emits: ['add'],
   data() {
-    return { q: '', fvals: {}, page: 1, pp: this.perPage, paging: false };
+    return { q: '', fvals: {}, page: 1, pp: this.perPage, paging: false, sortKey: '', sortDir: '' };
   },
   created() {
     this.filters.forEach((f) => { this.fvals[f.key] = ''; });
@@ -97,8 +102,22 @@ export default {
       });
       return r;
     },
+    sorted() {
+      if (!this.sortKey || !this.sortDir) return this.filtered;
+      const k = this.sortKey;
+      const dir = this.sortDir === 'desc' ? -1 : 1;
+      // numeric-aware: if BOTH values parse as numbers, compare numerically; else Thai locale string compare.
+      return this.filtered.slice().sort((a, b) => {
+        const av = a[k], bv = b[k];
+        const an = parseFloat(av), bn = parseFloat(bv);
+        let c;
+        if (!isNaN(an) && !isNaN(bn) && String(av).trim() !== '' && String(bv).trim() !== '') c = an - bn;
+        else c = String(av ?? '').localeCompare(String(bv ?? ''), 'th');
+        return c * dir;
+      });
+    },
     pageCount() { return Math.max(1, Math.ceil(this.filtered.length / this.pp)); },
-    paged() { const s = (this.page - 1) * this.pp; return this.filtered.slice(s, s + this.pp); },
+    paged() { const s = (this.page - 1) * this.pp; return this.sorted.slice(s, s + this.pp); },
     skelRows() { return Math.min(this.pp, 8); },
   },
   watch: {
@@ -119,6 +138,16 @@ export default {
     setPerPage(n) { this.pp = n; this.page = 1; this.runPaging(); },
     isActionCol(key) {
       return ['actions', 'action', 'edit', 'delete', 'finish', 'enable', 'view', 'checkin', 'manage', 'approve', 'reject'].includes(key);
+    },
+    // a column is sortable unless it's an action column or explicitly opts out (sortable:false).
+    sortableCol(col) { return col.sortable !== false && !this.isActionCol(col.key); },
+    // header click cycles asc → desc → none, resets to page 1.
+    toggleSort(col) {
+      if (!this.sortableCol(col)) return;
+      if (this.sortKey !== col.key) { this.sortKey = col.key; this.sortDir = 'asc'; }
+      else if (this.sortDir === 'asc') this.sortDir = 'desc';
+      else { this.sortKey = ''; this.sortDir = ''; }
+      this.page = 1;
     },
   },
 };

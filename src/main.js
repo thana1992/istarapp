@@ -96,6 +96,17 @@ app.config.globalProperties.$minLoad = function (startedAt, ms = 1000) {
 app.config.globalProperties.$bustCache = function (url) {
   return url ? url + (url.includes('?') ? '&' : '?') + 't=' + Date.now() : url;
 };
+// single-column sort cycle for server tables (Vuetify v-data-table-server `sort-by` shape):
+// none → asc → desc → none. Returns the new sortBy array; $sortDir gives the active column's order.
+app.config.globalProperties.$toggleSort = function (current, key) {
+  const order = (Array.isArray(current) && current[0] && current[0].key === key) ? current[0].order : null;
+  if (order === 'asc') return [{ key, order: 'desc' }];
+  if (order === 'desc') return [];
+  return [{ key, order: 'asc' }];
+};
+app.config.globalProperties.$sortDir = function (current, key) {
+  return (Array.isArray(current) && current[0] && current[0].key === key) ? current[0].order : '';
+};
 app.config.globalProperties.$t = t;
 app.config.globalProperties.$setLocale = setLocale;
 app.config.globalProperties.$i18n = i18nState;

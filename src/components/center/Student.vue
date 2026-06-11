@@ -16,7 +16,12 @@
         <div class="scard" style="padding:14px">
             <div style="overflow-x:auto">
                 <table class="idt">
-                    <thead><tr><th v-for="h in StudentListHeaders" :key="h.key" :style="{ textAlign: (h.align==='center'||h.align==='end') ? 'center' : 'left' }">{{ h.title }}</th></tr></thead>
+                    <thead><tr><th v-for="h in StudentListHeaders" :key="h.key"
+                        :class="{ 'idt-sortable': h.sortable !== false, 'idt-sorted': $sortDir(tableOptions.sortBy, h.key) }"
+                        :style="{ textAlign: (h.align==='center'||h.align==='end') ? 'center' : 'left' }" @click="applySort(h)">
+                        {{ h.title }}
+                        <span v-if="$sortDir(tableOptions.sortBy, h.key)" class="mdi idt-sort-ico" :class="$sortDir(tableOptions.sortBy, h.key) === 'desc' ? 'mdi-arrow-down' : 'mdi-arrow-up'"></span>
+                    </th></tr></thead>
                     <tbody v-if="loadingStudent" class="id-fade-in" key="sk">
                         <tr v-for="i in 6" :key="'sk' + i">
                             <td v-for="h in StudentListHeaders" :key="h.key"><div class="id-skel" style="height:18px"></div></td>
@@ -285,6 +290,13 @@ export default {
             this.tableOptions = { ...this.tableOptions, page, itemsPerPage, sortBy };
             if (!this.isMounted) return;
             this.getStudentList(this.currentActive);
+        },
+        // click a sortable header → cycle the server sortBy (none→asc→desc→none), reset to page 1, refetch.
+        applySort(h) {
+            if (h.sortable === false) return;
+            this.tableOptions.sortBy = this.$toggleSort(this.tableOptions.sortBy, h.key);
+            this.tableOptions.page = 1;
+            this.getStudentList(this.currentActive, true);
         },
         async doSaveNewStudent() {
             this.$emit("onLoading", true);
