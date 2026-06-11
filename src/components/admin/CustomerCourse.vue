@@ -24,7 +24,12 @@
         <table class="idt">
           <thead>
             <tr>
-              <th v-for="h in headers" :key="h.key" :class="{ 'idt-action': ['edit', 'delete', 'finish'].includes(h.key) }" :style="{ textAlign: (h.align === 'center' || h.align === 'end') ? 'center' : 'left' }">{{ h.title }}</th>
+              <th v-for="h in headers" :key="h.key"
+                :class="{ 'idt-action': ['edit', 'delete', 'finish'].includes(h.key), 'idt-sortable': h.sortable !== false, 'idt-sorted': $sortDir(tableOptions.sortBy, h.key) }"
+                :style="{ textAlign: (h.align === 'center' || h.align === 'end') ? 'center' : 'left' }" @click="applySort(h)">
+                {{ h.title }}
+                <span v-if="$sortDir(tableOptions.sortBy, h.key)" class="mdi idt-sort-ico" :class="$sortDir(tableOptions.sortBy, h.key) === 'desc' ? 'mdi-arrow-down' : 'mdi-arrow-up'"></span>
+              </th>
             </tr>
           </thead>
           <tbody v-if="loadingCustomerCourse" class="id-fade-in" key="sk">
@@ -239,8 +244,8 @@ export default {
         { title: this.$t('table.startDate'), key: "startdate", align: "center" },
         { title: this.$t('table.expireDate'), key: "expiredate", align: "left" },
         { title: this.$t('table.remaining'), key: "remaining", align: "end" },
-        { title: this.$t('table.courseUser'), key: "userlist", align: "left" },
-        { title: this.$t('table.payment'), key: "paid", align: "center" },
+        { title: this.$t('table.courseUser'), key: "userlist", align: "left", sortable: false },
+        { title: this.$t('table.payment'), key: "paid", align: "center", sortable: false },
         { title: this.$t('table.edit'), key: "edit", sortable: false, align: "center" },
         { title: this.$t('table.delete'), key: "delete", sortable: false, align: "center" },
         { title: this.$t('table.finish'), key: "finish", sortable: false, align: "center" },
@@ -813,6 +818,13 @@ export default {
     },
     // re-query from page 1 when a toolbar filter changes (server-side filter)
     applyFilter() { this.tableOptions.page = 1; this.getCustomerCourseList(); },
+    // click a sortable header → cycle the server sortBy (none→asc→desc→none), reset to page 1, refetch.
+    applySort(h) {
+      if (h.sortable === false) return;
+      this.tableOptions.sortBy = this.$toggleSort(this.tableOptions.sortBy, h.key);
+      this.tableOptions.page = 1;
+      this.getCustomerCourseList(true);
+    },
     // animate = true only for grid page / per-page changes → ≥1s skeleton.
     // Menu-entry / search loads pass nothing → skeleton only for the real fetch.
     async getCustomerCourseList(animate = false) {
