@@ -265,3 +265,17 @@ Moment.js is available for date manipulation.
 ### UI Change
 
 มีการปรับ UI ของระบบ จากเดิม เพื่อปรับปรุงหน้าตาของระบบใหม่ โดยไม่กระทบการทำงานหลังบ้าน โดยมีรายละเอียดของ design ใหม่ อยู่ที่ folder vue-newdesign 
+
+## Deployment (dev)
+
+This repo is the **dev/test** fork.
+
+- **DigitalOcean App Platform** — dev app `king-prawn-app`
+  (shared app: web service `istarserver-dev` + static site `istarapp-dev`,
+  APP_ID `0346a1c0-7732-4e34-ac50-e6b365ad95b7`) auto-deploys from branch `main`.
+- **`.github/workflows/do-test-window.yml`** — on push to `main`/`master`:
+  un-archive + deploy the dev app, keep it live ~1h, then auto-archive to stop
+  billing. A new push resets the timer. This is a temporary "wake to test"
+  mechanism, NOT an always-on server.
+- Requires repo secret **`DIGITALOCEAN_ACCESS_TOKEN`** (scope: app read + update).
+  GitHub Actions must be enabled on the fork.
