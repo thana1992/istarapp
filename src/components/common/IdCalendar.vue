@@ -23,8 +23,23 @@
   <div class="idcal">
     <div class="cal-nav">
       <span class="mdi mdi-chevron-left" :class="{ 'cal-nav-off': !canPrev }" @click="prev"></span>
-      <span>{{ monthLabel }}</span>
+      <button type="button" class="cal-nav-label" @click="togglePicker">
+        {{ monthLabel }}<span class="mdi" :class="picker ? 'mdi-menu-up' : 'mdi-menu-down'"></span>
+      </button>
       <span class="mdi mdi-chevron-right" @click="next"></span>
+    </div>
+    <!-- quick month/year picker (จิ้มที่ชื่อเดือนเพื่อเลือกเดือน/ปีได้เลย ไม่ต้องกด ‹ › ทีละเดือน) -->
+    <div v-if="picker" class="cal-picker">
+      <div class="cal-picker-yr">
+        <span class="mdi mdi-chevron-left" :class="{ 'cal-nav-off': !canPrevYear }" @click="canPrevYear && pickYear--"></span>
+        <span class="cal-picker-yr-lbl">{{ pickYear + 543 }}</span>
+        <span class="mdi mdi-chevron-right" @click="pickYear++"></span>
+      </div>
+      <div class="cal-picker-grid">
+        <button v-for="(m, i) in monthsShort" :key="i" type="button" class="cal-mon"
+          :class="{ on: i === vm && pickYear === vy, disabled: monthDisabled(i) }"
+          :disabled="monthDisabled(i)" @click="chooseMonth(i)">{{ m }}</button>
+      </div>
     </div>
     <div class="cal-grid">
       <div v-for="d in dows" :key="d" class="cal-dow">{{ d }}</div>
@@ -47,6 +62,7 @@
 
 <script>
 const TH_MONTHS = ['มกราคม', 'กุมภาพันธ์', 'มีนาคม', 'เมษายน', 'พฤษภาคม', 'มิถุนายน', 'กรกฎาคม', 'สิงหาคม', 'กันยายน', 'ตุลาคม', 'พฤศจิกายน', 'ธันวาคม'];
+const TH_MONTHS_SHORT = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 const keyOf = (d) => d.getFullYear() + '-' + (d.getMonth() + 1) + '-' + d.getDate();
 
 export default {
@@ -61,10 +77,18 @@ export default {
   emits: ['update:modelValue'],
   data() {
     const init = this.modelValue ? this.parse(this.modelValue) : new Date();
-    return { vy: init.getFullYear(), vm: init.getMonth(), dows: ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'] };
+    return {
+      vy: init.getFullYear(), vm: init.getMonth(),
+      dows: ['อา', 'จ', 'อ', 'พ', 'พฤ', 'ศ', 'ส'], monthsShort: TH_MONTHS_SHORT,
+      picker: false, pickYear: init.getFullYear(),
+    };
   },
   computed: {
     monthLabel() { return TH_MONTHS[this.vm] + ' ' + (this.vy + 543); },
+    // lowest selectable year/month from minDate (null = no lower bound)
+    minYear() { return this.minTime === null ? null : new Date(this.minTime).getFullYear(); },
+    minMonth() { return this.minTime === null ? null : new Date(this.minTime).getMonth(); },
+    canPrevYear() { return this.minYear === null || this.pickYear > this.minYear; },
     todayKey() { return keyOf(new Date()); },
     minTime() {
       if (!this.minDate) return null;
@@ -102,6 +126,10 @@ export default {
     prev() { if (!this.canPrev) return; if (this.vm === 0) { this.vm = 11; this.vy--; } else this.vm--; },
     next() { if (this.vm === 11) { this.vm = 0; this.vy++; } else this.vm++; },
     pick(c) { if (!c || c.disabled) return; this.$emit('update:modelValue', c.key); },
+    togglePicker() { this.pickYear = this.vy; this.picker = !this.picker; },
+    // a month is unreachable when its whole span sits before minDate
+    monthDisabled(i) { return this.minYear !== null && (this.pickYear < this.minYear || (this.pickYear === this.minYear && i < this.minMonth)); },
+    chooseMonth(i) { if (this.monthDisabled(i)) return; this.vy = this.pickYear; this.vm = i; this.picker = false; },
   },
 };
 </script>
@@ -116,4 +144,36 @@ export default {
 }
 /* prev arrow when the calendar can't page earlier than min-date */
 .cal-nav-off { opacity: .28; pointer-events: none; cursor: default; }
+
+/* clickable month/year label that opens the quick picker — text-only affordance
+   (no filled chip: on touch screens :hover sticks and looked like a doubled background) */
+.cal-nav-label {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: transparent; border: 0; cursor: pointer;
+  font-family: var(--font-head); font-weight: 700; font-size: inherit; color: inherit;
+  padding: 2px 4px; transition: color var(--dur-fast) var(--ease);
+}
+.cal-nav-label:hover { color: var(--c-primary); }
+.cal-nav-label .mdi { font-size: 17px; color: var(--c-primary); }
+
+/* quick month/year picker panel */
+.cal-picker {
+  margin: 6px auto 4px; padding: 8px;
+  background: var(--c-surface-2); border: 1px solid var(--c-border); border-radius: var(--radius);
+}
+.cal-picker-yr {
+  display: flex; align-items: center; justify-content: center; gap: 14px;
+  margin-bottom: 8px; font-family: var(--font-head); font-weight: 700; color: var(--c-text-heading);
+}
+.cal-picker-yr .mdi { cursor: pointer; font-size: 22px; color: var(--c-primary); }
+.cal-picker-yr-lbl { min-width: 52px; text-align: center; }
+.cal-picker-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+.cal-mon {
+  padding: 9px 4px; border: 1px solid var(--c-border); border-radius: var(--radius-sm);
+  background: var(--c-surface); color: var(--c-text); font-family: var(--font-body); font-size: 13px;
+  cursor: pointer; transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--ease), border-color var(--dur-fast) var(--ease);
+}
+.cal-mon:hover:not(.disabled) { border-color: var(--c-primary); color: var(--c-primary); }
+.cal-mon.on { background: var(--c-primary); border-color: var(--c-primary); color: #fff; font-weight: 700; }
+.cal-mon.disabled { opacity: .35; cursor: default; }
 </style>

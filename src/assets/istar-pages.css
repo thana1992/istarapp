@@ -121,6 +121,11 @@
 .idt { width:100%; border-collapse:collapse; font-size:13.5px; }
 .idt th { text-align:left; font-family:var(--font-head); font-weight:700; color:var(--c-text-heading); padding:10px 12px; background:var(--c-surface-2); border-bottom:2px solid var(--c-border); white-space:nowrap; }
 .idt td { padding:10px 12px; border-bottom:1px solid var(--c-border); white-space:nowrap; }
+/* sortable column headers (click to sort; ▲/▼ on the active column) */
+.idt th.idt-sortable { cursor:pointer; user-select:none; transition:color var(--dur-fast) var(--ease); }
+.idt th.idt-sortable:hover { color:var(--c-primary); }
+.idt th.idt-sorted { color:var(--c-primary); }
+.idt th .idt-sort-ico { font-size:15px; vertical-align:-2px; margin-left:3px; }
 .idt tbody tr:hover td { background:var(--c-surface-3); }
 
 /* stat cards */
