@@ -50,7 +50,7 @@
                   }"
                   @click="handleCellClick($event, item[header.key], header.key)">
                   <span class="tt-avatar" style="background:var(--c-primary)">
-                    {{ (parseName(item[header.key]) || '?').replace('น้อง','').charAt(0) || '?' }}
+                    {{ cellSeq(header.key, rowIndex) }}
                   </span>
                   <div class="col" style="gap:0;flex:1;min-width:0">
                     <span class="strong" style="font-size:13.5px;white-space:normal;overflow-wrap:anywhere">{{ parseName(item[header.key]) }}</span>
@@ -294,6 +294,15 @@ export default {
           .replace('(pay)', '');
       }
       return value;
+    },
+    // เลขลำดับของ cell ที่มีรายชื่อ นับเฉพาะแถวที่ไม่ว่างในคอลัมน์เดียวกัน (เริ่มที่ 1)
+    cellSeq(headerKey, rowIndex) {
+      let n = 0
+      for (let i = 0; i <= rowIndex; i++) {
+        const cell = this.bookingData[i] && this.bookingData[i][headerKey]
+        if (cell && typeof cell === 'object' && cell.name) n++
+      }
+      return n
     },
     parseWarningText(value) {
       //console.log('parseWarningText value :', value);
