@@ -50,7 +50,7 @@
                       session: raw.includes('(pink)'),
                     }">
                     <template v-for="name in [raw.replace('(1)','').replace('(red)','').replace('(green)','').replace('(blue)','').replace('(yellow)','').replace('(pink)','').replace('(pay)','').trim()]" :key="name">
-                      <span class="tt-avatar" style="background:var(--c-primary)">{{ (name || '?').replace('น้อง','').charAt(0) || '?' }}</span>
+                      <span class="tt-avatar" style="background:var(--c-primary)">{{ cellSeq(header.key, rowIndex) }}</span>
                       <div class="col" style="gap:0;flex:1;min-width:0">
                         <span class="strong" style="font-size:13.5px;white-space:normal;overflow-wrap:anywhere">{{ name }}</span>
                         <span v-if="item[header.key] && typeof item[header.key] === 'object' && item[header.key].msg" class="t-cap" style="font-size:11px;white-space:normal;overflow-wrap:anywhere">{{ item[header.key].msg }}</span>
@@ -132,7 +132,22 @@ export default {
     },
     highlightCell() {
       return 'highlighted-cell';
-    }
+    },
+    // ค่าในแต่ละ cell เป็น object (มี .name) หรือ string marker — ดึง raw ออกมา
+    rawCellValue(cell) {
+      if (cell && typeof cell === 'object') return cell.name || ''
+      if (typeof cell === 'string') return cell
+      return ''
+    },
+    // เลขลำดับของ cell ที่มีข้อมูล นับเฉพาะแถวที่ไม่ว่างในคอลัมน์เดียวกัน (เริ่มที่ 1)
+    cellSeq(headerKey, rowIndex) {
+      let n = 0
+      for (let i = 0; i <= rowIndex; i++) {
+        const row = this.bookingData[i]
+        if (row && this.rawCellValue(row[headerKey])) n++
+      }
+      return n
+    },
   },
 };
 </script>
